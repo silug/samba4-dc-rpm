@@ -4,12 +4,12 @@
 #	       connect to port 901 with your favorite web browser.
 service swat
 {
-	port	= 901
+	port		= 901
 	socket_type	= stream
-	wait 	= no
-	only_from = 127.0.0.1
-	user	= root
-	server	= /usr/sbin/swat
+	wait 		= no
+	only_from 	= 127.0.0.1
+	user		= root
+	server		= /usr/sbin/swat
 	log_on_failure	+= USERID
-	disable = yes
+	disable		= yes
 }

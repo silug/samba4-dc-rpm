@@ -1,71 +1,60 @@
-%define initdir /etc/rc.d/init.d
+%define initdir %{_sysconfdir}/rc.d/init.d
 %define auth %(test -f /etc/pam.d/system-auth && echo /etc/pam.d/system-auth || echo)
 
-Summary: Samba SMB server.
+Summary: The Samba SMB server.
 Name: samba
-Version: 2.0.10
-Release: 5.7.1
+Version: 2.2.1a
+Release: 3
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
-Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
+
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.bz2
+
+# Red Hat specific replacement-files
 Source1: samba.log
 Source2: samba.xinetd
-Patch100: samba-2.0.10-j.patch
-# For some reason this won't apply as part of the -j patch
-Patch111: ookpatch
+Source3: swat.desktop
+Source4: samba.sysconfig
+Source5: smb.init
+Source6: samba.pamd
+Source7: smbprint
+
+# generic patches
+Patch0: samba-2.2.1a-smb.conf.patch
+Patch1: samba-2.2.0-smbw.patch
+Patch3: samba-2.0.5a-gawk.patch
+Patch4: samba-ia64.patch
+Patch5: samba-2.0.7-krb5-1.2.patch
+Patch6: samba-2.0.7-buildroot.patch
+Patch7: samba-2.0.7-quota.patch
+Patch8: samba-2.2.0-smbadduser.patch
+Patch9: samba-glibc21.patch
+Patch10: samba-2.2.0-capatibility.patch
+Patch11: samba-2.2.0-logname.patch
+
+# japanese patches
+Patch100: samba-j.patch.bz2
+Patch111: samba-2.2.0-ook.patch
 Patch200: samba-j-2.patch.bz2
-Patch1: samba-makefilepath.patch
-Patch2: smbw.patch
-Patch3: samba-glibc21.patch
-Patch4: samba-2.0.7-fixinit.patch
-Patch5: samba-autoconf.patch
-Patch6: samba-2.0.5a-gawk.patch
-Patch7: samba-smbprint.patch
-Patch8: samba-logrotate.patch
-Patch9: samba-ia64.patch
-Patch10: samba-2.0.7-system-auth.patch
-Patch11: samba-2.0.7-smb.conf.rh.patch
-Patch12: samba-2.0.7-nocups.patch
-Patch13: samba-2.0.7-smbadduser.patch
-Patch14: samba-2.0.7-krb5-1.2.patch
-Patch15: samba-2.0.7-ssl.patch
-Patch16: samba-2.0.7-buildroot.patch
-Patch17: samba-2.0.7-smbpasswd-manpage.patch
-Patch18: samba-2.0.7-pam-foo.patch
-Patch19: smbmount-2.0.7-ascii+fixes.patch
-Patch20: samba-mkdir.patch
-Patch21: samba-2.0.7-setcred.patch
-Patch22: samba-2.0.7-quota.patch
-Patch23: samba-2.0.10-security.patch
+
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
-Requires: logrotate >= 3.4 initscripts >= 5.54-1
+Requires: logrotate >= 3.4 initscripts >= 5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-ExcludeArch: sparc
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
+BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils
 
 %description
-Samba provides an SMB server which can be used to provide network
-services to SMB (sometimes called "Lan Manager") clients, including
-various versions of MS Windows, OS/2, and other Linux machines. Samba
-uses NetBIOS over TCP/IP (NetBT) protocols and does NOT need NetBEUI
-(Microsoft Raw NetBIOS frame) protocol.
-
-Samba-2 features an almost working NT Domain Control capability and
-includes the new SWAT (Samba Web Administration Tool) that allows
-samba's smb.conf file to be remotely managed using your favourite web
-browser. For the time being this is being enabled on TCP port 901 via
-xinetd.
-
-Please refer to the WHATSNEW.txt document for fixup information.  This
-binary release includes encrypted password support.  Please read the
-smb.conf file and ENCRYPTION.txt in the docs directory for
-implementation details.
-
-NOTE: Red Hat Linux 5.X Uses PAM which has integrated support for
-Shadow passwords. Do NOT recompile with the SHADOW_PWD option
-enabled. Red Hat Linux has built in support for quotas in PAM.
+Samba is the protocol by which a lot of PC-related machines share
+files, printers, and other information (such as lists of available
+files and printers). The Windows NT, OS/2, and Linux operating systems
+support this natively, and add-on packages can enable the same thing
+for DOS, Windows, VMS, UNIX of all kinds, MVS, and more. This package
+provides an SMB server that can be used to provide network services to
+SMB (sometimes called "Lan Manager") clients. Samba uses NetBIOS over
+TCP/IP (NetBT) protocols and does NOT need the NetBEUI (Microsoft Raw
+NetBIOS frame) protocol.
 
 %package client
 Summary: Samba (SMB) client programs.
@@ -74,7 +63,7 @@ Requires: samba-common = %{version}
 Obsoletes: smbfs
 
 %description client
-The samba-client package provides some SMB clients to complement the
+The samba-client package provides some SMB clients to compliment the
 built-in SMB filesystem in Linux. These clients allow access of SMB
 shares and printing to SMB printers.
 
@@ -92,117 +81,121 @@ Group: Applications/System
 Requires: samba = %{version} xinetd
 
 %description swat
-The samba-swat package includes the new SWAT (Samba Web
-Administration Tool), for remotely managing Samba's smb.conf file
-using your favorite web browser.
-
+The samba-swat package includes the new SWAT (Samba Web Administration
+Tool), for remotely managing Samba's smb.conf file using your favorite
+Web browser.
 
 %prep
 %setup -q
-%patch100 -p1 -b .j
-%patch111 -p1
-%patch200 -p1 -b .j-2
-%patch1 -p1 -b .makefile
-%patch2 -p1 -b .smbw
-%patch3 -p1 -b .glibc21
-%patch4 -p1 -b .fixinit
-%patch5 -p1 -b .autoconf
-%patch6 -p1 -b .gawk
-%patch7 -p1 -b .smbprint
-%patch8 -p1 -b .logrotate
-%patch9 -p1 -b .ia64
-%patch10 -p1 -b .system-auth
-%patch11 -p1 -b .rh
-%patch12 -p1 -b .nocups
-%patch13 -p1 -b .smbadduser
-%patch14 -p1 -b .krb5-1.2
-%patch15 -p1 -b .ssl
-%patch16 -p1 -b .buildroot
-%patch17 -p1 -b .manpage
-%patch18 -p1 -b .pam-foo
-%patch19 -p1 -b .urban
-%patch20 -p0 -b .mkdir
-%patch21 -p1 -b .setcred
-%patch22 -p1 -b .quota
-%patch23 -p1 -b .insecure
+
+# copy Red Hat specific scripts
+cp %{SOURCE5} packaging/RedHat/
+cp %{SOURCE6} packaging/RedHat/
+cp %{SOURCE7} packaging/RedHat/
+
+%patch0 -p1 -b .oldconf
+%patch1 -p1 -b .smbw
+%patch3 -p1 -b .gawk
+%patch4 -p1 -b .ia64
+%patch5 -p1 -b .krb5-1.2
+%patch6 -p1 -b .buildroot
+%patch7 -p1 -b .quota
+%patch8 -p1 -b .locationfix
+%patch9 -p1 -b .glibc
+%patch10 -p1 -b .compilefix
+
+### %patch100 -p1 -b .j
+%patch111 -p1 -b .ook
+### %patch200 -p1 -b .j-2
 
 %build
+
 cd source
-autoconf
 %ifarch i386 sparc
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 %endif
-%configure --libdir=/etc/samba \
-  --with-lockdir=/var/lock/samba --with-privatedir=/etc/samba \
-  --with-swatdir=/usr/share/swat --with-smbmount --with-automount \
-  --with-pam --with-mmap --with-quotas --without-smbwrapper
-make CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" all
+
+%configure \
+	--libdir=%{_sysconfdir}/samba \
+	--with-fhs \
+	--with-privatedir=%{_sysconfdir}/samba \
+	--with-lockdir=/var/cache/samba \
+	--with-swatdir=%{_datadir}/swat \
+	--with-codepagedir=%{_datadir}/samba/codepages \
+	--with-automount \
+	--with-smbmount \
+	--with-pam \
+	--with-pam_smbpass \
+	--with-mmap \
+	--with-quotas \
+	--without-smbwrapper 
+
+make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
+	all smbfilter nsswitch/libnss_wins.so debug2html
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-cd source
-
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
-mkdir -p $RPM_BUILD_ROOT%{initdir}
-mkdir -p $RPM_BUILD_ROOT/etc/{pam.d,logrotate.d}
-mkdir -p $RPM_BUILD_ROOT/var/{lock,log,spool}/samba
-mkdir -p $RPM_BUILD_ROOT/usr/share/swat/using_samba
+mkdir -p $RPM_BUILD_ROOT/%{initdir}
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
+mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
+mkdir -p $RPM_BUILD_ROOT/var/cache/samba
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
+
+cd source
 
 %makeinstall \
-       BINDIR=$RPM_BUILD_ROOT%{_bindir} \
-       BASEDIR=$RPM_BUILD_ROOT%{_prefix} \
-       SBINDIR=$RPM_BUILD_ROOT%{_sbindir} \
-       LOCKDIR=$RPM_BUILD_ROOT/var/lock/samba \
-       PRIVATEDIR=$RPM_BUILD_ROOT/etc/samba \
-       LIBDIR=$RPM_BUILD_ROOT/etc/samba \
-       MANDIR=$RPM_BUILD_ROOT%{_mandir} \
-       VARDIR=$RPM_BUILD_ROOT/var/log/samba \
-       SWATDIR=$RPM_BUILD_ROOT/usr/share/swat \
-       SAMBABOOK=$RPM_BUILD_ROOT/usr/share/swat/using_samba \
-       install
+	BINDIR=$RPM_BUILD_ROOT%{_bindir} \
+	BASEDIR=$RPM_BUILD_ROOT%{_prefix} \
+	SBINDIR=$RPM_BUILD_ROOT%{_sbindir} \
+	DATADIR=$RPM_BUILD_ROOT%{_datadir} \
+	LOCKDIR=$RPM_BUILD_ROOT/var/cache/samba \
+	PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+	LIBDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+	CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+	MANDIR=$RPM_BUILD_ROOT%{_mandir} \
+	VARDIR=$RPM_BUILD_ROOT/var/log/samba \
+	CODEPAGEDIR=$RPM_BUILD_ROOT%{_datadir}/samba/codepages \
+	SWATDIR=$RPM_BUILD_ROOT%{_datadir}/swat \
+	SAMBABOOK=$RPM_BUILD_ROOT%{_datadir}/swat/using_samba \
 
 cd ..
 
 # Install other stuff
-install -m644 packaging/RedHat/smb.conf $RPM_BUILD_ROOT/etc/samba/smb.conf
-install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT/usr/bin
+install -m644 packaging/RedHat/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
+install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/RedHat/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/RedHat/smbprint $RPM_BUILD_ROOT%{_bindir}
-install -m755 packaging/RedHat/smbadduser $RPM_BUILD_ROOT%{_bindir}
+install -m755 source/smbadduser $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/RedHat/findsmb $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{initdir}/smb
-install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{_sbindir}/samba
+ln -s ../..%{initdir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/RedHat/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 $RPM_SOURCE_DIR/samba.log $RPM_BUILD_ROOT/etc/logrotate.d/samba
-ln -s ../%{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
-ln -s ../%{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
-echo 127.0.0.1 localhost > $RPM_BUILD_ROOT/etc/samba/lmhosts
+ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
+ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
+echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 
-mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d
-install -m644 %{SOURCE2} $RPM_BUILD_ROOT/etc/xinetd.d/swat
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
+install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 
-mkdir -p $RPM_BUILD_ROOT/etc/X11/applnk/System
-cat > $RPM_BUILD_ROOT/etc/X11/applnk/System/swat.desktop <<EOF
-[Desktop Entry]
-Name=Samba Configuration
-Type=Application
-Comment=The Swat Samba Administration Tool
-Exec=netscape http://127.0.0.1:901/
-Terminal=false
-EOF
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/applnk/System
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/applnk/System/swat.desktop
 
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-cat > $RPM_BUILD_ROOT/etc/sysconfig/samba <<EOF
-# Options to smbd
-SMBDOPTIONS="-D"
-# Options to nmbd
-NMBDOPTIONS="-D"
-EOF
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
+install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 
 # remove this or it ends up in %doc
 rm -rf docs/htmldocs/using_samba
+rm -rf docs/{docbook,manpages,yodldocs}
+rm -rf docs/faq/*sgml
+
+# remove html'ized man pages:
+rm -rf docs/htmldocs/*.[0-9].*
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -213,7 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
-    rm -rf /var/log/samba/* /var/lock/samba/*
+    rm -rf /var/log/samba/* /var/cache/samba/*
     %{initdir}/smb stop >/dev/null 2>&1
 fi
 exit 0
@@ -244,41 +237,38 @@ fi
 %doc examples
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
-%{_bindir}/addtosmbpass
 %{_bindir}/mksmbpasswd.sh
 %{_bindir}/smbstatus
 %{_bindir}/smbpasswd
-%{_bindir}/convert_smbpasswd
 %{_bindir}/smbadduser
-%config(noreplace) /etc/sysconfig/samba
-%config(noreplace) /etc/samba/smbusers
-%config %{_sbindir}/samba
+%config(noreplace) %{_sysconfdir}/sysconfig/samba
+%config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{initdir}/smb
-%config /etc/logrotate.d/samba
-%config /etc/pam.d/samba
+%config(noreplace) %{_sysconfdir}/logrotate.d/samba
+%config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/nmbd.8*
-%{_mandir}/ja/man1/smbstatus.1*
-%{_mandir}/ja/man5/smbpasswd.5*
-%{_mandir}/ja/man7/samba.7*
-%{_mandir}/ja/man8/smbd.8*
-%{_mandir}/ja/man8/nmbd.8*
+#%{_mandir}/ja/man1/smbstatus.1*
+#%{_mandir}/ja/man5/smbpasswd.5*
+#%{_mandir}/ja/man7/samba.7*
+#%{_mandir}/ja/man8/smbd.8*
+#%{_mandir}/ja/man8/nmbd.8*
 
-%dir /var/lock/samba
-%attr(0700,root,root)   %dir /var/log/samba
-%attr(1777,root,root)	%dir /var/spool/samba
+%dir /var/cache/samba
+%attr(0700,root,root) %dir /var/log/samba
+%attr(1777,root,root) %dir /var/spool/samba
 
 %files swat
 %defattr(-,root,root)
-/etc/X11/applnk/System/swat.desktop
-%config(noreplace) /etc/xinetd.d/swat
-/usr/share/swat
+%{_sysconfdir}/X11/applnk/System/swat.desktop
+%config(noreplace) %{_sysconfdir}/xinetd.d/swat
+%{_datadir}/swat
 %{_sbindir}/swat
 %{_mandir}/man8/swat.8*
-%{_mandir}/ja/man8/swat.8*
+#%{_mandir}/ja/man8/swat.8*
 
 %files client
 %defattr(-,root,root)
@@ -300,9 +290,9 @@ fi
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/nmblookup.1*
-%{_mandir}/ja/man1/smbtar.1*
-%{_mandir}/ja/man1/smbclient.1*
-%{_mandir}/ja/man1/nmblookup.1*
+#%{_mandir}/ja/man1/smbtar.1*
+#%{_mandir}/ja/man1/smbclient.1*
+#%{_mandir}/ja/man1/nmblookup.1*
 
 %files common
 %defattr(-,root,root)
@@ -311,38 +301,89 @@ fi
 %{_bindir}/testprns
 %{_bindir}/smbpasswd
 %{_bindir}/make_printerdef
-%config(noreplace) /etc/samba/smb.conf
-%config(noreplace) /etc/samba/lmhosts
-%dir /etc/samba
-%dir /etc/samba/codepages
-%config /etc/samba/codepages/*
+%config(noreplace) %{_sysconfdir}/samba/smb.conf
+%config(noreplace) %{_sysconfdir}/samba/lmhosts
+%dir %{_datadir}/samba
+%dir %{_datadir}/samba/codepages
+%dir %{_sysconfdir}/samba
+%{_datadir}/samba/codepages/*
 %{_mandir}/man1/make_smbcodepage.1*
 %{_mandir}/man1/testparm.1*
 %{_mandir}/man1/testprns.1*
 %{_mandir}/man5/smb.conf.5*
 %{_mandir}/man5/lmhosts.5*
 %{_mandir}/man8/smbpasswd.8*
-%{_mandir}/ja/man1/make_smbcodepage.1*
-%{_mandir}/ja/man1/testparm.1*
-%{_mandir}/ja/man1/testprns.1*
-%{_mandir}/ja/man5/smb.conf.5*
-%{_mandir}/ja/man5/lmhosts.5*
-%{_mandir}/ja/man8/smbpasswd.8*
+#%{_mandir}/ja/man1/make_smbcodepage.1*
+#%{_mandir}/ja/man1/testparm.1*
+#%{_mandir}/ja/man1/testprns.1*
+#%{_mandir}/ja/man5/smb.conf.5*
+#%{_mandir}/ja/man5/lmhosts.5*
+#%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
-* Mon Apr 7 2003 Jay Fenlason <fenlason@redhat.com> 2.0.10-5.7.1
-- Replaced backported security fix with the 2.0.10 security rollup.
+* Wed Aug  8 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Use /var/cache/samba instead of /var/lock/samba 
+- Remove "domain controller" keyword from smb.conf, it's 
+  deprecated (from #13704)
+- Sync some examples with smb.conf.default
+- Fix password synchronization (#16987)
 
-* Mon Mar 17 2003 Jay Fenlason <fenlason@redhat.com> 2.0.10-4.7.1
-- backport security patch from 2.2.8
+* Fri Jul 20 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Tweaks of BuildRequires (#49581)
 
-* Mon Jun 25 2001 Trond Eivind Glomsrød <teg@redhat.com>
-- Rebuild
+* Wed Jul 11 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- 2.2.1a bugfix release
+
+* Tue Jul 10 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- 2.2.1, which should work better for XP
 
 * Sat Jun 23 2001 Trond Eivind Glomsrød <teg@redhat.com>
-- 2.0.10 security fix
-- redo the Japanese patch
-- remove now included tempfile fix
+- 2.2.0a security fix
+- Mark lograte and pam configuration files as noreplace
+
+* Fri Jun 22 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Add the /etc/samba directory to samba-common
+
+* Thu Jun 21 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Add improvements to the smb.conf as suggested in #16931
+
+* Tue Jun 19 2001 Trond Eivind Glomsrød <teg@redhat.com>
+  (these changes are from the non-head version)
+- Don't include /usr/sbin/samba, it's the same as the initscript
+- unset TMPDIR, as samba can't write into a TMPDIR owned 
+  by root (#41193)
+- Add pidfile: lines for smbd and nmbd and a config: line
+  in the initscript  (#15343)
+- don't use make -j
+- explicitly include /usr/share/samba, not just the files in it
+
+* Tue Jun 19 2001 Bill Nottingham <notting@redhat.com>
+- mount.smb/mount.smbfs go in /sbin, *not* %%{_sbindir}
+
+* Fri Jun  8 2001 Preston Brown <pbrown@redhat.com>
+- enable encypted passwords by default
+
+* Thu Jun  7 2001 Helge Deller <hdeller@redhat.de> 
+- build as 2.2.0-1 release
+- skip the documentation-directories docbook, manpages and yodldocs
+- don't include *.sgml documentation in package
+- moved codepage-directory to /usr/share/samba/codepages
+- make it compile with glibc-2.2.3-10 and kernel-headers-2.4.2-2   
+
+* Mon May 21 2001 Helge Deller <hdeller@redhat.de> 
+- updated to samba 2.2.0
+- moved codepages to %{_datadir}/samba/codepages
+- use all available CPUs for building rpm packages
+- use %{_xxx} defines at most places in spec-file
+- "License:" replaces "Copyright:"
+- dropped excludearch sparc
+- de-activated japanese patches 100 and 200 for now 
+  (they need to be fixed and tested wth 2.2.0)
+- separated swat.desktop file from spec-file and added
+  german translations
+- moved /etc/sysconfig/samba to a separate source-file
+- use htmlview instead of direct call to netscape in 
+  swat.desktop-file
 
 * Mon May  7 2001 Bill Nottingham <notting@redhat.com>
 - device-remove security fix again (<tridge@samba.org>)

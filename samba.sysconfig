@@ -1,0 +1,4 @@
+# Options to smbd
+SMBDOPTIONS="-D"
+# Options to nmbd
+NMBDOPTIONS="-D"
