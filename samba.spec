@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.8
-Release: 0.pre1.2
+Release: 0.pre1.3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -43,7 +43,7 @@ Patch14: samba-3.0.8pre1-x_fclose.patch
 Patch15: samba-3.0.8pre1-smbmnt.patch
 Patch16: samba-3.0.7-disable-sendfile.patch
 Patch17: samba-3.0.8pre1-fqdn.patch
-Patch18: samba-3.0.8pre1-salt.patch
+#Patch18: samba-3.0.8pre1-salt.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -123,7 +123,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch15 -p1 -b .smbmnt
 %patch16 -p1 -b .disable-sendfile
 %patch17 -p1 -b .fqdn
-%patch18 -p1 -b .salt
+#%patch18 -p1 -b .salt
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -463,6 +463,10 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue Oct 19 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1.3
+- disable the -salt patch, because it causes undefined references in
+  libsmbclient that prevent gnome-vfs from building.
+
 * Fri Oct 15 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1.2
 - Re-enable the x_fclose patch that was accidentally disabled
   in 3.0.8-0.pre1.1.  This closes #135832
