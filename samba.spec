@@ -4,7 +4,7 @@
 Summary: Samba SMB server.
 Name: samba
 Version: 2.0.7
-Release: 20
+Release: 21ssl
 Copyright: GNU GPL Version 2
 Group: System Environment/Daemons
 Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
@@ -23,8 +23,11 @@ Patch9: samba-2.0.7-system-auth.patch
 Patch10: samba-2.0.7-smb.conf.rh.patch
 Patch11: samba-2.0.7-nocups.patch
 Patch12: samba-2.0.7-smbadduser.patch
+Patch13: samba-2.0.7-krb5-1.2.patch
+Patch14: samba-2.0.7-ssl.patch
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4
+BuildPrereq: openssl-devel, krb5-devel
 BuildRoot: %{_tmppath}/samba-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
@@ -85,13 +88,18 @@ packages of Samba.
 %patch10 -p1 -b .rh
 %patch11 -p1 -b .nocups
 %patch12 -p1 -b .smbadduser
+%patch13 -p1 -b .krb5-1.2
+%patch14 -p1 -b .ssl
 
 %build
 cd source
 autoconf
+CPPFLAGS="-I/usr/include/openssl -I/usr/kerberos/include"; export CPPFLAGS
+LIBS="-L/usr/kerberos/lib"; export LIBS
 %configure --libdir=/etc/samba \
   --with-lockdir=/var/lock/samba --with-privatedir=/etc/samba \
   --with-swatdir=/usr/share/swat --with-smbmount --with-automount \
+  --with-ssl --with-krb5=/usr/kerberos \
   --with-pam --with-mmap --with-quotas
 make CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" all
 
@@ -133,8 +141,8 @@ install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{initdir}/smb
 install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/RedHat/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 $RPM_SOURCE_DIR/samba.log $RPM_BUILD_ROOT/etc/logrotate.d/samba
-ln -s %{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
-ln -s %{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
+ln -s ../%{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
+ln -s ../%{_bindir}/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT/etc/samba/lmhosts
 
 mkdir -p $RPM_BUILD_ROOT/etc/xinetd.d
@@ -228,10 +236,12 @@ fi
 %{_mandir}/man8/smbmnt.8*
 %{_mandir}/man8/smbmount.8*
 %{_mandir}/man8/smbumount.8*
+%{_mandir}/man8/smbspool.8*
 %{_bindir}/nmblookup
 %{_bindir}/findsmb
 %{_bindir}/smbclient
 %{_bindir}/smbprint
+%{_bindir}/smbspool
 %{_bindir}/smbtar
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbclient.1*
@@ -254,6 +264,10 @@ fi
 %{_mandir}/man5/lmhosts.5*
 
 %changelog
+* Mon Aug 14 2000 Bill Nottingham <notting@redhat.com>
+- add smbspool back in (#15827)
+- fix absolute symlinks (#16125)
+
 * Sun Aug 6 2000 Philipp Knirsch <pknirsch@redhat.com>
 - bugfix for smbadduser script (#15148)
 
@@ -287,6 +301,10 @@ fi
 * Wed Jul 5 2000 Than Ngo <than@redhat.de>
 - add initdir macro to handle the initscript directory
 - add a new macro to handle /etc/pam.d/system-auth
+
+* Thu Jun 29 2000 Nalin Dahyabhai <nalin@redhat.com>
+- enable Kerberos 5 and SSL support
+- patch for duplicate profile.h headers
 
 * Thu Jun 29 2000 Bill Nottingham <notting@redhat.com>
 - fix init script
