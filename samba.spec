@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.10
-Release: 2
+Release: 3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -454,6 +454,9 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Jan 12 2005 Tim Waugh <twaugh@redhat.com> 3.0.10-3
+- Rebuilt for new readline.
+
 * Fri Dec 17 2004 Jay Fenlason <fenlason@redhat.com> 3.0.10-2
 - New upstream release that closes CAN-2004-1154  bz#142544
 - Include the -64bit patch from Nalin.  This closes bz#142873
