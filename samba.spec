@@ -3,8 +3,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 2.2.5
-Release: 10
+Version: 2.2.7
+Release: 4.8.0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -34,13 +34,10 @@ Patch7: samba-2.2.3a-smbpass.patch
 Patch11: samba-2.2.0-logname.patch
 Patch13: samba-2.2.2-winsfixes.patch
 Patch14: samba-2.2.3-smbadduserloc.patch
-Patch15: samba-2.2.5-lprng.patch
+Patch15: samba-2.2.7-lfsclient.patch
 # Not used, but it have some patches which might be needed later...
 Patch16: samba-2.2.2-smbadduser.patch
-# japanese patches
-Patch100: samba-j.patch.bz2
-Patch111: samba-2.2.0-ook.patch
-Patch200: samba-j-2.patch.bz2
+Patch17: samba-2.2.7-security.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -110,12 +107,8 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch7 -p1 -b .smbpass
 %patch13 -p1 -b .winsfixes
 %patch14 -p1 -b .locfix
-%patch15 -p1 -b .lprng
-
-### patch100 -p1 -b .j
-### patch111 -p1 -b .ook
-### patch200 -p1 -b .j-2
-
+%patch15 -p1 -b .lfs
+%patch17 -p0 -b .insecure
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -226,17 +219,15 @@ ln -s libnss_winbind.so  $RPM_BUILD_ROOT/lib/libnss_winbind.so.2
 %ifarch i386
 pushd examples/VFS/recycle
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/samba/vfs
-mv README README.vfs-recycle 
 install -m 644 recycle.so $RPM_BUILD_ROOT%{_libdir}/samba/vfs/
 popd
 %endif
 
 # libsmbclient
 
-mkdir -p $RPM_BUILD_ROOT/usr/{lib,include}
-install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/
-install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT/usr/include/
-
+mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
+install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
+install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -251,9 +242,15 @@ install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 rm -rf docs/htmldocs/using_samba
 rm -rf docs/{docbook,manpages,yodldocs}
 rm -rf docs/faq/*sgml
+# Remove un-packaged files
+rm -rf $RPM_BUILD_ROOT/usr/bin/findsmb
+rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/{findsmb,smbsh}.1*
+rm -f $RPM_BUILD_ROOT/%{_datadir}/swat/help/findsmb.1.html
+
 
 # remove html'ized man pages:
 rm -rf docs/htmldocs/*.[0-9].*
+mv examples/VFS/recycle/README examples/VFS/recycle/README.vfs-recycle
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -265,7 +262,6 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
-    /sbin/chkconfig --del winbind
     rm -rf /var/log/samba/* /var/cache/samba/*
     /sbin/service smb stop >/dev/null 2>&1
 fi
@@ -306,7 +302,7 @@ fi
 %doc docs
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
-%doc examples/VFS/recycle/recycle.conf examples/VFS/recycle/README.vfs-recycle 
+%doc examples/VFS/recycle/recycle.conf examples/VFS/recycle/README.vfs-recycle
 
 #attr(755,root,root) /lib/security/pam_smbpass.so
 %{_sbindir}/smbd
@@ -420,6 +416,22 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Fri Mar 14 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-4.8.0
+- removed duplicate /sbin/chkconfig --del winbind from spec file
+
+* Thu Mar 13 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-3.8.0
+- merge security fix from 2.2.8
+- remove un-packaged files.
+- remove duplicate rename of README.vfs-recycle
+
+* Mon Dec 02 2002 Elliot Lee <sopwith@redhat.com> 2.2.7-3
+- Fix missing doc files.
+- Fix multilib issues
+
+* Wed Nov 20 2002 Bill Nottingham <notting@redhat.com> 2.2.7-2
+- update to 2.2.7
+- add patch for LFS in smbclient (<tcallawa@redhat.com>)
+
 * Wed Aug 28 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-10
 - logrotate fixes (#65007)
 
