@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.1a
-Release: 5
+Release: 5s.1
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -327,6 +327,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Mar 12 2003 D. Marlin <dmarlin@redhat.com> 2.2.1a-5s.1
+- new version number and rebuild for s390 (bug #85960)
+
 * Tue Nov  6 2001 Than Ngo <than@redhat.com> 2.2.1a-5
 - workaround for non-broadcast interface on s390 (bug #55421)
 
