@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.3
-Release: 5
+Release: 6
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -442,6 +442,9 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Tue May 4 2004 Jay Fenlason <fenlason@redhat.com> 3.0.3-5
 - Patch to allow password changes from machines patched with
   Microsoft hotfix MS04-011.
