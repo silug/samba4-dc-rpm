@@ -3,15 +3,15 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.8
-Release: 0.pre1.3
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre1.tar.gz
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre2.tar.gz
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -29,8 +29,8 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.8pre1-logfiles.patch
-Patch4: samba-3.0.8pre1-pie.patch
+Patch3: samba-3.0.8-logfiles.patch
+Patch4: samba-3.0.8-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
 Patch7: samba-3.0.4-man.patch
@@ -39,11 +39,8 @@ Patch9: samba-3.0.5rc1-passwd.patch
 Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
 Patch13: samba-3.0.5rc1-64bit-timestamps.patch
-Patch14: samba-3.0.8pre1-x_fclose.patch
 Patch15: samba-3.0.8pre1-smbmnt.patch
-Patch16: samba-3.0.7-disable-sendfile.patch
-Patch17: samba-3.0.8pre1-fqdn.patch
-#Patch18: samba-3.0.8pre1-salt.patch
+Patch20: samba-3.0.8-non-ascii-domain.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -98,8 +95,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.8pre1
-# % setup -q
+# % setup -q -n samba-3.0.8pre2
+%setup -q
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -119,11 +116,8 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch10 -p1 -b .smbclient-kerberos
 %patch11 -p1 -b .use_authtok
 %patch13 -p1 -b .64bit-timestamps
-%patch14 -p1 -b .x_fclose
 %patch15 -p1 -b .smbmnt
-%patch16 -p1 -b .disable-sendfile
-%patch17 -p1 -b .fqdn
-#%patch18 -p1 -b .salt
+%patch20 -p1 -b .non-ascii-domain
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -336,6 +330,7 @@ fi
 # %{_bindir}/smbadduser
 %{_bindir}/tdbbackup
 %{_bindir}/tdbdump
+%{_bindir}/tdbtool
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{_initrddir}/smb
@@ -463,6 +458,17 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Nov 8 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-2
+- New upstream version fixes CAN-2004-0930.  This obsoletes the
+  disable-sendfile, salt, signing-shortkey and fqdn patches.
+- Add my <fenlason@redhat.com> ugly non-ascii-domain patch.
+- Updated the pie patch for 3.0.8.
+- Updated the logfiles patch for 3.0.8.
+
+* Tue Oct 26 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre2
+- New upstream version
+- Add Nalin's signing-shortkey patch.
+
 * Tue Oct 19 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1.3
 - disable the -salt patch, because it causes undefined references in
   libsmbclient that prevent gnome-vfs from building.
