@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.5
-Release: 8
+Release: 9
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -225,16 +225,16 @@ ln -s libnss_winbind.so  $RPM_BUILD_ROOT/lib/libnss_winbind.so.2
 # VFS - recycling
 %ifarch i386
 pushd examples/VFS/recycle
-mkdir -p $RPM_BUILD_ROOT/usr/lib/samba/vfs
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/samba/vfs
 mv README README.vfs-recycle 
-install -m 644 recycle.so $RPM_BUILD_ROOT/usr/lib/samba/vfs/
+install -m 644 recycle.so $RPM_BUILD_ROOT%{_libdir}/samba/vfs/
 popd
 %endif
 
 # libsmbclient
 
 mkdir -p $RPM_BUILD_ROOT/usr/{lib,include}
-install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT/usr/lib/
+install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT/usr/include/
 
 
@@ -316,6 +316,7 @@ fi
 %{_bindir}/smbcontrol
 %{_bindir}/smbstatus
 %{_bindir}/smbadduser
+%{_bindir}/tdbbackup
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{initdir}/smb
@@ -328,6 +329,7 @@ fi
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/nmbd.8*
+%{_mandir}/man8/pdbedit.8*
 #%{_mandir}/ja/man1/smbstatus.1*
 #%{_mandir}/ja/man5/smbpasswd.5*
 #%{_mandir}/ja/man7/samba.7*
@@ -418,6 +420,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Aug 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-9
+- /usr/lib was used in place of %%{_libdir} in three locations (#72554)
+
 * Mon Aug  5 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-8
 - Initscript fix (#70720)
 
