@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/usr/lib/rpm/find-requires $* | grep -v "Net::LDAP"
+/usr/lib/rpm/perl.req $* | grep -v "Net::LDAP"

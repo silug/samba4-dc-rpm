@@ -3,8 +3,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 2.2.7
-Release: 5.8.0
+Version: 2.2.7a
+Release: 6
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -25,21 +25,20 @@ Source8: winbind.init
 Source999: filter-requires-samba.sh
 
 # generic patches
-Patch0: samba-2.2.4-smb.conf.patch
+#Patch0: samba-2.2.4-smb.conf.patch
 Patch1: samba-2.2.0-smbw.patch
 Patch3: samba-2.0.5a-gawk.patch
 Patch5: samba-2.0.7-krb5-1.2.patch
 Patch6: samba-2.0.7-buildroot.patch
-Patch7: samba-2.2.3a-smbpass.patch
+#Patch7: samba-2.2.3a-smbpass.patch
 Patch11: samba-2.2.0-logname.patch
 Patch13: samba-2.2.2-winsfixes.patch
 Patch14: samba-2.2.3-smbadduserloc.patch
 Patch15: samba-2.2.7-lfsclient.patch
 # Not used, but it have some patches which might be needed later...
 Patch16: samba-2.2.2-smbadduser.patch
-Patch17: samba-2.2.7-security.patch
-Patch18: samba-2.2.7-expansion.patch
-Patch19: samba-2.2.7-widelink.patch
+Patch17: samba-2.2.7a-smb.conf.patch
+Patch18: samba-2.2.7a-error.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -50,7 +49,7 @@ BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel
 
 
 # Working around perl dependency problem from docs
-%define __find_requires %{SOURCE999}
+%define __perl_requires %{SOURCE999}
 
 %description
 Samba is the protocol by which a lot of PC-related machines share
@@ -101,18 +100,17 @@ cp %{SOURCE6} packaging/RedHat/
 cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
-%patch0 -p1 -b .oldconf
+#%patch0 -p1 -b .oldconf
 %patch1 -p1 -b .smbw
 %patch3 -p1 -b .gawk
 %patch5 -p1 -b .krb5-1.2
 %patch6 -p1 -b .buildroot
-%patch7 -p1 -b .smbpass
+#%patch7 -p1 -b .smbpass
 %patch13 -p1 -b .winsfixes
 %patch14 -p1 -b .locfix
 %patch15 -p1 -b .lfs
-%patch17 -p1 -b .insecure
-%patch18 -p0 -b .expansion
-%patch19 -p1 -b .widelink
+%patch17 -p1 -b .oldconf
+%patch18 -p1 -b .olderr
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -144,12 +142,17 @@ perl -pi -e "s|-symbolic||" Makefile.in
 	--with-utmp \
 	--with-piddir=/var/run/samba \
 	--with-acl-support \
-	--with-vfs
-#	--with-pam_smbpass \
-
+	--with-vfs \
+	--with-pam_smbpass \
+	--with-msdfs
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
-	all smbfilter nsswitch/libnss_wins.so debug2html
+	all smbfilter debug2html
+
+# Force libnss_wins to be linked with libnsl.
+rm -f nsswitch/libnss_wins.so
+make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" SHLD="%{__cc} -lnsl" \
+	nsswitch/libnss_wins.so
 
 %ifarch i386
 pushd ../examples/VFS
@@ -206,26 +209,27 @@ ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 
 # pam_smbpass
-mkdir -p $RPM_BUILD_ROOT/lib/security
-#mv $RPM_BUILD_ROOT%{_bindir}/pam_smbpass.so $RPM_BUILD_ROOT/lib/security/pam_smbpass.so
-#cp -r source/pam_smbpass/ docs/
-rm -f docs/pam_smbpass/*.*
+mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
+mv $RPM_BUILD_ROOT%{_bindir}/pam_smbpass.so $RPM_BUILD_ROOT/%{_lib}/security/pam_smbpass.so
+cp -r source/pam_smbpass/ docs/
+#rm -f docs/pam_smbpass/*.*
 
 # winbind
-install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/lib/security/pam_winbind.so
-mkdir -p $RPM_BUILD_ROOT/lib
-install -m 755 source/nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/lib/libnss_winbind.so
-install -m 755 source/nsswitch/libnss_wins.so $RPM_BUILD_ROOT/lib/libnss_wins.so
-ln -s libnss_wins.so  $RPM_BUILD_ROOT/lib/libnss_wins.so.2
-ln -s libnss_winbind.so  $RPM_BUILD_ROOT/lib/libnss_winbind.so.2
+install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/pam_winbind.so
+mkdir -p $RPM_BUILD_ROOT%{_libdir}
+install -m 755 source/nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/%{_lib}/libnss_winbind.so.2
+install -m 755 source/nsswitch/libnss_wins.so $RPM_BUILD_ROOT/%{_lib}/libnss_wins.so.2
+ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
+ln -sf /%{_lib}/libnss_winbind.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_winbind.so
 
 # VFS - recycling
-%ifarch i386
 pushd examples/VFS/recycle
+%ifarch i386
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/samba/vfs
 install -m 644 recycle.so $RPM_BUILD_ROOT%{_libdir}/samba/vfs/
-popd
 %endif
+mv README README.vfs-recycle 
+popd
 
 # libsmbclient
 
@@ -236,9 +240,6 @@ install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 
-mkdir -p $RPM_BUILD_ROOT/usr/share/applications/
-install -m644 %{SOURCE3} $RPM_BUILD_ROOT/usr/share/applications/samba-swat.desktop
-
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 
@@ -246,15 +247,12 @@ install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 rm -rf docs/htmldocs/using_samba
 rm -rf docs/{docbook,manpages,yodldocs}
 rm -rf docs/faq/*sgml
-# Remove un-packaged files
 rm -rf $RPM_BUILD_ROOT/usr/bin/findsmb
 rm -rf $RPM_BUILD_ROOT%{_mandir}/man1/{findsmb,smbsh}.1*
 rm -f $RPM_BUILD_ROOT/%{_datadir}/swat/help/findsmb.1.html
 
-
 # remove html'ized man pages:
 rm -rf docs/htmldocs/*.[0-9].*
-mv examples/VFS/recycle/README examples/VFS/recycle/README.vfs-recycle
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -262,10 +260,10 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/chkconfig --add smb
 
-
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
+    /sbin/chkconfig --del winbind
     rm -rf /var/log/samba/* /var/cache/samba/*
     /sbin/service smb stop >/dev/null 2>&1
 fi
@@ -308,7 +306,7 @@ fi
 %doc examples/printing
 %doc examples/VFS/recycle/recycle.conf examples/VFS/recycle/README.vfs-recycle
 
-#attr(755,root,root) /lib/security/pam_smbpass.so
+%attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
 %{_bindir}/make_unicodemap
@@ -348,7 +346,6 @@ fi
 
 %files swat
 %defattr(-,root,root)
-/usr/share/applications/*
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat
 %{_datadir}/swat
 %{_sbindir}/swat
@@ -384,11 +381,11 @@ fi
 
 %files common
 %defattr(-,root,root)
-/lib/libnss_wins.so
-/lib/libnss_wins.so.2
-/lib/libnss_winbind.so
-/lib/libnss_winbind.so.2
-/lib/security/pam_winbind.so
+%{_libdir}/libnss_wins.so
+/%{_lib}/libnss_wins.so.2
+%{_libdir}/libnss_winbind.so
+/%{_lib}/libnss_winbind.so.2
+/%{_lib}/security/pam_winbind.so
 %{_bindir}/make_smbcodepage
 %{_bindir}/testparm
 %{_bindir}/testprns
@@ -412,26 +409,45 @@ fi
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man8/winbindd.8*
-#%{_mandir}/ja/man1/make_smbcodepage.1*
-#%{_mandir}/ja/man1/testparm.1*
-#%{_mandir}/ja/man1/testprns.1*
-#%{_mandir}/ja/man5/smb.conf.5*
-#%{_mandir}/ja/man5/lmhosts.5*
-#%{_mandir}/ja/man8/smbpasswd.8*
+#%lang(ja) %{_mandir}/ja/man1/make_smbcodepage.1*
+#%lang(ja) %{_mandir}/ja/man1/testparm.1*
+#%lang(ja) %{_mandir}/ja/man1/testprns.1*
+#%lang(ja) %{_mandir}/ja/man5/smb.conf.5*
+#%lang(ja) %{_mandir}/ja/man5/lmhosts.5*
+#%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
-* Sat Apr 5 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-5.8.0
-- Import security rollup fix for 2.2.7a
-- Import fix for %g, etc expansion from 2.2.7a
-- Import fix for "wide links = no" from 2.2.8a-pre1
+* Mon Feb 24 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
 
-* Fri Mar 14 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-4.8.0
-- removed duplicate /sbin/chkconfig --del winbind from spec file
+* Thu Feb 20 2003 Jonathan Blandford <jrb@redhat.com> 2.2.7a-5
+- remove swat.desktop file
 
-* Thu Mar 13 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-3.8.0
-- merge security fix from 2.2.8
-- remove un-packaged files.
-- remove duplicate rename of README.vfs-recycle
+* Thu Feb 20 2003 Nalin Dahyabhai <nalin@redhat.com> 2.2.7a-4
+- relink libnss_wins.so with SHLD="%{__cc} -lnsl" to force libnss_wins.so to
+  link with libnsl, avoiding unresolved symbol errors on functions in libnsl
+
+* Mon Feb 10 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-3
+- edited spec file to put .so files in the correct directories
+  on 64-bit platforms that have 32-bit compatability issues
+  (sparc64, x86_64, etc).  This fixes bugzilla #83782.
+- Added samba-2.2.7a-error.patch from twaugh.  This fixes
+  bugzilla #82454.
+
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com>
+- rebuilt
+
+* Thu Jan  9 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-1
+- Update to 2.2.7a
+- Change default printing system to CUPS
+- Turn on pam_smbpass
+- Turn on msdfs
+
+* Sat Jan  4 2003 Jeff Johnson <jbj@redhat.com> 2.2.7-5
+- use internal dep generator.
+
+* Sat Dec 14 2002 Tim Powers <timp@redhat.com> 2.2.7-4
+- don't use rpms internal dep generator
 
 * Mon Dec 02 2002 Elliot Lee <sopwith@redhat.com> 2.2.7-3
 - Fix missing doc files.
