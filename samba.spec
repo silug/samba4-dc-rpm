@@ -1,13 +1,18 @@
+%define enable_japanese 1
+
 %define initdir /etc/rc.d/init.d
 %define auth %(test -f /etc/pam.d/system-auth && echo /etc/pam.d/system-auth || echo)
+%define jpver ja-1.2a
 
 Summary: Samba SMB server.
 Name: samba
 Version: 2.0.7
-Release: 21ssl
+Release: 21sslj1
 Copyright: GNU GPL Version 2
 Group: System Environment/Daemons
-Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
+# Source 
+Source: http://www.samba.gr.jp/pub/samba-jp/samba-2.0.7-ja/samba-%{version}-%{jpver}.tar.bz2
 Source1: samba.log
 Source2: samba.xinetd
 Patch: samba-makefilepath.patch
@@ -25,6 +30,8 @@ Patch11: samba-2.0.7-nocups.patch
 Patch12: samba-2.0.7-smbadduser.patch
 Patch13: samba-2.0.7-krb5-1.2.patch
 Patch14: samba-2.0.7-ssl.patch
+# Japanese patch
+Patch20: samba-autoconf-jp.patch
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4
 BuildPrereq: openssl-devel, krb5-devel
@@ -74,12 +81,16 @@ Samba-common provides files necessary for both the server and client
 packages of Samba.
 
 %prep
-%setup -q
+%setup -q -n samba-%{version}-%{jpver}
 %patch -p1 -b .makefile
 %patch1 -p1 -b .smbw
 %patch2 -p1 -b .glibc21
 %patch3 -p1 -b .fixinit
+%if %{enable_japanese}
+%patch20 -p1 -b .autoconf-jp
+%else
 %patch4 -p1 -b .autoconf
+%endif
 %patch5 -p1 -b .gawk
 %patch6 -p1 -b .smbprint
 %patch7 -p1 -b .logrotate
@@ -264,6 +275,9 @@ fi
 %{_mandir}/man5/lmhosts.5*
 
 %changelog
+* Thu Aug 31 2000 Yukihiro Nakai <ynakai@redhat.com>
+- Use Japanized samba from http://www.samba.gr.jp/
+
 * Mon Aug 14 2000 Bill Nottingham <notting@redhat.com>
 - add smbspool back in (#15827)
 - fix absolute symlinks (#16125)
