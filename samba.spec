@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.8
-Release: 3
+Release: 4
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -43,6 +43,7 @@ Patch11: samba-3.0.5pre1-use_authtok.patch
 Patch13: samba-3.0.5rc1-64bit-timestamps.patch
 Patch15: samba-3.0.8pre1-smbmnt.patch
 Patch20: samba-3.0.8-non-ascii-domain.patch
+Patch21: samba-3.0.8-secret.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -124,6 +125,7 @@ mv samba-docs-build-277 docs
 %patch13 -p1 -b .64bit-timestamps
 %patch15 -p1 -b .smbmnt
 %patch20 -p1 -b .non-ascii-domain
+%patch21 -p1 -b .secret
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -464,6 +466,10 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Nov 22 2004 Than Ngo <than@redhat.com> 3.0.8-4
+- fix unresolved symbols in libsmbclient which caused applications
+  such as KDE's konqueror to fail when accessing smb:// URLs. #139894
+
 * Tue Nov 9 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-3
 - Include the corrected docs tarball, and use it instead of the
   obsolete docs from the upstream 3.0.8 tarball.
