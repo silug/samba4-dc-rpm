@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.8
-Release: 0.pre1
+Release: 0.pre1.1
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -40,6 +40,8 @@ Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
 Patch13: samba-3.0.5rc1-64bit-timestamps.patch
 Patch14: samba-3.0.8pre1-x_fclose.patch
+Patch15: samba-3.0.8pre1-smbmnt.patch
+Patch16: samba-3.0.7-disable-sendfile.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -115,7 +117,9 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch10 -p1 -b .smbclient-kerberos
 %patch11 -p1 -b .use_authtok
 %patch13 -p1 -b .64bit-timestamps
-%patch14 -p1 -b .x_fclose
+#%patch14 -p1 -b .x_fclose
+%patch15 -p1 -b .smbmnt
+%patch16 -p1 -b .disable-sendfile
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -455,6 +459,14 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Oct 13 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1.1
+- Include disable-sendfile patch to default "use sendfile" to "no".
+  This closes #132779
+
+* Wed Oct 6 2004 Jay Fenlason <fenlason@redhat.com>
+- Include patch from Steven Lawrance (slawrance@yahoo.com) that modifies
+  smbmnt to work with 32-bit uids.
+
 * Mon Sep 27 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1
 - new upstream release.  This obsoletes the ldapsam_compat patches.
 
