@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.9
+Version: 3.0.10
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -29,7 +29,7 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.8-logfiles.patch
+Patch3: samba-3.0.10-logfiles.patch
 Patch4: samba-3.0.8-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
@@ -40,9 +40,10 @@ Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
 Patch12: samba-3.0.5rc1-64bit-timestamps.patch
 Patch13: samba-3.0.8pre1-smbmnt.patch
-Patch14: samba-3.0.8-non-ascii-domain.patch
+#Patch14: samba-3.0.8-non-ascii-domain.patch
 Patch15: samba-3.0.4-install.mount.smbfs.patch
 Patch16: samba-3.0.9-changetrustpw.patch
+Patch17: samba-3.0.7-64bit.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -119,9 +120,10 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch11 -p1 -b .use_authtok
 %patch12 -p1 -b .64bit-timestamps
 %patch13 -p1 -b .smbmnt
-%patch14 -p1 -b .non-ascii-domain
+#%patch14 -p1 -b .non-ascii-domain
 %patch15 -p1 -b .install.mount.smbfs
 %patch16 -p1 -b .changetrustpw
+%patch17 -p1 -b .64bit
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -192,6 +194,7 @@ mkdir -p $RPM_BUILD_ROOT/var/cache/samba
 mkdir -p $RPM_BUILD_ROOT/var/cache/samba/winbindd_privileged
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
+mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
 
 cd source
 
@@ -418,6 +421,7 @@ fi
 #%{_bindir}/vfstest
 %{_sbindir}/winbindd
 %dir /var/cache/samba
+%dir /var/run/winbindd
 %attr(750,root,root) %dir /var/cache/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
@@ -440,6 +444,7 @@ fi
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/net.8*
 %{_mandir}/man1/vfstest.1*
+%{_mandir}/man8/pam_winbind.8*
 
 # #%lang(ja) %{_mandir}/ja/man1/make_smbcodepage.1*
 #%lang(ja) %{_mandir}/ja/man1/testparm.1*
@@ -449,6 +454,13 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Fri Dec 17 2004 Jay Fenlason <fenlason@redhat.com> 3.0.10-2
+- New upstream release that closes CAN-2004-1154  bz#142544
+- Include the -64bit patch from Nalin.  This closes bz#142873
+- Update the -logfiles patch to work with 3.0.10
+- Create /var/run/winbindd and make it part of the -common rpm to close
+  bz#142242
+
 * Mon Nov 22 2004 Jay Fenlason <fenlason@redhat.com> 3.0.9-2
 - New upstream release.  This obsoletes the -secret patch.
   Include my changetrustpw patch to make "net ads changetrustpw" stop
