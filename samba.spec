@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.7a
-Release: 7.9.0
+Release: 8.9.0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -40,6 +40,7 @@ Patch16: samba-2.2.2-smbadduser.patch
 Patch17: samba-2.2.7a-smb.conf.patch
 Patch18: samba-2.2.7a-error.patch
 Patch19: samba-2.2.7a-security.patch
+Patch20: samba-2.2.7a-widelink.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -112,7 +113,8 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch15 -p1 -b .lfs
 %patch17 -p1 -b .oldconf
 %patch18 -p1 -b .olderr
-%patch19 -p0 -b .insecure
+%patch19 -p1 -b .insecure
+%patch20 -p1 -b .widelink
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -265,7 +267,6 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
-    /sbin/chkconfig --del winbind
     rm -rf /var/log/samba/* /var/cache/samba/*
     /sbin/service smb stop >/dev/null 2>&1
 fi
@@ -419,6 +420,11 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Sat Apr 5 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-8.9.0
+- Import 2.2.7a security rollup patch, replacing old security patch
+- Remove duplicate /sbin/chkconfig --del winbind from spec file
+- Import fix for "wide links = no" from 2.2.8pre1
+
 * Thu Mar 13 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-7-9.0
 - Import security fixes from samba-2.2.8
 
