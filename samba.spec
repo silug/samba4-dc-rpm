@@ -3,7 +3,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.6
+Version: 3.0.7
 Release: 3
 Epoch: 0
 License: GNU GPL Version 2
@@ -30,8 +30,8 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.6-logfiles.patch
-Patch4: samba-3.0.6-pie.patch
+Patch3: samba-3.0.7-logfiles.patch
+Patch4: samba-3.0.7-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
 Patch7: samba-3.0.4-man.patch
@@ -39,7 +39,6 @@ Patch8: samba-3.0.4-warning.patch
 Patch9: samba-3.0.5rc1-passwd.patch
 Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
-Patch12: samba-3.0.6-schema.patch
 Patch13: samba-3.0.5rc1-64bit-timestamps.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
@@ -115,7 +114,6 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch9 -p1 -b .passwd
 %patch10 -p1 -b .smbclient-kerberos
 %patch11 -p1 -b .use_authtok
-%patch12 -p1 -b .schema
 %patch13 -p1 -b .64bit-timestamps
 
 # crap
@@ -452,6 +450,10 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Sep 13 2004 Jay Fenlason <fenlason@redhat.com> 3.0.7-3
+- Upgrade to 3.0.7, which fixes CAN-2004-0807 CAN-2004-0808
+  This obsoletes the 3.0.6-schema patch.
+
 * Mon Aug 16 2004 Jay Fenlason <fenlason@redhat.com> 3.0.6-3
 - New upstream version.
 - Include post 3.0.6 patch from "Gerald (Jerry) Carter" <jerry@samba.org>
