@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.1a
-Release: 4
+Release: 5
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -37,6 +37,9 @@ Patch11: samba-2.2.0-logname.patch
 Patch100: samba-j.patch.bz2
 Patch111: samba-2.2.0-ook.patch
 Patch200: samba-j-2.patch.bz2
+
+# s390 patches
+Patch300: samba-2.2.1a-s390.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -107,6 +110,10 @@ cp %{SOURCE7} packaging/RedHat/
 ### %patch100 -p1 -b .j
 %patch111 -p1 -b .ook
 ### %patch200 -p1 -b .j-2
+
+%ifarch s390 s390x
+%patch300 -p1 -b .s390
+%endif
 
 %build
 
@@ -320,6 +327,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue Nov  6 2001 Than Ngo <than@redhat.com> 2.2.1a-5
+- workaround for non-broadcast interface on s390 (bug #55421)
+
 * Mon Aug 13 2001 Trond Eivind Glomsrød <teg@redhat.com>
 - Don't include smbpasswd in samba, it's in samba-common (#51598)
 - Add a disabled "obey pam restrictions" statement - it's not
