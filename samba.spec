@@ -3,16 +3,16 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.3
-Release: 6
+Version: 3.0.5
+Release: 0pre1.0
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.bz2
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.bz2
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre1.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -29,14 +29,13 @@ Source999: filter-requires-samba.sh
 
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
-# Not used, but it have some patches which might be needed later...
-Patch20: samba-3.0.0beta1-pipedir.patch
-Patch24: samba-3.0.3-logfiles.patch
-Patch25: samba-3.0.3pre1-pie.patch
-Patch26: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch27: samba-3.0.3-password.patch
-Patch28: samba-3.0.3-bug1302.patch
-Patch29: samba-3.0.3-bug1309.patch
+Patch2: samba-3.0.0beta1-pipedir.patch
+Patch3: samba-3.0.5pre1-logfiles.patch
+Patch4: samba-3.0.3pre1-pie.patch
+Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
+Patch6: samba-3.0.4-smb.conf.patch
+Patch7: samba-3.0.4-man.patch
+Patch8: samba-3.0.4-warning.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -91,8 +90,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-# % setup -q -n samba-3.0.3rc1
-%setup -q
+%setup -q -n samba-3.0.5pre1
+#%setup -q
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -101,13 +100,13 @@ cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
 %patch1 -p1 -b .smbw
-%patch20 -p1 -b .pipedir
-%patch24 -p1 -b .logfiles
-%patch25 -p1 -b .pie
-%patch26 -p1 -b .nmbd-netbiosname
-%patch27 -p1 -b .password
-%patch28 -p1 -b .bug1302
-%patch29 -p1 -b .bug1309
+%patch2 -p1 -b .pipedir
+%patch3 -p1 -b .logfiles
+%patch4 -p1 -b .pie
+%patch5 -p1 -b .nmbd-netbiosname
+%patch6 -p1 -b .upstream
+%patch7 -p1 -b .man
+%patch8 -p1 -b .warning
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -147,8 +146,8 @@ CFLAGS=-D_GNU_SOURCE %configure \
 	--with-mandir=%{_mandir} \
 	--with-privatedir=%{_sysconfdir}/samba \
 	--with-logfilebase=/var/log/samba \
-        --with-libdir=%{_libdir}/samba \
-        --with-configdir=%{_sysconfdir}/samba \
+	--with-libdir=%{_libdir}/samba \
+	--with-configdir=%{_sysconfdir}/samba \
 	--with-swatdir=%{_datadir}/swat \
 
 
@@ -208,7 +207,7 @@ install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{initdir}/smb
 install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{initdir}/winbind
 ln -s ../..%{initdir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/RedHat/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
-install -m644 $RPM_SOURCE_DIR/samba.log $RPM_BUILD_ROOT/etc/logrotate.d/samba
+install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
@@ -246,6 +245,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man5/smbgetrc.5*
 #rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/mount.cifs.8*
 
 %clean
@@ -265,7 +265,7 @@ exit 0
 %postun
 if [ "$1" -ge "1" ]; then
 	%{initdir}/smb condrestart >/dev/null 2>&1
-fi	
+fi
 
 %post common
 /sbin/chkconfig --add winbind
@@ -354,9 +354,6 @@ fi
 /sbin/mount.smb
 /sbin/mount.smbfs
 /sbin/mount.cifs
-%{_libdir}/samba/lowcase.dat
-%{_libdir}/samba/upcase.dat
-%{_libdir}/samba/valid.dat
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/smbmount
@@ -373,7 +370,6 @@ fi
 %{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbtar
-%{_bindir}/net
 %{_bindir}/smbtree
 %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/nmblookup.1*
@@ -382,7 +378,6 @@ fi
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
-%{_mandir}/man8/net.8*
 #%{_mandir}/ja/man1/smbtar.1*
 #%{_mandir}/ja/man1/smbclient.1*
 #%{_mandir}/ja/man1/nmblookup.1*
@@ -391,6 +386,9 @@ fi
 %defattr(-,root,root)
 %dir %{_libdir}/samba
 %dir %{_libdir}/samba/charset
+%{_libdir}/samba/lowcase.dat
+%{_libdir}/samba/upcase.dat
+%{_libdir}/samba/valid.dat
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
@@ -400,6 +398,7 @@ fi
 %{_libdir}/libsmbclient.so
 %{_libdir}/samba/charset/CP*.so
 %{_includedir}/libsmbclient.h
+%{_bindir}/net
 %{_bindir}/testparm
 %{_bindir}/testprns
 %{_bindir}/smbpasswd
@@ -432,6 +431,7 @@ fi
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man8/winbindd.8*
+%{_mandir}/man8/net.8*
 %{_mandir}/man1/vfstest.1*
 
 # #%lang(ja) %{_mandir}/ja/man1/make_smbcodepage.1*
@@ -442,6 +442,19 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Fri Jul 2 2004 Jay Fenlason <fenlason@redhat.com> 3.0.5.0pre1.0
+- New upstream version
+- use % { SOURCE1 } instead of a hardcoded path
+- include -winbind patch from Gerald (Jerry) Carter (jerry@samba.org)
+  https://bugzilla.samba.org/show_bug.cgi?id=1315
+  to make winbindd work against Windows versions that do not have
+  128 bit encryption enabled.
+- Moved %{_bindir}/net to the -common package, so that folks who just
+  want to use winbind, etc don't have to install -client in order to
+  "net join" their domain.
+- New upstream version obsoletes the patches added in 3.0.3-5
+- Remove smbgetrc.5 man page, since we don't ship smbget.
+
 * Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
