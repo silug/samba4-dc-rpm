@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.8
-Release: 2
+Release: 3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -22,6 +22,8 @@ Source5: smb.init
 Source6: samba.pamd
 Source7: smbprint
 Source8: winbind.init
+# Oops.  This won't be needed for 3.0.9
+Source9: http://samba.org/~samba-bugs/docs/samba-docs-latest.tar.bz2
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -103,6 +105,10 @@ cp %{SOURCE5} packaging/RedHat/
 cp %{SOURCE6} packaging/RedHat/
 cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
+
+rm -r docs
+tar xjf %{SOURCE9}
+mv samba-docs-build-277 docs
 
 %patch1 -p1 -b .smbw
 %patch2 -p1 -b .pipedir
@@ -458,6 +464,11 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue Nov 9 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-3
+- Include the corrected docs tarball, and use it instead of the
+  obsolete docs from the upstream 3.0.8 tarball.
+- Update the logfiles patch to work with the updated docs.
+
 * Mon Nov 8 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-2
 - New upstream version fixes CAN-2004-0930.  This obsoletes the
   disable-sendfile, salt, signing-shortkey and fqdn patches.
