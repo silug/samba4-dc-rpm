@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.7a
-Release: 6
+Release: 7.9.0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -39,6 +39,7 @@ Patch15: samba-2.2.7-lfsclient.patch
 Patch16: samba-2.2.2-smbadduser.patch
 Patch17: samba-2.2.7a-smb.conf.patch
 Patch18: samba-2.2.7a-error.patch
+Patch19: samba-2.2.7a-security.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -111,6 +112,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch15 -p1 -b .lfs
 %patch17 -p1 -b .oldconf
 %patch18 -p1 -b .olderr
+%patch19 -p0 -b .insecure
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -417,6 +419,9 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Thu Mar 13 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-7-9.0
+- Import security fixes from samba-2.2.8
+
 * Mon Feb 24 2003 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
