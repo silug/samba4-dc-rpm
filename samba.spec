@@ -1,18 +1,17 @@
-%define initdir %{_sysconfdir}/rc.d/init.d
 %define auth %(test -f /etc/pam.d/system-auth && echo /etc/pam.d/system-auth || echo)
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.7
-Release: 3
+Version: 3.0.8
+Release: 0.pre1
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-# Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.gz
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre1.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -30,8 +29,8 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.7-logfiles.patch
-Patch4: samba-3.0.7-pie.patch
+Patch3: samba-3.0.8pre1-logfiles.patch
+Patch4: samba-3.0.8pre1-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
 Patch7: samba-3.0.4-man.patch
@@ -40,6 +39,7 @@ Patch9: samba-3.0.5rc1-passwd.patch
 Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
 Patch13: samba-3.0.5rc1-64bit-timestamps.patch
+Patch14: samba-3.0.8pre1-x_fclose.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -94,8 +94,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-# % setup -q -n samba-3.0.6rc2
-%setup -q
+%setup -q -n samba-3.0.8pre1
+# % setup -q
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -115,6 +115,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch10 -p1 -b .smbclient-kerberos
 %patch11 -p1 -b .use_authtok
 %patch13 -p1 -b .64bit-timestamps
+%patch14 -p1 -b .x_fclose
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -178,7 +179,7 @@ rm -rf $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
-mkdir -p $RPM_BUILD_ROOT/%{initdir}
+mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/cache/samba
@@ -211,9 +212,9 @@ install -m644 packaging/RedHat/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.
 install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/RedHat/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/RedHat/smbprint $RPM_BUILD_ROOT%{_bindir}
-install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{initdir}/smb
-install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{initdir}/winbind
-ln -s ../..%{initdir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
+install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
+install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
+ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/RedHat/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
@@ -239,6 +240,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.so $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
+/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
@@ -272,7 +274,7 @@ exit 0
 
 %postun
 if [ "$1" -ge "1" ]; then
-	%{initdir}/smb condrestart >/dev/null 2>&1
+	%{_initrddir}/smb condrestart >/dev/null 2>&1
 fi
 
 %post common
@@ -288,7 +290,7 @@ exit 0
 
 %postun common
 if [ "$1" -ge "1" ]; then
-	%{initdir}/winbind condrestart >/dev/null 2>&1
+	%{_initrddir}/winbind condrestart >/dev/null 2>&1
 fi
 /sbin/ldconfig
 
@@ -309,7 +311,10 @@ fi
 %defattr(-,root,root)
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
-%doc docs
+%doc docs/REVISION docs/Samba-Developers-Guide.pdf docs/Samba-Guide.pdf
+%doc docs/Samba-HOWTO-Collection.pdf docs/THANKS docs/history
+%doc docs/htmldocs
+%doc docs/registry
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
 
@@ -325,7 +330,7 @@ fi
 %{_bindir}/tdbdump
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/samba/smbusers
-%attr(755,root,root) %config %{initdir}/smb
+%attr(755,root,root) %config %{_initrddir}/smb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
 # %{_mandir}/man1/make_unicodemap.1*
@@ -426,7 +431,7 @@ fi
 %dir %{_datadir}/samba
 %dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
-%{initdir}/winbind
+%{_initrddir}/winbind
 # %{_datadir}/samba/codepages/*
 # %{_mandir}/man1/make_smbcodepage.1*
 %{_mandir}/man1/ntlm_auth.1*
@@ -450,6 +455,23 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Sep 27 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-0.pre1
+- new upstream release.  This obsoletes the ldapsam_compat patches.
+
+* Wed Sep 15 2004 Jay Fenlason <fenlason@redhat.com> 3.0.7-4
+- Update docs section to not carryover the docs/manpages directory
+  This moved many files from /usr/share/doc/samba-3.0.7/docs/* to
+  /usr/share/doc/samba-3.0.7/*
+- Modify spec file as suggested by Rex Dieter (rdieter@math.unl.edu)
+  to correctly create libsmbclient.so.0 and to use %_initrddir instead
+  of rolling our own.  This closes #132642
+- Add patch to default "use sendfile" to no, since sendfile appears to
+  be broken
+- Add patch from Volker Lendecke <vl@samba.org> to help make
+  ldapsam_compat work again.
+- Add patch from "Vince Brimhall" <vbrimhall@novell.com> for ldapsam_compat
+  These two patches close bugzilla #132169
+
 * Mon Sep 13 2004 Jay Fenlason <fenlason@redhat.com> 3.0.7-3
 - Upgrade to 3.0.7, which fixes CAN-2004-0807 CAN-2004-0808
   This obsoletes the 3.0.6-schema patch.
