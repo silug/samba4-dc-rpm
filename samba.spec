@@ -2,8 +2,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.8
-Release: 4
+Version: 3.0.9
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -22,8 +22,6 @@ Source5: smb.init
 Source6: samba.pamd
 Source7: smbprint
 Source8: winbind.init
-# Oops.  This won't be needed for 3.0.9
-Source9: http://samba.org/~samba-bugs/docs/samba-docs-latest.tar.bz2
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -40,10 +38,11 @@ Patch8: samba-3.0.4-warning.patch
 Patch9: samba-3.0.5rc1-passwd.patch
 Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
 Patch11: samba-3.0.5pre1-use_authtok.patch
-Patch13: samba-3.0.5rc1-64bit-timestamps.patch
-Patch15: samba-3.0.8pre1-smbmnt.patch
-Patch20: samba-3.0.8-non-ascii-domain.patch
-Patch21: samba-3.0.8-secret.patch
+Patch12: samba-3.0.5rc1-64bit-timestamps.patch
+Patch13: samba-3.0.8pre1-smbmnt.patch
+Patch14: samba-3.0.8-non-ascii-domain.patch
+Patch15: samba-3.0.4-install.mount.smbfs.patch
+Patch16: samba-3.0.9-changetrustpw.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -107,10 +106,6 @@ cp %{SOURCE6} packaging/RedHat/
 cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
-rm -r docs
-tar xjf %{SOURCE9}
-mv samba-docs-build-277 docs
-
 %patch1 -p1 -b .smbw
 %patch2 -p1 -b .pipedir
 %patch3 -p1 -b .logfiles
@@ -122,10 +117,11 @@ mv samba-docs-build-277 docs
 %patch9 -p1 -b .passwd
 %patch10 -p1 -b .smbclient-kerberos
 %patch11 -p1 -b .use_authtok
-%patch13 -p1 -b .64bit-timestamps
-%patch15 -p1 -b .smbmnt
-%patch20 -p1 -b .non-ascii-domain
-%patch21 -p1 -b .secret
+%patch12 -p1 -b .64bit-timestamps
+%patch13 -p1 -b .smbmnt
+%patch14 -p1 -b .non-ascii-domain
+%patch15 -p1 -b .install.mount.smbfs
+%patch16 -p1 -b .changetrustpw
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -304,19 +300,6 @@ if [ "$1" -ge "1" ]; then
 fi
 /sbin/ldconfig
 
-%triggerpostun -- samba < 1.9.18p7
-if [ $1 != 0 ]; then
-    /sbin/chkconfig --add smb
-fi
-
-%triggerpostun -- samba < 2.0.5a-3
-if [ $1 != 0 ]; then
-    [ ! -d /var/lock/samba ] && mkdir -m 0755 /var/lock/samba
-    [ ! -d /var/spool/samba ] && mkdir -m 1777 /var/spool/samba
-    chmod 644 /etc/services
-    [ -f /etc/inetd.conf ] && chmod 644 /etc/inetd.conf
-fi
-
 %files
 %defattr(-,root,root)
 %doc README COPYING Manifest 
@@ -361,7 +344,6 @@ fi
 #%{_mandir}/ja/man8/nmbd.8*
 %{_libdir}/samba/vfs
 
-%attr(0700,root,root) %dir /var/log/samba
 %attr(1777,root,root) %dir /var/spool/samba
 
 %files swat
@@ -442,6 +424,7 @@ fi
 %dir %{_datadir}/samba
 %dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
+%attr(0700,root,root) %dir /var/log/samba
 %{_initrddir}/winbind
 # %{_datadir}/samba/codepages/*
 # %{_mandir}/man1/make_smbcodepage.1*
@@ -466,9 +449,25 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Nov 22 2004 Jay Fenlason <fenlason@redhat.com> 3.0.9-2
+- New upstream release.  This obsoletes the -secret patch.
+  Include my changetrustpw patch to make "net ads changetrustpw" stop
+  aborting.  This closes #134694
+- Remove obsolete triggers for ancient samba versions.
+- Move /var/log/samba to the -common rpm.  This closes #76628
+- Remove the hack needed to get around the bad docs files in the
+  3.0.8 tarball.
+- Change the comment in winbind.init to point at the correct pidfile.
+  This closes #76641
+
 * Mon Nov 22 2004 Than Ngo <than@redhat.com> 3.0.8-4
 - fix unresolved symbols in libsmbclient which caused applications
   such as KDE's konqueror to fail when accessing smb:// URLs. #139894
+
+* Thu Nov 11 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-3.1
+- Rescue the install.mount.smbfs patch from Juanjo Villaplana
+  (villapla@si.uji.es) to prevent building the srpm from trashing your
+  installed /usr/bin/smbmount
 
 * Tue Nov 9 2004 Jay Fenlason <fenlason@redhat.com> 3.0.8-3
 - Include the corrected docs tarball, and use it instead of the
