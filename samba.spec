@@ -3,13 +3,13 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.0
-Release: 15
+Version: 3.0.2
+Release: 1rc1
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.bz2
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.bz2
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -26,15 +26,13 @@ Source999: filter-requires-samba.sh
 
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
-Patch6: samba-2.0.7-buildroot.patch
 # Not used, but it have some patches which might be needed later...
 Patch16: samba-2.2.2-smbadduser.patch
 Patch17: samba-2.2.8-smb.conf.patch
 Patch20: samba-3.0.0beta1-pipedir.patch
-Patch24: samba-3.0.0-logfiles.patch
-Patch25: samba-3.0.0-pie.patch
+Patch24: samba-3.0.2rc1-logfiles.patch
+Patch25: samba-3.0.2rc1-pie.patch
 Patch26: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch27: samba-3.0.0rc4-testparm.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -88,7 +86,7 @@ Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
 
 %prep
-%setup -q
+%setup -q -n samba-3.0.2rc1
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -97,12 +95,10 @@ cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
 %patch1 -p1 -b .smbw
-%patch6 -p1 -b .buildroot
 %patch20 -p1 -b .pipedir
 %patch24 -p1 -b .logfiles
 %patch25 -p1 -b .pie
 %patch26 -p1 -b .nmbd-netbiosname
-%patch27 -p1 -b .testparm
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -124,7 +120,7 @@ autoheader
 autoconf
 EXTRA="-D_LARGEFILE64_SOURCE"
 %endif
-%configure \
+CFLAGS=-D_GNU_SOURCE %configure \
 	--with-acl-support \
 	--with-automount \
 	--with-codepagedir=%{_datadir}/samba/codepages \
@@ -219,7 +215,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # libsmbclient
 
 # make install puts libsmbclient.so in the wrong place on x86_64
-rm -f $RPM_BUILD_ROOT/usr/lib || true
+rm -f $RPM_BUILD_ROOT/usr/lib/libsmbclient.so $RPM_BUILD_ROOT/usr/lib/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install -m 644 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
 install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
@@ -234,6 +230,7 @@ install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/mount.cifs.8*
 
 %clean
@@ -298,6 +295,7 @@ fi
 %{_bindir}/smbstatus
 # %{_bindir}/smbadduser
 %{_bindir}/tdbbackup
+%{_bindir}/tdbdump
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{initdir}/smb
@@ -308,11 +306,11 @@ fi
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
-%{_mandir}/man7/Samba.7*
 %{_mandir}/man8/nmbd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/tdbdump.8*
 #%{_mandir}/ja/man1/smbstatus.1*
 #%{_mandir}/ja/man5/smbpasswd.5*
 #%{_mandir}/ja/man7/samba.7*
@@ -421,6 +419,17 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Jan 19 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-1rc1
+- Upgrade to new upstream version
+
+* Wed Dec 17 2003 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 3.0.1-1
+- Update to 3.0.1
+- Removed testparm patch as it's already merged
+- Removed Samba.7* man pages
+- Fixed .buildroot patch
+- Fixed .pie patch
+- Added new /usr/bin/tdbdump file
+
 * Thu Sep 25 2003 Jay Fenlason <fenlason@redhat.com> 3.0.0-15
 - New 3.0.0 final release
 - merge nmbd-netbiosname and testparm patches from 3E branch
