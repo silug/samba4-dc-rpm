@@ -3,16 +3,16 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.5
-Release: 0pre1.0
+Version: 3.0.6
+Release: 3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre1.tar.gz
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+# Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.gz
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -30,12 +30,17 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.5pre1-logfiles.patch
-Patch4: samba-3.0.3pre1-pie.patch
+Patch3: samba-3.0.6-logfiles.patch
+Patch4: samba-3.0.6-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
 Patch7: samba-3.0.4-man.patch
 Patch8: samba-3.0.4-warning.patch
+Patch9: samba-3.0.5rc1-passwd.patch
+Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
+Patch11: samba-3.0.5pre1-use_authtok.patch
+Patch12: samba-3.0.6-schema.patch
+Patch13: samba-3.0.5rc1-64bit-timestamps.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -90,8 +95,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.5pre1
-#%setup -q
+# % setup -q -n samba-3.0.6rc2
+%setup -q
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -107,6 +112,11 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch6 -p1 -b .upstream
 %patch7 -p1 -b .man
 %patch8 -p1 -b .warning
+%patch9 -p1 -b .passwd
+%patch10 -p1 -b .smbclient-kerberos
+%patch11 -p1 -b .use_authtok
+%patch12 -p1 -b .schema
+%patch13 -p1 -b .64bit-timestamps
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -228,7 +238,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # libsmbclient
 
 # make install puts libsmbclient.so in the wrong place on x86_64
-rm -f $RPM_BUILD_ROOT/usr/lib/libsmbclient.so $RPM_BUILD_ROOT/usr/lib/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
+rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.so $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
 install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
@@ -442,6 +452,40 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Aug 16 2004 Jay Fenlason <fenlason@redhat.com> 3.0.6-3
+- New upstream version.
+- Include post 3.0.6 patch from "Gerald (Jerry) Carter" <jerry@samba.org>
+  to fix a duplicate in the LDAP schema.
+- Include 64-bit timestamp patch from Ravikumar (rkumar@hp.com)
+  to allow correct timestamp handling on 64-bit platforms and fix #126109.
+- reenable the -pie patch.  Samba is too widely used, and too vulnerable
+  to potential security holes to disable an important security feature
+  like -pie.  The correct fix is to have the toolchain not create broken
+  executables when programs compiled -pie are stripped.
+- Remove obsolete patches.
+- Modify this spec file to put libsmbclient.{a,so} in the right place on
+  x86_64 machines.
+
+* Wed Aug  5 2004 Jason Vas Dias <jvdias@redhat.com> 3.0.5-3
+- Removed '-pie' patch - 3.0.5 uses -fPIC/-PIC, and the combination
+- resulted in executables getting corrupt stacks, causing smbmnt to
+- get a SIGBUS in the mount() call (bug 127420).
+
+* Fri Jul 30 2004 Jay Fenlason <fenlason@redhat.com> 3.0.5-2
+- Upgrade to 3.0.5, which is a regression from 3.0.5pre1 for a
+  security fix.
+- Include the 3.0.4-backport patch from the 3E branch.  This restores
+  some of the 3.0.5pre1 and 3.0.5rc1 functionality.
+
+* Tue Jul 20 2004 Jay Fenlason <fenlason@redhat.com> 3.0.5-0.pre1.1
+- Backport base64_decode patche to close CAN-2004-0500
+- Backport hash patch to close CAN-2004-0686
+- use_authtok patch from Nalin Dahyabhai <nalin@redhat.com>
+- smbclient-kerberos patch from Alexander Larsson <alexl@redhat.com>
+- passwd patch uses "*" instead of "x" for "hashed" passwords for
+  accounts created by winbind.  "x" means "password is in /etc/shadow" to
+  brain-damaged pam_unix module.
+
 * Fri Jul 2 2004 Jay Fenlason <fenlason@redhat.com> 3.0.5.0pre1.0
 - New upstream version
 - use % { SOURCE1 } instead of a hardcoded path
