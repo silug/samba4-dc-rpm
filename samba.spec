@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.3a
-Release: 5
+Release: 6
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -365,6 +365,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Apr 10 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-6
+- Don't use /etc/samba.d in smbadduser, it should be /etc/samba
+
 * Thu Apr  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-5
 - Add libsmbclient.a w/headerfile for KDE (#62202)
 
