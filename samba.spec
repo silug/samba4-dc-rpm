@@ -3,15 +3,15 @@
 
 Summary: Samba SMB server.
 Name: samba
-Version: 2.0.8
-Release: 1.7.1
-Copyright: GNU GPL Version 2
+Version: 2.0.10
+Release: 1
+License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
 Source1: samba.log
 Source2: samba.xinetd
-Patch100: samba-j.patch.bz2
+Patch100: samba-2.0.10-j.patch
 # For some reason this won't apply as part of the -j patch
 Patch111: ookpatch
 Patch200: samba-j-2.patch.bz2
@@ -37,7 +37,6 @@ Patch19: smbmount-2.0.7-ascii+fixes.patch
 Patch20: samba-mkdir.patch
 Patch21: samba-2.0.7-setcred.patch
 Patch22: samba-2.0.7-quota.patch
-Patch23: samba-2.0.8-tempfile.patch
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -87,7 +86,7 @@ Samba-common provides files necessary for both the server and client
 packages of Samba.
 
 %package swat
-Summary: The Samba SMB server configuration program."
+Summary: The Samba SMB server configuration program.
 Group: Applications/System
 Requires: samba = %{version} xinetd
 
@@ -124,7 +123,6 @@ using your favorite web browser.
 %patch20 -p0 -b .mkdir
 %patch21 -p1 -b .setcred
 %patch22 -p1 -b .quota
-%patch23 -p1 -b .tempfile
 
 %build
 cd source
@@ -313,6 +311,7 @@ fi
 %{_bindir}/make_printerdef
 %config(noreplace) /etc/samba/smb.conf
 %config(noreplace) /etc/samba/lmhosts
+%dir /etc/samba
 %dir /etc/samba/codepages
 %config /etc/samba/codepages/*
 %{_mandir}/man1/make_smbcodepage.1*
@@ -329,6 +328,11 @@ fi
 %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Sat Jun 23 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- 2.0.10 security fix
+- redo the Japanese patch
+- remove now included tempfile fix
+
 * Mon May  7 2001 Bill Nottingham <notting@redhat.com>
 - device-remove security fix again (<tridge@samba.org>)
 
