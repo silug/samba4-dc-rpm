@@ -3,13 +3,12 @@
 
 Summary: Samba SMB server.
 Name: samba
-Version: 2.0.7
-Release: 36
+Version: 2.0.8
+Release: 1.7.1
 Copyright: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
-# Bogus URL -- it's actually gzipped upstream.
-Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.bz2
+Source: ftp://us2.samba.org/pub/samba/samba-%{version}.tar.gz
 Source1: samba.log
 Source2: samba.xinetd
 Patch100: samba-j.patch.bz2
@@ -38,10 +37,9 @@ Patch19: smbmount-2.0.7-ascii+fixes.patch
 Patch20: samba-mkdir.patch
 Patch21: samba-2.0.7-setcred.patch
 Patch22: samba-2.0.7-quota.patch
-Patch23: samba-2.0.7-temp.patch
+Patch23: samba-2.0.8-tempfile.patch
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
-Requires: logrotate >= 3.4, openssl >= 0.9.5a-20 initscripts >= 5.54-1
-BuildPrereq: openssl-devel, krb5-devel
+Requires: logrotate >= 3.4 initscripts >= 5.54-1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 ExcludeArch: sparc
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
@@ -131,15 +129,13 @@ using your favorite web browser.
 %build
 cd source
 autoconf
-CPPFLAGS="-I/usr/include/openssl -I/usr/kerberos/include"; export CPPFLAGS
-LIBS="-L/usr/kerberos/lib"; export LIBS
 %ifarch i386 sparc
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 %endif
 %configure --libdir=/etc/samba \
   --with-lockdir=/var/lock/samba --with-privatedir=/etc/samba \
   --with-swatdir=/usr/share/swat --with-smbmount --with-automount \
-  --with-ssl --with-pam --with-mmap --with-quotas
+  --with-pam --with-mmap --with-quotas --without-smbwrapper
 make CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" all
 
 %install
@@ -333,6 +329,16 @@ fi
 %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon May  7 2001 Bill Nottingham <notting@redhat.com>
+- device-remove security fix again (<tridge@samba.org>)
+
+* Fri Apr 20 2001 Bill Nottingham <notting@redhat.com>
+- fix tempfile security problems, officially (<tridge@samba.org>)
+- update to 2.0.8
+
+* Sun Apr  8 2001 Bill Nottingham <notting@redhat.com>
+- turn of SSL, kerberos
+
 * Thu Apr  5 2001 Bill Nottingham <notting@redhat.com>
 - fix tempfile security problems (patch from <Marcus.Meissner@caldera.de>)
 
