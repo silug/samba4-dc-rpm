@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.1a
-Release: 3
+Release: 4
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -239,7 +239,6 @@ fi
 %{_sbindir}/nmbd
 %{_bindir}/mksmbpasswd.sh
 %{_bindir}/smbstatus
-%{_bindir}/smbpasswd
 %{_bindir}/smbadduser
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/samba/smbusers
@@ -321,6 +320,12 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Aug 13 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Don't include smbpasswd in samba, it's in samba-common (#51598)
+- Add a disabled "obey pam restrictions" statement - it's not
+  active, as we use encrypted passwords, but if the admin turns
+  encrypted passwords off the choice is available. (#31351)
+
 * Wed Aug  8 2001 Trond Eivind Glomsrød <teg@redhat.com>
 - Use /var/cache/samba instead of /var/lock/samba 
 - Remove "domain controller" keyword from smb.conf, it's 
