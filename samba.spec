@@ -46,7 +46,8 @@ Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
-BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel
+BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils,\
+ libacl-devel krb5-devel openldap-devel openssl-devel cups-devel
 
 
 # Working around perl dependency problem from docs
@@ -453,6 +454,8 @@ fi
 * Mon Sep 13 2004 Jay Fenlason <fenlason@redhat.com> 3.0.7-3
 - Upgrade to 3.0.7, which fixes CAN-2004-0807 CAN-2004-0808
   This obsoletes the 3.0.6-schema patch.
+- Update BuildRequires line to include openldap-devel openssl-devel
+  and cups-devel
 
 * Mon Aug 16 2004 Jay Fenlason <fenlason@redhat.com> 3.0.6-3
 - New upstream version.
