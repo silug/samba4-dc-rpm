@@ -4,7 +4,7 @@
 Summary: Samba SMB server.
 Name: samba
 Version: 2.0.10
-Release: 2
+Release: 5.7.1
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -37,6 +37,7 @@ Patch19: smbmount-2.0.7-ascii+fixes.patch
 Patch20: samba-mkdir.patch
 Patch21: samba-2.0.7-setcred.patch
 Patch22: samba-2.0.7-quota.patch
+Patch23: samba-2.0.10-security.patch
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -123,6 +124,7 @@ using your favorite web browser.
 %patch20 -p0 -b .mkdir
 %patch21 -p1 -b .setcred
 %patch22 -p1 -b .quota
+%patch23 -p1 -b .insecure
 
 %build
 cd source
@@ -328,6 +330,12 @@ fi
 %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Apr 7 2003 Jay Fenlason <fenlason@redhat.com> 2.0.10-5.7.1
+- Replaced backported security fix with the 2.0.10 security rollup.
+
+* Mon Mar 17 2003 Jay Fenlason <fenlason@redhat.com> 2.0.10-4.7.1
+- backport security patch from 2.2.8
+
 * Mon Jun 25 2001 Trond Eivind Glomsrød <teg@redhat.com>
 - Rebuild
 
