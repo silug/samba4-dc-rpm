@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.7
-Release: 4.8.0
+Release: 5.8.0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -38,6 +38,8 @@ Patch15: samba-2.2.7-lfsclient.patch
 # Not used, but it have some patches which might be needed later...
 Patch16: samba-2.2.2-smbadduser.patch
 Patch17: samba-2.2.7-security.patch
+Patch18: samba-2.2.7-expansion.patch
+Patch19: samba-2.2.7-widelink.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -108,7 +110,9 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch13 -p1 -b .winsfixes
 %patch14 -p1 -b .locfix
 %patch15 -p1 -b .lfs
-%patch17 -p0 -b .insecure
+%patch17 -p1 -b .insecure
+%patch18 -p0 -b .expansion
+%patch19 -p1 -b .widelink
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -416,6 +420,11 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Sat Apr 5 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-5.8.0
+- Import security rollup fix for 2.2.7a
+- Import fix for %g, etc expansion from 2.2.7a
+- Import fix for "wide links = no" from 2.2.8a-pre1
+
 * Fri Mar 14 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7-4.8.0
 - removed duplicate /sbin/chkconfig --del winbind from spec file
 
