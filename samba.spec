@@ -4,7 +4,7 @@
 Summary: Samba SMB server.
 Name: samba
 Version: 2.0.10
-Release: 1
+Release: 2
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -328,6 +328,9 @@ fi
 %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Jun 25 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Rebuild
+
 * Sat Jun 23 2001 Trond Eivind Glomsrød <teg@redhat.com>
 - 2.0.10 security fix
 - redo the Japanese patch
