@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.11
-Release: 3
+Release: 4
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -459,6 +459,10 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Thu Feb 24 2005 Jay Fenlason <fenlason@redhat.com> 3.0.11-4
+- Use the updated filter-requires-samba.sh file, so we don't accidentally
+  pick up a dependency on perl(Crypt::SmbHash)
+
 * Fri Feb 18 2005 Jay Fenlason <fenlason@redhat.com> 3.0.11-3
 - add -gcc4 patch to compile with gcc 4.
 - remove the now obsolete -smbclient-kerberos.patch
