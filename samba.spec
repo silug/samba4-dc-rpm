@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.10
-Release: 3
+Release: 4
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -33,7 +33,7 @@ Patch3: samba-3.0.10-logfiles.patch
 Patch4: samba-3.0.8-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
-Patch7: samba-3.0.4-man.patch
+Patch7: samba-3.0.10-man.patch
 Patch8: samba-3.0.4-warning.patch
 Patch9: samba-3.0.5rc1-passwd.patch
 Patch10: samba-3.0.5pre1-smbclient-kerberos.patch
@@ -44,6 +44,7 @@ Patch13: samba-3.0.8pre1-smbmnt.patch
 Patch15: samba-3.0.4-install.mount.smbfs.patch
 Patch16: samba-3.0.9-changetrustpw.patch
 Patch17: samba-3.0.7-64bit.patch
+Patch18: samba-3.0.10-delim.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -57,15 +58,16 @@ BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel
 %define __perl_requires %{SOURCE999}
 
 %description
-Samba is the protocol by which a lot of PC-related machines share
-files, printers, and other information (such as lists of available
-files and printers). The Windows NT, OS/2, and Linux operating systems
-support this natively, and add-on packages can enable the same thing
-for DOS, Windows, VMS, UNIX of all kinds, MVS, and more. This package
-provides an SMB server that can be used to provide network services to
-SMB (sometimes called "Lan Manager") clients. Samba uses NetBIOS over
-TCP/IP (NetBT) protocols and does NOT need the NetBEUI (Microsoft Raw
-NetBIOS frame) protocol.
+
+Samba is the suite of programs by which a lot of PC-related machines
+share files, printers, and other information (such as lists of
+available files and printers). The Windows NT, OS/2, and Linux
+operating systems support this natively, and add-on packages can
+enable the same thing for DOS, Windows, VMS, UNIX of all kinds, MVS,
+and more. This package provides an SMB server that can be used to
+provide network services to SMB (sometimes called "Lan Manager")
+clients. Samba uses NetBIOS over TCP/IP (NetBT) protocols and does NOT
+need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 
 %package client
 Summary: Samba (SMB) client programs.
@@ -124,6 +126,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch15 -p1 -b .install.mount.smbfs
 %patch16 -p1 -b .changetrustpw
 %patch17 -p1 -b .64bit
+%patch18 -p1 -b .delim
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -314,7 +317,6 @@ fi
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
 
-%attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
 # %{_bindir}/make_unicodemap
@@ -393,6 +395,7 @@ fi
 
 %files common
 %defattr(-,root,root)
+%attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
 %dir %{_libdir}/samba/charset
 %{_libdir}/samba/lowcase.dat
@@ -454,6 +457,15 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Jan 12 2005 Jay Fenlason <fenlason@redhat.com> 3.0.10-4
+- Update the -man patch to fix ntlm_auth.1 too.
+- Move pam_smbpass.so to the -common package, so both the 32
+  and 64-bit versions will be installed on multiarch platforms.
+  This closes bz#143617
+- Added new -delim patch to fix mount.cifs so it can accept
+  passwords with commas in them (via environment or credentials
+  file) to close bz#144198
+
 * Wed Jan 12 2005 Tim Waugh <twaugh@redhat.com> 3.0.10-3
 - Rebuilt for new readline.
 
