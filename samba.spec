@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.5
-Release: 9
+Release: 10
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -420,6 +420,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Wed Aug 28 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-10
+- logrotate fixes (#65007)
+
 * Mon Aug 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-9
 - /usr/lib was used in place of %%{_libdir} in three locations (#72554)
 
