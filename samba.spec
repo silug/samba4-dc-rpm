@@ -3,14 +3,15 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.2a
-Release: 1.1
+Version: 3.0.3
+Release: 5
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-## Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.bz2
+#TAG: change for non-pre
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.bz2
 Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.bz2
 
 # Red Hat specific replacement-files
@@ -29,19 +30,20 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 # Not used, but it have some patches which might be needed later...
-Patch16: samba-2.2.2-smbadduser.patch
-Patch17: samba-2.2.8-smb.conf.patch
 Patch20: samba-3.0.0beta1-pipedir.patch
-Patch24: samba-3.0.2rc1-logfiles.patch
-Patch25: samba-3.0.2rc1-pie.patch
+Patch24: samba-3.0.3-logfiles.patch
+Patch25: samba-3.0.3pre1-pie.patch
 Patch26: samba-3.0.0rc3-nmbd-netbiosname.patch
+Patch27: samba-3.0.3-password.patch
+Patch28: samba-3.0.3-bug1302.patch
+Patch29: samba-3.0.3-bug1309.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
-BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel
+BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel
 
 
 # Working around perl dependency problem from docs
@@ -88,8 +90,9 @@ Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
 
 %prep
-## % setup -q -n samba-3.0.2
-%setup -q -n samba-3.0.2a
+# TAG: change for non-pre
+# % setup -q -n samba-3.0.3rc1
+%setup -q
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -102,6 +105,9 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch24 -p1 -b .logfiles
 %patch25 -p1 -b .pie
 %patch26 -p1 -b .nmbd-netbiosname
+%patch27 -p1 -b .password
+%patch28 -p1 -b .bug1302
+%patch29 -p1 -b .bug1309
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -126,22 +132,25 @@ EXTRA="-D_LARGEFILE64_SOURCE"
 CFLAGS=-D_GNU_SOURCE %configure \
 	--with-acl-support \
 	--with-automount \
-	--with-codepagedir=%{_datadir}/samba/codepages \
-	--with-fhs \
 	--with-libsmbclient \
-	--with-lockdir=/var/cache/samba \
 	--with-mmap \
 	--with-pam \
 	--with-pam_smbpass \
-	--with-piddir=/var/run \
-	--with-privatedir=%{_sysconfdir}/samba \
 	--with-quotas \
 	--with-smbmount \
-	--with-swatdir=%{_datadir}/swat \
 	--with-syslog \
 	--with-utmp \
 	--with-vfs \
-	--without-smbwrapper
+	--without-smbwrapper \
+	--with-lockdir=/var/cache/samba \
+	--with-piddir=/var/run \
+	--with-mandir=%{_mandir} \
+	--with-privatedir=%{_sysconfdir}/samba \
+	--with-logfilebase=/var/log/samba \
+        --with-libdir=%{_libdir}/samba \
+        --with-configdir=%{_sysconfdir}/samba \
+	--with-swatdir=%{_datadir}/swat \
+
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	proto
@@ -222,7 +231,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # make install puts libsmbclient.so in the wrong place on x86_64
 rm -f $RPM_BUILD_ROOT/usr/lib/libsmbclient.so $RPM_BUILD_ROOT/usr/lib/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
-install -m 644 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
+install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
 install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
@@ -433,6 +442,33 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue May 4 2004 Jay Fenlason <fenlason@redhat.com> 3.0.3-5
+- Patch to allow password changes from machines patched with
+  Microsoft hotfix MS04-011.
+- Include patches for https://bugzilla.samba.org/show_bug.cgi?id=1302
+  and https://bugzilla.samba.org/show_bug.cgi?id=1309
+
+* Thu Apr 29 2004 Jay Fenlason <fenlason@redhat.com> 3.0.3-4
+- Samba 3.0.3 released.
+
+* Wed Apr 21 2004 jay Fenlason <fenlason@redhat.com> 3.0.3-3.rc1
+- New upstream version
+- updated spec file to make libsmbclient.so executable.  This closes
+  bugzilla #121356
+
+* Mon Apr 5 2004 Jay Fenlason <fenlason@redhat.com> 3.0.3-2.pre2
+- New upstream version  
+- Updated configure line to remove --with-fhs and to explicitly set all
+  the directories that --with-fhs was setting.  We were overriding most of
+  them anyway.  This closes #118598
+
+* Mon Mar 15 2004 Jay Fenlason <fenlason@redhat.com> 3.0.3-1.pre1
+- New upstream version.
+- Updated -pie and -logfiles patches for 3.0.3pre1
+- add krb5-devel to buildrequires, fixes #116560
+- Add patch from Miloslav Trmac (mitr@volny.cz) to allow non-root to run
+  "service smb status".  This fixes #116559
+
 * Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
