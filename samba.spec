@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.3a
-Release: 0.72
+Release: 5
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -27,6 +27,7 @@ Patch1: samba-2.2.0-smbw.patch
 Patch3: samba-2.0.5a-gawk.patch
 Patch5: samba-2.0.7-krb5-1.2.patch
 Patch6: samba-2.0.7-buildroot.patch
+Patch7: samba-2.2.3a-smbpass.patch
 Patch11: samba-2.2.0-logname.patch
 Patch13: samba-2.2.2-winsfixes.patch
 Patch14: samba-2.2.3-smbadduserloc.patch
@@ -43,7 +44,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
 BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils
-Exclusivearch: i386
 
 %description
 Samba is the protocol by which a lot of PC-related machines share
@@ -99,6 +99,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch3 -p1 -b .gawk
 %patch5 -p1 -b .krb5-1.2
 %patch6 -p1 -b .buildroot
+%patch7 -p1 -b .smbpass
 %patch13 -p1 -b .winsfixes
 %patch14 -p1 -b .locfix
 
@@ -127,6 +128,7 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 	--with-mmap \
 	--with-quotas \
 	--without-smbwrapper \
+	--with-libsmbclient \
 	--with-utmp
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
@@ -192,6 +194,13 @@ install -m 755 source/nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/lib/libnss_winb
 install -m 755 source/nsswitch/libnss_wins.so $RPM_BUILD_ROOT/lib/libnss_wins.so
 ln -s libnss_wins.so  $RPM_BUILD_ROOT/lib/libnss_wins.so.2
 ln -s libnss_winbind.so  $RPM_BUILD_ROOT/lib/libnss_winbind.so.2
+
+# libsmbclient
+
+mkdir -p $RPM_BUILD_ROOT/usr/{lib,include}
+install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT/usr/lib/
+install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT/usr/include/
+
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -274,6 +283,8 @@ fi
 #%{_mandir}/ja/man7/samba.7*
 #%{_mandir}/ja/man8/smbd.8*
 #%{_mandir}/ja/man8/nmbd.8*
+%{_includedir}/libsmbclient.h
+%{_libdir}/libsmbclient.a
 
 %dir /var/cache/samba
 %attr(0700,root,root) %dir /var/log/samba
@@ -354,7 +365,20 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
-* Thu Feb  7 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-0.72
+* Thu Apr  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-5
+- Add libsmbclient.a w/headerfile for KDE (#62202)
+
+* Tue Mar 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-4
+- Make the logrotate script look the correct place for the pid files 
+
+* Thu Mar 14 2002 Nalin Dahyabhai <nalin@redhat.com> 2.2.3a-3
+- include interfaces.o in pam_smbpass.so, which needs symbols from interfaces.o
+  (patch posted to samba-list by Ilia Chipitsine)
+
+* Thu Feb 21 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-2
+- Rebuild
+
+* Thu Feb  7 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-1
 - 2.2.3a
 
 * Mon Feb  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3-1
