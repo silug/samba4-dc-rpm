@@ -4,7 +4,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 2.2.5
-Release: 7
+Release: 8
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -418,6 +418,9 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon Aug  5 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-8
+- Initscript fix (#70720)
+
 * Fri Jul 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-7
 - Enable VFS support and compile the "recycling" module (#69796)
 - more selective includes of the examples dir 
