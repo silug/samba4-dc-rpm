@@ -3,8 +3,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 2.2.1a
-Release: 5s.1
+Version: 2.2.3a
+Release: 0.72
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -19,27 +19,23 @@ Source4: samba.sysconfig
 Source5: smb.init
 Source6: samba.pamd
 Source7: smbprint
+Source8: winbind.init
 
 # generic patches
-Patch0: samba-2.2.1a-smb.conf.patch
+Patch0: samba-2.2.2-smb.conf.patch
 Patch1: samba-2.2.0-smbw.patch
 Patch3: samba-2.0.5a-gawk.patch
-Patch4: samba-ia64.patch
 Patch5: samba-2.0.7-krb5-1.2.patch
 Patch6: samba-2.0.7-buildroot.patch
-Patch7: samba-2.0.7-quota.patch
-Patch8: samba-2.2.0-smbadduser.patch
-Patch9: samba-glibc21.patch
-Patch10: samba-2.2.0-capatibility.patch
 Patch11: samba-2.2.0-logname.patch
-
+Patch13: samba-2.2.2-winsfixes.patch
+Patch14: samba-2.2.3-smbadduserloc.patch
+# Not used, but it have some patches which might be needed later...
+Patch15: samba-2.2.2-smbadduser.patch
 # japanese patches
 Patch100: samba-j.patch.bz2
 Patch111: samba-2.2.0-ook.patch
 Patch200: samba-j-2.patch.bz2
-
-# s390 patches
-Patch300: samba-2.2.1a-s390.patch
 
 Requires: pam >= 0.64 %{auth} samba-common = %{version} 
 Requires: logrotate >= 3.4 initscripts >= 5.54-1 
@@ -47,6 +43,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
 BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils
+Exclusivearch: i386
 
 %description
 Samba is the protocol by which a lot of PC-related machines share
@@ -95,25 +92,19 @@ Web browser.
 cp %{SOURCE5} packaging/RedHat/
 cp %{SOURCE6} packaging/RedHat/
 cp %{SOURCE7} packaging/RedHat/
+cp %{SOURCE8} packaging/RedHat/winbind.init
 
 %patch0 -p1 -b .oldconf
 %patch1 -p1 -b .smbw
 %patch3 -p1 -b .gawk
-%patch4 -p1 -b .ia64
 %patch5 -p1 -b .krb5-1.2
 %patch6 -p1 -b .buildroot
-%patch7 -p1 -b .quota
-%patch8 -p1 -b .locationfix
-%patch9 -p1 -b .glibc
-%patch10 -p1 -b .compilefix
+%patch13 -p1 -b .winsfixes
+%patch14 -p1 -b .locfix
 
-### %patch100 -p1 -b .j
-%patch111 -p1 -b .ook
-### %patch200 -p1 -b .j-2
-
-%ifarch s390 s390x
-%patch300 -p1 -b .s390
-%endif
+### patch100 -p1 -b .j
+### patch111 -p1 -b .ook
+### patch200 -p1 -b .j-2
 
 %build
 
@@ -135,7 +126,8 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 	--with-pam_smbpass \
 	--with-mmap \
 	--with-quotas \
-	--without-smbwrapper 
+	--without-smbwrapper \
+	--with-utmp
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	all smbfilter nsswitch/libnss_wins.so debug2html
@@ -176,15 +168,30 @@ install -m644 packaging/RedHat/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.
 install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/RedHat/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/RedHat/smbprint $RPM_BUILD_ROOT%{_bindir}
-install -m755 source/smbadduser $RPM_BUILD_ROOT%{_bindir}
+install -m755 source/script/smbadduser $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/RedHat/findsmb $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{initdir}/smb
+install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{initdir}/winbind
 ln -s ../..%{initdir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
-install -m644 packaging/RedHat/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
+install -m644 packaging/RedHat/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 $RPM_SOURCE_DIR/samba.log $RPM_BUILD_ROOT/etc/logrotate.d/samba
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
+
+# pam_smbpass
+mkdir -p $RPM_BUILD_ROOT/lib/security
+mv $RPM_BUILD_ROOT%{_bindir}/pam_smbpass.so $RPM_BUILD_ROOT/lib/security/pam_smbpass.so
+cp -r source/pam_smbpass/ docs/
+rm -f docs/pam_smbpass/*.*
+
+# winbind
+install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/lib/security/pam_winbind.so
+mkdir -p $RPM_BUILD_ROOT/lib
+install -m 755 source/nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/lib/libnss_winbind.so
+install -m 755 source/nsswitch/libnss_wins.so $RPM_BUILD_ROOT/lib/libnss_wins.so
+ln -s libnss_wins.so  $RPM_BUILD_ROOT/lib/libnss_wins.so.2
+ln -s libnss_winbind.so  $RPM_BUILD_ROOT/lib/libnss_winbind.so.2
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -242,9 +249,12 @@ fi
 %doc WHATSNEW.txt Roadmap
 %doc docs
 %doc examples
+%attr(755,root,root) /lib/security/pam_smbpass.so
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
+%{_bindir}/make_unicodemap
 %{_bindir}/mksmbpasswd.sh
+%{_bindir}/smbcontrol
 %{_bindir}/smbstatus
 %{_bindir}/smbadduser
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
@@ -252,6 +262,8 @@ fi
 %attr(755,root,root) %config %{initdir}/smb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
+%{_mandir}/man1/make_unicodemap.1*
+%{_mandir}/man1/smbcontrol.1*
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
@@ -280,6 +292,8 @@ fi
 %defattr(-,root,root)
 /sbin/mount.smb
 /sbin/mount.smbfs
+%{_bindir}/rpcclient
+%{_bindir}/smbcacls
 %{_bindir}/smbmount
 %{_bindir}/smbmnt
 %{_bindir}/smbumount
@@ -293,6 +307,9 @@ fi
 %{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbtar
+%{_mandir}/man1/findsmb.1*
+%{_mandir}/man1/rpcclient.1*
+%{_mandir}/man1/smbcacls.1*
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/nmblookup.1*
@@ -302,16 +319,24 @@ fi
 
 %files common
 %defattr(-,root,root)
+/lib/libnss_wins.so
+/lib/libnss_wins.so.2
+/lib/libnss_winbind.so
+/lib/libnss_winbind.so.2
+/lib/security/pam_winbind.so
 %{_bindir}/make_smbcodepage
 %{_bindir}/testparm
 %{_bindir}/testprns
 %{_bindir}/smbpasswd
 %{_bindir}/make_printerdef
+%{_bindir}/wbinfo
+%{_sbindir}/winbindd
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %dir %{_datadir}/samba
 %dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
+%{initdir}/winbind
 %{_datadir}/samba/codepages/*
 %{_mandir}/man1/make_smbcodepage.1*
 %{_mandir}/man1/testparm.1*
@@ -319,6 +344,8 @@ fi
 %{_mandir}/man5/smb.conf.5*
 %{_mandir}/man5/lmhosts.5*
 %{_mandir}/man8/smbpasswd.8*
+%{_mandir}/man1/wbinfo.1*
+%{_mandir}/man8/winbindd.8*
 #%{_mandir}/ja/man1/make_smbcodepage.1*
 #%{_mandir}/ja/man1/testparm.1*
 #%{_mandir}/ja/man1/testprns.1*
@@ -327,11 +354,48 @@ fi
 #%{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
-* Wed Mar 12 2003 D. Marlin <dmarlin@redhat.com> 2.2.1a-5s.1
-- new version number and rebuild for s390 (bug #85960)
+* Thu Feb  7 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-0.72
+- 2.2.3a
 
-* Tue Nov  6 2001 Than Ngo <than@redhat.com> 2.2.1a-5
-- workaround for non-broadcast interface on s390 (bug #55421)
+* Mon Feb  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3-1
+- 2.2.3
+
+* Thu Nov 29 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-8
+- New pam configuration file for samba
+
+* Tue Nov 27 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-7
+- Enable PAM session controll and password sync
+
+* Tue Nov 13 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-6
+- Move winbind files to samba-common. Add separate initscript for
+  winbind 
+- Fixes for winbind - protect global variables with mutex, use
+  more secure getenv
+
+* Thu Nov  8 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-5
+- Teach smbadduser about "getent passwd" 
+- Fix more pid-file references
+- Add (conditional) winbindd startup to the initscript, configured in
+  /etc/sysconfig/samba
+
+* Wed Nov  7 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-4
+- Fix pid-file reference in logrotate script
+- include pam and nss modules for winbind
+
+* Mon Nov  5 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-3
+- Add "--with-utmp" to configure options (#55372)
+- Include winbind, pam_smbpass.so, rpcclient and smbcacls
+- start using /var/cache/samba, we need to keep state and there is
+  more than just locks involved
+
+* Sat Nov 03 2001 Florian La Roche <Florian.LaRoche@redhat.de> 2.2.2-2
+- add "reload" to the usage string in the startup script
+
+* Mon Oct 15 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-1
+- 2.2.2
+
+* Tue Sep 18 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.1a-5
+- Add patch from Jeremy Allison to fix IA64 alignment problems (#51497)
 
 * Mon Aug 13 2001 Trond Eivind Glomsrød <teg@redhat.com>
 - Don't include smbpasswd in samba, it's in samba-common (#51598)

@@ -1,11 +1,9 @@
 #!/bin/sh
 #
 # chkconfig: - 91 35
-# description: Starts and stops the Samba smbd and nmbd daemons \
-#	       used to provide SMB network services.
-#
-# pidfile: /var/cache/samba/smbd.pid
-# pidfile: /var/cache/samba/nmbd.pid
+# description: Starts and stops the Samba winbind daemon
+#	       #
+# pidfile: /var/cache/samba/winbind.pid
 # config:  /etc/samba/smb.conf
 
 
@@ -38,32 +36,22 @@ RETVAL=0
 
 
 start() {
-        KIND="SMB"
+        KIND="Winbind"
 	echo -n $"Starting $KIND services: "
-	daemon smbd $SMBDOPTIONS
+	daemon winbindd "$WINBINDOPTIONS"
 	RETVAL=$?
 	echo
-        KIND="NMB"
-	echo -n $"Starting $KIND services: "
-	daemon nmbd $NMBDOPTIONS
-	RETVAL2=$?
-	echo
-	[ $RETVAL -eq 0 -a $RETVAL2 -eq 0 ] && touch /var/lock/subsys/smb || \
-	   RETVAL=1
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/winbindd || RETVAL=1
 	return $RETVAL
 }	
 
 stop() {
-        KIND="SMB"
+        echo
+	KIND="Winbind"
 	echo -n $"Shutting down $KIND services: "
-	killproc smbd
+	killproc winbindd
 	RETVAL=$?
-	echo
-	KIND="NMB"
-	echo -n $"Shutting down $KIND services: "
-	killproc nmbd
-	RETVAL2=$?
-	[ $RETVAL -eq 0 -a $RETVAL2 -eq 0 ] && rm -f /var/lock/subsys/smb
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/winbindd
 	echo ""
 	return $RETVAL
 }	
@@ -75,15 +63,14 @@ restart() {
 
 reload() {
         echo -n $"Reloading smb.conf file: "
-	killproc smbd -HUP
+	killproc winbindd -HUP
 	RETVAL=$?
 	echo
 	return $RETVAL
 }	
 
 rhstatus() {
-	status smbd
-	status nmbd
+	status winbindd
 }	
 
 case "$1" in
@@ -103,7 +90,7 @@ case "$1" in
   	rhstatus
 	;;
   condrestart)
-  	[ -f /var/lock/subsys/smb ] && restart || :
+  	[ -f /var/lock/subsys/winbindd ] && restart || :
 	;;
   *)
 	echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"
