@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.11
-Release: 5
+Release: 6
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -290,6 +290,7 @@ exit 0
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/smb condrestart >/dev/null 2>&1
 fi
+exit 0
 
 %post common
 /sbin/chkconfig --add winbind
@@ -459,6 +460,9 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Thu Mar 24 2005 Florian La Roche <laroche@redhat.com>
+- add a "exit 0" to the postun of the main samba package
+
 * Wed Mar  2 2005 Tomas Mraz <tmraz@redhat.com> 3.0.11-5
 - rebuild with openssl-0.9.7e
 
