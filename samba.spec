@@ -3,13 +3,15 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.2
-Release: 1rc1
+Version: 3.0.2a
+Release: 1.1
+Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.bz2
+## Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.bz2
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.bz2
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -34,8 +36,8 @@ Patch24: samba-3.0.2rc1-logfiles.patch
 Patch25: samba-3.0.2rc1-pie.patch
 Patch26: samba-3.0.0rc3-nmbd-netbiosname.patch
 
-Requires: pam >= 0.64 %{auth} samba-common = %{version} 
-Requires: logrotate >= 3.4 initscripts >= 5.54-1 
+Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
+Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
@@ -59,7 +61,7 @@ NetBIOS frame) protocol.
 %package client
 Summary: Samba (SMB) client programs.
 Group: Applications/System
-Requires: samba-common = %{version}
+Requires: samba-common = %{epoch}:%{version}
 Obsoletes: smbfs
 
 %description client
@@ -78,7 +80,7 @@ packages of Samba.
 %package swat
 Summary: The Samba SMB server configuration program.
 Group: Applications/System
-Requires: samba = %{version} xinetd
+Requires: samba = %{epoch}:%{version} xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -86,7 +88,8 @@ Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
 
 %prep
-%setup -q -n samba-3.0.2rc1
+## % setup -q -n samba-3.0.2
+%setup -q -n samba-3.0.2a
 
 # copy Red Hat specific scripts
 cp %{SOURCE5} packaging/RedHat/
@@ -151,6 +154,8 @@ make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	smbfilter
+
+( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -226,12 +231,13 @@ install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
+install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/mount.cifs.8*
+#rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/mount.cifs.8*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -263,7 +269,11 @@ if [ $1 = 0 ] ; then
 fi
 exit 0
 
-%postun common -p /sbin/ldconfig
+%postun common
+if [ "$1" -ge "1" ]; then
+	%{initdir}/winbind condrestart >/dev/null 2>&1
+fi
+/sbin/ldconfig
 
 %triggerpostun -- samba < 1.9.18p7
 if [ $1 != 0 ]; then
@@ -334,6 +344,7 @@ fi
 %defattr(-,root,root)
 /sbin/mount.smb
 /sbin/mount.smbfs
+/sbin/mount.cifs
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
@@ -347,6 +358,7 @@ fi
 %{_mandir}/man8/smbmount.8*
 %{_mandir}/man8/smbumount.8*
 %{_mandir}/man8/smbspool.8*
+%{_mandir}/man8/mount.cifs.8*
 %{_bindir}/nmblookup
 %{_bindir}/smbclient
 %{_bindir}/smbprint
@@ -368,6 +380,8 @@ fi
 
 %files common
 %defattr(-,root,root)
+%dir %{_libdir}/samba
+%dir %{_libdir}/samba/charset
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
@@ -419,6 +433,33 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Mon Feb 16 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2a-1
+- Upgrade to 3.0.2a
+
+* Mon Feb 16 2004 Karsten Hopp <karsten@redhat.de> 3.0.2-7 
+- fix ownership in -common package
+
+* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Fri Feb 13 2004 Jay Fenlason <fenlason@redhat.com>
+- Change all requires lines to list an explicit epoch.  Closes #102715
+- Add an explicit Epoch so that %{epoch} is defined.
+
+* Mon Feb 9 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-5
+- New upstream version: 3.0.2 final includes security fix for #114995
+  (CAN-2004-0082)
+- Edit postun script for the -common package to restart winbind when
+  appropriate.  Fixes bugzilla #114051.
+
+* Mon Feb 2 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-3rc2
+- add %dir entries for %{_libdir}/samba and %{_libdir}/samba/charset
+- Upgrade to new upstream version
+- build mount.cifs for the new cifs filesystem in the 2.6 kernel.
+
 * Mon Jan 19 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-1rc1
 - Upgrade to new upstream version
 
