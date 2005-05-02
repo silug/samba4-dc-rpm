@@ -2,15 +2,15 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.11
-Release: 6
+Version: 3.0.14a
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre2.tar.gz
 Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -29,23 +29,20 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch1: samba-2.2.0-smbw.patch
 Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.11-logfiles.patch
+Patch3: samba-3.0.12pre1-logfiles.patch
 Patch4: samba-3.0.11rc1-pie.patch
 Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch6: samba-3.0.4-smb.conf.patch
-Patch7: samba-3.0.10-man.patch
+Patch7: samba-3.0.13-man.patch
 Patch8: samba-3.0.4-warning.patch
 Patch9: samba-3.0.5rc1-passwd.patch
-Patch10: samba-3.0.5rc1-64bit-timestamps.patch
 #Patch11: samba-3.0.8-non-ascii-domain.patch
 Patch12: samba-3.0.4-install.mount.smbfs.patch
 Patch13: samba-3.0.10-delim.patch
 Patch14: samba-3.0.9-smbspool.patch
-Patch15: samba-3.0.11-gcc4.patch
-Patch16: samba-3.0.11-clitar.patch
-Patch17: samba-3.0.11-establish_trust.patch
-Patch18: samba-3.0.11-user_rights_v1.patch
-Patch19: samba-3.0.11-winbind_find_dc_v2.patch
+Patch15: samba-3.0.12rc1-gcc4.patch
+Patch16: samba-3.0.12pre1-quoting.patch
+Patch17: samba-3.0.13-smbclient.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -101,7 +98,7 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-#% setup -q -n samba-3.0.11rc1
+#% setup -q -n samba-3.0.15pre2
 %setup -q
 
 # copy Red Hat specific scripts
@@ -119,16 +116,13 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch7 -p1 -b .man
 %patch8 -p1 -b .warning
 %patch9 -p1 -b .passwd
-%patch10 -p1 -b .64bit-timestamps
 #%patch11 -p1 -b .non-ascii-domain
 %patch12 -p1 -b .install.mount.smbfs
 %patch13 -p1 -b .delim
 %patch14 -p1 -b .smbspool
 %patch15 -p1 -b .gcc4
-%patch16 -p0 -b .clitar
-%patch17 -p0 -b .establish_trust
-%patch18 -p0 -b .user_rights_v1
-%patch19 -p1 -b .winbind_find_dc_v2
+%patch16 -p1 -b .quoting
+%patch17 -p1 -b .smbclient
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -460,6 +454,20 @@ fi
 #%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
 
 %changelog
+* Mon May 2 2005 Jay Fenlason <fenlason@redhat.com> 3.0.14a-2
+- New upstream release.
+- the -64bit-timestamps, -clitar, -establish_trust, user_rights_v1,
+  winbind_find_dc_v2 patches are now obsolete.
+
+* Thu Apr 7 2005 Jay Fenlason <fenlason@redhat.com> 3.0.13-2
+- New upstream release
+- add my -quoting patch, to fix swat with strings that contain
+  html meta-characters, and to use correct quote characters in
+  lists, closing bz#134310
+- include the upstream winbindd_2k3sp1 patch
+- include the -smbclient patch.
+- include the -hang patch from upstream.
+
 * Thu Mar 24 2005 Florian La Roche <laroche@redhat.com>
 - add a "exit 0" to the postun of the main samba package
 
