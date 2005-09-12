@@ -453,8 +453,11 @@ fi
 %changelog
 * Mon Aug 22 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20-2
 - New upstream release
+  Includes five upstream patches -bug3010_v1, -groupname_enumeration_v3,
+    -regcreatekey_winxp_v1, -usrmgr_groups_v1, and -winbindd_v1
   This obsoletes the -pie and -delim patches
   the -warning and -gcc4 patches are obsolete too
+  The -man, -passwd, and -smbspool patches were updated to match 3.0.20pre1
   Also, the -quoting patch was implemented differently upstream
   There is now a umount.cifs executable and manpage
   We run autogen.sh as part of the build phase
@@ -462,6 +465,8 @@ fi
   libsmbclient now has a man page
 - Include -bug106483 patch to close
   bz#106483 smbclient: -N negates the provided password, despite documentation
+- Added the -warnings patch to quiet some compiler warnings.
+- Removed many obsolete patches from CVS.
 
 * Mon May 2 2005 Jay Fenlason <fenlason@redhat.com> 3.0.14a-2
 - New upstream release.
