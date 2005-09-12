@@ -1,0 +1,42 @@
+diff -urN --exclude-from=/misc/src/samba-cvs/diff.excludes samba-3.0.20-orig/source/passdb/pdb_ldap.c samba-3.0.20-new/source/passdb/pdb_ldap.c
+--- samba-3.0.20-orig/source/passdb/pdb_ldap.c	2005-07-28 08:19:48.000000000 -0500
++++ samba-3.0.20-new/source/passdb/pdb_ldap.c	2005-08-26 14:16:00.000000000 -0500
+@@ -3692,23 +3692,24 @@
+ 		return False;
+ 	}
+ 
+-	vals = ldap_get_values(ld, entry, "cn");
+-	if ((vals == NULL) || (vals[0] == NULL)) {
+-		DEBUG(5, ("\"cn\" not found\n"));
+-		return False;
+-	}
+-	pull_utf8_talloc(mem_ctx,
+-			 CONST_DISCARD(char **, &result->account_name),
+-			 vals[0]);
+-	ldap_value_free(vals);
++	/* display name is the NT group name */
+ 
+ 	vals = ldap_get_values(ld, entry, "displayName");
+-	if ((vals == NULL) || (vals[0] == NULL))
++	if ((vals == NULL) || (vals[0] == NULL)) {
+ 		DEBUG(8, ("\"displayName\" not found\n"));
+-	else
+-		pull_utf8_talloc(mem_ctx,
+-				 CONST_DISCARD(char **, &result->fullname),
+-				 vals[0]);
++
++		/* fallback to the 'cn' attribute */
++		vals = ldap_get_values(ld, entry, "cn");
++		if ((vals == NULL) || (vals[0] == NULL)) {
++			DEBUG(5, ("\"cn\" not found\n"));
++			return False;
++		}
++		pull_utf8_talloc(mem_ctx, CONST_DISCARD(char **, &result->account_name), vals[0]);
++	}
++	else {
++		pull_utf8_talloc(mem_ctx, CONST_DISCARD(char **, &result->account_name), vals[0]);
++	}
++
+ 	ldap_value_free(vals);
+ 
+ 	vals = ldap_get_values(ld, entry, "description");

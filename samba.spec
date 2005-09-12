@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.14a
+Version: 3.0.20
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -10,7 +10,7 @@ Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}pre2.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.gz
 Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -26,23 +26,34 @@ Source8: winbind.init
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
 
+# upstream patches.  Applied first so that they'll break our patches rather
+# than the other way around
+#Patch0: http://www.samba.org/samba/patches/groupname_enumeration_v3.patch
+Patch0: samba-3.0.20-groupname_enumeration_v3.patch
+#Patch1: http://www.samba.org/samba/patches/bug3010_v1.patch
+Patch1: samba-3.0.20-bug3010_v1.patch
+#Patch2: http://www.samba.org/samba/patches/winbindd_v1.patch
+Patch2: samba-3.0.20-winbindd_v1.patch
+#Patch3: http://www.samba.org/samba/patches/regcreatekey_winxp_v1.patch
+Patch3: samba-3.0.20-regcreatekey_winxp_v1.patch
+#Patch4: http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
+Patch4: samba-3.0.20-usrmgr_groups_v1.patch
+
+
 # generic patches
-Patch1: samba-2.2.0-smbw.patch
-Patch2: samba-3.0.0beta1-pipedir.patch
-Patch3: samba-3.0.12pre1-logfiles.patch
-Patch4: samba-3.0.11rc1-pie.patch
-Patch5: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch6: samba-3.0.4-smb.conf.patch
-Patch7: samba-3.0.13-man.patch
-Patch8: samba-3.0.4-warning.patch
-Patch9: samba-3.0.5rc1-passwd.patch
-#Patch11: samba-3.0.8-non-ascii-domain.patch
-Patch12: samba-3.0.4-install.mount.smbfs.patch
-Patch13: samba-3.0.10-delim.patch
-Patch14: samba-3.0.9-smbspool.patch
-Patch15: samba-3.0.12rc1-gcc4.patch
-Patch16: samba-3.0.12pre1-quoting.patch
-Patch17: samba-3.0.13-smbclient.patch
+Patch101: samba-2.2.0-smbw.patch
+Patch102: samba-3.0.0beta1-pipedir.patch
+Patch103: samba-3.0.12pre1-logfiles.patch
+Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
+Patch105: samba-3.0.4-smb.conf.patch
+Patch106: samba-3.0.20pre1-man.patch
+Patch107: samba-3.0.20pre1-passwd.patch
+#Patch108: samba-3.0.8-non-ascii-domain.patch
+Patch109: samba-3.0.4-install.mount.smbfs.patch
+Patch110: samba-3.0.20pre1-smbspool.patch
+Patch111: samba-3.0.13-smbclient.patch
+Patch112: samba-3.0.15pre2-bug106483.patch
+Patch113: samba-3.0.20-warnings.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -98,7 +109,7 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-#% setup -q -n samba-3.0.15pre2
+# % setup -q -n samba-3.0.20rc2
 %setup -q
 
 # copy Red Hat specific scripts
@@ -107,22 +118,26 @@ cp %{SOURCE6} packaging/RedHat/
 cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
-%patch1 -p1 -b .smbw
-%patch2 -p1 -b .pipedir
-%patch3 -p1 -b .logfiles
-%patch4 -p1 -b .pie
-%patch5 -p1 -b .nmbd-netbiosname
-%patch6 -p1 -b .upstream
-%patch7 -p1 -b .man
-%patch8 -p1 -b .warning
-%patch9 -p1 -b .passwd
-#%patch11 -p1 -b .non-ascii-domain
-%patch12 -p1 -b .install.mount.smbfs
-%patch13 -p1 -b .delim
-%patch14 -p1 -b .smbspool
-%patch15 -p1 -b .gcc4
-%patch16 -p1 -b .quoting
-%patch17 -p1 -b .smbclient
+# Upstream patches
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+
+%patch101 -p1 -b .smbw
+%patch102 -p1 -b .pipedir
+%patch103 -p1 -b .logfiles
+%patch104 -p1 -b .nmbd-netbiosname
+%patch105 -p1 -b .upstream
+%patch106 -p1 -b .man
+%patch107 -p1 -b .passwd
+#%patch108 -p1 -b .non-ascii-domain
+%patch109 -p1 -b .install.mount.smbfs
+%patch110 -p1 -b .smbspool
+%patch111 -p1 -b .smbclient
+%patch112 -p1 -b .bug106483
+%patch113 -p1 -b .warnings
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -133,8 +148,8 @@ script/mkversion.sh
 cd ..
 
 %build
-
 cd source
+sh autogen.sh
 %ifarch i386 sparc
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 %endif
@@ -180,6 +195,9 @@ make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	smbfilter
 
 ( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
+( cd client ; gcc -o umount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE umount.cifs.c )
+
+
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -222,7 +240,7 @@ install -m644 packaging/RedHat/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/RedHat/smbprint $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
 install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
-ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
+#ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/RedHat/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
@@ -258,13 +276,14 @@ install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
+install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
 
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man5/smbgetrc.5*
-#rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/mount.cifs.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -307,8 +326,8 @@ fi
 %defattr(-,root,root)
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
-%doc docs/REVISION docs/Samba-Developers-Guide.pdf docs/Samba-Guide.pdf
-%doc docs/Samba-HOWTO-Collection.pdf docs/THANKS docs/history
+%doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
+%doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
 %doc docs/htmldocs
 %doc docs/registry
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
@@ -316,11 +335,9 @@ fi
 
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
-# %{_bindir}/make_unicodemap
 %{_bindir}/mksmbpasswd.sh
 %{_bindir}/smbcontrol
 %{_bindir}/smbstatus
-# %{_bindir}/smbadduser
 %{_bindir}/tdbbackup
 %{_bindir}/tdbdump
 %{_bindir}/tdbtool
@@ -329,7 +346,6 @@ fi
 %attr(755,root,root) %config %{_initrddir}/smb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
-# %{_mandir}/man1/make_unicodemap.1*
 %{_mandir}/man1/smbcontrol.1*
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man5/smbpasswd.5*
@@ -339,11 +355,6 @@ fi
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/tdbbackup.8*
 %{_mandir}/man8/tdbdump.8*
-#%{_mandir}/ja/man1/smbstatus.1*
-#%{_mandir}/ja/man5/smbpasswd.5*
-#%{_mandir}/ja/man7/samba.7*
-#%{_mandir}/ja/man8/smbd.8*
-#%{_mandir}/ja/man8/nmbd.8*
 %{_libdir}/samba/vfs
 
 %attr(1777,root,root) %dir /var/spool/samba
@@ -354,7 +365,6 @@ fi
 %{_datadir}/swat
 %{_sbindir}/swat
 %{_mandir}/man8/swat.8*
-#%{_mandir}/ja/man8/swat.8*
 %attr(755,root,root) %{_libdir}/samba/*.msg
 
 %files client
@@ -362,6 +372,7 @@ fi
 /sbin/mount.smb
 /sbin/mount.smbfs
 /sbin/mount.cifs
+/sbin/umount.cifs
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/smbmount
@@ -373,6 +384,7 @@ fi
 %{_mandir}/man8/smbumount.8*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/mount.cifs.8*
+%{_mandir}/man8/umount.cifs.8*
 %{_bindir}/nmblookup
 %{_bindir}/smbclient
 %{_bindir}/smbprint
@@ -386,9 +398,6 @@ fi
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
-#%{_mandir}/ja/man1/smbtar.1*
-#%{_mandir}/ja/man1/smbclient.1*
-#%{_mandir}/ja/man1/nmblookup.1*
 
 %files common
 %defattr(-,root,root)
@@ -405,20 +414,17 @@ fi
 /%{_lib}/security/pam_winbind.so
 %{_libdir}/libsmbclient.a
 %{_libdir}/libsmbclient.so
+%{_libdir}/libsmbclient.so.0
 %{_libdir}/samba/charset/CP*.so
 %{_includedir}/libsmbclient.h
 %{_bindir}/net
 %{_bindir}/testparm
-%{_bindir}/testprns
 %{_bindir}/smbpasswd
-# %{_bindir}/make_printerdef
 %{_bindir}/wbinfo
-# %{_bindir}/editreg
 %{_bindir}/ntlm_auth
 %{_bindir}/pdbedit
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
-#%{_bindir}/vfstest
 %{_sbindir}/winbindd
 %dir /var/cache/samba
 %dir /var/run/winbindd
@@ -430,13 +436,10 @@ fi
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %{_initrddir}/winbind
-# %{_datadir}/samba/codepages/*
-# %{_mandir}/man1/make_smbcodepage.1*
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/testparm.1*
-%{_mandir}/man1/testprns.1*
 %{_mandir}/man5/smb.conf.5*
 %{_mandir}/man5/lmhosts.5*
 %{_mandir}/man8/smbpasswd.8*
@@ -445,15 +448,21 @@ fi
 %{_mandir}/man8/net.8*
 %{_mandir}/man1/vfstest.1*
 %{_mandir}/man8/pam_winbind.8*
-
-# #%lang(ja) %{_mandir}/ja/man1/make_smbcodepage.1*
-#%lang(ja) %{_mandir}/ja/man1/testparm.1*
-#%lang(ja) %{_mandir}/ja/man1/testprns.1*
-#%lang(ja) %{_mandir}/ja/man5/smb.conf.5*
-#%lang(ja) %{_mandir}/ja/man5/lmhosts.5*
-#%lang(ja) %{_mandir}/ja/man8/smbpasswd.8*
+%{_mandir}/man8/libsmbclient.8*
 
 %changelog
+* Mon Aug 22 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20-2
+- New upstream release
+  This obsoletes the -pie and -delim patches
+  the -warning and -gcc4 patches are obsolete too
+  Also, the -quoting patch was implemented differently upstream
+  There is now a umount.cifs executable and manpage
+  We run autogen.sh as part of the build phase
+  The testprns command is now gone
+  libsmbclient now has a man page
+- Include -bug106483 patch to close
+  bz#106483 smbclient: -N negates the provided password, despite documentation
+
 * Mon May 2 2005 Jay Fenlason <fenlason@redhat.com> 3.0.14a-2
 - New upstream release.
 - the -64bit-timestamps, -clitar, -establish_trust, user_rights_v1,
