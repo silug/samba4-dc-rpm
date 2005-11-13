@@ -3,7 +3,8 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.20
-Release: 2.test
+Release: 3
+Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -450,8 +451,8 @@ fi
 %{_mandir}/man8/libsmbclient.8*
 
 %changelog
-* Sun Nov 13 2005 Warren Togami <wtogami@redhat.com> 3.0.20-2.test
-- remove zero epoch, req exact release
+* Sun Nov 13 2005 Warren Togami <wtogami@redhat.com> 3.0.20-3
+- epochs from deps, req exact release
 - rebuild against new openssl
 
 * Mon Aug 22 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20-2
