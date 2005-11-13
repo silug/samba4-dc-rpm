@@ -3,8 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.20
-Release: 2
-Epoch: 0
+Release: 2.test
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -55,8 +54,8 @@ Patch111: samba-3.0.13-smbclient.patch
 Patch112: samba-3.0.15pre2-bug106483.patch
 Patch113: samba-3.0.20-warnings.patch
 
-Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version} 
-Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
+Requires: pam >= 0.64 %{auth} samba-common = %{version}-%{release}
+Requires: logrotate >= 3.4 initscripts >= 5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
@@ -81,7 +80,7 @@ need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 %package client
 Summary: Samba (SMB) client programs.
 Group: Applications/System
-Requires: samba-common = %{epoch}:%{version}
+Requires: samba-common = %{version}-%{release}
 Obsoletes: smbfs
 
 %description client
@@ -100,7 +99,7 @@ packages of Samba.
 %package swat
 Summary: The Samba SMB server configuration program.
 Group: Applications/System
-Requires: samba = %{epoch}:%{version} xinetd
+Requires: samba = %{version}-%{release} xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -451,6 +450,10 @@ fi
 %{_mandir}/man8/libsmbclient.8*
 
 %changelog
+* Sun Nov 13 2005 Warren Togami <wtogami@redhat.com> 3.0.20-2.test
+- remove zero epoch, req exact release
+- rebuild against new openssl
+
 * Mon Aug 22 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20-2
 - New upstream release
   Includes five upstream patches -bug3010_v1, -groupname_enumeration_v3,
