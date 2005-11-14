@@ -2,15 +2,15 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.20
-Release: 3
+Version: 3.0.20b
+Release: 1.1
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc2.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.gz
 Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -28,17 +28,7 @@ Source999: filter-requires-samba.sh
 
 # upstream patches.  Applied first so that they'll break our patches rather
 # than the other way around
-#Patch0: http://www.samba.org/samba/patches/groupname_enumeration_v3.patch
-Patch0: samba-3.0.20-groupname_enumeration_v3.patch
-#Patch1: http://www.samba.org/samba/patches/bug3010_v1.patch
-Patch1: samba-3.0.20-bug3010_v1.patch
-#Patch2: http://www.samba.org/samba/patches/winbindd_v1.patch
-Patch2: samba-3.0.20-winbindd_v1.patch
-#Patch3: http://www.samba.org/samba/patches/regcreatekey_winxp_v1.patch
-Patch3: samba-3.0.20-regcreatekey_winxp_v1.patch
-#Patch4: http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
-Patch4: samba-3.0.20-usrmgr_groups_v1.patch
-
+# (none at the moment)
 
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
@@ -53,10 +43,10 @@ Patch109: samba-3.0.4-install.mount.smbfs.patch
 Patch110: samba-3.0.20pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch112: samba-3.0.15pre2-bug106483.patch
-Patch113: samba-3.0.20-warnings.patch
+Patch113: samba-3.0.20a-warnings.patch
 
-Requires: pam >= 0.64 %{auth} samba-common = %{version}-%{release}
-Requires: logrotate >= 3.4 initscripts >= 5.54-1 
+Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
+Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
@@ -81,7 +71,7 @@ need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 %package client
 Summary: Samba (SMB) client programs.
 Group: Applications/System
-Requires: samba-common = %{version}-%{release}
+Requires: samba-common = %{epoch}:%{version}-%{release}
 Obsoletes: smbfs
 
 %description client
@@ -100,7 +90,7 @@ packages of Samba.
 %package swat
 Summary: The Samba SMB server configuration program.
 Group: Applications/System
-Requires: samba = %{version}-%{release} xinetd
+Requires: samba = %{epoch}:%{version}-%{release} xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -109,7 +99,7 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-# % setup -q -n samba-3.0.20rc2
+# % setup -q -n samba-3.0.21rc1
 %setup -q
 
 # copy Red Hat specific scripts
@@ -119,12 +109,9 @@ cp %{SOURCE7} packaging/RedHat/
 cp %{SOURCE8} packaging/RedHat/winbind.init
 
 # Upstream patches
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+#(none)
 
+# generic patches
 %patch101 -p1 -b .smbw
 %patch102 -p1 -b .pipedir
 %patch103 -p1 -b .logfiles
@@ -159,7 +146,7 @@ autoheader
 autoconf
 EXTRA="-D_LARGEFILE64_SOURCE"
 %endif
-CFLAGS=-D_GNU_SOURCE %configure \
+CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-acl-support \
 	--with-automount \
 	--with-libsmbclient \
@@ -180,12 +167,13 @@ CFLAGS=-D_GNU_SOURCE %configure \
 	--with-libdir=%{_libdir}/samba \
 	--with-configdir=%{_sysconfdir}/samba \
 	--with-swatdir=%{_datadir}/swat \
+	--with-shared-modules=idmap_ad,idmap_rid \
 
 
-make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
+make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" \
 	proto
 
-make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" %{?_smp_mflags} \
+make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
 	all nsswitch/libnss_wins.so modules
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
@@ -404,9 +392,12 @@ fi
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
 %dir %{_libdir}/samba/charset
+%dir %{_libdir}/samba/idmap
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
+%{_libdir}/samba/idmap/idmap_ad.so
+%{_libdir}/samba/idmap/idmap_rid.so
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
@@ -451,6 +442,18 @@ fi
 %{_mandir}/man8/libsmbclient.8*
 
 %changelog
+
+* Mon Nov 13 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20b-2
+- turn on -DLDAP_DEPRECATED to allow access to ldap functions that have
+  been depricated in 2.3.11, but which don't have well-documented
+  replacements (ldap_simple_bind_s(), for example).
+- Upgrade to 3.0.20b, which includes all the previous upstream patches.
+- Updated the -warnings patch for 3.0.20a.
+- Include  --with-shared-modules=idmap_ad,idmap_rid to close
+  bz#156810 ? --with-shared-modules=idmap_ad,idmap_rid
+- Include the new samba.pamd from Tomas Mraz (tmraz@redhat.com) to close
+  bz#170259 ? pam_stack is deprecated
+
 * Sun Nov 13 2005 Warren Togami <wtogami@redhat.com> 3.0.20-3
 - epochs from deps, req exact release
 - rebuild against new openssl

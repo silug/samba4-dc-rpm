@@ -1,0 +1,1989 @@
+diff -r -u samba-3.0.20/source/lib/charcnv.c samba-3.0.20-save/source/lib/charcnv.c
+--- samba-3.0.20/source/lib/charcnv.c	2005-04-18 12:38:18.000000000 -0400
++++ samba-3.0.20-save/source/lib/charcnv.c	2005-08-23 12:05:24.000000000 -0400
+@@ -778,10 +778,12 @@
+ size_t unix_strlower(const char *src, size_t srclen, char *dest, size_t destlen)
+ {
+ 	size_t size;
++	void *vbuffer = NULL;
+ 	smb_ucs2_t *buffer = NULL;
+ 	
+ 	size = convert_string_allocate(NULL, CH_UNIX, CH_UCS2, src, srclen,
+-				       (void **) &buffer, True);
++				       &vbuffer, True);
++	buffer = vbuffer;
+ 	if (size == (size_t)-1 || !buffer) {
+ 		smb_panic("failed to create UCS2 buffer");
+ 	}
+diff -r -u samba-3.0.20/source/lib/gencache.c samba-3.0.20-save/source/lib/gencache.c
+--- samba-3.0.20/source/lib/gencache.c	2005-02-25 12:59:31.000000000 -0500
++++ samba-3.0.20-save/source/lib/gencache.c	2005-08-23 12:21:23.000000000 -0400
+@@ -251,11 +251,17 @@
+ 		char* entry_buf = SMB_STRNDUP(databuf.dptr, databuf.dsize);
+ 		char *v;
+ 		time_t t;
++		unsigned u;
++		int status;
+ 
+ 		v = SMB_MALLOC(databuf.dsize - TIMEOUT_LEN);
+ 				
+ 		SAFE_FREE(databuf.dptr);
+-		sscanf(entry_buf, CACHE_DATA_FMT, (int*)&t, v);
++		status = sscanf(entry_buf, CACHE_DATA_FMT, &u, v);
++		if ( status != 2 ) {
++		    DEBUG(0, ("gencache_get: Invalid return %d from sscanf\n", status ));
++		}
++		t = u;
+ 		SAFE_FREE(entry_buf);
+ 
+ 		DEBUG(10, ("Returning %s cache entry: key = %s, value = %s, "
+@@ -307,6 +313,8 @@
+ 	TDB_DATA databuf;
+ 	char *keystr = NULL, *valstr = NULL, *entry = NULL;
+ 	time_t timeout = 0;
++	int status;
++	unsigned u;
+ 
+ 	/* fail completely if get null pointers passed */
+ 	SMB_ASSERT(fn && keystr_pattern);
+@@ -335,7 +343,11 @@
+ 		entry = SMB_STRNDUP(databuf.dptr, databuf.dsize);
+ 		SAFE_FREE(databuf.dptr);
+ 		valstr = SMB_MALLOC(databuf.dsize - TIMEOUT_LEN);
+-		sscanf(entry, CACHE_DATA_FMT, (int*)(&timeout), valstr);
++		status = sscanf(entry, CACHE_DATA_FMT, &u, valstr);
++		if ( status != 2 ) {
++		    DEBUG(0,("gencache_iterate: invalid return from sscanf %d\n",status));
++		}
++		timeout = u;
+ 		
+ 		DEBUG(10, ("Calling function with arguments (key = %s, value = %s, timeout = %s)\n",
+ 		           keystr, valstr, ctime(&timeout)));
+diff -r -u samba-3.0.20/source/lib/smbrun.c samba-3.0.20-save/source/lib/smbrun.c
+--- samba-3.0.20/source/lib/smbrun.c	2005-02-25 12:59:32.000000000 -0500
++++ samba-3.0.20-save/source/lib/smbrun.c	2005-08-23 12:13:25.000000000 -0400
+@@ -225,10 +225,16 @@
+ 		 */
+ 		int status = 0;
+ 		pid_t wpid;
++		size_t towrite;
++		ssize_t wrote;
+ 		
+ 		close(ifd[0]);
+ 		/* send the secret */
+-		write(ifd[1], secret, strlen(secret));
++		towrite = strlen(secret);
++		wrote = write(ifd[1], secret, towrite);
++		if ( wrote != towrite ) {
++		    DEBUG(0,("smbrunsecret: wrote %ld of %lu bytes\n",(long)wrote,(unsigned long)towrite));
++		}
+ 		fsync(ifd[1]);
+ 		close(ifd[1]);
+ 
+diff -r -u samba-3.0.20/source/libsmb/climessage.c samba-3.0.20-save/source/libsmb/climessage.c
+--- samba-3.0.20/source/libsmb/climessage.c	2005-07-28 09:19:46.000000000 -0400
++++ samba-3.0.20-save/source/libsmb/climessage.c	2005-08-22 16:54:06.000000000 -0400
+@@ -70,7 +70,7 @@
+ ****************************************************************************/
+ int cli_message_text_build(struct cli_state *cli, char *msg, int len, int grp)
+ {
+-	char *msgdos;
++	void *msgdos;
+ 	int lendos;
+ 	char *p;
+ 
+diff -r -u samba-3.0.20/source/nsswitch/winbindd_ads.c samba-3.0.20-save/source/nsswitch/winbindd_ads.c
+--- samba-3.0.20/source/nsswitch/winbindd_ads.c	2005-08-19 13:16:27.000000000 -0400
++++ samba-3.0.20-save/source/nsswitch/winbindd_ads.c	2005-08-24 10:58:59.000000000 -0400
+@@ -542,6 +542,7 @@
+ 	const char *attrs[] = {"tokenGroups", "primaryGroupID", NULL};
+ 	ADS_STATUS rc;
+ 	int count;
++	void *vmsg;
+ 	LDAPMessage *msg = NULL;
+ 	char *user_dn;
+ 	DOM_SID *sids;
+@@ -568,7 +569,8 @@
+ 		goto done;
+ 	}
+ 
+-	rc = ads_search_retry_dn(ads, (void**)&msg, user_dn, attrs);
++	rc = ads_search_retry_dn(ads, &vmsg, user_dn, attrs);
++	msg = vmsg;
+ 	if (!ADS_ERR_OK(rc)) {
+ 		status = ads_ntstatus(rc);
+ 		DEBUG(1,("lookup_usergroups(sid=%s) ads_search tokenGroups: %s\n", 
+diff -r -u samba-3.0.20/source/param/loadparm.c samba-3.0.20-save/source/param/loadparm.c
+--- samba-3.0.20/source/param/loadparm.c	2005-08-24 11:01:56.000000000 -0400
++++ samba-3.0.20-save/source/param/loadparm.c	2005-08-22 16:46:06.000000000 -0400
+@@ -3347,7 +3347,10 @@
+ 			break;
+ 
+ 		case P_OCTAL:
+-			sscanf(pszParmValue, "%o", (int *)parm_ptr);
++			i = sscanf(pszParmValue, "%o", (int *)parm_ptr);
++			if ( i != 1 ) {
++			    DEBUG ( 0, ("Invalid octal number %s\n", pszParmName ));
++			}
+ 			break;
+ 
+ 		case P_LIST:
+diff -r -u samba-3.0.20/source/passdb/pdb_ldap.c samba-3.0.20-save/source/passdb/pdb_ldap.c
+--- samba-3.0.20/source/passdb/pdb_ldap.c	2005-07-28 09:19:48.000000000 -0400
++++ samba-3.0.20-save/source/passdb/pdb_ldap.c	2005-08-23 11:55:45.000000000 -0400
+@@ -694,8 +694,8 @@
+ 
+ 	if (ldap_state->is_nds_ldap) {
+ 		char *user_dn;
+-		int pwd_len;
+-		char clear_text_pw[512];
++		size_t pwd_len;
++		unsigned char clear_text_pw[512];
+ 
+ 		/* Make call to Novell eDirectory ldap extension to get clear text password.
+ 			NOTE: This will only work if we have an SSL connection to eDirectory. */
+diff -r -u samba-3.0.20/source/passdb/pdb_smbpasswd.c samba-3.0.20-save/source/passdb/pdb_smbpasswd.c
+--- samba-3.0.20/source/passdb/pdb_smbpasswd.c	2005-02-25 12:59:35.000000000 -0500
++++ samba-3.0.20-save/source/passdb/pdb_smbpasswd.c	2005-08-23 12:03:44.000000000 -0400
+@@ -313,10 +313,11 @@
+ 	unsigned char *smbpwd = smbpasswd_state->smbpwd;
+ 	unsigned char *smbntpwd = smbpasswd_state->smbntpwd;
+ 	char linebuf[256];
+-	unsigned char c;
++	int c;
+ 	unsigned char *p;
+ 	long uidval;
+ 	size_t linebuf_len;
++	char *status;
+ 
+ 	if(fp == NULL) {
+ 		DEBUG(0,("getsmbfilepwent: Bad password file pointer.\n"));
+@@ -329,11 +330,12 @@
+ 	/*
+ 	 * Scan the file, a line at a time and check if the name matches.
+ 	 */
+-	while (!feof(fp)) {
++	status = linebuf;
++	while (status && !feof(fp)) {
+ 		linebuf[0] = '\0';
+ 
+-		fgets(linebuf, 256, fp);
+-		if (ferror(fp)) {
++		status = fgets(linebuf, 256, fp);
++		if (status == NULL && ferror(fp)) {
+ 			return NULL;
+ 		}
+ 
+@@ -689,9 +691,10 @@
+ 	/* Static buffers we will return. */
+ 	pstring user_name;
+ 
++	char *status;
+ 	char linebuf[256];
+ 	char readbuf[1024];
+-	unsigned char c;
++	int c;
+ 	fstring ascii_p16;
+ 	fstring encode_bits;
+ 	unsigned char *p = NULL;
+@@ -738,13 +741,14 @@
+ 	/*
+ 	 * Scan the file, a line at a time and check if the name matches.
+ 	 */
+-	while (!feof(fp)) {
++	status = linebuf;
++	while (status && !feof(fp)) {
+ 		pwd_seekpos = sys_ftell(fp);
+ 
+ 		linebuf[0] = '\0';
+ 
+-		fgets(linebuf, sizeof(linebuf), fp);
+-		if (ferror(fp)) {
++		status = fgets(linebuf, sizeof(linebuf), fp);
++		if (status == NULL && ferror(fp)) {
+ 			pw_file_unlock(lockfd, &smbpasswd_state->pw_file_lock_depth);
+ 			fclose(fp);
+ 			return False;
+diff -r -u samba-3.0.20/source/rpc_parse/parse_prs.c samba-3.0.20-save/source/rpc_parse/parse_prs.c
+--- samba-3.0.20/source/rpc_parse/parse_prs.c	2005-07-28 09:19:48.000000000 -0400
++++ samba-3.0.20-save/source/rpc_parse/parse_prs.c	2005-08-22 16:56:38.000000000 -0400
+@@ -52,6 +52,7 @@
+ {
+ 	int fd, i;
+ 	pstring fname;
++	ssize_t sz;
+ 	if (DEBUGLEVEL < 50) return;
+ 	for (i=1;i<100;i++) {
+ 		if (v != -1) {
+@@ -63,9 +64,13 @@
+ 		if (fd != -1 || errno != EEXIST) break;
+ 	}
+ 	if (fd != -1) {
+-		write(fd, ps->data_p + from_off, to_off - from_off);
+-		close(fd);
+-		DEBUG(0,("created %s\n", fname));
++		sz = write(fd, ps->data_p + from_off, to_off - from_off);
++		i = close(fd);
++		if ( sz != to_off - from_off || i != 0 ) {
++			DEBUG(0,("Error writing/closing %s: %ld!=%ld %d\n", fname, sz, to_off - from_off, i ));
++		} else {
++			DEBUG(0,("created %s\n", fname));
++		}
+ 	}
+ }
+ 
+diff -r -u samba-3.0.20/source/rpc_server/srv_eventlog_nt.c samba-3.0.20-save/source/rpc_server/srv_eventlog_nt.c
+--- samba-3.0.20/source/rpc_server/srv_eventlog_nt.c	2005-07-28 09:19:47.000000000 -0400
++++ samba-3.0.20-save/source/rpc_server/srv_eventlog_nt.c	2005-08-23 11:13:20.000000000 -0400
+@@ -48,13 +48,14 @@
+ static Eventlog_info *find_eventlog_info_by_hnd(pipes_struct *p,
+ 						POLICY_HND *handle)
+ {
++    void *v;
+     Eventlog_info *info = NULL;
+     
+-    if(!(find_policy_by_hnd(p,handle,(void **)&info)))
++    if(!(find_policy_by_hnd(p,handle,&v)))
+     {
+ 	DEBUG(2,("find_eventlog_info_by_hnd: eventlog not found.\n"));
+     }
+-
++    info = v;
+     return info;
+ }
+ 
+diff -r -u samba-3.0.20/source/rpc_server/srv_lsa_nt.c samba-3.0.20-save/source/rpc_server/srv_lsa_nt.c
+--- samba-3.0.20/source/rpc_server/srv_lsa_nt.c	2005-08-07 19:09:55.000000000 -0400
++++ samba-3.0.20-save/source/rpc_server/srv_lsa_nt.c	2005-08-22 17:41:57.000000000 -0400
+@@ -488,6 +488,7 @@
+ NTSTATUS _lsa_enum_trust_dom(pipes_struct *p, LSA_Q_ENUM_TRUST_DOM *q_u, LSA_R_ENUM_TRUST_DOM *r_u)
+ {
+ 	struct lsa_info *info;
++	void *vinfo;
+ 	uint32 enum_context = q_u->enum_context;
+ 
+ 	/*
+@@ -501,9 +502,10 @@
+ 	uint32 num_domains;
+ 	NTSTATUS nt_status;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+ 
++	info = vinfo;
+ 	/* check if the user have enough rights */
+ 	if (!(info->access & POLICY_VIEW_LOCAL_INFORMATION))
+ 		return NT_STATUS_ACCESS_DENIED;
+@@ -531,6 +533,7 @@
+ 
+ NTSTATUS _lsa_query_info(pipes_struct *p, LSA_Q_QUERY_INFO *q_u, LSA_R_QUERY_INFO *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	LSA_INFO_UNION *info = &r_u->dom;
+ 	DOM_SID domain_sid;
+@@ -539,9 +542,10 @@
+ 
+ 	r_u->status = NT_STATUS_OK;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+ 
++	handle = vhandle;
+ 	switch (q_u->info_class) {
+ 	case 0x02:
+ 		{
+@@ -641,6 +645,7 @@
+ 
+ NTSTATUS _lsa_lookup_sids(pipes_struct *p, LSA_Q_LOOKUP_SIDS *q_u, LSA_R_LOOKUP_SIDS *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	DOM_SID2 *sid = q_u->sids.sid;
+ 	int num_entries = q_u->sids.num_entries;
+@@ -657,10 +662,11 @@
+ 	ref = TALLOC_ZERO_P(p->mem_ctx, DOM_R_REF);
+ 	names = TALLOC_ZERO_P(p->mem_ctx, LSA_TRANS_NAME_ENUM);
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle)) {
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle)) {
+ 		r_u->status = NT_STATUS_INVALID_HANDLE;
+ 		goto done;
+ 	}
++	handle = vhandle;
+ 
+ 	/* check if the user have enough rights */
+ 	if (!(handle->access & POLICY_LOOKUP_NAMES)) {
+@@ -691,6 +697,7 @@
+ 
+ NTSTATUS _lsa_lookup_names(pipes_struct *p,LSA_Q_LOOKUP_NAMES *q_u, LSA_R_LOOKUP_NAMES *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	UNISTR2 *names = q_u->uni_name;
+ 	int num_entries = q_u->num_entries;
+@@ -706,11 +713,12 @@
+ 	ref = TALLOC_ZERO_P(p->mem_ctx, DOM_R_REF);
+ 	rids = TALLOC_ZERO_ARRAY(p->mem_ctx, DOM_RID2, num_entries);
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle)) {
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle)) {
+ 		r_u->status = NT_STATUS_INVALID_HANDLE;
+ 		goto done;
+ 	}
+ 
++	handle = vhandle;
+ 	/* check if the user have enough rights */
+ 	if (!(handle->access & POLICY_LOOKUP_NAMES)) {
+ 		r_u->status = NT_STATUS_ACCESS_DENIED;
+@@ -802,6 +810,7 @@
+ 
+ NTSTATUS _lsa_enum_privs(pipes_struct *p, LSA_Q_ENUM_PRIVS *q_u, LSA_R_ENUM_PRIVS *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	uint32 i;
+ 	uint32 enum_context = q_u->enum_context;
+@@ -822,9 +831,9 @@
+ 	DEBUG(10,("_lsa_enum_privs: enum_context:%d total entries:%d\n", 
+ 		enum_context, num_privs));
+ 	
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	/* check if the user have enough rights
+ 	   I don't know if it's the right one. not documented.  */
+ 
+@@ -865,12 +874,14 @@
+ 
+ NTSTATUS _lsa_priv_get_dispname(pipes_struct *p, LSA_Q_PRIV_GET_DISPNAME *q_u, LSA_R_PRIV_GET_DISPNAME *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	fstring name_asc;
+ 	const char *description;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
++	handle = vhandle;
+ 
+ 	/* check if the user have enough rights */
+ 
+@@ -911,15 +922,16 @@
+ 
+ NTSTATUS _lsa_enum_accounts(pipes_struct *p, LSA_Q_ENUM_ACCOUNTS *q_u, LSA_R_ENUM_ACCOUNTS *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	DOM_SID *sid_list;
+ 	int i, j, num_entries;
+ 	LSA_SID_ENUM *sids=&r_u->sids;
+ 	NTSTATUS ret;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	if (!(handle->access & POLICY_VIEW_LOCAL_INFORMATION))
+ 		return NT_STATUS_ACCESS_DENIED;
+ 
+@@ -989,13 +1001,14 @@
+ 
+ NTSTATUS _lsa_create_account(pipes_struct *p, LSA_Q_CREATEACCOUNT *q_u, LSA_R_CREATEACCOUNT *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	struct lsa_info *info;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	/* check if the user have enough rights */
+ 
+ 	/*
+@@ -1037,13 +1050,14 @@
+ 
+ NTSTATUS _lsa_open_account(pipes_struct *p, LSA_Q_OPENACCOUNT *q_u, LSA_R_OPENACCOUNT *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	struct lsa_info *info;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	/* check if the user have enough rights */
+ 
+ 	/*
+@@ -1079,14 +1093,15 @@
+ 
+ NTSTATUS _lsa_enum_privsaccount(pipes_struct *p, prs_struct *ps, LSA_Q_ENUMPRIVSACCOUNT *q_u, LSA_R_ENUMPRIVSACCOUNT *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info=NULL;
+ 	SE_PRIV mask;
+ 	PRIVILEGE_SET privileges;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	if ( !get_privileges_for_sids( &mask, &info->sid, 1 ) ) 
+ 		return NT_STATUS_OBJECT_NAME_NOT_FOUND;
+ 
+@@ -1113,15 +1128,16 @@
+ 
+ NTSTATUS _lsa_getsystemaccount(pipes_struct *p, LSA_Q_GETSYSTEMACCOUNT *q_u, LSA_R_GETSYSTEMACCOUNT *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info=NULL;
+ 	fstring name, dom_name;
+ 	enum SID_NAME_USE type;
+ 
+ 	/* find the connection policy handle. */
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	if (!lookup_sid(&info->sid, dom_name, name, &type))
+ 		return NT_STATUS_ACCESS_DENIED;
+ 
+@@ -1145,14 +1161,15 @@
+ 
+ NTSTATUS _lsa_setsystemaccount(pipes_struct *p, LSA_Q_SETSYSTEMACCOUNT *q_u, LSA_R_SETSYSTEMACCOUNT *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info=NULL;
+ 	GROUP_MAP map;
+ 	r_u->status = NT_STATUS_OK;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	/* check to see if the pipe_user is a Domain Admin since 
+ 	   account_pol.tdb was already opened as root, this is all we have */
+ 	   
+@@ -1174,15 +1191,16 @@
+ 
+ NTSTATUS _lsa_addprivs(pipes_struct *p, LSA_Q_ADDPRIVS *q_u, LSA_R_ADDPRIVS *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	SE_PRIV mask;
+ 	PRIVILEGE_SET *set = NULL;
+ 	struct current_user user;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	/* check to see if the pipe_user is root or a Domain Admin since 
+ 	   account_pol.tdb was already opened as root, this is all we have */
+ 	   
+@@ -1215,15 +1233,16 @@
+ 
+ NTSTATUS _lsa_removeprivs(pipes_struct *p, LSA_Q_REMOVEPRIVS *q_u, LSA_R_REMOVEPRIVS *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	SE_PRIV mask;
+ 	PRIVILEGE_SET *set = NULL;
+ 	struct current_user user;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	/* check to see if the pipe_user is root or a Domain Admin since 
+ 	   account_pol.tdb was already opened as root, this is all we have */
+ 	   
+@@ -1256,6 +1275,7 @@
+ 
+ NTSTATUS _lsa_query_secobj(pipes_struct *p, LSA_Q_QUERY_SEC_OBJ *q_u, LSA_R_QUERY_SEC_OBJ *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle=NULL;
+ 	SEC_DESC *psd = NULL;
+ 	size_t sd_size;
+@@ -1264,9 +1284,9 @@
+ 	r_u->status = NT_STATUS_OK;
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	/* check if the user have enough rights */
+ 	if (!(handle->access & POLICY_VIEW_LOCAL_INFORMATION))
+ 		return NT_STATUS_ACCESS_DENIED;
+@@ -1310,6 +1330,7 @@
+ 
+ NTSTATUS _lsa_query_info2(pipes_struct *p, LSA_Q_QUERY_INFO2 *q_u, LSA_R_QUERY_INFO2 *r_u)
+ {
++	void *vhandle;
+ 	struct lsa_info *handle;
+ 	const char *nb_name;
+ 	char *dns_name = NULL;
+@@ -1321,9 +1342,9 @@
+ 	ZERO_STRUCT(guid);
+ 	r_u->status = NT_STATUS_OK;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&handle))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vhandle))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	handle = vhandle;
+ 	switch (q_u->info_class) {
+ 	case 0x0c:
+ 		/* check if the user have enough rights */
+@@ -1374,6 +1395,7 @@
+ 
+ NTSTATUS _lsa_add_acct_rights(pipes_struct *p, LSA_Q_ADD_ACCT_RIGHTS *q_u, LSA_R_ADD_ACCT_RIGHTS *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	int i = 0;
+ 	DOM_SID sid;
+@@ -1383,9 +1405,9 @@
+ 	
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	/* check to see if the pipe_user is a Domain Admin since 
+ 	   account_pol.tdb was already opened as root, this is all we have */
+ 	   
+@@ -1432,6 +1454,7 @@
+ 
+ NTSTATUS _lsa_remove_acct_rights(pipes_struct *p, LSA_Q_REMOVE_ACCT_RIGHTS *q_u, LSA_R_REMOVE_ACCT_RIGHTS *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	int i = 0;
+ 	DOM_SID sid;
+@@ -1441,9 +1464,9 @@
+ 	
+ 
+ 	/* find the connection policy handle. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	/* check to see if the pipe_user is a Domain Admin since 
+ 	   account_pol.tdb was already opened as root, this is all we have */
+ 	   
+@@ -1495,6 +1518,7 @@
+ 
+ NTSTATUS _lsa_enum_acct_rights(pipes_struct *p, LSA_Q_ENUM_ACCT_RIGHTS *q_u, LSA_R_ENUM_ACCT_RIGHTS *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	DOM_SID sid;
+ 	PRIVILEGE_SET privileges;
+@@ -1503,9 +1527,9 @@
+ 
+ 	/* find the connection policy handle. */
+ 	
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	/* according to an NT4 PDC, you can add privileges to SIDs even without
+ 	   call_lsa_create_account() first.  And you can use any arbitrary SID. */
+ 	   
+@@ -1537,6 +1561,7 @@
+ 
+ NTSTATUS _lsa_lookup_priv_value(pipes_struct *p, LSA_Q_LOOKUP_PRIV_VALUE *q_u, LSA_R_LOOKUP_PRIV_VALUE *r_u)
+ {
++	void *vinfo;
+ 	struct lsa_info *info = NULL;
+ 	fstring name;
+ 	LUID_ATTR priv_luid;
+@@ -1544,9 +1569,9 @@
+ 	
+ 	/* find the connection policy handle. */
+ 	
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	unistr2_to_ascii(name, &q_u->privname.unistring, sizeof(name));
+ 	
+ 	DEBUG(10,("_lsa_lookup_priv_value: name = %s\n", name));
+diff -r -u samba-3.0.20/source/rpc_server/srv_reg_nt.c samba-3.0.20-save/source/rpc_server/srv_reg_nt.c
+--- samba-3.0.20/source/rpc_server/srv_reg_nt.c	2005-08-07 19:09:55.000000000 -0400
++++ samba-3.0.20-save/source/rpc_server/srv_reg_nt.c	2005-08-23 11:02:58.000000000 -0400
+@@ -101,13 +101,14 @@
+ 
+ static REGISTRY_KEY *find_regkey_index_by_hnd(pipes_struct *p, POLICY_HND *hnd)
+ {
++	void *vregkey;
+ 	REGISTRY_KEY *regkey = NULL;
+ 
+-	if(!find_policy_by_hnd(p,hnd,(void **)&regkey)) {
++	if(!find_policy_by_hnd(p,hnd,&vregkey)) {
+ 		DEBUG(2,("find_regkey_index_by_hnd: Registry Key not found: "));
+ 		return NULL;
+ 	}
+-
++	regkey = vregkey;
+ 	return regkey;
+ }
+ 
+diff -r -u samba-3.0.20/source/rpc_server/srv_spoolss_nt.c samba-3.0.20-save/source/rpc_server/srv_spoolss_nt.c
+--- samba-3.0.20/source/rpc_server/srv_spoolss_nt.c	2005-08-19 13:16:27.000000000 -0400
++++ samba-3.0.20-save/source/rpc_server/srv_spoolss_nt.c	2005-08-23 11:10:35.000000000 -0400
+@@ -264,13 +264,14 @@
+ 
+ static Printer_entry *find_printer_index_by_hnd(pipes_struct *p, POLICY_HND *hnd)
+ {
++	void *v;
+ 	Printer_entry *find_printer = NULL;
+ 
+-	if(!find_policy_by_hnd(p,hnd,(void **)&find_printer)) {
++	if(!find_policy_by_hnd(p,hnd,&v)) {
+ 		DEBUG(2,("find_printer_index_by_hnd: Printer handle not found: "));
+ 		return NULL;
+ 	}
+-
++	find_printer = v;
+ 	return find_printer;
+ }
+ 
+@@ -2072,7 +2073,10 @@
+ 		
+ 			/* this should not have failed---if it did, report to client */
+ 			if ( !W_ERROR_IS_OK(status_win2k) )
++			{
++				status = status_win2k;
+ 				goto done;
++			}
+ 		}
+ 	}
+ 	
+diff -r -u samba-3.0.20/source/rpc_server/srv_svcctl_nt.c samba-3.0.20-save/source/rpc_server/srv_svcctl_nt.c
+--- samba-3.0.20/source/rpc_server/srv_svcctl_nt.c	2005-08-07 19:09:55.000000000 -0400
++++ samba-3.0.20-save/source/rpc_server/srv_svcctl_nt.c	2005-08-23 11:06:11.000000000 -0400
+@@ -154,13 +154,14 @@
+ 
+ static SERVICE_INFO *find_service_info_by_hnd(pipes_struct *p, POLICY_HND *hnd)
+ {
++	void *v;
+ 	SERVICE_INFO *service_info = NULL;
+ 
+-	if( !find_policy_by_hnd( p, hnd, (void **)&service_info) ) {
++	if( !find_policy_by_hnd( p, hnd, &v) ) {
+ 		DEBUG(2,("find_service_info_by_hnd: handle not found"));
+ 		return NULL;
+ 	}
+-
++	service_info = v;
+ 	return service_info;
+ }
+ 
+diff -r -u samba-3.0.20/source/smbd/message.c samba-3.0.20-save/source/smbd/message.c
+--- samba-3.0.20/source/smbd/message.c	2005-02-25 12:59:26.000000000 -0500
++++ samba-3.0.20-save/source/smbd/message.c	2005-08-22 16:46:06.000000000 -0400
+@@ -41,8 +41,10 @@
+   pstring name;
+   int i;
+   int fd;
++  void *vmsg;
+   char *msg;
+   int len;
++  ssize_t sz;
+ 
+   if (! (*lp_msg_command()))
+     {
+@@ -64,20 +66,27 @@
+    * Incoming message is in DOS codepage format. Convert to UNIX.
+    */
+   
+-  if ((len = (int)convert_string_allocate(NULL,CH_DOS, CH_UNIX, msgbuf, msgpos, (void **) &msg, True)) < 0 || !msg) {
++  if ((len = (int)convert_string_allocate(NULL,CH_DOS, CH_UNIX, msgbuf, msgpos, &vmsg, True)) < 0 || !vmsg) {
+     DEBUG(3,("Conversion failed, delivering message in DOS codepage format\n"));
+     for (i = 0; i < msgpos;) {
+       if (msgbuf[i] == '\r' && i < (msgpos-1) && msgbuf[i+1] == '\n') {
+ 	i++; continue;
+       }
+-      write(fd, &msgbuf[i++], 1);
++      sz = write(fd, &msgbuf[i++], 1);
++      if ( sz != 1 ) {
++	DEBUG(0,("Write error to fd %d: %ld(%d)\n",fd, (long)sz, errno ));
++      }
+     }
+   } else {
++    msg = vmsg;
+     for (i = 0; i < len;) {
+       if (msg[i] == '\r' && i < (len-1) && msg[i+1] == '\n') {
+ 	i++; continue;
+       }
+-      write(fd, &msg[i++],1);
++      sz = write(fd, &msg[i++],1);
++      if ( sz != 1 ) {
++	DEBUG(0,("Write error to fd %d: %ld(%d)\n",fd, (long)sz, errno ));
++      }
+     }
+     SAFE_FREE(msg);
+   }
+diff -r -u samba-3.0.20/source/smbd/sesssetup.c samba-3.0.20-save/source/smbd/sesssetup.c
+--- samba-3.0.20/source/smbd/sesssetup.c	2005-08-07 19:09:53.000000000 -0400
++++ samba-3.0.20-save/source/smbd/sesssetup.c	2005-08-22 16:47:49.000000000 -0400
+@@ -660,7 +660,7 @@
+ 		return ret;
+ 	}
+ 
+-	if (strncmp(blob1.data, "NTLMSSP", 7) == 0) {
++	if (strncmp((char *)(blob1.data), "NTLMSSP", 7) == 0) {
+ 		DATA_BLOB chal;
+ 		NTSTATUS nt_status;
+ 		if (!vuser->auth_ntlmssp_state) {
+--- samba-3.0.20/source/include/#spnego.h~	2005-08-24 14:57:38.000000000 -0400
++++ samba-3.0.20/source/include/spnego.h	2005-08-24 14:57:38.000000000 -0400
+@@ -43,7 +43,7 @@
+ } negResult_t;
+ 
+ typedef struct spnego_negTokenInit {
+-	char **mechTypes;
++	const char **mechTypes;
+ 	int reqFlags;
+ 	DATA_BLOB mechToken;
+ 	DATA_BLOB mechListMIC;
+--- samba-3.0.20/source/lib/#privileges.c~	2005-08-24 14:00:53.000000000 -0400
++++ samba-3.0.20/source/lib/privileges.c	2005-08-24 14:00:53.000000000 -0400
+@@ -399,6 +399,7 @@
+ 	int i;
+ 
+ 	priv_luid.attr = 0;
++	priv_luid.luid.low = ~0;
+ 	priv_luid.luid.high = 0;
+ 	
+ 	for ( i=0; !se_priv_equal(&privs[i].se_priv, &se_priv_end); i++ ) {
+--- samba-3.0.20/source/libads/#ads_ldap.c~	2005-08-24 14:22:47.000000000 -0400
++++ samba-3.0.20/source/libads/ads_ldap.c	2005-08-24 14:22:47.000000000 -0400
+@@ -32,6 +32,7 @@
+ 			 char **dn)
+ {
+ 	ADS_STATUS rc;
++	void *vmsg = NULL;
+ 	LDAPMessage *msg = NULL;
+ 	LDAPMessage *entry = NULL;
+ 	char *ldap_exp;
+@@ -56,7 +57,8 @@
+ 		goto done;
+ 	}
+ 
+-	rc = ads_search_retry(ads, (void **)&msg, ldap_exp, attr);
++	rc = ads_search_retry(ads, &vmsg, ldap_exp, attr);
++	msg = vmsg;
+ 
+ 	if (!ADS_ERR_OK(rc)) {
+ 		DEBUG(1,("ads_sid_to_dn ads_search: %s\n", ads_errstr(rc)));
+--- samba-3.0.20/source/libads/#ldap.c~	2005-08-24 14:21:28.000000000 -0400
++++ samba-3.0.20/source/libads/ldap.c	2005-08-24 14:21:28.000000000 -0400
+@@ -1140,6 +1140,7 @@
+ 
+ uint32 ads_get_kvno(ADS_STRUCT *ads, const char *machine_name)
+ {
++	void *vres = NULL;
+ 	LDAPMessage *res = NULL;
+ 	uint32 kvno = (uint32)-1;      /* -1 indicates a failure */
+ 	char *filter;
+@@ -1151,7 +1152,8 @@
+ 	if (asprintf(&filter, "(samAccountName=%s$)", machine_name) == -1) {
+ 		return kvno;
+ 	}
+-	ret = ads_search(ads, (void**) &res, filter, attrs);
++	ret = ads_search(ads, &vres, filter, attrs);
++	res=vres;
+ 	SAFE_FREE(filter);
+ 	if (!ADS_ERR_OK(ret) && ads_count_replies(ads, res)) {
+ 		DEBUG(1,("ads_get_kvno: Computer Account For %s not found.\n", machine_name));
+@@ -1199,13 +1201,15 @@
+ ADS_STATUS ads_clear_service_principal_names(ADS_STRUCT *ads, const char *machine_name)
+ {
+ 	TALLOC_CTX *ctx;
++	void *vres = NULL;
+ 	LDAPMessage *res = NULL;
+ 	ADS_MODLIST mods;
+ 	const char *servicePrincipalName[1] = {NULL};
+ 	ADS_STATUS ret = ADS_ERROR(LDAP_SUCCESS);
+ 	char *dn_string = NULL;
+ 
+-	ret = ads_find_machine_acct(ads, (void **)&res, machine_name);
++	ret = ads_find_machine_acct(ads, &vres, machine_name);
++	res = vres;
+ 	if (!ADS_ERR_OK(ret) || ads_count_replies(ads, res) != 1) {
+ 		DEBUG(5,("ads_clear_service_principal_names: WARNING: Host Account for %s not found... skipping operation.\n", machine_name));
+ 		DEBUG(5,("ads_clear_service_principal_names: WARNING: Service Principals for %s have NOT been cleared.\n", machine_name));
+@@ -1266,6 +1270,7 @@
+ {
+ 	ADS_STATUS ret;
+ 	TALLOC_CTX *ctx;
++	void *vres;
+ 	LDAPMessage *res = NULL;
+ 	char *host_spn, *psp1, *psp2, *psp3;
+ 	ADS_MODLIST mods;
+@@ -1273,7 +1278,8 @@
+ 	char *dn_string = NULL;
+ 	const char *servicePrincipalName[4] = {NULL, NULL, NULL, NULL};
+ 
+-	ret = ads_find_machine_acct(ads, (void **)&res, machine_name);
++	ret = ads_find_machine_acct(ads, &vres, machine_name);
++	res = vres;
+ 	if (!ADS_ERR_OK(ret) || ads_count_replies(ads, res) != 1) {
+ 		DEBUG(1,("ads_add_service_principal_name: WARNING: Host Account for %s not found... skipping operation.\n",
+ 			machine_name));
+@@ -1377,6 +1383,7 @@
+ 	unsigned acct_control;
+ 	unsigned exists=0;
+ 	fstring my_fqdn;
++	void *vres = NULL;
+ 	LDAPMessage *res = NULL;
+ 	int i, next_spn;
+ 
+@@ -1387,7 +1394,8 @@
+ 
+ 	name_to_fqdn(my_fqdn, machine_name);
+ 
+-	status = ads_find_machine_acct(ads, (void **)&res, machine_name);
++	status = ads_find_machine_acct(ads, &vres, machine_name);
++	res = vres;
+ 	if (ADS_ERR_OK(status) && ads_count_replies(ads, res) == 1) {
+ 		char *dn_string = ads_get_dn(ads, res);
+ 		if (!dn_string) {
+@@ -1733,6 +1741,7 @@
+ 			  uint32 account_type, const char *org_unit)
+ {
+ 	ADS_STATUS status;
++	void *vres = NULL;
+ 	LDAPMessage *res = NULL;
+ 	char *machine;
+ 
+@@ -1760,7 +1769,8 @@
+ 		return status;
+ 	}
+ 
+-	status = ads_find_machine_acct(ads, (void **)&res, machine);
++	status = ads_find_machine_acct(ads, &vres, machine);
++	res = vres;
+ 	if (!ADS_ERR_OK(status)) {
+ 		DEBUG(0, ("ads_join_realm: Host account test failed for machine %s\n", machine));
+ 		SAFE_FREE(machine);
+--- samba-3.0.20/source/libsmb/#samlogon_cache.c~	2005-08-24 14:08:06.000000000 -0400
++++ samba-3.0.20/source/libsmb/samlogon_cache.c	2005-08-24 14:08:06.000000000 -0400
+@@ -117,6 +117,7 @@
+ 	BOOL 		result = False;
+ 	DOM_SID		user_sid;
+ 	time_t		t = time(NULL);
++	uint32		u;
+ 	
+ 
+ 	if (!netsamlogon_cache_init()) {
+@@ -143,8 +144,8 @@
+ 	/* Prepare data */
+ 	
+ 	prs_init( &ps,MAX_PDU_FRAG_LEN , mem_ctx, MARSHALL);
+-	
+-	if ( !prs_uint32( "timestamp", &ps, 0, (uint32*)&t ) )
++	u = t;
++	if ( !prs_uint32( "timestamp", &ps, 0, &u ) )
+ 		return False;
+ 	
+ 	if ( net_io_user_info3("", user, &ps, 0, 3) ) 
+--- samba-3.0.20/source/libsmb/#smbencrypt.c~	2005-08-24 14:16:22.000000000 -0400
++++ samba-3.0.20/source/libsmb/smbencrypt.c	2005-08-24 14:16:22.000000000 -0400
+@@ -485,7 +485,7 @@
+  encode a password buffer with a unicode password.  The buffer
+  is filled with random data to make it harder to attack.
+ ************************************************************/
+-BOOL encode_pw_buffer(char buffer[516], const char *password, int string_flags)
++BOOL encode_pw_buffer(uint8 buffer[516], const char *password, int string_flags)
+ {
+ 	uchar new_pw[512];
+ 	size_t new_pw_len;
+@@ -496,7 +496,7 @@
+ 	
+ 	memcpy(&buffer[512 - new_pw_len], new_pw, new_pw_len);
+ 
+-	generate_random_buffer((unsigned char *)buffer, 512 - new_pw_len);
++	generate_random_buffer(buffer, 512 - new_pw_len);
+ 
+ 	/* 
+ 	 * The length of the new password is in the last 4 bytes of
+--- samba-3.0.20/source/nsswitch/#pam_winbind.c~	2005-08-24 15:18:23.000000000 -0400
++++ samba-3.0.20/source/nsswitch/pam_winbind.c	2005-08-24 15:18:23.000000000 -0400
+@@ -66,9 +66,11 @@
+ 		    struct pam_response **response)
+ {
+     int retval;
+-    struct pam_conv *conv;
++    const void *vconv;
++    const struct pam_conv *conv;
+ 
+-    retval = pam_get_item(pamh, PAM_CONV, (const void **) &conv ) ;
++    retval = pam_get_item(pamh, PAM_CONV, &vconv ) ;
++    conv = vconv;
+     if (retval == PAM_SUCCESS) {
+ 	retval = conv->conv(nargs, (const struct pam_message **)message,
+ 			    response, conv->appdata_ptr);
+@@ -306,6 +308,7 @@
+ {
+ 	int authtok_flag;
+ 	int retval;
++	const void *vitem;
+ 	const char *item;
+ 	char *token;
+ 
+@@ -326,7 +329,8 @@
+ 	 */
+ 
+ 	if (on(WINBIND_TRY_FIRST_PASS_ARG, ctrl) || on(WINBIND_USE_FIRST_PASS_ARG, ctrl)) {
+-		retval = pam_get_item(pamh, authtok_flag, (const void **) &item);
++		retval = pam_get_item(pamh, authtok_flag, &vitem);
++		item = vitem;
+ 		if (retval != PAM_SUCCESS) {
+ 			/* very strange. */
+ 			_pam_log(LOG_ALERT, 
+@@ -430,15 +434,14 @@
+ 	retval = pam_set_item(pamh, authtok_flag, token);
+ 	_pam_delete(token);	/* clean it up */
+ 	if (retval != PAM_SUCCESS
+-	    || (retval = pam_get_item(pamh, authtok_flag
+-				      ,(const void **) &item))
++	    || (retval = pam_get_item(pamh, authtok_flag, &vitem))
+ 	    != PAM_SUCCESS) {
+ 		
+ 		_pam_log(LOG_CRIT, "error manipulating password");
+ 		return retval;
+ 		
+ 	}
+-
++	item = vitem;
+ 	*pass = item;
+ 	item = NULL;		/* break link to password */
+ 
+@@ -601,6 +604,7 @@
+ 	/* <DO NOT free() THESE> */
+ 	const char *user;
+ 	const char *member = NULL;
++	const void *vpass_old;
+ 	char *pass_old, *pass_new;
+ 	/* </DO NOT free() THESE> */
+ 
+@@ -687,9 +691,8 @@
+ 		 * get the old token back. 
+ 		 */
+ 		
+-		retval = pam_get_item(pamh, PAM_OLDAUTHTOK
+-				      ,(const void **) &pass_old);
+-		
++		retval = pam_get_item(pamh, PAM_OLDAUTHTOK, &vpass_old);
++		pass_old = vpass_old;
+ 		if (retval != PAM_SUCCESS) {
+ 			_pam_log(LOG_NOTICE, "user not authenticated");
+ 			return retval;
+--- samba-3.0.20/source/rpc_client/#cli_netlogon.c~	2005-08-24 14:17:34.000000000 -0400
++++ samba-3.0.20/source/rpc_client/cli_netlogon.c	2005-08-24 14:17:34.000000000 -0400
+@@ -892,7 +892,7 @@
+ 	DOM_CRED new_clnt_cred;
+ 	NET_Q_SRV_PWSET q_s;
+ 	uint16 sec_chan_type = 2;
+-	NTSTATUS nt_status;
++	NTSTATUS nt_status = NT_STATUS_UNSUCCESSFUL;
+ 
+ 	gen_next_creds( cli, &new_clnt_cred);
+ 	
+--- samba-3.0.20/source/rpc_client/#cli_pipe.c~	2005-08-24 14:18:34.000000000 -0400
++++ samba-3.0.20/source/rpc_client/cli_pipe.c	2005-08-24 14:18:34.000000000 -0400
+@@ -320,7 +320,8 @@
+ 			nt_status = ntlmssp_check_packet(cli->ntlmssp_pipe_state, 
+ 								(const unsigned char *)reply_data, data_len,
+ 								&sig);
+-		}
++		} else
++			nt_status = NT_STATUS_UNSUCCESSFUL;
+ 
+ 		data_blob_free(&sig);
+ 
+--- samba-3.0.20/source/rpc_parse/#parse_samr.c~	2005-08-24 14:11:55.000000000 -0400
++++ samba-3.0.20/source/rpc_parse/parse_samr.c	2005-08-24 14:11:55.000000000 -0400
+@@ -7038,9 +7038,9 @@
+ 
+ void init_samr_q_chgpasswd_user(SAMR_Q_CHGPASSWD_USER * q_u,
+ 				const char *dest_host, const char *user_name,
+-				const char nt_newpass[516],
++				const uchar nt_newpass[516],
+ 				const uchar nt_oldhash[16],
+-				const char lm_newpass[516],
++				const uchar lm_newpass[516],
+ 				const uchar lm_oldhash[16])
+ {
+ 	DEBUG(5, ("init_samr_q_chgpasswd_user\n"));
+--- samba-3.0.20/source/utils/#net_rpc.c~	2005-08-24 14:52:06.000000000 -0400
++++ samba-3.0.20/source/utils/net_rpc.c	2005-08-24 14:52:06.000000000 -0400
+@@ -3036,7 +3036,7 @@
+ BOOL copy_top_level_perms(struct copy_clistate *cp_clistate, 
+ 				const char *sharename)
+ {
+-	NTSTATUS nt_status;
++	NTSTATUS nt_status = NT_STATUS_UNSUCCESSFUL;
+ 
+ 	switch (net_mode_share) {
+ 	case NET_MODE_SHARE_MIGRATE:
+--- samba-3.0.20/source/utils/#ntlm_auth.c~	2005-08-24 14:59:04.000000000 -0400
++++ samba-3.0.20/source/utils/ntlm_auth.c	2005-08-24 14:59:04.000000000 -0400
+@@ -858,6 +858,7 @@
+ 			return;
+ 		}
+ 
++		status = NT_STATUS_UNSUCCESSFUL;
+ 		if (strcmp(request.negTokenInit.mechTypes[0], OID_NTLMSSP) == 0) {
+ 
+ 			if ( request.negTokenInit.mechToken.data == NULL ) {
+--- samba-3.0.20/source/client/#mount.cifs.c~	2005-08-24 16:33:18.000000000 -0400
++++ samba-3.0.20/source/client/mount.cifs.c	2005-08-24 16:33:18.000000000 -0400
+@@ -694,7 +694,7 @@
+ 	int length = strnlen(unc_name,1024);
+ 	char * share;
+ 	char * ipaddress_string = NULL;
+-	struct hostent * host_entry;
++	struct hostent * host_entry = NULL;
+ 	struct in_addr server_ipaddr;
+ 
+ 	if(length > 1023) {
+--- samba-3.0.20/source/rpcclient/#cmd_samr.c~	2005-08-24 17:16:19.000000000 -0400
++++ samba-3.0.20/source/rpcclient/cmd_samr.c	2005-08-24 17:16:19.000000000 -0400
+@@ -194,7 +194,7 @@
+ 	
+ 	printf("Sequence No:\t%d\n", info2->seq_num.low);
+ 
+-	printf("Force Logoff:\t%d\n", (int)nt_time_to_unix_abs(&info2->logout));
++	printf("Force Logoff:\t%s\n", http_timestring(nt_time_to_unix_abs(&info2->logout)));
+ 
+ 	printf("Unknown 4:\t0x%x\n", info2->unknown_4);
+ 	printf("Server Role:\t%s\n", server_role_str(info2->server_role));
+--- samba-3.0.20/source/smbd/#process.c~	2005-08-24 17:28:15.000000000 -0400
++++ samba-3.0.20/source/smbd/process.c	2005-08-24 17:28:15.000000000 -0400
+@@ -1302,7 +1302,7 @@
+  Check if services need reloading.
+ ****************************************************************************/
+ 
+-void check_reload(int t)
++void check_reload(time_t t)
+ {
+ 	static pid_t mypid = 0;
+ 	static time_t last_smb_conf_reload_time = 0;
+--- samba-3.0.20/source/smbd/#close.c~	2005-08-31 21:05:54.000000000 -0400
++++ samba-3.0.20/source/smbd/close.c	2005-08-31 21:05:55.000000000 -0400
+@@ -149,7 +149,7 @@
+ static int close_normal_file(files_struct *fsp, BOOL normal_close)
+ {
+ 	share_mode_entry *share_entry = NULL;
+-	size_t share_entry_count = 0;
++	ssize_t share_entry_count = 0;
+ 	BOOL delete_file = False;
+ 	connection_struct *conn = fsp->conn;
+ 	int saved_errno = 0;
+@@ -199,8 +199,8 @@
+ 	share_entry_count = del_share_mode(fsp, &share_entry,
+ 					   &delete_file);
+ 
+-	DEBUG(10,("close_normal_file: share_entry_count = %lu for file %s\n",
+-		(unsigned long)share_entry_count, fsp->fsp_name ));
++	DEBUG(10,("close_normal_file: share_entry_count = %ld for file %s\n",
++		(long)share_entry_count, fsp->fsp_name ));
+ 
+ 	if (share_entry_count != 0) {
+ 		/* We're not the last ones -- don't delete */
+--- samba-3.0.20/source/smbd/#blocking.c~	2005-08-31 21:14:30.000000000 -0400
++++ samba-3.0.20/source/smbd/blocking.c	2005-08-31 21:14:34.000000000 -0400
+@@ -351,8 +351,8 @@
+ 	SSVAL(p,0,nread); p += 2;
+ 	set_message_end(outbuf, p+nread);
+ 	
+-	DEBUG(3, ( "process_lockread file = %s, fnum=%d num=%d nread=%d\n",
+-		   fsp->fsp_name, fsp->fnum, (int)numtoread, (int)nread ) );
++	DEBUG(3, ( "process_lockread file = %s, fnum=%d num=%lu nread=%ld\n",
++		   fsp->fsp_name, fsp->fnum, (unsigned long)numtoread, (long)nread ) );
+ 	
+ 	send_blocking_reply(outbuf,outsize);
+ 	return True;
+--- samba-3.0.20/source/smbd/#mangle_hash2.c~	2005-08-31 21:16:21.000000000 -0400
++++ samba-3.0.20/source/smbd/mangle_hash2.c	2005-08-31 21:16:21.000000000 -0400
+@@ -212,7 +212,7 @@
+ {
+ 	unsigned int i;
+ 
+-	M_DEBUG(10,("is_mangled_component %s (len %u) ?\n", name, (unsigned int)len));
++	M_DEBUG(10,("is_mangled_component %s (len %lu) ?\n", name, (unsigned long)len));
+ 
+ 	/* check the length */
+ 	if (len > 12 || len < 8)
+@@ -250,7 +250,7 @@
+ 		}
+ 	}
+ 
+-	M_DEBUG(10,("is_mangled_component %s (len %u) -> yes\n", name, (unsigned int)len));
++	M_DEBUG(10,("is_mangled_component %s (len %lu) -> yes\n", name, (unsigned long)len));
+ 
+ 	return True;
+ }
+--- samba-3.0.20/source/smbd/#nttrans.c~	2005-08-31 21:24:22.000000000 -0400
++++ samba-3.0.20/source/smbd/nttrans.c	2005-08-31 21:24:27.000000000 -0400
+@@ -1989,7 +1989,7 @@
+ 		return(UNIXERROR(ERRDOS,ERRnoaccess));
+ 	}
+ 
+-	DEBUG(3,("call_nt_transact_query_security_desc: sd_size = %d.\n",(int)sd_size));
++	DEBUG(3,("call_nt_transact_query_security_desc: sd_size = %lu.\n",(unsigned long)sd_size));
+ 
+ 	SIVAL(params,0,(uint32)sd_size);
+ 
+--- samba-3.0.20/source/smbd/#reply.c~	2005-08-31 21:30:37.000000000 -0400
++++ samba-3.0.20/source/smbd/reply.c	2005-08-31 21:30:45.000000000 -0400
+@@ -2298,8 +2298,8 @@
+ 		nread = 0;
+ #endif
+   
+-	DEBUG( 3, ( "readbraw fnum=%d start=%.0f max=%d min=%d nread=%d\n", fsp->fnum, (double)startpos,
+-				(int)maxcount, (int)mincount, (int)nread ) );
++	DEBUG( 3, ( "readbraw fnum=%d start=%.0f max=%lu min=%lu nread=%lu\n", fsp->fnum, (double)startpos,
++				(unsigned long)maxcount, (unsigned long)mincount, (unsigned long)nread ) );
+   
+ 	send_file_readbraw(conn, fsp, startpos, nread, mincount, outbuf, out_buffsize);
+ 
+--- samba-3.0.20/source/libsmb/#spnego.c~	2005-08-24 16:29:57.000000000 -0400
++++ samba-3.0.20/source/libsmb/spnego.c	2005-08-24 16:29:57.000000000 -0400
+@@ -42,11 +42,11 @@
+ 			asn1_start_tag(asn1, ASN1_CONTEXT(0));
+ 			asn1_start_tag(asn1, ASN1_SEQUENCE(0));
+ 
+-			token->mechTypes = SMB_MALLOC_P(char *);
++			token->mechTypes = SMB_MALLOC_P(const char *);
+ 			for (i = 0; !asn1->has_error &&
+ 				     0 < asn1_tag_remaining(asn1); i++) {
+ 				token->mechTypes = 
+-					SMB_REALLOC_ARRAY(token->mechTypes, char *, i + 2);
++					SMB_REALLOC_ARRAY(token->mechTypes, const char *, i + 2);
+ 				asn1_read_OID(asn1, &token->mechTypes[i]);
+ 			}
+ 			token->mechTypes[i] = NULL;
+--- samba-3.0.20a/source/passdb/pdb_nds.c.warnings	2005-09-29 17:52:45.000000000 -0400
++++ samba-3.0.20a/source/passdb/pdb_nds.c	2005-09-30 14:41:33.000000000 -0400
+@@ -550,7 +550,7 @@
+ 	LDAP	 *ld,
+ 	char     *objectDN,
+ 	size_t   *pwdSize,	/* in bytes */
+-	char     *pwd )
++	unsigned char     *pwd )
+ {
+ 	int err = 0;
+ 
+@@ -664,7 +664,7 @@
+ 	struct smbldap_state *ldap_state,
+ 	char *object_dn,
+ 	size_t *pwd_len,
+-	char *pwd )
++	unsigned char *pwd )
+ {
+ 	LDAP *ld = ldap_state->ldap_struct;
+ 	int rc = -1;
+--- samba-3.0.20a/source/printing/printing.c.warnings	2005-09-29 17:52:42.000000000 -0400
++++ samba-3.0.20a/source/printing/printing.c	2005-09-30 14:40:42.000000000 -0400
+@@ -1018,6 +1018,7 @@
+ 		|| (time_now - last_qscan_time) >= lp_lpqcachetime() 
+ 		|| last_qscan_time > (time_now + MAX_CACHE_VALID_TIME)) 
+ 	{
++		uint32 u;
+ 		time_t msg_pending_time;
+ 
+ 		DEBUG(4, ("print_cache_expired: cache expired for queue %s " 
+@@ -1033,8 +1034,8 @@
+ 		snprintf(key, sizeof(key), "MSG_PENDING/%s", sharename);
+ 
+ 		if ( check_pending 
+-			&& tdb_fetch_uint32( pdb->tdb, key, (uint32*)&msg_pending_time ) 
+-			&& msg_pending_time > 0
++			&& tdb_fetch_uint32( pdb->tdb, key, &u ) 
++			&& (msg_pending_time=u) > 0
+ 			&& msg_pending_time <= time_now 
+ 			&& (time_now - msg_pending_time) < 60 ) 
+ 		{
+--- samba-3.0.20a/source/pam_smbpass/general.h.warnings	2005-09-30 16:17:16.000000000 -0400
++++ samba-3.0.20a/source/pam_smbpass/general.h	2005-09-30 16:17:55.000000000 -0400
+@@ -117,7 +117,7 @@
+ 
+ struct _pam_failed_auth {
+     char *user;                 /* user that's failed to be authenticated */
+-    int id;                     /* uid of requested user */
++    uid_t id;                     /* uid of requested user */
+     char *agent;                /* attempt from user with name */
+     int count;                  /* number of failures so far */
+ };
+--- samba-3.0.20a/source/pam_smbpass/pam_smb_passwd.c.warnings	2005-07-28 09:19:44.000000000 -0400
++++ samba-3.0.20a/source/pam_smbpass/pam_smb_passwd.c	2005-09-30 16:23:56.000000000 -0400
+@@ -99,8 +99,9 @@
+     SAM_ACCOUNT *sampass = NULL;
+     void (*oldsig_handler)(int);
+     const char *user;
+-    char *pass_old;
+-    char *pass_new;
++    const void *vpass_old;
++    const char *pass_old;
++    const char *pass_new;
+ 
+     NTSTATUS nt_status;
+ 
+@@ -221,11 +222,13 @@
+ 
+         if (off( SMB_NOT_SET_PASS, ctrl )) {
+             retval = pam_get_item( pamh, PAM_OLDAUTHTOK,
+-                                   (const void **)&pass_old );
+-        } else {
++                                   &vpass_old );
++	    pass_old = vpass_old;
++	} else {
+             retval = pam_get_data( pamh, _SMB_OLD_AUTHTOK,
+-                                   (const void **)&pass_old );
+-            if (retval == PAM_NO_MODULE_DATA) {
++                                   &vpass_old );
++	    pass_old = vpass_old;
++	    if (retval == PAM_NO_MODULE_DATA) {
+ 		pass_old = NULL;
+                 retval = PAM_SUCCESS;
+             }
+--- samba-3.0.20a/source/pam_smbpass/pam_smb_auth.c.warnings	2005-07-28 09:19:44.000000000 -0400
++++ samba-3.0.20a/source/pam_smbpass/pam_smb_auth.c	2005-09-30 16:28:31.000000000 -0400
+@@ -71,7 +71,7 @@
+     BOOL found;
+ 
+     /* Points to memory managed by the PAM library. Do not free. */
+-    char *p = NULL;
++    const char *p = NULL;
+ 
+ 
+     /* Samba initialization. */
+@@ -84,6 +84,11 @@
+        pam_sm_setcred(). */
+     ret_data = SMB_MALLOC_P(int);
+ 
++    /* we need to do this before we call AUTH_RETURN */
++    /* Getting into places that might use LDAP -- protect the app
++       from a SIGPIPE it's not expecting */
++    oldsig_handler = CatchSignal(SIGPIPE, SIGNAL_CAST SIG_IGN);
++
+     /* get the username */
+     retval = pam_get_user( pamh, &name, "Username: " );
+     if ( retval != PAM_SUCCESS ) {
+@@ -96,10 +101,6 @@
+         _log_err( LOG_DEBUG, "username [%s] obtained", name );
+     }
+ 
+-    /* Getting into places that might use LDAP -- protect the app
+-       from a SIGPIPE it's not expecting */
+-    oldsig_handler = CatchSignal(SIGPIPE, SIGNAL_CAST SIG_IGN);
+-
+     if (!initialize_password_db(True)) {
+         _log_err( LOG_ALERT, "Cannot access samba password database" );
+         retval = PAM_AUTHINFO_UNAVAIL;
+@@ -158,11 +159,13 @@
+ int pam_sm_setcred(pam_handle_t *pamh, int flags,
+                    int argc, const char **argv)
+ {
++    const void *vpretval = NULL;
+     int retval, *pretval = NULL;
+ 
+     retval = PAM_SUCCESS;
+ 
+-    pam_get_data(pamh, "smb_setcred_return", (const void **) &pretval);
++    pam_get_data(pamh, "smb_setcred_return", &vpretval);
++    pretval = vpretval;
+     if(pretval) {
+ 	retval = *pretval;
+ 	SAFE_FREE(pretval);
+@@ -179,6 +182,7 @@
+ {
+     pstring err_str;
+     pstring msg_str;
++    const void *vpass = NULL;
+     const char *pass = NULL;
+     int retval;
+ 
+@@ -186,7 +190,8 @@
+     msg_str[0] = '\0';
+ 
+     /* Get the authtok; if we don't have one, silently fail. */
+-    retval = pam_get_item( pamh, PAM_AUTHTOK, (const void **) &pass );
++    retval = pam_get_item( pamh, PAM_AUTHTOK, &vpass );
++    pass = vpass;
+ 
+     if (retval != PAM_SUCCESS) {
+ 	_log_err( LOG_ALERT
+--- samba-3.0.20a/source/rpc_server/srv_samr_nt.c.warnings	2005-09-29 17:52:45.000000000 -0400
++++ samba-3.0.20a/source/rpc_server/srv_samr_nt.c	2005-09-30 15:38:25.000000000 -0400
+@@ -342,6 +342,7 @@
+ 
+ NTSTATUS _samr_open_domain(pipes_struct *p, SAMR_Q_OPEN_DOMAIN *q_u, SAMR_R_OPEN_DOMAIN *r_u)
+ {
++	void *vinfo;
+ 	struct    samr_info *info;
+ 	SEC_DESC *psd = NULL;
+ 	uint32    acc_granted;
+@@ -354,9 +355,9 @@
+ 
+ 	/* find the connection policy handle. */
+ 	
+-	if ( !find_policy_by_hnd(p, &q_u->pol, (void**)&info) )
++	if ( !find_policy_by_hnd(p, &q_u->pol, &vinfo) )
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	status = access_check_samr_function( info->acc_granted, 
+ 		SA_RIGHT_SAM_OPEN_DOMAIN, "_samr_open_domain" );
+ 		
+@@ -398,14 +399,15 @@
+ 
+ NTSTATUS _samr_get_usrdom_pwinfo(pipes_struct *p, SAMR_Q_GET_USRDOM_PWINFO *q_u, SAMR_R_GET_USRDOM_PWINFO *r_u)
+ {
++	void *vinfo;
+ 	struct samr_info *info = NULL;
+ 
+ 	r_u->status = NT_STATUS_OK;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->user_pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->user_pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	if (!sid_check_is_in_our_domain(&info->sid))
+ 		return NT_STATUS_OBJECT_TYPE_MISMATCH;
+ 
+@@ -439,12 +441,13 @@
+ static BOOL get_lsa_policy_samr_sid( pipes_struct *p, POLICY_HND *pol, 
+                                      DOM_SID *sid, uint32 *acc_granted)
+ {
++	void *vinfo;
+ 	struct samr_info *info = NULL;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, pol, (void **)&info))
++	if (!find_policy_by_hnd(p, pol, &vinfo))
+ 		return False;
+-
++	info = vinfo;
+ 	if (!info)
+ 		return False;
+ 
+@@ -572,6 +575,7 @@
+ NTSTATUS _samr_enum_dom_users(pipes_struct *p, SAMR_Q_ENUM_DOM_USERS *q_u, 
+ 			      SAMR_R_ENUM_DOM_USERS *r_u)
+ {
++	void *vinfo;
+ 	struct samr_info *info = NULL;
+ 	int num_account;
+ 	uint32 enum_context=q_u->start_idx;
+@@ -583,9 +587,9 @@
+ 	r_u->status = NT_STATUS_OK;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+  	if (!NT_STATUS_IS_OK(r_u->status = access_check_samr_function(info->acc_granted, 
+ 					SA_RIGHT_DOMAIN_ENUM_ACCOUNTS, 
+ 					"_samr_enum_dom_users"))) {
+@@ -685,6 +689,7 @@
+ 
+ NTSTATUS _samr_enum_dom_groups(pipes_struct *p, SAMR_Q_ENUM_DOM_GROUPS *q_u, SAMR_R_ENUM_DOM_GROUPS *r_u)
+ {
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	struct samr_displayentry *groups;
+ 	uint32 num_groups;
+@@ -692,9 +697,9 @@
+ 	r_u->status = NT_STATUS_OK;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	r_u->status = access_check_samr_function(info->acc_granted,
+ 						 SA_RIGHT_DOMAIN_ENUM_ACCOUNTS,
+ 						 "_samr_enum_dom_groups");
+@@ -734,15 +739,16 @@
+ 
+ NTSTATUS _samr_enum_dom_aliases(pipes_struct *p, SAMR_Q_ENUM_DOM_ALIASES *q_u, SAMR_R_ENUM_DOM_ALIASES *r_u)
+ {
++	void *vinfo;
+ 	struct samr_info *info;
+ 	struct samr_displayentry *aliases;
+ 	struct pdb_search **search = NULL;
+ 	uint32 num_aliases = 0;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	r_u->status = access_check_samr_function(info->acc_granted,
+ 						 SA_RIGHT_DOMAIN_ENUM_ACCOUNTS,
+ 						 "_samr_enum_dom_aliases");
+@@ -791,6 +797,7 @@
+ NTSTATUS _samr_query_dispinfo(pipes_struct *p, SAMR_Q_QUERY_DISPINFO *q_u, 
+ 			      SAMR_R_QUERY_DISPINFO *r_u)
+ {
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	uint32 struct_size=0x20; /* W2K always reply that, client doesn't care */
+ 	
+@@ -810,8 +817,9 @@
+ 	r_u->status = NT_STATUS_UNSUCCESSFUL;
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->domain_pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->domain_pol, (void **)&vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
++	info = vinfo;
+ 
+ 	/*
+ 	 * calculate how many entries we will return.
+@@ -939,6 +947,7 @@
+ 		break;
+ 	default:
+ 		smb_panic("info class changed");
++		disp_ret = NT_STATUS_UNSUCCESSFUL;
+ 		break;
+ 	}
+ 
+@@ -1571,6 +1580,7 @@
+ NTSTATUS _samr_query_userinfo(pipes_struct *p, SAMR_Q_QUERY_USERINFO *q_u, SAMR_R_QUERY_USERINFO *r_u)
+ {
+ 	SAM_USERINFO_CTR *ctr;
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	DOM_SID domain_sid;
+ 	uint32 rid;
+@@ -1578,9 +1588,9 @@
+ 	r_u->status=NT_STATUS_OK;
+ 
+ 	/* search for the handle */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	domain_sid = info->sid;
+ 
+ 	sid_split_rid(&domain_sid, &rid);
+@@ -1785,6 +1795,7 @@
+ 
+ NTSTATUS _samr_query_dom_info(pipes_struct *p, SAMR_Q_QUERY_DOMAIN_INFO *q_u, SAMR_R_QUERY_DOMAIN_INFO *r_u)
+ {
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	SAM_UNK_CTR *ctr;
+ 	uint32 min_pass_len,pass_hist,flag;
+@@ -1794,7 +1805,7 @@
+ 	time_t u_lock_duration, u_reset_time;
+ 	NTTIME nt_lock_duration, nt_reset_time;
+ 	uint32 lockout;
+-	
++	unsigned int ui_logout;
+ 	time_t u_logout;
+ 	NTTIME nt_logout;
+ 
+@@ -1813,9 +1824,9 @@
+ 	DEBUG(5,("_samr_query_dom_info: %d\n", __LINE__));
+ 	
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->domain_pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->domain_pol, (void **)&vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-	
++	info = vinfo;
+ 	switch (q_u->switch_value) {
+ 		case 0x01:
+ 			
+@@ -1861,7 +1872,8 @@
+ 				       num_users, num_groups, num_aliases, nt_logout, server_role);
+ 			break;
+ 		case 0x03:
+-			account_policy_get(AP_TIME_TO_LOGOUT, (unsigned int *)&u_logout);
++			account_policy_get(AP_TIME_TO_LOGOUT, &ui_logout);
++			u_logout = ui_logout;
+ 			unix_to_nt_time_abs(&nt_logout, u_logout);
+ 			
+ 			init_unk_info3(&ctr->info.inf3, nt_logout);
+@@ -2244,15 +2256,16 @@
+ 
+ NTSTATUS _samr_lookup_domain(pipes_struct *p, SAMR_Q_LOOKUP_DOMAIN *q_u, SAMR_R_LOOKUP_DOMAIN *r_u)
+ {
++	void *vinfo;
+ 	struct samr_info *info;
+ 	fstring domain_name;
+ 	DOM_SID sid;
+ 
+ 	r_u->status = NT_STATUS_OK;
+ 
+-	if (!find_policy_by_hnd(p, &q_u->connect_pol, (void**)&info))
++	if (!find_policy_by_hnd(p, &q_u->connect_pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	/* win9x user manager likes to use SA_RIGHT_SAM_ENUM_DOMAINS here.  
+ 	   Reverted that change so we will work with RAS servers again */
+ 
+@@ -2319,6 +2332,7 @@
+ 
+ NTSTATUS _samr_enum_domains(pipes_struct *p, SAMR_Q_ENUM_DOMAINS *q_u, SAMR_R_ENUM_DOMAINS *r_u)
+ {
++	void *vinfo;
+ 	struct samr_info *info;
+ 	uint32 num_entries = 2;
+ 	fstring dom[2];
+@@ -2326,9 +2340,9 @@
+ 
+ 	r_u->status = NT_STATUS_OK;
+ 	
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void**)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-	
++	info = vinfo;
+ 	if (!NT_STATUS_IS_OK(r_u->status = access_check_samr_function(info->acc_granted, SA_RIGHT_SAM_ENUM_DOMAINS, "_samr_enum_domains"))) {
+ 		return r_u->status;
+ 	}
+@@ -2954,6 +2968,7 @@
+ {
+ 	int num_alias_rids;
+ 	uint32 *alias_rids;
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	int i;
+ 		
+@@ -2968,9 +2983,9 @@
+ 	DEBUG(5,("_samr_query_useraliases: %d\n", __LINE__));
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-		
++	info = vinfo;
+ 	ntstatus1 = access_check_samr_function(info->acc_granted, SA_RIGHT_DOMAIN_LOOKUP_ALIAS_BY_MEM, "_samr_query_useraliases");
+ 	ntstatus2 = access_check_samr_function(info->acc_granted, SA_RIGHT_DOMAIN_OPEN_ACCOUNT, "_samr_query_useraliases");
+ 	
+@@ -4179,6 +4194,7 @@
+ 
+ NTSTATUS _samr_unknown_2e(pipes_struct *p, SAMR_Q_UNKNOWN_2E *q_u, SAMR_R_UNKNOWN_2E *r_u)
+ {
++	void *vinfo = NULL;
+ 	struct samr_info *info = NULL;
+ 	SAM_UNK_CTR *ctr;
+ 	uint32 min_pass_len,pass_hist,flag;
+@@ -4207,9 +4223,9 @@
+ 	DEBUG(5,("_samr_unknown_2e: %d\n", __LINE__));
+ 
+ 	/* find the policy handle.  open a policy on it. */
+-	if (!find_policy_by_hnd(p, &q_u->domain_pol, (void **)&info))
++	if (!find_policy_by_hnd(p, &q_u->domain_pol, &vinfo))
+ 		return NT_STATUS_INVALID_HANDLE;
+-
++	info = vinfo;
+ 	switch (q_u->switch_value) {
+ 		case 0x01:
+ 			account_policy_get(AP_MIN_PASSWORD_LEN, &account_policy_temp);
+--- samba-3.0.20a/source/libads/ldap_utils.c.warnings	2005-09-30 15:41:47.000000000 -0400
++++ samba-3.0.20a/source/libads/ldap_utils.c	2005-09-30 15:41:50.000000000 -0400
+@@ -48,7 +48,7 @@
+ 		return ADS_ERROR_NT(NT_STATUS_NO_MEMORY);
+ 	}
+ 
+-	while (count--) {
++	do {
+ 		*res = NULL;
+ 		status = ads_do_search_all(ads, bp, scope, expr, attrs, res);
+ 		if (ADS_ERR_OK(status)) {
+@@ -79,7 +79,7 @@
+ 			SAFE_FREE(bp);
+ 			return status;
+ 		}
+-	}
++	} while (--count);
+         SAFE_FREE(bp);
+ 
+ 	if (!ADS_ERR_OK(status))
+--- samba-3.0.20a/source/nmbd/nmbd_namelistdb.c.warnings	2005-09-30 15:45:06.000000000 -0400
++++ samba-3.0.20a/source/nmbd/nmbd_namelistdb.c	2005-09-30 15:45:11.000000000 -0400
+@@ -76,9 +76,11 @@
+ static void update_name_in_namelist( struct subnet_record *subrec,
+                               struct name_record   *namerec )
+ {
++	void *voldrec = NULL;
+ 	struct name_record *oldrec = NULL;
+ 
+-	ubi_trInsert( subrec->namelist, namerec, &(namerec->name), &oldrec );
++	ubi_trInsert( subrec->namelist, namerec, &(namerec->name), &voldrec );
++	oldrec = voldrec;
+ 	if( oldrec ) {
+ 		SAFE_FREE( oldrec->data.ip );
+ 		SAFE_FREE( oldrec );
+--- samba-3.0.20a/source/nsswitch/winbindd_cm.c.warnings	2005-09-29 17:52:42.000000000 -0400
++++ samba-3.0.20a/source/nsswitch/winbindd_cm.c	2005-09-30 15:46:23.000000000 -0400
+@@ -721,7 +721,7 @@
+ 	for (retries = 0; retries < 3; retries++) {
+ 
+ 		int fd = -1;
+-		BOOL retry;
++		BOOL retry = False;
+ 
+ 		result = NT_STATUS_DOMAIN_CONTROLLER_NOT_FOUND;
+ 
+@@ -965,6 +965,7 @@
+ 	return;
+ }
+ 
++#ifndef DISABLE_SCHANNEL_WIN2K3_SP1
+ static BOOL cm_get_schannel_key(struct winbindd_domain *domain,
+ 				TALLOC_CTX *mem_ctx,
+ 				unsigned char **session_key)
+@@ -979,6 +980,7 @@
+ 						   &cli, session_key,
+ 						   &credentials));
+ }
++#endif
+ 
+ NTSTATUS cm_connect_sam(struct winbindd_domain *domain, TALLOC_CTX *mem_ctx,
+ 			struct rpc_pipe_client **cli, POLICY_HND *sam_handle)
+--- samba-3.0.20a/source/client/clitar.c.warnings	2005-09-30 15:47:43.000000000 -0400
++++ samba-3.0.20a/source/client/clitar.c	2005-09-30 15:56:25.000000000 -0400
+@@ -122,7 +122,7 @@
+ static void oct_it(SMB_BIG_UINT value, int ndgs, char *p);
+ static void fixtarname(char *tptr, const char *fp, size_t l);
+ static int dotarbuf(int f, char *b, int n);
+-static void dozerobuf(int f, int n);
++static int dozerobuf(int f, int n);
+ static void dotareof(int f);
+ static void initarbuf(void);
+ 
+@@ -356,22 +356,27 @@
+ Write zeros to buffer / tape
+ ****************************************************************************/
+ 
+-static void dozerobuf(int f, int n)
++static int dozerobuf(int f, int n)
+ {
++    ssize_t wrote;
++
++
+ 	/* short routine just to write out n zeros to buffer -
+ 	 * used to round files to nearest block
+ 	 * and to do tar EOFs */
+ 
+ 	if (dry_run)
+-		return;
++		return 0;
+   
+ 	if (n+tp >= tbufsiz) {
+ 		memset(tarbuf+tp, 0, tbufsiz-tp);
+-		write(f, tarbuf, tbufsiz);
++		wrote = write(f, tarbuf, tbufsiz);
+ 		memset(tarbuf, 0, (tp+=n-tbufsiz));
++		return wrote == tbufsiz;
+ 	} else {
+ 		memset(tarbuf+tp, 0, n);
+ 		tp+=n;
++		return 0;
+ 	}
+ }
+ 
+@@ -395,14 +400,17 @@
+ 
+ static void dotareof(int f)
+ {
++	int failed;
++	size_t towrite;
++	ssize_t wrote;
+ 	SMB_STRUCT_STAT stbuf;
+ 	/* Two zero blocks at end of file, write out full buffer */
+ 
+ 	if (dry_run)
+ 		return;
+ 
+-	(void) dozerobuf(f, TBLOCK);
+-	(void) dozerobuf(f, TBLOCK);
++	failed = dozerobuf(f, TBLOCK);
++	failed |= dozerobuf(f, TBLOCK);
+ 
+ 	if (sys_fstat(f, &stbuf) == -1) {
+ 		DEBUG(0, ("Couldn't stat file handle\n"));
+@@ -411,8 +419,15 @@
+ 
+ 	/* Could be a pipe, in which case S_ISREG should fail,
+ 		* and we should write out at full size */
+-	if (tp > 0)
+-		write(f, tarbuf, S_ISREG(stbuf.st_mode) ? tp : tbufsiz);
++	if (tp > 0) {
++		towrite = S_ISREG(stbuf.st_mode) ? tp : tbufsiz;
++		wrote = write(f, tarbuf, towrite );
++		if ( wrote < 0 || wrote != towrite )
++		    failed = 1;
++	}
++	if ( failed ) {
++	    DEBUG ( 0, ("Writing out EOF blocks failed\n"));
++	}
+ }
+ 
+ /****************************************************************************
+@@ -1111,7 +1126,7 @@
+ 		}
+ 
+ 		DEBUG(5, ("Reading the next header ...\n"));
+-
++		memset ( &finfo, 0, sizeof(finfo) );
+ 		switch (readtarheader((union hblock *) buffer_p, &finfo, cur_dir)) {
+ 			case -2:    /* Hmm, not good, but not fatal */
+ 				DEBUG(0, ("Skipping %s...\n", finfo.name));
+--- samba-3.0.20a/source/utils/net_lookup.c.warnings	2005-09-30 15:56:49.000000000 -0400
++++ samba-3.0.20a/source/utils/net_lookup.c	2005-09-30 16:00:59.000000000 -0400
+@@ -39,6 +39,7 @@
+ 	int name_type = 0x20;
+ 	const char *name = argv[0];
+ 	char *p;
++	int n;
+ 
+ 	if (argc == 0) 
+ 		return net_lookup_usage(argc, argv);
+@@ -46,7 +47,11 @@
+ 	p = strchr_m(name,'#');
+ 	if (p) {
+ 		*p = '\0';
+-		sscanf(++p,"%x",&name_type);
++		n = sscanf(++p,"%x",&name_type);
++		if ( n != 1 ) {
++		    DEBUG(0,("Invalid name_type %s\n",p));
++		    return -1;
++		}
+ 	}
+ 	
+ 	if (!resolve_name(name, &ip, name_type)) {
+@@ -180,6 +185,7 @@
+ #ifdef HAVE_KRB5
+ 	krb5_error_code rc;
+ 	krb5_context ctx;
++	void *vaddrs;
+ 	struct sockaddr_in *addrs;
+ 	int num_kdcs,i;
+ 	krb5_data realm;
+@@ -209,11 +215,12 @@
+ 		realm.length = strlen(realm.data);
+ 	}
+ 
+-	rc = krb5_locate_kdc(ctx, &realm, (struct sockaddr **) &addrs, &num_kdcs, 0);
++	rc = krb5_locate_kdc(ctx, &realm, &vaddrs, &num_kdcs, 0);
+ 	if (rc) {
+ 		DEBUG(1, ("krb5_locate_kdc failed (%s)\n", error_message(rc)));
+ 		return -1;
+ 	}
++	addrs = vaddrs;
+ 	for (i=0;i<num_kdcs;i++)
+ 		if (addrs[i].sin_family == AF_INET) 
+ 			d_printf("%s:%hd\n", inet_ntoa(addrs[i].sin_addr),
+--- samba-3.0.20a/source/pam_smbpass/support.c.warnings	2005-07-28 09:19:44.000000000 -0400
++++ samba-3.0.20a/source/pam_smbpass/support.c	2005-09-30 17:00:35.000000000 -0400
+@@ -86,11 +86,12 @@
+ 		      , struct pam_response **response )
+ 	{
+ 		int retval;
+-		struct pam_conv *conv;
++		const void *vconv;
++		const struct pam_conv *conv;
+ 
+-		retval = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
++		retval = pam_get_item(pamh, PAM_CONV, &vconv);
+ 		if (retval == PAM_SUCCESS) {
+-
++			conv = vconv;
+ 			retval = conv->conv(nargs, (const struct pam_message **) message
+ 								,response, conv->appdata_ptr);
+ 
+@@ -258,7 +259,8 @@
+ void _cleanup_failures( pam_handle_t * pamh, void *fl, int err )
+ {
+     int quiet;
+-    const char *service = NULL;
++    const void *vservice = NULL;
++    const char *service;
+     struct _pam_failed_auth *failure;
+ 
+ #ifdef PAM_DATA_SILENT
+@@ -281,7 +283,8 @@
+ 
+             /* log the number of authentication failures */
+             if (failure->count != 0) {
+-                pam_get_item( pamh, PAM_SERVICE, (const void **) &service );
++                pam_get_item( pamh, PAM_SERVICE,  &vservice );
++		service = vservice;
+                 _log_err( LOG_NOTICE
+                           , "%d authentication %s "
+                             "from %s for service %s as %s(%d)"
+@@ -335,9 +338,11 @@
+         { /* this means we've succeeded */
+             return PAM_SUCCESS;
+         } else {
++	    const void *vservice;
+             const char *service;
+ 
+-            pam_get_item( pamh, PAM_SERVICE, (const void **)&service );
++            pam_get_item( pamh, PAM_SERVICE, &vservice );
++	    service = vservice;
+             _log_err( LOG_NOTICE, "failed auth request by %s for service %s as %s",
+                       uidtoname(getuid()), service ? service : "**unknown**", name);
+             return PAM_AUTH_ERR;
+@@ -368,23 +373,25 @@
+             pam_set_data(pamh, data_name, NULL, _cleanup_failures);
+         }
+     } else {
+-
++	const void *vservice;
+         const char *service;
+ 
+-        pam_get_item( pamh, PAM_SERVICE, (const void **)&service );
+-
++        pam_get_item( pamh, PAM_SERVICE, &vservice );
++	service = vservice;
+         if (data_name != NULL) {
+             struct _pam_failed_auth *newauth = NULL;
+-            const struct _pam_failed_auth *old = NULL;
+ 
+             /* get a failure recorder */
+ 
+             newauth = SMB_MALLOC_P( struct _pam_failed_auth );
+ 
+             if (newauth != NULL) {
++		const void *vold = NULL;
++		const struct _pam_failed_auth *old;
+ 
+                 /* any previous failures for this user ? */
+-                pam_get_data(pamh, data_name, (const void **) &old);
++                pam_get_data(pamh, data_name, &vold);
++		old = vold;
+ 
+                 if (old != NULL) {
+                     newauth->count = old->count + 1;
+@@ -464,12 +471,14 @@
+ 
+ int _smb_read_password( pam_handle_t * pamh, unsigned int ctrl,
+                         const char *comment, const char *prompt1,
+-                        const char *prompt2, const char *data_name, char **pass )
++                        const char *prompt2, const char *data_name, const char **pass )
+ {
+     int authtok_flag;
+     int retval;
+-    char *item = NULL;
+-    char *token;
++    const void *vitem = NULL;
++    const char *item;
++    const void *vtoken;
++    const char *token;
+ 
+     struct pam_message msg[3], *pmsg[3];
+     struct pam_response *resp;
+@@ -487,7 +496,8 @@
+     /* should we obtain the password from a PAM item ? */
+ 
+     if (on(SMB_TRY_FIRST_PASS, ctrl) || on(SMB_USE_FIRST_PASS, ctrl)) {
+-        retval = pam_get_item( pamh, authtok_flag, (const void **) &item );
++        retval = pam_get_item( pamh, authtok_flag, &vitem );
++	item = vitem;
+         if (retval != PAM_SUCCESS) {
+             /* very strange. */
+             _log_err( LOG_ALERT
+@@ -577,11 +587,12 @@
+ 
+         /* we store this password as an item */
+ 
+-        retval = pam_set_item( pamh, authtok_flag, (const void *)token );
++	vtoken = token;
++        retval = pam_set_item( pamh, authtok_flag, vtoken );
+         _pam_delete( token );		/* clean it up */
+         if (retval != PAM_SUCCESS
+             || (retval = pam_get_item( pamh, authtok_flag
+-                            ,(const void **)&item )) != PAM_SUCCESS)
++                            ,&vitem )) != PAM_SUCCESS)
+         {
+             _log_err( LOG_CRIT, "error manipulating password" );
+             return retval;
+@@ -591,10 +602,10 @@
+          * then store it as data specific to this module. pam_end()
+          * will arrange to clean it up.
+          */
+-
+-        retval = pam_set_data( pamh, data_name, (void *) token, _cleanup );
++	vtoken = token;
++        retval = pam_set_data( pamh, data_name, token, _cleanup );
+         if (retval != PAM_SUCCESS
+-            || (retval = pam_get_data( pamh, data_name, (const void **)&item ))
++            || (retval = pam_get_data( pamh, data_name, &vitem ))
+                              != PAM_SUCCESS)
+         {
+             _log_err( LOG_CRIT, "error manipulating password data [%s]"
+@@ -604,8 +615,9 @@
+             return retval;
+         }
+         token = NULL;			/* break link to password */
++	vtoken = NULL;
+     }
+-
++    item = vitem;
+     *pass = item;
+     item = NULL;			/* break link to password */
+ 
+--- samba-3.0.20a/source/pam_smbpass/#support.h~	2005-10-04 11:52:56.000000000 -0400
++++ samba-3.0.20a/source/pam_smbpass/support.h	2005-10-04 11:52:56.000000000 -0400
+@@ -44,7 +44,7 @@
+ 
+ /* obtain a password from the user */
+ extern int _smb_read_password( pam_handle_t *, unsigned int, const char*,
+-				const char *, const char *, const char *, char **);
++				const char *, const char *, const char *, const char **);
+ 
+ extern int _pam_smb_approve_pass(pam_handle_t *, unsigned int, const char *,
+ 				 const char *);
