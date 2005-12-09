@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.20b
-Release: 2
+Release: 2.1
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -442,6 +442,9 @@ fi
 %{_mandir}/man8/libsmbclient.8*
 
 %changelog
+* Fri Dec 09 2005 Jesse Keating <jkeating@redhat.com>
+- rebuilt
+
 * Mon Nov 13 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20b-2
 - turn on -DLDAP_DEPRECATED to allow access to ldap functions that have
   been depricated in 2.3.11, but which don't have well-documented
