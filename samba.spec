@@ -2,8 +2,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.20b
-Release: 2.1.1
+Version: 3.0.21b
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -33,17 +33,17 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
-Patch103: samba-3.0.12pre1-logfiles.patch
+Patch103: samba-3.0.21b-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch105: samba-3.0.4-smb.conf.patch
+Patch105: samba-3.0.21b-smb.conf.patch
 Patch106: samba-3.0.20pre1-man.patch
 Patch107: samba-3.0.20pre1-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
 Patch109: samba-3.0.4-install.mount.smbfs.patch
-Patch110: samba-3.0.20pre1-smbspool.patch
+Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch112: samba-3.0.15pre2-bug106483.patch
-Patch113: samba-3.0.20a-warnings.patch
+#Patch113: samba-3.0.21-warnings.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -103,10 +103,12 @@ Web browser.
 %setup -q
 
 # copy Red Hat specific scripts
-cp %{SOURCE5} packaging/RedHat/
-cp %{SOURCE6} packaging/RedHat/
-cp %{SOURCE7} packaging/RedHat/
-cp %{SOURCE8} packaging/RedHat/winbind.init
+mkdir packaging/Fedora
+cp packaging/RedHat-9/{samba.log,smb.conf,smbusers,samba.pamd.stack} packaging/Fedora/
+cp %{SOURCE5} packaging/Fedora/
+cp %{SOURCE6} packaging/Fedora/
+cp %{SOURCE7} packaging/Fedora/
+cp %{SOURCE8} packaging/Fedora/winbind.init
 
 # Upstream patches
 #(none)
@@ -124,7 +126,7 @@ cp %{SOURCE8} packaging/RedHat/winbind.init
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
 %patch112 -p1 -b .bug106483
-%patch113 -p1 -b .warnings
+#%patch113 -p1 -b .warnings
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -154,7 +156,6 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-pam \
 	--with-pam_smbpass \
 	--with-quotas \
-	--with-smbmount \
 	--with-syslog \
 	--with-utmp \
 	--with-vfs \
@@ -222,17 +223,15 @@ cd source
 cd ..
 
 # Install other stuff
-install -m644 packaging/RedHat/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
+install -m644 packaging/Fedora/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
 install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
-install -m644 packaging/RedHat/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
-install -m755 packaging/RedHat/smbprint $RPM_BUILD_ROOT%{_bindir}
-install -m755 packaging/RedHat/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
-install -m755 packaging/RedHat/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
+install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
+install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
+install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
+install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
-install -m644 packaging/RedHat/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
+install -m644 packaging/Fedora/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
-ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smb
-ln -s ../usr/bin/smbmount $RPM_BUILD_ROOT/sbin/mount.smbfs
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 
 # pam_smbpass
@@ -269,9 +268,12 @@ install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
+#rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man5/smbgetrc.5*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmount.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -357,19 +359,13 @@ fi
 
 %files client
 %defattr(-,root,root)
-/sbin/mount.smb
-/sbin/mount.smbfs
 /sbin/mount.cifs
 /sbin/umount.cifs
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
-%{_bindir}/smbmount
-%{_bindir}/smbmnt
-%{_bindir}/smbumount
 %{_bindir}/findsmb
-%{_mandir}/man8/smbmnt.8*
-%{_mandir}/man8/smbmount.8*
-%{_mandir}/man8/smbumount.8*
+%{_bindir}/smbget
+%{_bindir}/eventlogadm
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/mount.cifs.8*
 %{_mandir}/man8/umount.cifs.8*
@@ -386,6 +382,7 @@ fi
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
+%{_mandir}/man1/smbget.1*
 
 %files common
 %defattr(-,root,root)
@@ -396,8 +393,10 @@ fi
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
-%{_libdir}/samba/idmap/idmap_ad.so
-%{_libdir}/samba/idmap/idmap_rid.so
+%{_libdir}/samba/idmap/ad.so
+%{_libdir}/samba/idmap/rid.so
+%{_libdir}/samba/auth/script.so
+%{_libdir}/samba/libmsrpc.so
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
@@ -408,6 +407,8 @@ fi
 %{_libdir}/libsmbclient.so.0
 %{_libdir}/samba/charset/CP*.so
 %{_includedir}/libsmbclient.h
+%{_includedir}/libmsrpc.h
+
 %{_bindir}/net
 %{_bindir}/testparm
 %{_bindir}/smbpasswd
@@ -438,10 +439,16 @@ fi
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/net.8*
 %{_mandir}/man1/vfstest.1*
-%{_mandir}/man8/pam_winbind.8*
-%{_mandir}/man8/libsmbclient.8*
+%{_mandir}/man7/pam_winbind.7*
+%{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Wed Jan 4 2006 Jay Fenlason <fenlason@redhat.com> 3.0.21b-2
+- New upstream version.
+- Since the rawhide kernel has dropped support for smbfs, remove smbmount
+  and smbumount.  Users should use mount.cifs instead.
+- Upgrade to 3.0.21b
+
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 0:3.0.20b-2.1.1
 - bump again for double-long bug on ppc(64)
 
