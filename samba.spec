@@ -443,7 +443,7 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
-* Wed Jan 4 2006 Jay Fenlason <fenlason@redhat.com> 3.0.21b-2
+* Mon Feb 13 2006 Jay Fenlason <fenlason@redhat.com> 3.0.21b-2
 - New upstream version.
 - Since the rawhide kernel has dropped support for smbfs, remove smbmount
   and smbumount.  Users should use mount.cifs instead.
