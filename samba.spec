@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.21b
+Version: 3.0.21c
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -443,6 +443,9 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Fri Mar 17 2006 Jay Fenlason <fenlason@redhat.com> 2.0.21c-2
+- New upstream version.
+
 * Mon Feb 13 2006 Jay Fenlason <fenlason@redhat.com> 3.0.21b-2
 - New upstream version.
 - Since the rawhide kernel has dropped support for smbfs, remove smbmount
