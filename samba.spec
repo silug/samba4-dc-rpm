@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.21c
+Version: 3.0.22
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -50,7 +50,7 @@ Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
-BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel
+BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel gnutls-devel
 
 
 # Working around perl dependency problem from docs
