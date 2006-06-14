@@ -51,6 +51,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
 BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel gnutls-devel
+BuildRequires: autoconf, libtool
 
 
 # Working around perl dependency problem from docs
