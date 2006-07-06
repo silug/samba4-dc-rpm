@@ -2,16 +2,16 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.22
-Release: 3
+Version: 3.0.23
+Release: 0.RC3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc1.tar.gz
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc3.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -33,13 +33,13 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
-Patch103: samba-3.0.21b-logfiles.patch
+Patch103: samba-3.0.23rc2-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch105: samba-3.0.21b-smb.conf.patch
 Patch106: samba-3.0.20pre1-man.patch
-Patch107: samba-3.0.20pre1-passwd.patch
+# The passwd part has been applied, but not the group part
+Patch107: samba-3.0.23rc3-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
-Patch109: samba-3.0.4-install.mount.smbfs.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch112: samba-3.0.15pre2-bug106483.patch
@@ -100,8 +100,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-# % setup -q -n samba-3.0.21rc1
-%setup -q
+%setup -q -n samba-3.0.23rc3
+# % setup -q
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -123,7 +123,6 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 %patch106 -p1 -b .man
 %patch107 -p1 -b .passwd
 #%patch108 -p1 -b .non-ascii-domain
-%patch109 -p1 -b .install.mount.smbfs
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
 %patch112 -p1 -b .bug106483
@@ -237,11 +236,10 @@ echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 
 # pam_smbpass
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
-mv source/bin/pam_smbpass.so $RPM_BUILD_ROOT/%{_lib}/security/pam_smbpass.so
+install -m 755 source/bin/pam_smbpass.so $RPM_BUILD_ROOT/%{_lib}/security/pam_smbpass.so
+install -m 755 source/bin/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/pam_winbind.so
 
 # winbind
-mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
-install -m 755 source/nsswitch/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/pam_winbind.so
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 install -m 755 source/nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/%{_lib}/libnss_winbind.so.2
 ln -sf /%{_lib}/libnss_winbind.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_winbind.so
@@ -275,6 +273,10 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmount.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
+
+# why are these getting installed in the wrong place?
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/security/pam_{smbpass,winbind}.so
+rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -444,6 +446,17 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Thu Jul 6 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23-0.RC3
+- New upstream RC release.
+- Update the -logfiles, and -passwd patches for
+  3.0.23rc3
+- Include the change to smb.init from Bastien Nocera <bnocera@redhat.com>)
+  to close
+  bz#182560 Wrong retval for initscript when smbd is dead
+- Update this spec file to build with 3.0.23rc3
+- Remove the -install.mount.smbfs patch, since we don't install
+  mount.smbfs any more.
+
 * Wed Jun 14 2006 Tomas Mraz <tmraz@redhat.com> - 2.0.21c-3
 - rebuilt with new gnutls
 
