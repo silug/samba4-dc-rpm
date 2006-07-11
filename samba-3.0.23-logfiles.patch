@@ -1,0 +1,52 @@
+--- samba-3.0.23rc2/source/lib/popt_common.c.logfiles	2006-06-09 15:30:31.000000000 -0400
++++ samba-3.0.23rc2/source/lib/popt_common.c	2006-06-14 12:20:02.000000000 -0400
+@@ -54,7 +54,7 @@
+ 	else 
+ 		pname++;
+ 
+-	pstr_sprintf(logfile, "%s/log.%s", arg, pname);
++	pstr_sprintf(logfile, "%s/%s.log", arg, pname);
+ 	lp_set_logfile(logfile);
+ }
+ 
+--- samba-3.0.8pre1/source/nmbd/nmbd.c.logfiles	2004-09-22 08:42:14.000000000 -0400
++++ samba-3.0.8pre1/source/nmbd/nmbd.c	2004-09-27 14:16:59.000000000 -0400
+@@ -626,7 +626,7 @@
+ 	sys_srandom(time(NULL) ^ sys_getpid());
+ 	
+ 	if (!override_logfile) {
+-		slprintf(logfile, sizeof(logfile)-1, "%s/log.nmbd", dyn_LOGFILEBASE);
++		slprintf(logfile, sizeof(logfile)-1, "%s/nmbd.log", dyn_LOGFILEBASE);
+ 		lp_set_logfile(logfile);
+ 	}
+ 	
+--- samba-3.0.8pre1/source/nsswitch/winbindd.c.logfiles	2004-09-22 08:42:13.000000000 -0400
++++ samba-3.0.8pre1/source/nsswitch/winbindd.c	2004-09-27 14:17:35.000000000 -0400
+@@ -856,7 +856,7 @@
+ 	}
+ 
+ 	if (!override_logfile) {
+-		pstr_sprintf(logfile, "%s/log.winbindd", dyn_LOGFILEBASE);
++		pstr_sprintf(logfile, "%s/winbindd.log", dyn_LOGFILEBASE);
+ 		lp_set_logfile(logfile);
+ 	}
+ 	setup_logging("winbindd", log_stdout);
+--- samba-3.0.11/packaging/Fedora/samba.log.logfiles	2005-02-03 22:07:48.000000000 -0500
++++ samba-3.0.11/packaging/Fedora/samba.log	2005-02-04 16:17:00.000000000 -0500
+@@ -1,4 +1,4 @@
+-/var/log/samba/*.log /var/log/samba/log.smbd /var/log/samba/log.nmbd {
++/var/log/samba/*.log {
+     notifempty
+     missingok
+     sharedscripts
+--- samba-3.0.23/packaging/Fedora/smb.conf.logfiles	2006-07-11 11:23:52.000000000 -0400
++++ samba-3.0.23/packaging/Fedora/smb.conf	2006-07-11 11:27:00.000000000 -0400
+@@ -63,7 +63,7 @@
+ 
+ # this tells Samba to use a separate log file for each machine
+ # that connects
+-   log file = /usr/local/samba/var/log.%m
++   log file = /usr/local/samba/var/%m.log
+ 
+ # Put a capping on the size of the log files (in Kb).
+    max log size = 50

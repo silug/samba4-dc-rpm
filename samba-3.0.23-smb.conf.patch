@@ -1,0 +1,12 @@
+--- samba-3.0.23/packaging/Fedora/smb.conf.upstream	2006-07-11 11:29:05.000000000 -0400
++++ samba-3.0.23/packaging/Fedora/smb.conf	2006-07-11 11:30:45.000000000 -0400
+@@ -57,6 +57,9 @@
+ # bsd, cups, sysv, plp, lprng, aix, hpux, qnx
+ ;   printing = cups
+ 
++# This option tells cups that the data has already been rasterized
++cups options = raw
++
+ # Uncomment this if you want a guest account, you must add this to /etc/passwd
+ # otherwise the user "nobody" is used
+ ;  guest account = pcguest

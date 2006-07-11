@@ -3,15 +3,15 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.23
-Release: 0.RC3
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc3.tar.gz
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc3.tar.gz
+Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -33,9 +33,9 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
-Patch103: samba-3.0.23rc2-logfiles.patch
+Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch105: samba-3.0.21b-smb.conf.patch
+Patch105: samba-3.0.23-smb.conf.patch
 Patch106: samba-3.0.20pre1-man.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.0.23rc3-passwd.patch
@@ -100,8 +100,8 @@ Web browser.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.23rc3
-# % setup -q
+# % setup -q -n samba-3.0.23rc3
+%setup -q
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -446,6 +446,12 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Tue Jul 11 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23-2
+- New upstream release.
+- Use modified filter-requires-samba.sh from packaging/RHEL/setup/
+  to get rid of bogus dependency on perl(Unicode::MapUTF8)
+- Update the -logfiles and -smb.conf patches to work with 3.0.23
+
 * Thu Jul 6 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23-0.RC3
 - New upstream RC release.
 - Update the -logfiles, and -passwd patches for
