@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.23
+Version: 3.0.23a
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -28,7 +28,7 @@ Source999: filter-requires-samba.sh
 
 # upstream patches.  Applied first so that they'll break our patches rather
 # than the other way around
-# (none at the moment)
+Patch1: samba-3.0.23a-samr_alias.patch
 
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
@@ -112,7 +112,7 @@ cp %{SOURCE7} packaging/Fedora/
 cp %{SOURCE8} packaging/Fedora/winbind.init
 
 # Upstream patches
-#(none)
+%patch1 -p1
 
 # generic patches
 %patch101 -p1 -b .smbw
@@ -446,6 +446,10 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Mon Jul 24 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23a-2
+- Upgrade to new upstream 3.0.23a
+- include upstream samr_alias patch
+
 * Tue Jul 11 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23-2
 - New upstream release.
 - Use modified filter-requires-samba.sh from packaging/RHEL/setup/
