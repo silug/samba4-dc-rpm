@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.23a
-Release: 2
+Release: 3
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -446,6 +446,11 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Mon Jul 24 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23a-3
+- Fix the -logfiles patch to close
+  bz#199607 Samba compiled with wrong log path.
+  bz#199206 smb.conf has incorrect log file path
+
 * Mon Jul 24 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23a-2
 - Upgrade to new upstream 3.0.23a
 - include upstream samr_alias patch
