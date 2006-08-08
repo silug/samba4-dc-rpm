@@ -2,8 +2,8 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.23a
-Release: 3
+Version: 3.0.23b
+Release: 2
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -28,7 +28,7 @@ Source999: filter-requires-samba.sh
 
 # upstream patches.  Applied first so that they'll break our patches rather
 # than the other way around
-Patch1: samba-3.0.23a-samr_alias.patch
+# (none right now)
 
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
@@ -112,8 +112,7 @@ cp %{SOURCE7} packaging/Fedora/
 cp %{SOURCE8} packaging/Fedora/winbind.init
 
 # Upstream patches
-%patch1 -p1
-
+#(none)
 # generic patches
 %patch101 -p1 -b .smbw
 %patch102 -p1 -b .pipedir
@@ -446,6 +445,9 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Tue Aug 8 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23b-2
+- New upstream release.
+
 * Mon Jul 24 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23a-3
 - Fix the -logfiles patch to close
   bz#199607 Samba compiled with wrong log path.
