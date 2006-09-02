@@ -2,7 +2,7 @@
 
 Summary: The Samba SMB server.
 Name: samba
-Version: 3.0.23b
+Version: 3.0.23c
 Release: 2
 Epoch: 0
 License: GNU GPL Version 2
@@ -445,6 +445,9 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Fri Sep 1 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23c-2
+- New upstream release.
+
 * Tue Aug 8 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23b-2
 - New upstream release.
 
