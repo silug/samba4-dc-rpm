@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 1
+Release: 2%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -36,7 +36,7 @@ Patch102: samba-3.0.0beta1-pipedir.patch
 Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch105: samba-3.0.23-smb.conf.patch
-Patch106: samba-3.0.20pre1-man.patch
+Patch106: samba-3.0.23d-man.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.0.23rc3-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
@@ -44,6 +44,8 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
+Patch114: samba-3.0.24-msdfs-root-no.patch
+Patch115: samba-3.0.24-vista-patchset.patch
 
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
@@ -126,6 +128,8 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 %patch111 -p1 -b .smbclient
 %patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
+%patch114 -p1 -b .dfsroot
+%patch115 -p1 -b .vista
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -348,6 +352,9 @@ fi
 %{_mandir}/man8/tdbbackup.8*
 %{_mandir}/man8/tdbdump.8*
 %{_libdir}/samba/vfs
+%{_libdir}/samba/idmap
+#%{_libdir}/samba/idmap/ad.so
+#%{_libdir}/samba/idmap/rid.so
 
 %attr(1777,root,root) %dir /var/spool/samba
 
@@ -391,12 +398,9 @@ fi
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
 %dir %{_libdir}/samba/charset
-%dir %{_libdir}/samba/idmap
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
-%{_libdir}/samba/idmap/ad.so
-%{_libdir}/samba/idmap/rid.so
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/libmsrpc.so
 %{_libdir}/libnss_wins.so
@@ -445,6 +449,14 @@ fi
 %{_mandir}/man7/libsmbclient.7*
 
 %changelog
+* Tue Feb 20 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-2.fc7
+- New upstream release
+- Fix packaging issue wrt idmap modules used only by smbd
+- Addedd Vista Patchset for compatibility with Windows Vista
+- Change default of "msdfs root", it seem to cause problems with
+  some applications and it has been proposed to change it for
+  3.0.25 upstream
+
 * Fri Sep 1 2006 Jay Fenlason <fenlason@redhat.com> 3.0.23c-2
 - New upstream release.
 
