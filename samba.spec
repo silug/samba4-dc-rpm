@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -47,6 +47,7 @@ Patch112: samba-3.0.15pre2-bug106483.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
 
+Requires(pre): /usr/sbin/groupadd
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -54,7 +55,6 @@ Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
 Prereq: fileutils sed /etc/init.d 
 BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel gnutls-devel
 BuildRequires: autoconf, libtool
-
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -99,6 +99,33 @@ Requires: samba = %{epoch}:%{version}-%{release} xinetd
 The samba-swat package includes the new SWAT (Samba Web Administration
 Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
+
+%package doc
+Summary: Documentation for the Samba suite
+Group: Documentation
+Requires: samba-common = %{epoch}:%{version}-%{release}
+
+%description doc
+The samba-doc package includes all the non-manpage documentation for the
+Samba suite.
+
+%package devel
+Summary: Developer tools for the Samba suite
+Group: Development
+Requires: samba-common = %{epoch}:%{version}-%{release}
+
+%description devel
+The samba-devel package contains the header files and libraries needed to
+develop programs that link against the libraries in the Samba suite.
+
+%package devel-static
+Summary: static libraries for 
+Group: Development
+Requires: samba-devel = %{epoch}:%{version}-%{release}
+
+%description devel-static
+The samba-devel-static package contains the statically linked version of the
+libraries included in the samba-devel package.
 
 %prep
 # TAG: change for non-pre
@@ -146,9 +173,9 @@ sh autogen.sh
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 %endif
 %ifarch ia64
-libtoolize --copy --force     # get it to recognize IA-64
-autoheader                                               
-autoconf
+#libtoolize --copy --force     # get it to recognize IA-64
+#autoheader                                               
+#autoconf
 EXTRA="-D_LARGEFILE64_SOURCE"
 %endif
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
@@ -200,7 +227,8 @@ mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/cache/samba
-mkdir -p $RPM_BUILD_ROOT/var/cache/samba/winbindd_privileged
+mkdir -p $RPM_BUILD_ROOT/var/lib/samba
+mkdir -p $RPM_BUILD_ROOT/var/lib/samba/winbindd_privileged
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
@@ -254,10 +282,18 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # make install puts libsmbclient.so in the wrong place on x86_64
 rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.so $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
-install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
+install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
+ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
 install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
+
+#libmsrpc
+
+#this lib is not really useful or usable (libmsrpc.h requires the samba source)
+#so better to remove it until upstream fixes it
+rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libmsrpc.so
+rm -f $RPM_BUILD_ROOT%{_includedir}/libmsrpc.h
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -272,6 +308,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbsh.1*
 #rm -f $RPM_BUILD_ROOT%{_mandir}/man1/smbget.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man5/smbgetrc.5*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/vfstest.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmount.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
@@ -284,9 +321,10 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-/sbin/chkconfig --add smb
+%pre
+/usr/sbin/groupadd -g 88 wbpriv || true
 
+%post
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
@@ -305,6 +343,55 @@ exit 0
 /sbin/chkconfig --add winbind
 /sbin/ldconfig
 
+# This script must be run always on installs or upgrades
+# it checks if a previous installation have created files
+# under /var/cache/samba and move them in that case as the
+# new package wants them to be under /var/lib/samba for
+# FHS compliance
+#
+# - we must stop the dameon if running and restart it
+#   after the script if it was
+# - we do not overwrite newer files
+# - even if /etc/init.d/smb is in samba and not
+#   samba-common we need to stop smbd/nmbd, if they
+#   are running, here as well, or we will mess up
+#   shared (between winbindd and smbd/nmbd) tdbs
+
+WINBINDD_RUNNING=0
+SMBD_RUNNING=0
+OLDPATH="/var/cache/samba"
+NEWPATH="/var/lib/samba"
+TDBLIST="account_policy.tdb brlock.tdb group_mapping.tdb ntdrivers.tdb ntprinters.tdb registry.tdb share_info.tdb winbindd_idmap.tdb wins.tdb"
+DIRLIST="eventlog printing perfcount"
+
+#this is what condrestart checks as well
+if [ -f /var/lock/subsys/smb ]; then
+	SMBD_RUNNING=1
+	%{_initrddir}/smb stop >/dev/null 2>&1
+fi
+if [ -f /var/lock/subsys/winbindd ]; then
+	WINBINDD_RUNNING=1
+	%{_initrddir}/winbindd stop >/dev/null 2>&1
+fi
+
+for f in $TDBLIST; do 
+	if [ -f $OLDPATH/$f ]; then
+		mv -u $OLDPATH/$f $NEWPATH/$f
+	fi
+done
+for d in $DIRLIST; do
+	if [ -d $OLDPATH/$d ]; then
+		mv -u $OLDPATH/$d $NEWPATH/$d
+	fi
+done
+
+if [ $SMBD_RUNNING = 1 ]; then
+	%{_initrddir}/smb start >/dev/null 2>&1
+fi
+if [ $WINBINDD_RUNNING = 1 ]; then
+	%{_initrddir}/winbind start >/dev/null 2>&1
+fi
+
 %preun common
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del winbind
@@ -320,15 +407,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README COPYING Manifest 
-%doc WHATSNEW.txt Roadmap
-%doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
-%doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
-%doc docs/htmldocs
-%doc docs/registry
-%doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
-%doc examples/printing
-
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
 %{_bindir}/mksmbpasswd.sh
@@ -353,9 +431,8 @@ fi
 %{_mandir}/man8/tdbdump.8*
 %{_libdir}/samba/vfs
 %{_libdir}/samba/idmap
-#%{_libdir}/samba/idmap/ad.so
-#%{_libdir}/samba/idmap/rid.so
-
+%{_libdir}/samba/auth
+%dir /var/cache/samba
 %attr(1777,root,root) %dir /var/spool/samba
 
 %files swat
@@ -397,23 +474,17 @@ fi
 %defattr(-,root,root)
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
-%dir %{_libdir}/samba/charset
+%{_libdir}/samba/charset
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
-%{_libdir}/samba/auth/script.so
-%{_libdir}/samba/libmsrpc.so
+#%{_libdir}/samba/libmsrpc.so
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
 /%{_lib}/libnss_winbind.so.2
 /%{_lib}/security/pam_winbind.so
-%{_libdir}/libsmbclient.a
-%{_libdir}/libsmbclient.so
 %{_libdir}/libsmbclient.so.0
-%{_libdir}/samba/charset/CP*.so
-%{_includedir}/libsmbclient.h
-%{_includedir}/libmsrpc.h
 
 %{_bindir}/net
 %{_bindir}/testparm
@@ -425,8 +496,9 @@ fi
 %{_bindir}/smbcquotas
 %{_sbindir}/winbindd
 %dir /var/cache/samba
+%dir /var/lib/samba
 %dir /var/run/winbindd
-%attr(750,root,root) %dir /var/cache/samba/winbindd_privileged
+%attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %dir %{_datadir}/samba
@@ -444,11 +516,35 @@ fi
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/net.8*
-%{_mandir}/man1/vfstest.1*
+#%{_mandir}/man1/vfstest.1*
 %{_mandir}/man7/pam_winbind.7*
 %{_mandir}/man7/libsmbclient.7*
 
+%files doc
+%doc README COPYING Manifest 
+%doc WHATSNEW.txt Roadmap
+%doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
+%doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
+%doc docs/htmldocs
+%doc docs/registry
+%doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
+%doc examples/printing
+
+%files devel
+%{_libdir}/libsmbclient.so
+%{_includedir}/libsmbclient.h
+#%{_includedir}/libmsrpc.h
+
+%files devel-static
+%{_libdir}/libsmbclient.a
+
 %changelog
+* Mon Mar 12 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
+- Directories reorg, persistent files must go to /var/lib, not
+  to /var/cache
+- Split out devel and doc packages
+- Remove libmsrpc.[h|so] for now as they are not really usable
+
 * Tue Feb 20 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-2.fc7
 - New upstream release
 - Fix packaging issue wrt idmap modules used only by smbd
