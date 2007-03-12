@@ -46,6 +46,7 @@ Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
+Patch116: samba-3.0.24-fhs-compliance.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
@@ -157,6 +158,7 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 #%patch113 -p1 -b .warnings
 %patch114 -p1 -b .dfsroot
 %patch115 -p1 -b .vista
+%patch116 -p1 -b .fhs
 
 # crap
 rm -f examples/VFS/.cvsignore
