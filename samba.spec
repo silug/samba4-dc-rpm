@@ -120,7 +120,7 @@ The samba-devel package contains the header files and libraries needed to
 develop programs that link against the libraries in the Samba suite.
 
 %package devel-static
-Summary: static libraries for 
+Summary: Static libraries of the Samba suite
 Group: Development
 Requires: samba-devel = %{epoch}:%{version}-%{release}
 
