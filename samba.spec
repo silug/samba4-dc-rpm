@@ -324,9 +324,9 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-/usr/sbin/groupadd -g 88 wbpriv || true
 
 %post
+
 %preun
 if [ $1 = 0 ] ; then
     /sbin/chkconfig --del smb
@@ -340,6 +340,9 @@ if [ "$1" -ge "1" ]; then
 	%{_initrddir}/smb condrestart >/dev/null 2>&1
 fi
 exit 0
+
+%pre common
+/usr/sbin/groupadd -g 88 wbpriv || true
 
 %post common
 /sbin/chkconfig --add winbind
