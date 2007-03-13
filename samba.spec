@@ -67,21 +67,21 @@ share files, printers, and other information (such as lists of
 available files and printers). The Windows NT, OS/2, and Linux
 operating systems support this natively, and add-on packages can
 enable the same thing for DOS, Windows, VMS, UNIX of all kinds, MVS,
-and more. This package provides an SMB server that can be used to
-provide network services to SMB (sometimes called "Lan Manager")
-clients. Samba uses NetBIOS over TCP/IP (NetBT) protocols and does NOT
+and more. This package provides an SMB/CIFS server that can be used to
+provide network services to SMB/CIFS clients.
+Samba uses NetBIOS over TCP/IP (NetBT) protocols and does NOT
 need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 
 %package client
-Summary: Samba (SMB) client programs.
+Summary: Samba client programs.
 Group: Applications/System
 Requires: samba-common = %{epoch}:%{version}-%{release}
 Obsoletes: smbfs
 
 %description client
-The samba-client package provides some SMB clients to compliment the
-built-in SMB filesystem in Linux. These clients allow access of SMB
-shares and printing to SMB printers.
+The samba-client package provides some SMB/CIFS clients to complement
+the built-in SMB/CIFS filesystem in Linux. These clients allow access
+of SMB/CIFS shares and printing to SMB/CIFS printers.
 
 %package common
 Summary: Files used by both Samba servers and clients.
