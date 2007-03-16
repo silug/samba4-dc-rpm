@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -46,6 +46,7 @@ Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
+Patch116: samba-3.0.24-arch_macro.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -158,6 +159,7 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 #%patch113 -p1 -b .warnings
 %patch114 -p1 -b .dfsroot
 %patch115 -p1 -b .vista
+%patch116 -p0 -b .arch_macro
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -550,6 +552,9 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
+* Fri Mar 16 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-4.fc7
+- fix arch macro which reported Vista to Samba clients.
+
 * Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
 - Directories reorg, tdb files must go to /var/lib, not
   to /var/cache, add migration script in %post common
