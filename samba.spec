@@ -46,10 +46,10 @@ Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
-Patch116: samba-3.0.24-fhs-compliance.patch
 
 Requires(pre): /usr/sbin/groupadd
-Requires: pam >= 0:0.64 %{auth} samba-common = %{epoch}:%{version}-%{release}
+Requires(pre): samba-common = %{epoch}:%{version}-%{release}
+Requires: pam >= 0:0.64 %{auth} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
@@ -158,7 +158,6 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 #%patch113 -p1 -b .warnings
 %patch114 -p1 -b .dfsroot
 %patch115 -p1 -b .vista
-%patch116 -p1 -b .fhs
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -192,7 +191,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-utmp \
 	--with-vfs \
 	--without-smbwrapper \
-	--with-lockdir=/var/cache/samba \
+	--with-lockdir=/var/lib/samba \
 	--with-piddir=/var/run \
 	--with-mandir=%{_mandir} \
 	--with-privatedir=%{_sysconfdir}/samba \
@@ -228,7 +227,6 @@ mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
 mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
-mkdir -p $RPM_BUILD_ROOT/var/cache/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/winbindd_privileged
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
@@ -242,7 +240,7 @@ cd source
 	BASEDIR=$RPM_BUILD_ROOT%{_prefix} \
 	SBINDIR=$RPM_BUILD_ROOT%{_sbindir} \
 	DATADIR=$RPM_BUILD_ROOT%{_datadir} \
-	LOCKDIR=$RPM_BUILD_ROOT/var/cache/samba \
+	LOCKDIR=$RPM_BUILD_ROOT/var/lib/samba \
 	PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
 	LIBDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
 	CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
@@ -323,26 +321,25 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
-
+#%pre
 %post
-
-%preun
-if [ $1 = 0 ] ; then
-    /sbin/chkconfig --del smb
-    rm -rf /var/log/samba/* /var/cache/samba/*
-    /sbin/service smb stop >/dev/null 2>&1
-fi
-exit 0
-
-%postun
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/smb condrestart >/dev/null 2>&1
 fi
 exit 0
 
+%preun
+if [ $1 = 0 ] ; then
+    #rm -rf /var/log/samba/* /var/lib/samba/*
+    %{_initrddir}/smb stop >/dev/null 2>&1
+    /sbin/chkconfig --del smb
+fi
+exit 0
+
+#%postun
+
 %pre common
-/usr/sbin/groupadd -g 88 wbpriv || true
+/usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || true
 
 %post common
 /sbin/chkconfig --add winbind
@@ -362,52 +359,63 @@ exit 0
 #   are running, here as well, or we will mess up
 #   shared (between winbindd and smbd/nmbd) tdbs
 
-WINBINDD_RUNNING=0
-SMBD_RUNNING=0
 OLDPATH="/var/cache/samba"
 NEWPATH="/var/lib/samba"
-TDBLIST="account_policy.tdb brlock.tdb group_mapping.tdb ntdrivers.tdb ntprinters.tdb registry.tdb share_info.tdb winbindd_idmap.tdb wins.tdb"
-DIRLIST="eventlog printing perfcount"
 
-#this is what condrestart checks as well
-if [ -f /var/lock/subsys/smb ]; then
-	SMBD_RUNNING=1
-	%{_initrddir}/smb stop >/dev/null 2>&1
-fi
-if [ -f /var/lock/subsys/winbindd ]; then
-	WINBINDD_RUNNING=1
-	%{_initrddir}/winbindd stop >/dev/null 2>&1
-fi
+eval ls $OLDPATH/*.tdb >/dev/null 2>&1
+if [ $? = 0 ]; then
 
-for f in $TDBLIST; do 
-	if [ -f $OLDPATH/$f ]; then
-		mv -u $OLDPATH/$f $NEWPATH/$f
+	#Stop daemons before we move the files around
+
+	#this is what condrestart checks as well
+	if [ -f /var/lock/subsys/winbindd ]; then
+		%{_initrddir}/winbind stop >/dev/null 2>&1
+		# Use a dirty trick to fool condrestart later
+		touch /var/lock/subsys/winbindd
 	fi
-done
-for d in $DIRLIST; do
-	if [ -d $OLDPATH/$d ]; then
-		mv -u $OLDPATH/$d $NEWPATH/$d
-	fi
-done
 
-if [ $SMBD_RUNNING = 1 ]; then
-	%{_initrddir}/smb start >/dev/null 2>&1
+	if [ -f /var/lock/subsys/smb ]; then
+		%{_initrddir}/smb stop >/dev/null 2>&1
+		# We need to stop smbd here as we are moving also smbd owned files
+		# but we can't restart it until the new server is installed.
+		# Use a dirty trick to fool condrestart later
+		touch /var/lock/subsys/smb
+	fi
+
+	eval ls $NEWPATH/*.tdb >/dev/null 2>&1
+	if [ $? = 0 ]; then
+		#something strange here, lets backup this stuff and avoid just wiping it
+
+		mkdir $NEWPATH.pkgbkp
+		mv -f $NEWPATH/*.tdb $NEWPATH.pkgbkp/ >/dev/null 2>&1
+		mv -f $NEWPATH/*.dat $NEWPATH.pkgbkp/ >/dev/null 2>&1
+		mv -f $NEWPATH/perfmon $NEWPATH.pkgbkp/ >/dev/null 2>&1
+		mv -f $NEWPATH/printing $NEWPATH.pkgbkp/ >/dev/null 2>&1
+	fi
+
+	mv -f $OLDPATH/*.tdb $NEWPATH/ >/dev/null 2>&1
+	mv -f $OLDPATH/*.dat $NEWPATH/ >/dev/null 2>&1
+	mv -f $OLDPATH/perfmon $NEWPATH/ >/dev/null 2>&1
+	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
 fi
-if [ $WINBINDD_RUNNING = 1 ]; then
-	%{_initrddir}/winbind start >/dev/null 2>&1
+
+if [ "$1" -ge "1" ]; then
+	%{_initrddir}/winbind condrestart >/dev/null 2>&1
 fi
 
 %preun common
 if [ $1 = 0 ] ; then
+    %{_initrddir}/winbind stop >/dev/null 2>&1
     /sbin/chkconfig --del winbind
-    /sbin/service winbind stop >/dev/null 2>&1
+    rm -rf /var/log/samba/* /var/lib/samba/*
 fi
 exit 0
 
 %postun common
-if [ "$1" -ge "1" ]; then
-	%{_initrddir}/winbind condrestart >/dev/null 2>&1
-fi
+# moved in post
+#if [ "$1" -ge "1" ]; then
+#	%{_initrddir}/winbind condrestart >/dev/null 2>&1
+#fi
 /sbin/ldconfig
 
 %files
@@ -437,7 +445,6 @@ fi
 %{_libdir}/samba/vfs
 %{_libdir}/samba/idmap
 %{_libdir}/samba/auth
-%dir /var/cache/samba
 %attr(1777,root,root) %dir /var/spool/samba
 
 %files swat
@@ -500,7 +507,6 @@ fi
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
 %{_sbindir}/winbindd
-%dir /var/cache/samba
 %dir /var/lib/samba
 %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
@@ -544,9 +550,9 @@ fi
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 12 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
-- Directories reorg, persistent files must go to /var/lib, not
-  to /var/cache
+* Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
+- Directories reorg, tdb files must go to /var/lib, not
+  to /var/cache, add migration script in %post common
 - Split out devel and doc packages
 - Remove libmsrpc.[h|so] for now as they are not really usable
 
