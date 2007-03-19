@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -22,6 +22,7 @@ Source5: smb.init
 Source6: samba.pamd
 Source7: smbprint
 Source8: winbind.init
+Source9: smb.conf.default
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -33,9 +34,9 @@ Source999: filter-requires-samba.sh
 # generic patches
 Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
-Patch103: samba-3.0.23-logfiles.patch
+#Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
-Patch105: samba-3.0.23-smb.conf.patch
+#Patch105: samba-3.0.23-smb.conf.patch
 Patch106: samba-3.0.23d-man.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.0.23rc3-passwd.patch
@@ -112,23 +113,30 @@ Requires: samba-common = %{epoch}:%{version}-%{release}
 The samba-doc package includes all the non-manpage documentation for the
 Samba suite.
 
-%package devel
-Summary: Developer tools for the Samba suite
+%package -n libsmbclient
+Summary: The SMB client library
+Group: Applications/System
+
+%description -n libsmbclient
+The libsmbclient contains the SMB client library from the Samba suite.
+
+%package -n libsmbclient-devel
+Summary: Developer tools for the SMB client library
 Group: Development
-Requires: samba-common = %{epoch}:%{version}-%{release}
+Requires: libsmbclient = %{epoch}:%{version}-%{release}
 
-%description devel
-The samba-devel package contains the header files and libraries needed to
-develop programs that link against the libraries in the Samba suite.
+%description -n libsmbclient-devel
+The libsmbclient-devel package contains the header files and libraries needed to
+develop programs that link against the SMB client library in the Samba suite.
 
-%package devel-static
-Summary: Static libraries of the Samba suite
+%package -n libsmbclient-devel-static
+Summary: Static version of the libsmbclient library
 Group: Development
-Requires: samba-devel = %{epoch}:%{version}-%{release}
+Requires: libsmbclient-devel = %{epoch}:%{version}-%{release}
 
-%description devel-static
+%description -n libsmbclient-devel-static
 The samba-devel-static package contains the statically linked version of the
-libraries included in the samba-devel package.
+SMB client library included in the libsmbclient-devel package.
 
 %prep
 # TAG: change for non-pre
@@ -137,20 +145,21 @@ libraries included in the samba-devel package.
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
-cp packaging/RedHat-9/{samba.log,smb.conf,smbusers,samba.pamd.stack} packaging/Fedora/
+cp packaging/RedHat-9/smbusers packaging/Fedora/
 cp %{SOURCE5} packaging/Fedora/
 cp %{SOURCE6} packaging/Fedora/
 cp %{SOURCE7} packaging/Fedora/
 cp %{SOURCE8} packaging/Fedora/winbind.init
+cp %{SOURCE9} packaging/Fedora/
 
 # Upstream patches
 #(none)
 # generic patches
 %patch101 -p1 -b .smbw
 %patch102 -p1 -b .pipedir
-%patch103 -p1 -b .logfiles
+#%patch103 -p1 -b .logfiles
 %patch104 -p1 -b .nmbd-netbiosname
-%patch105 -p1 -b .upstream
+#%patch105 -p1 -b .upstream
 %patch106 -p1 -b .man
 %patch107 -p1 -b .passwd
 #%patch108 -p1 -b .non-ascii-domain
@@ -258,14 +267,14 @@ cd source
 cd ..
 
 # Install other stuff
-install -m644 packaging/Fedora/smb.conf $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
+install -m644 packaging/Fedora/smb.conf.default $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
 install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
 install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
-install -m644 packaging/Fedora/samba.pamd.stack $RPM_BUILD_ROOT/etc/pam.d/samba
+install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 
@@ -427,27 +436,16 @@ exit 0
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
 %{_bindir}/mksmbpasswd.sh
-%{_bindir}/smbcontrol
 %{_bindir}/smbstatus
-%{_bindir}/tdbbackup
-%{_bindir}/tdbdump
-%{_bindir}/tdbtool
-%config(noreplace) %{_sysconfdir}/sysconfig/samba
+%{_bindir}/eventlogadm
 %config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{_initrddir}/smb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
-%{_mandir}/man1/smbcontrol.1*
-%{_mandir}/man1/smbstatus.1*
-%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/nmbd.8*
-%{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/smbd.8*
-%{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
 %{_libdir}/samba/vfs
-%{_libdir}/samba/idmap
 %{_libdir}/samba/auth
 %attr(1777,root,root) %dir /var/spool/samba
 
@@ -467,10 +465,6 @@ exit 0
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
 %{_bindir}/smbget
-%{_bindir}/eventlogadm
-%{_mandir}/man8/smbspool.8*
-%{_mandir}/man8/mount.cifs.8*
-%{_mandir}/man8/umount.cifs.8*
 %{_bindir}/nmblookup
 %{_bindir}/smbclient
 %{_bindir}/smbprint
@@ -485,6 +479,9 @@ exit 0
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
 %{_mandir}/man1/smbget.1*
+%{_mandir}/man8/smbspool.8*
+%{_mandir}/man8/mount.cifs.8*
+%{_mandir}/man8/umount.cifs.8*
 
 %files common
 %defattr(-,root,root)
@@ -500,7 +497,6 @@ exit 0
 %{_libdir}/libnss_winbind.so
 /%{_lib}/libnss_winbind.so.2
 /%{_lib}/security/pam_winbind.so
-%{_libdir}/libsmbclient.so.0
 
 %{_bindir}/net
 %{_bindir}/testparm
@@ -510,30 +506,42 @@ exit 0
 %{_bindir}/pdbedit
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
+%{_bindir}/smbcontrol
+%{_bindir}/tdbbackup
+%{_bindir}/tdbdump
+%{_bindir}/tdbtool
 %{_sbindir}/winbindd
+%{_libdir}/samba/idmap
 %dir /var/lib/samba
 %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
+%config(noreplace) %{_sysconfdir}/sysconfig/samba
 %dir %{_datadir}/samba
-%dir %{_datadir}/samba/codepages
+#%dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %{_initrddir}/winbind
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
+%{_mandir}/man1/smbcontrol.1*
+%{_mandir}/man1/wbinfo.1*
+#%{_mandir}/man1/vfstest.1*
 %{_mandir}/man1/testparm.1*
+%{_mandir}/man1/smbstatus.1*
+%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man5/smb.conf.5*
 %{_mandir}/man5/lmhosts.5*
-%{_mandir}/man8/smbpasswd.8*
-%{_mandir}/man1/wbinfo.1*
-%{_mandir}/man8/winbindd.8*
-%{_mandir}/man8/net.8*
-#%{_mandir}/man1/vfstest.1*
 %{_mandir}/man7/pam_winbind.7*
 %{_mandir}/man7/libsmbclient.7*
+%{_mandir}/man8/smbpasswd.8*
+%{_mandir}/man8/pdbedit.8*
+%{_mandir}/man8/net.8*
+%{_mandir}/man8/winbindd.8*
+%{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/tdbdump.8*
 
 %files doc
 %doc README COPYING Manifest 
@@ -545,24 +553,39 @@ exit 0
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
 
-%files devel
+%files -n libsmbclient
+%{_libdir}/libsmbclient.so.0
+
+%files -n libsmbclient-devel
 %{_libdir}/libsmbclient.so
 %{_includedir}/libsmbclient.h
 #%{_includedir}/libmsrpc.h
 
-%files devel-static
+%files -n libsmbclient-devel-static
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 19 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-4.fc7
-- Fix arch macro which reported Vista to Samba clients.
-- Fix pam_winbind acct_mgmt PAM result code.
+* Mon Mar 19 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-5.fc7
+- fix pam_winbindd bug that prevents local users to log in (patch by GD)
+- actually use the correct samba.pamd file not the old samba.pamd.stack file
+- fix logifles and use upstream convention of log.* instead of our old *.log
+  Winbindd creates its own log.* files anyway so we will be more consistent
+- install our own (enhanced) default smb.conf file
+- Fix pam_winbind acct_mgmt PAM result code (prevented local users from
+  logging in). Fixed by Guenther.
+- move some files from samba to samba-common as they are used with winbindd
+  as well
+
+* Fri Mar 16 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-4.fc7
+- fix arch macro which reported Vista to Samba clients.
 
 * Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
 - Directories reorg, tdb files must go to /var/lib, not
   to /var/cache, add migration script in %post common
-- Split out devel and doc packages
+- Split out ilibsmbclient, devel and doc packages
 - Remove libmsrpc.[h|so] for now as they are not really usable
+- Remove kill -HUP from rotate, samba use -HUP for other things
+  noit to reopen logs
 
 * Tue Feb 20 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-2.fc7
 - New upstream release

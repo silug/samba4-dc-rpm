@@ -148,24 +148,29 @@
 #   at least one	WINS Server on the network. The default is NO.
 #
 # DNS Proxy - tells Samba whether or not to try to resolve NetBIOS names
-# via DNS nslookups. The default is NO.
+# via DNS nslookups.
 	
 ;	wins support = yes
 ;	wins server = w.x.y.z
 ;	wins proxy = yes
 	
-	dns proxy = no 
+;	dns proxy = yes
 	
 # --------------------------- Printing Options -----------------------------
 #
 # Load Printers let you load automatically the list of printers rather
 # than setting them up individually
 #
+# Cups Options let you pass the cups libs custom options, setting it to raw
+# for example will let you use drivers on your Windows clients
+#
 # Printcap Name let you specify an alternative printcap file
 #
 # You can choose a non default printing system using the Printing option
 	
 	load printers = yes
+	cups options = raw
+
 ;	printcap name = /etc/printcap
 ;	printcap name = lpstat #obtain list of printers automatically on SystemV
 ;	printing = cups
