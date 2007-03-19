@@ -47,6 +47,7 @@ Patch112: samba-3.0.15pre2-bug106483.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
 Patch116: samba-3.0.24-arch_macro.patch
+Patch117: samba-3.0.24-pam_winbind-fixes.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -160,6 +161,7 @@ cp %{SOURCE8} packaging/Fedora/winbind.init
 %patch114 -p1 -b .dfsroot
 %patch115 -p1 -b .vista
 %patch116 -p0 -b .arch_macro
+%patch117 -p0 -b .pam_winbind
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -552,8 +554,9 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Fri Mar 16 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-4.fc7
-- fix arch macro which reported Vista to Samba clients.
+* Mon Mar 19 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-4.fc7
+- Fix arch macro which reported Vista to Samba clients.
+- Fix pam_winbind acct_mgmt PAM result code.
 
 * Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
 - Directories reorg, tdb files must go to /var/lib, not

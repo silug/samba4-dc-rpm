@@ -1,0 +1,118 @@
+------------------------------------------------------------------------
+r21143 | gd | 2007-02-05 15:34:12 +0100 (Mon, 05 Feb 2007) | 7 lines
+
+Fix wrong check for pam error codes for getpwnam and lookup winbind
+requests in pam_winbind (Bug #4094).
+
+Inspired by fix from Lars Heete.
+
+Guenther
+
+------------------------------------------------------------------------
+Index: source/nsswitch/pam_winbind.c
+===================================================================
+--- source/nsswitch/pam_winbind.c	(revision 21142)
++++ source/nsswitch/pam_winbind.c	(revision 21143)
+@@ -444,21 +444,34 @@ static int pam_winbind_request(pam_handl
+ 	close_sock();
+ 
+ 	/* Copy reply data from socket */
+-	if (response->result != WINBINDD_OK) {
+-		if (response->data.auth.pam_error != PAM_SUCCESS) {
+-			_pam_log(LOG_ERR, "request failed: %s, PAM error was %s (%d), NT error was %s", 
+-				 response->data.auth.error_string,
+-				 pam_strerror(pamh, response->data.auth.pam_error),
+-				 response->data.auth.pam_error,
+-				 response->data.auth.nt_status_string);
+-			return response->data.auth.pam_error;
+-		} else {
+-			_pam_log(LOG_ERR, "request failed, but PAM error 0!");
+-			return PAM_SERVICE_ERR;
+-		}
++	if (response->result == WINBINDD_OK) {
++		return PAM_SUCCESS;
+ 	}
+ 
+-	return PAM_SUCCESS;
++	/* no need to check for pam_error codes for getpwnam() */
++	switch (req_type) {
++
++		case WINBINDD_GETPWNAM:
++		case WINBINDD_LOOKUPNAME:
++			_pam_log(LOG_ERR, "request failed: %s, NT error was %s", 
++				response->data.auth.nt_status_string);
++			return PAM_USER_UNKNOWN;
++		default:
++			break;
++	}
++
++	if (response->data.auth.pam_error != PAM_SUCCESS) {
++		_pam_log(LOG_ERR, "request failed: %s, PAM error was %s (%d), NT error was %s", 
++			 response->data.auth.error_string,
++			 pam_strerror(pamh, response->data.auth.pam_error),
++			 response->data.auth.pam_error,
++			 response->data.auth.nt_status_string);
++		return response->data.auth.pam_error;
++	} 
++	
++	_pam_log(LOG_ERR, "request failed, but PAM error 0!");
++
++	return PAM_SERVICE_ERR;
+ }
+ 
+ static int pam_winbind_request_log(pam_handle_t * pamh,
+------------------------------------------------------------------------
+r21310 | gd | 2007-02-13 12:04:10 +0100 (Tue, 13 Feb 2007) | 4 lines
+
+Fix invalid printfs in pam_winbind.
+
+Guenther
+
+------------------------------------------------------------------------
+Index: source/nsswitch/pam_winbind.c
+===================================================================
+--- source/nsswitch/pam_winbind.c	(revision 21309)
++++ source/nsswitch/pam_winbind.c	(revision 21310)
+@@ -461,8 +461,12 @@ static int pam_winbind_request(pam_handl
+ 
+ 		case WINBINDD_GETPWNAM:
+ 		case WINBINDD_LOOKUPNAME:
+-			_pam_log(LOG_ERR, "request failed: %s, NT error was %s", 
++			if (strlen(response->data.auth.nt_status_string) > 0) {
++				_pam_log(LOG_ERR, "request failed, NT error was %s", 
+ 				response->data.auth.nt_status_string);
++			} else {
++				_pam_log(LOG_ERR, "request failed");
++			}
+ 			return PAM_USER_UNKNOWN;
+ 		default:
+ 			break;
+@@ -518,15 +522,19 @@ static int pam_winbind_request_log(pam_h
+ 		}	 
+ 		return retval;
+ 	case PAM_SUCCESS:
+-		if (req_type == WINBINDD_PAM_AUTH) {
+-			/* Otherwise, the authentication looked good */
+-			_pam_log(LOG_NOTICE, "user '%s' granted access", user);
+-		} else if (req_type == WINBINDD_PAM_CHAUTHTOK) {
+-			/* Otherwise, the authentication looked good */
+-			_pam_log(LOG_NOTICE, "user '%s' password changed", user);
+-		} else { 
+-			/* Otherwise, the authentication looked good */
+-			_pam_log(LOG_NOTICE, "user '%s' OK", user);
++		/* Otherwise, the authentication looked good */
++		switch (req_type) {
++			case WINBINDD_INFO:
++				break;
++			case WINBINDD_PAM_AUTH:
++				_pam_log(LOG_NOTICE, "user '%s' granted access", user);
++				break;
++			case WINBINDD_PAM_CHAUTHTOK:
++				_pam_log(LOG_NOTICE, "user '%s' password changed", user);
++				break;
++			default:
++				_pam_log(LOG_NOTICE, "user '%s' OK", user);
++				break;
+ 		}
+ 	
+ 		return retval;
