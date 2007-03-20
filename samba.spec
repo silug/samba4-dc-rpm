@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
