@@ -565,8 +565,11 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
+* Tue Mar 20 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-6.fc7
+- do not put comments inline on smb.conf options, they may be read
+  as part of the value (for example log files names)
+
 * Mon Mar 19 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-5.fc7
-- fix pam_winbindd bug that prevents local users to log in (patch by GD)
 - actually use the correct samba.pamd file not the old samba.pamd.stack file
 - fix logifles and use upstream convention of log.* instead of our old *.log
   Winbindd creates its own log.* files anyway so we will be more consistent
