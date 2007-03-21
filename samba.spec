@@ -145,7 +145,7 @@ SMB client library included in the libsmbclient-devel package.
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
-cp packaging/RedHat-9/smbusers packaging/Fedora/
+cp packaging/RHEL/setup/smbusers packaging/Fedora/
 cp %{SOURCE5} packaging/Fedora/
 cp %{SOURCE6} packaging/Fedora/
 cp %{SOURCE7} packaging/Fedora/
