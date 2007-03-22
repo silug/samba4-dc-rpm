@@ -50,13 +50,12 @@ Patch115: samba-3.0.24-vista-patchset.patch
 Patch116: samba-3.0.24-arch_macro.patch
 Patch117: samba-3.0.24-pam_winbind-fixes.patch
 
-Requires(pre): /usr/sbin/groupadd
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
 Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Prereq: /sbin/chkconfig /bin/mktemp /usr/bin/killall
-Prereq: fileutils sed /etc/init.d 
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/chkconfig
 BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel gnutls-devel
 BuildRequires: autoconf, libtool
 
@@ -89,6 +88,9 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 %package common
 Summary: Files used by both Samba servers and clients.
 Group: Applications/System
+Requires(pre): /usr/sbin/groupadd
+Requires(post): /sbin/chkconfig, /sbin/ldconfig, coreutils
+Requires(preun): /sbin/chkconfig
 
 %description common
 Samba-common provides files necessary for both the server and client
@@ -336,6 +338,7 @@ rm -rf $RPM_BUILD_ROOT
 
 #%pre
 %post
+/sbin/chkconfig --add smb
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/smb condrestart >/dev/null 2>&1
 fi
@@ -565,6 +568,9 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
+* Thu Mar 22 2007 Florian La Roche <laroche@redhat.com>
+- adjust the Requires: for the scripts, add "chkconfig --add smb"
+
 * Tue Mar 20 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-6.fc7
 - do not put comments inline on smb.conf options, they may be read
   as part of the value (for example log files names)
