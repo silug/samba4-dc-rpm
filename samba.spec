@@ -143,7 +143,7 @@ SMB client library included in the libsmbclient-devel package.
 %prep
 # TAG: change for non-pre
 # % setup -q -n samba-3.0.23rc3
-%setup -q
+%setup -q 
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
