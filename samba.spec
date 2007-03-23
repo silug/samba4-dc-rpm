@@ -279,6 +279,7 @@ install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
 install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
+install -m644 examples/LDAP/samba.schema %{_sysconfdir}/openldap/schema/samba.schema
 
 # pam_smbpass
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
@@ -451,6 +452,8 @@ exit 0
 %{_libdir}/samba/vfs
 %{_libdir}/samba/auth
 %attr(1777,root,root) %dir /var/spool/samba
+%dir %{_sysconfdir}/openldap/schema
+%{_sysconfdir}/openldap/schema/samba.schema
 
 %files swat
 %defattr(-,root,root)
@@ -568,6 +571,9 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
+* Fri Mar 23 2007 Simo Sorce <ssorce@redhat.com>
+- add samba.schema to /etc/openldap/schema
+
 * Thu Mar 22 2007 Florian La Roche <laroche@redhat.com>
 - adjust the Requires: for the scripts, add "chkconfig --add smb"
 
