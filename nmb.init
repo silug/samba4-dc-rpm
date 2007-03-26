@@ -1,10 +1,10 @@
 #!/bin/sh
 #
 # chkconfig: - 91 35
-# description: Starts and stops the Samba smbd daemon \
+# description: Starts and stops the Samba smbd and nmbd daemons \
 #	       used to provide SMB network services.
 #
-# pidfile: /var/run/samba/smbd.pid
+# pidfile: /var/run/samba/nmbd.pid
 # config:  /etc/samba/smb.conf
 
 
@@ -37,23 +37,23 @@ RETVAL=0
 
 
 start() {
-        KIND="SMB"
+        KIND="NMB"
 	echo -n $"Starting $KIND services: "
-	daemon smbd $SMBDOPTIONS
+	daemon nmbd $NMBDOPTIONS
 	RETVAL=$?
 	echo
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/smb || \
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/nmb || \
 	   RETVAL=1
 	return $RETVAL
 }	
 
 stop() {
-        KIND="SMB"
+	KIND="NMB"
 	echo -n $"Shutting down $KIND services: "
-	killproc smbd
+	killproc nmbd
 	RETVAL=$?
 	echo
-	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/smb
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/nmb
 	return $RETVAL
 }	
 
@@ -71,7 +71,7 @@ reload() {
 }	
 
 rhstatus() {
-	status smbd
+	status nmbd
 	if [ $? -ne 0 ] ; then
 		return 1
 	fi
@@ -106,7 +106,7 @@ case "$1" in
   	rhstatus
 	;;
   condrestart)
-  	[ -f /var/lock/subsys/smb ] && restart || :
+  	[ -f /var/lock/subsys/nmb ] && restart || :
 	;;
   *)
 	echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"

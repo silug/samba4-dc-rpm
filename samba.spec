@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -23,6 +23,7 @@ Source6: samba.pamd
 Source7: smbprint
 Source8: winbind.init
 Source9: smb.conf.default
+Source10: nmb.init
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -153,6 +154,7 @@ cp %{SOURCE6} packaging/Fedora/
 cp %{SOURCE7} packaging/Fedora/
 cp %{SOURCE8} packaging/Fedora/winbind.init
 cp %{SOURCE9} packaging/Fedora/
+cp %{SOURCE10} packaging/Fedora/
 
 # Upstream patches
 #(none)
@@ -274,12 +276,14 @@ install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
 install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
+install -m755 packaging/Fedora/nmb.init $RPM_BUILD_ROOT%{_initrddir}/nmb
 install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
-install -m644 examples/LDAP/samba.schema %{_sysconfdir}/openldap/schema/samba.schema
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema
+install -m644 examples/LDAP/samba.schema $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema/samba.schema
 
 # pam_smbpass
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
@@ -340,8 +344,10 @@ rm -rf $RPM_BUILD_ROOT
 #%pre
 %post
 /sbin/chkconfig --add smb
+/sbin/chkconfig --add nmb
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/smb condrestart >/dev/null 2>&1
+	%{_initrddir}/nmb condrestart >/dev/null 2>&1
 fi
 exit 0
 
@@ -349,7 +355,9 @@ exit 0
 if [ $1 = 0 ] ; then
     #rm -rf /var/log/samba/* /var/lib/samba/*
     %{_initrddir}/smb stop >/dev/null 2>&1
+    %{_initrddir}/nmb stop >/dev/null 2>&1
     /sbin/chkconfig --del smb
+    /sbin/chkconfig --del nmb
 fi
 exit 0
 
@@ -399,6 +407,14 @@ if [ $? = 0 ]; then
 		touch /var/lock/subsys/smb
 	fi
 
+	if [ -f /var/lock/subsys/nmb ]; then
+		%{_initrddir}/nmb stop >/dev/null 2>&1
+		# We need to stop smbd here as we are moving also smbd owned files
+		# but we can't restart it until the new server is installed.
+		# Use a dirty trick to fool condrestart later
+		touch /var/lock/subsys/nmb
+	fi
+
 	eval ls $NEWPATH/*.tdb >/dev/null 2>&1
 	if [ $? = 0 ]; then
 		#something strange here, lets backup this stuff and avoid just wiping it
@@ -444,6 +460,7 @@ exit 0
 %{_bindir}/eventlogadm
 %config(noreplace) %{_sysconfdir}/samba/smbusers
 %attr(755,root,root) %config %{_initrddir}/smb
+%attr(755,root,root) %config %{_initrddir}/nmb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_mandir}/man7/samba.7*
@@ -571,9 +588,11 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 23 2007 Simo Sorce <ssorce@redhat.com>
+* Mon Mar 23 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
 - make winbindd start earlier in the init process, at the same time
   ypbind is usually started as well
+- add a sepoarate init script for nmbd called nmb, we need to be able
+  to restart nmbd without dropping al smbd connections unnecessarily
 
 * Fri Mar 23 2007 Simo Sorce <ssorce@redhat.com>
 - add samba.schema to /etc/openldap/schema
