@@ -50,6 +50,7 @@ Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
 Patch116: samba-3.0.24-arch_macro.patch
 Patch117: samba-3.0.24-pam_winbind-fixes.patch
+Patch118: samba-3.0.24-tar_options.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
@@ -175,6 +176,7 @@ cp %{SOURCE10} packaging/Fedora/
 %patch115 -p1 -b .vista
 %patch116 -p0 -b .arch_macro
 %patch117 -p0 -b .pam_winbind
+%patch118 -p0 -b .tar_option
 
 # crap
 rm -f examples/VFS/.cvsignore
