@@ -247,6 +247,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
+mkdir -p $RPM_BUILD_ROOT/var/lib/samba/private
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/winbindd_privileged
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
