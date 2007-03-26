@@ -44,7 +44,7 @@ Patch107: samba-3.0.23rc3-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
-Patch112: samba-3.0.15pre2-bug106483.patch
+#Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch114: samba-3.0.24-msdfs-root-no.patch
 Patch115: samba-3.0.24-vista-patchset.patch
@@ -169,7 +169,7 @@ cp %{SOURCE10} packaging/Fedora/
 #%patch108 -p1 -b .non-ascii-domain
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
-%patch112 -p1 -b .bug106483
+#%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
 %patch114 -p1 -b .dfsroot
 %patch115 -p1 -b .vista
@@ -588,7 +588,11 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 23 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
+* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com>
+- remove patch for bug 106483 as it introduces a new bug that prevents
+  the use of a credentials file with the smbclient tar command
+
+* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
 - make winbindd start earlier in the init process, at the same time
   ypbind is usually started as well
 - add a sepoarate init script for nmbd called nmb, we need to be able
