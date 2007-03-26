@@ -438,27 +438,31 @@ fi
 #secrets.tdb
 if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
 	if [ -f /var/lib/samba/private/secrets.tdb ]; then
-		mv /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
+		mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
 	fi
-	mv %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
+	mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
 fi
 
 #smbpasswd
 if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
 	if [ -f /var/lib/samba/private/smbpasswd ]; then
-		mv /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
+		mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
 	fi
-	mv %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
+	mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
 fi
 
 #passdb.tdb
 if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
 	if [ -f /var/lib/samba/private/passdb.tdb ]; then
-		mv /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
+		mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
 	fi
-	mv %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
+	mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
 fi
 
+#remove schannel_store if existing, it is not info we need to keep across restarts
+if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
+	rm -f %{_sysconfdir}/samba/schannel_store.tdb
+fi
 
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/winbind condrestart >/dev/null 2>&1
