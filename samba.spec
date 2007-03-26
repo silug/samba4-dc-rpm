@@ -628,6 +628,7 @@ exit 0
   the use of a credentials file with the smbclient tar command
 - move the samba private dir from being the same as the config dir
   (/etc/samba) to /var/lib/samba/private
+- fix for bug #176649
 
 * Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
 - make winbindd start earlier in the init process, at the same time
