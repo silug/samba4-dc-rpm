@@ -571,6 +571,10 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
+* Mon Mar 23 2007 Simo Sorce <ssorce@redhat.com>
+- make winbindd start earlier in the init process, at the same time
+  ypbind is usually started as well
+
 * Fri Mar 23 2007 Simo Sorce <ssorce@redhat.com>
 - add samba.schema to /etc/openldap/schema
 
