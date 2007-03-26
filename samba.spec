@@ -3,7 +3,7 @@
 Summary: The Samba SMB server.
 Name: samba
 Version: 3.0.24
-Release: 7%{?dist}
+Release: 8%{?dist}
 Epoch: 0
 License: GNU GPL Version 2
 Group: System Environment/Daemons
@@ -211,7 +211,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-lockdir=/var/lib/samba \
 	--with-piddir=/var/run \
 	--with-mandir=%{_mandir} \
-	--with-privatedir=%{_sysconfdir}/samba \
+	--with-privatedir=/var/lib/samba/private \
 	--with-logfilebase=/var/log/samba \
 	--with-libdir=%{_libdir}/samba \
 	--with-configdir=%{_sysconfdir}/samba \
@@ -432,6 +432,34 @@ if [ $? = 0 ]; then
 	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
 fi
 
+# We also moved private files from /etc/samba to
+# /var/lib/samba/private so we need to migrate these as well
+
+#secrets.tdb
+if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
+	if [ -f /var/lib/samba/private/secrets.tdb ]; then
+		mv /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
+	fi
+	mv %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
+fi
+
+#smbpasswd
+if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
+	if [ -f /var/lib/samba/private/smbpasswd ]; then
+		mv /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
+	fi
+	mv %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
+fi
+
+#passdb.tdb
+if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
+	if [ -f /var/lib/samba/private/passdb.tdb ]; then
+		mv /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
+	fi
+	mv %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
+fi
+
+
 if [ "$1" -ge "1" ]; then
 	%{_initrddir}/winbind condrestart >/dev/null 2>&1
 fi
@@ -536,6 +564,7 @@ exit 0
 %{_sbindir}/winbindd
 %{_libdir}/samba/idmap
 %dir /var/lib/samba
+%attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
@@ -588,9 +617,11 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com>
+* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-8.fc7
 - remove patch for bug 106483 as it introduces a new bug that prevents
   the use of a credentials file with the smbclient tar command
+- move the samba private dir from being the same as the config dir
+  (/etc/samba) to /var/lib/samba/private
 
 * Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
 - make winbindd start earlier in the init process, at the same time

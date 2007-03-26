@@ -82,14 +82,23 @@
 #
 # Use the realm option only with security = ads
 # Specifies the Active Directory realm the host is part of
+#
+# Backend to store user information in. New installations should 
+# use either tdbsam or ldapsam. smbpasswd is available for backwards 
+# compatibility. tdbsam requires no further configuration.
 	
 ;	security = domain
+;	passdb backend = tdbsam
 ;	realm = MY_REALM
 	
 	
 # ----------------------- Domain Controller Options ------------------------
 #
 # Security must be set to user for domain controllers
+#
+# Backend to store user information in. New installations should 
+# use either tdbsam or ldapsam. smbpasswd is available for backwards 
+# compatibility. tdbsam requires no further configuration.
 #
 # Domain Master specifies Samba to be the Domain Master Browser. This
 # allows Samba to collate browse lists between subnets. Don't use this
@@ -106,6 +115,7 @@
 # machine to add or delete corresponding unix accounts
 #
 ;	security = user
+;	passdb backend = tdbsam
 	
 ;	domain master = yes 
 ;	domain logons = yes
