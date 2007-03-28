@@ -176,7 +176,7 @@ cp %{SOURCE10} packaging/Fedora/
 %patch115 -p1 -b .vista
 %patch116 -p0 -b .arch_macro
 %patch117 -p0 -b .pam_winbind
-%patch118 -p0 -b .tar_option
+%patch118 -p0 -b .tar_options
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -624,12 +624,14 @@ exit 0
 %{_libdir}/libsmbclient.a
 
 %changelog
-* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-8.fc7
+* Wed Mar 28 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-8.fc7
+- fix for bug #176649
+
+* Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com>
 - remove patch for bug 106483 as it introduces a new bug that prevents
   the use of a credentials file with the smbclient tar command
 - move the samba private dir from being the same as the config dir
   (/etc/samba) to /var/lib/samba/private
-- fix for bug #176649
 
 * Mon Mar 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-7.fc7
 - make winbindd start earlier in the init process, at the same time
