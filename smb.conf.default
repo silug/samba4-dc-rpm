@@ -190,7 +190,24 @@
 	#obtain list of printers automatically on SystemV
 ;	printcap name = lpstat
 ;	printing = cups
-	
+
+# --------------------------- Filesystem Options ---------------------------
+#
+# The following options can be uncommented if the filesystem supports
+# Extended Attributes and they are enabled (usually by the mount option
+# user_xattr). Thess options will let the admin store the DOS attributes
+# in an EA and make samba not mess with the permission bits.
+#
+# Note: these options can also be set just per share, setting them in global
+# makes them the default for all shares
+
+;	map archive = no
+;	map hidden = no
+;	map read only = no
+;	map system = no
+;	store dos attributes = yes
+
+
 #============================ Share Definitions ==============================
 	
 [homes]
