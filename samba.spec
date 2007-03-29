@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.24
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -624,7 +624,7 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Thu Mar 29 2007 Simo Sorce <ssorce@redhat.com>
+* Thu Mar 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-9.fc7
 - integrate most of merge review proposed changes (bug #226387)
 - remove libsmbclient-devel-static and simply stop shipping the
   static version of smbclient as it seem this is deprecated and
