@@ -1,17 +1,17 @@
 %define auth %(test -f /etc/pam.d/system-auth && echo /etc/pam.d/system-auth || echo)
 
-Summary: The Samba SMB server.
+Summary: The Samba Suite of programs
 Name: samba
+Epoch: 0
 Version: 3.0.24
 Release: 8%{?dist}
-Epoch: 0
-License: GNU GPL Version 2
+License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}rc3.tar.gz
-Source: ftp://us2.samba.org/pub/samba/%{name}-%{version}.tar.gz
+#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}rc3.tar.gz
+Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -54,15 +54,16 @@ Patch118: samba-3.0.24-tar_options.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
-Requires: logrotate >= 0:3.4 initscripts >= 0:5.54-1 
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-BuildRequires: pam-devel, readline-devel, ncurses-devel, fileutils, libacl-devel krb5-devel openldap-devel openssl-devel cups-devel gnutls-devel
-BuildRequires: autoconf, libtool
+Requires: logrotate >= 0:3.4
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+Requires(post): /sbin/chkconfig, /sbin/service
+Requires(preun): /sbin/chkconfig, /sbin/service
+BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
+BuildRequires: autoconf
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
+
 
 %description
 
@@ -76,8 +77,9 @@ provide network services to SMB/CIFS clients.
 Samba uses NetBIOS over TCP/IP (NetBT) protocols and does NOT
 need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 
+
 %package client
-Summary: Samba client programs.
+Summary: Samba client programs
 Group: Applications/System
 Requires: samba-common = %{epoch}:%{version}-%{release}
 Obsoletes: smbfs
@@ -87,26 +89,29 @@ The samba-client package provides some SMB/CIFS clients to complement
 the built-in SMB/CIFS filesystem in Linux. These clients allow access
 of SMB/CIFS shares and printing to SMB/CIFS printers.
 
+
 %package common
-Summary: Files used by both Samba servers and clients.
+Summary: Files used by both Samba servers and clients
 Group: Applications/System
 Requires(pre): /usr/sbin/groupadd
-Requires(post): /sbin/chkconfig, /sbin/ldconfig, coreutils
-Requires(preun): /sbin/chkconfig
+Requires(post): /sbin/chkconfig, /sbin/service, coreutils
+Requires(preun): /sbin/chkconfig, /sbin/service
 
 %description common
 Samba-common provides files necessary for both the server and client
 packages of Samba.
 
+
 %package swat
-Summary: The Samba SMB server configuration program.
+Summary: The Samba SMB server Web configuration program
 Group: Applications/System
-Requires: samba = %{epoch}:%{version}-%{release} xinetd
+Requires: samba = %{epoch}:%{version}-%{release}, samba-doc = %{epoch}:%{version}-%{release}, xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
 Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
+
 
 %package doc
 Summary: Documentation for the Samba suite
@@ -116,6 +121,7 @@ Requires: samba-common = %{epoch}:%{version}-%{release}
 %description doc
 The samba-doc package includes all the non-manpage documentation for the
 Samba suite.
+
 
 %package -n libsmbclient
 Summary: The SMB client library
@@ -133,14 +139,6 @@ Requires: libsmbclient = %{epoch}:%{version}-%{release}
 The libsmbclient-devel package contains the header files and libraries needed to
 develop programs that link against the SMB client library in the Samba suite.
 
-%package -n libsmbclient-devel-static
-Summary: Static version of the libsmbclient library
-Group: Development
-Requires: libsmbclient-devel = %{epoch}:%{version}-%{release}
-
-%description -n libsmbclient-devel-static
-The samba-devel-static package contains the statically linked version of the
-SMB client library included in the libsmbclient-devel package.
 
 %prep
 # TAG: change for non-pre
@@ -185,6 +183,7 @@ sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig 
 cd source
 script/mkversion.sh
 cd ..
+
 
 %build
 cd source
@@ -276,14 +275,14 @@ cd ..
 # Install other stuff
 install -m644 packaging/Fedora/smb.conf.default $RPM_BUILD_ROOT%{_sysconfdir}/samba/smb.conf
 install -m755 source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
-install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT/etc/samba/smbusers
+install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT%{_sysconfdir}/samba/smbusers
 install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
 install -m755 packaging/Fedora/nmb.init $RPM_BUILD_ROOT%{_initrddir}/nmb
 install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
-install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT/etc/pam.d/samba
-install -m644 %{SOURCE1} $RPM_BUILD_ROOT/etc/logrotate.d/samba
+install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/samba
+install -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/samba
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema
 install -m644 examples/LDAP/samba.schema $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema/samba.schema
@@ -308,7 +307,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
-install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
+#install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
 #libmsrpc
@@ -341,24 +340,25 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 rm -f $RPM_BUILD_ROOT%{_libdir}/samba/security/pam_{smbpass,winbind}.so
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 #%pre
+
 %post
 /sbin/chkconfig --add smb
 /sbin/chkconfig --add nmb
 if [ "$1" -ge "1" ]; then
-	%{_initrddir}/smb condrestart >/dev/null 2>&1
-	%{_initrddir}/nmb condrestart >/dev/null 2>&1
+	/sbin/service smb condrestart >/dev/null 2>&1 || :
+	/sbin/service nmb condrestart >/dev/null 2>&1 || :
 fi
 exit 0
 
 %preun
 if [ $1 = 0 ] ; then
-    #rm -rf /var/log/samba/* /var/lib/samba/*
-    %{_initrddir}/smb stop >/dev/null 2>&1
-    %{_initrddir}/nmb stop >/dev/null 2>&1
+    /sbin/service smb stop >/dev/null 2>&1 || :
+    /sbin/service nmb stop >/dev/null 2>&1 || :
     /sbin/chkconfig --del smb
     /sbin/chkconfig --del nmb
 fi
@@ -366,8 +366,9 @@ exit 0
 
 #%postun
 
+
 %pre common
-/usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || true
+/usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
 
 %post common
 /sbin/chkconfig --add winbind
@@ -397,13 +398,13 @@ if [ $? = 0 ]; then
 
 	#this is what condrestart checks as well
 	if [ -f /var/lock/subsys/winbindd ]; then
-		%{_initrddir}/winbind stop >/dev/null 2>&1
+		/sbin/service winbind stop >/dev/null 2>&1 || :
 		# Use a dirty trick to fool condrestart later
 		touch /var/lock/subsys/winbindd
 	fi
 
 	if [ -f /var/lock/subsys/smb ]; then
-		%{_initrddir}/smb stop >/dev/null 2>&1
+		/sbin/service smb stop >/dev/null 2>&1 || :
 		# We need to stop smbd here as we are moving also smbd owned files
 		# but we can't restart it until the new server is installed.
 		# Use a dirty trick to fool condrestart later
@@ -411,7 +412,7 @@ if [ $? = 0 ]; then
 	fi
 
 	if [ -f /var/lock/subsys/nmb ]; then
-		%{_initrddir}/nmb stop >/dev/null 2>&1
+		/sbin/service nmb stop >/dev/null 2>&1 || :
 		# We need to stop smbd here as we are moving also smbd owned files
 		# but we can't restart it until the new server is installed.
 		# Use a dirty trick to fool condrestart later
@@ -468,22 +469,24 @@ if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
 fi
 
 if [ "$1" -ge "1" ]; then
-	%{_initrddir}/winbind condrestart >/dev/null 2>&1
+	/sbin/service winbind condrestart >/dev/null 2>&1 || :
 fi
 
 %preun common
 if [ $1 = 0 ] ; then
-    %{_initrddir}/winbind stop >/dev/null 2>&1
+    /sbin/service winbind stop >/dev/null 2>&1 || :
     /sbin/chkconfig --del winbind
-    rm -rf /var/log/samba/* /var/lib/samba/*
 fi
 exit 0
 
 %postun common
-# moved in post
-#if [ "$1" -ge "1" ]; then
-#	%{_initrddir}/winbind condrestart >/dev/null 2>&1
-#fi
+/sbin/ldconfig
+
+
+%post -n libsmbclient
+/sbin/ldconfig
+
+%postun -n libsmbclient
 /sbin/ldconfig
 
 %files
@@ -494,8 +497,8 @@ exit 0
 %{_bindir}/smbstatus
 %{_bindir}/eventlogadm
 %config(noreplace) %{_sysconfdir}/samba/smbusers
-%attr(755,root,root) %config %{_initrddir}/smb
-%attr(755,root,root) %config %{_initrddir}/nmb
+%attr(755,root,root) %{_initrddir}/smb
+%attr(755,root,root) %{_initrddir}/nmb
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_mandir}/man7/samba.7*
@@ -620,10 +623,13 @@ exit 0
 %{_includedir}/libsmbclient.h
 #%{_includedir}/libmsrpc.h
 
-%files -n libsmbclient-devel-static
-%{_libdir}/libsmbclient.a
-
 %changelog
+* Thu Mar 29 2007 Simo Sorce <ssorce@redhat.com>
+- integrate most of merge review proposed changes (bug #226387)
+- remove libsmbclient-devel-static and simply stop shipping the
+  static version of smbclient as it seem this is deprecated and
+  actively discouraged
+
 * Wed Mar 28 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-8.fc7
 - fix for bug #176649
 
@@ -665,7 +671,7 @@ exit 0
 * Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
 - Directories reorg, tdb files must go to /var/lib, not
   to /var/cache, add migration script in %post common
-- Split out ilibsmbclient, devel and doc packages
+- Split out libsmbclient, devel and doc packages
 - Remove libmsrpc.[h|so] for now as they are not really usable
 - Remove kill -HUP from rotate, samba use -HUP for other things
   noit to reopen logs
@@ -1098,101 +1104,101 @@ exit 0
 - update to 2.2.7
 - add patch for LFS in smbclient (<tcallawa@redhat.com>)
 
-* Wed Aug 28 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-10
+* Wed Aug 28 2002 Trond Eivind GlomsÃ¸d <teg@redhat.com> 2.2.5-10
 - logrotate fixes (#65007)
 
-* Mon Aug 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-9
+* Mon Aug 26 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-9
 - /usr/lib was used in place of %%{_libdir} in three locations (#72554)
 
-* Mon Aug  5 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-8
+* Mon Aug  5 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-8
 - Initscript fix (#70720)
 
-* Fri Jul 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-7
+* Fri Jul 26 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-7
 - Enable VFS support and compile the "recycling" module (#69796)
 - more selective includes of the examples dir 
 
-* Tue Jul 23 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-6
+* Tue Jul 23 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-6
 - Fix the lpq parser for better handling of LPRng systems (#69352)
 
-* Tue Jul 23 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-5
+* Tue Jul 23 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-5
 - desktop file fixes (#69505)
 
-* Wed Jun 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-4
+* Wed Jun 26 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-4
 - Enable ACLs
 
-* Tue Jun 25 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-3
+* Tue Jun 25 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-3
 - Make it not depend on Net::LDAP - those are doc files and examples
 
 * Fri Jun 21 2002 Tim Powers <timp@redhat.com>
 - automated rebuild
 
-* Thu Jun 20 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.5-1
+* Thu Jun 20 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.5-1
 - 2.2.5
 
-* Fri Jun 14 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.4-5
+* Fri Jun 14 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.4-5
 - Move the post/preun of winbind into the -common subpackage, 
   where the script is (#66128)
 
-* Tue Jun  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.4-4
+* Tue Jun  4 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.4-4
 - Fix pidfile locations so it runs properly again (2.2.4 
   added a new directtive - #65007)
 
 * Thu May 23 2002 Tim Powers <timp@redhat.com>
 - automated rebuild
 
-* Tue May 14 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.4-2
+* Tue May 14 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.4-2
 - Fix #64804
 
-* Thu May  9 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.4-1
+* Thu May  9 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.4-1
 - 2.2.4
 - Removed some zero-length and CVS internal files
 - Make it build
 
-* Wed Apr 10 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-6
+* Wed Apr 10 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3a-6
 - Don't use /etc/samba.d in smbadduser, it should be /etc/samba
 
-* Thu Apr  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-5
+* Thu Apr  4 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3a-5
 - Add libsmbclient.a w/headerfile for KDE (#62202)
 
-* Tue Mar 26 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-4
+* Tue Mar 26 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3a-4
 - Make the logrotate script look the correct place for the pid files 
 
 * Thu Mar 14 2002 Nalin Dahyabhai <nalin@redhat.com> 2.2.3a-3
 - include interfaces.o in pam_smbpass.so, which needs symbols from interfaces.o
   (patch posted to samba-list by Ilia Chipitsine)
 
-* Thu Feb 21 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-2
+* Thu Feb 21 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3a-2
 - Rebuild
 
-* Thu Feb  7 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3a-1
+* Thu Feb  7 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3a-1
 - 2.2.3a
 
-* Mon Feb  4 2002 Trond Eivind Glomsrød <teg@redhat.com> 2.2.3-1
+* Mon Feb  4 2002 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.3-1
 - 2.2.3
 
-* Thu Nov 29 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-8
+* Thu Nov 29 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-8
 - New pam configuration file for samba
 
-* Tue Nov 27 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-7
+* Tue Nov 27 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-7
 - Enable PAM session controll and password sync
 
-* Tue Nov 13 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-6
+* Tue Nov 13 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-6
 - Move winbind files to samba-common. Add separate initscript for
   winbind 
 - Fixes for winbind - protect global variables with mutex, use
   more secure getenv
 
-* Thu Nov  8 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-5
+* Thu Nov  8 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-5
 - Teach smbadduser about "getent passwd" 
 - Fix more pid-file references
 - Add (conditional) winbindd startup to the initscript, configured in
   /etc/sysconfig/samba
 
-* Wed Nov  7 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-4
+* Wed Nov  7 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-4
 - Fix pid-file reference in logrotate script
 - include pam and nss modules for winbind
 
-* Mon Nov  5 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-3
+* Mon Nov  5 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-3
 - Add "--with-utmp" to configure options (#55372)
 - Include winbind, pam_smbpass.so, rpcclient and smbcacls
 - start using /var/cache/samba, we need to keep state and there is
@@ -1201,45 +1207,45 @@ exit 0
 * Sat Nov 03 2001 Florian La Roche <Florian.LaRoche@redhat.de> 2.2.2-2
 - add "reload" to the usage string in the startup script
 
-* Mon Oct 15 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.2-1
+* Mon Oct 15 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.2-1
 - 2.2.2
 
-* Tue Sep 18 2001 Trond Eivind Glomsrød <teg@redhat.com> 2.2.1a-5
+* Tue Sep 18 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com> 2.2.1a-5
 - Add patch from Jeremy Allison to fix IA64 alignment problems (#51497)
 
-* Mon Aug 13 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Mon Aug 13 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Don't include smbpasswd in samba, it's in samba-common (#51598)
 - Add a disabled "obey pam restrictions" statement - it's not
   active, as we use encrypted passwords, but if the admin turns
   encrypted passwords off the choice is available. (#31351)
 
-* Wed Aug  8 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Wed Aug  8 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Use /var/cache/samba instead of /var/lock/samba 
 - Remove "domain controller" keyword from smb.conf, it's 
   deprecated (from #13704)
 - Sync some examples with smb.conf.default
 - Fix password synchronization (#16987)
 
-* Fri Jul 20 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Fri Jul 20 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Tweaks of BuildRequires (#49581)
 
-* Wed Jul 11 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Wed Jul 11 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - 2.2.1a bugfix release
 
-* Tue Jul 10 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Tue Jul 10 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - 2.2.1, which should work better for XP
 
-* Sat Jun 23 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Sat Jun 23 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - 2.2.0a security fix
 - Mark lograte and pam configuration files as noreplace
 
-* Fri Jun 22 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Fri Jun 22 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Add the /etc/samba directory to samba-common
 
-* Thu Jun 21 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Thu Jun 21 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Add improvements to the smb.conf as suggested in #16931
 
-* Tue Jun 19 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Tue Jun 19 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
   (these changes are from the non-head version)
 - Don't include /usr/sbin/samba, it's the same as the initscript
 - unset TMPDIR, as samba can't write into a TMPDIR owned 
@@ -1314,7 +1320,7 @@ exit 0
 * Wed Feb  7 2001 Bill Nottingham <notting@redhat.com>
 - add i18n support, japanese patch (#26253)
 
-* Wed Feb  7 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Wed Feb  7 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - i18n improvements in initscript (#26537)
 
 * Wed Jan 31 2001 Bill Nottingham <notting@redhat.com>
