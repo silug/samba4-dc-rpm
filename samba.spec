@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.24
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -627,7 +627,7 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Fri Mar 30 2007 Simo Sorce <ssorce@redhat.com>
+* Fri Mar 30 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-10.fc7
 - set passdb backend = tdbsam as default in smb.conf
 - remove samba-docs dependency from swat, that was a mistake
 - put back COPYING and other files in samba-common
