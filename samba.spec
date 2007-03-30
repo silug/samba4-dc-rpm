@@ -624,6 +624,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Fri Mar 30 2007 Simo Sorce <ssorce@redhat.com>
+- set passdb backend = tdbsam as default in smb.conf
+
 * Thu Mar 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-9.fc7
 - integrate most of merge review proposed changes (bug #226387)
 - remove libsmbclient-devel-static and simply stop shipping the
