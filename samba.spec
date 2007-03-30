@@ -105,7 +105,7 @@ packages of Samba.
 %package swat
 Summary: The Samba SMB server Web configuration program
 Group: Applications/System
-Requires: samba = %{epoch}:%{version}-%{release}, samba-doc = %{epoch}:%{version}-%{release}, xinetd
+Requires: samba = %{epoch}:%{version}-%{release}, xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -510,6 +510,9 @@ exit 0
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
 
+%doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
+%doc examples/printing
+
 %files swat
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat
@@ -605,15 +608,15 @@ exit 0
 %{_mandir}/man8/tdbbackup.8*
 %{_mandir}/man8/tdbdump.8*
 
-%files doc
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
+
+
+%files doc
 %doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
 %doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
 %doc docs/htmldocs
 %doc docs/registry
-%doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
-%doc examples/printing
 
 %files -n libsmbclient
 %{_libdir}/libsmbclient.so.0
@@ -626,6 +629,10 @@ exit 0
 %changelog
 * Fri Mar 30 2007 Simo Sorce <ssorce@redhat.com>
 - set passdb backend = tdbsam as default in smb.conf
+- remove samba-docs dependency from swat, that was a mistake
+- put back COPYING and other files in samba-common
+- put examples in samba not in samba-docs
+- leave only stuff under docs/ in samba-doc
 
 * Thu Mar 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-9.fc7
 - integrate most of merge review proposed changes (bug #226387)
