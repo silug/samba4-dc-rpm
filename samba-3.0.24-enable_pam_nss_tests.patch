@@ -1,0 +1,39 @@
+--- source/Makefile.in
++++ source/Makefile.in
+@@ -160,6 +160,8 @@
+ 
+ PAM_MODULES = @PAM_MODULES@
+ 
++NSS_MODULES = @WINBIND_WINS_NSS@ @WINBIND_NSS@
++
+ SCRIPTS = $(srcdir)/script/smbtar $(builddir)/script/findsmb
+ 
+ VFS_MODULES = @VFS_MODULES@
+@@ -769,6 +771,12 @@
+ all : SHOWFLAGS proto_exists $(SBIN_PROGS) $(BIN_PROGS) $(ROOT_SBIN_PROGS) \
+ 	$(SHLIBS) $(MODULES) $(PAM_MODULES) @EXTRA_ALL_TARGETS@
+ 
++nss_modules : $(NSS_MODULES)
++
++libnss_winbind : SHOWFLAGS proto_exists nsswitch/libnss_winbind.@SHLIBEXT@
++
++libnss_wins : SHOWFLAGS proto_exists nsswitch/libnss_wins.@SHLIBEXT@
++
+ pam_modules : $(PAM_MODULES)
+ 
+ pam_smbpass : SHOWFLAGS proto_exists bin/pam_smbpass.@SHLIBEXT@
+@@ -1736,6 +1744,14 @@
+ ######################################################################
+ # Samba Testing Framework
+ 
++# Check for NSS module problems. 
++test_nss_modules: nss_modules
++	@echo "Testing $(NSS_MODULES) "
++	@for module in $(NSS_MODULES); do \
++		./script/tests/dlopen.sh $${module} \
++			|| exit 1; \
++	done
++
+ # Check for PAM module problems.  Specifically, check that every module we
+ # built can actually be loaded by a minimal PAM-aware application.
+ test_pam_modules: pam_modules

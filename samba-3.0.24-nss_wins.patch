@@ -1,0 +1,23 @@
+Index: source/Makefile.in
+===================================================================
+--- source/Makefile.in.orig
++++ source/Makefile.in
+@@ -687,7 +687,8 @@ PROTO_OBJ = $(SMBD_OBJ_MAIN) \
+             $(RPC_NTSVCS_OBJ) utils/passwd_util.o
+ 
+ WINBIND_WINS_NSS_OBJ = nsswitch/wins.o $(PARAM_OBJ) \
+-	$(LIBSMB_OBJ) $(LIB_NONSMBD_OBJ) $(NSSWINS_OBJ) $(KRBCLIENT_OBJ)
++	$(LIBSMB_OBJ) $(LIB_NONSMBD_OBJ) $(NSSWINS_OBJ) $(KRBCLIENT_OBJ) \
++	$(SECRETS_OBJ)
+ 
+ WINBIND_WINS_NSS_PICOBJS = $(WINBIND_WINS_NSS_OBJ:.o=.@PICSUFFIX@)
+ 
+@@ -1231,7 +1232,7 @@ bin/winbindd@EXEEXT@: $(WINBINDD_OBJ) @B
+ @WINBIND_WINS_NSS@: $(WINBIND_WINS_NSS_PICOBJS)
+ 	@echo "Linking $@"
+ 	@$(SHLD) $(LDSHFLAGS) -o $@ $(WINBIND_WINS_NSS_PICOBJS) \
+-		$(LDAP_LIBS) $(KRB5LIBS) \
++		$(LDAP_LIBS) $(KRB5LIBS) $(LIBS) \
+ 		@SONAMEFLAG@`basename $@`@NSSSONAMEVERSIONSUFFIX@
+ 
+ bin/pam_winbind.@SHLIBEXT@: $(PAM_WINBIND_OBJ:.o=.@PICSUFFIX@) bin/.dummy

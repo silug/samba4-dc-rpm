@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.24
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -51,6 +51,8 @@ Patch115: samba-3.0.24-vista-patchset.patch
 Patch116: samba-3.0.24-arch_macro.patch
 Patch117: samba-3.0.24-pam_winbind-fixes.patch
 Patch118: samba-3.0.24-tar_options.patch
+Patch119: samba-3.0.24-enable_pam_nss_tests.patch
+Patch120: samba-3.0.24-nss_wins.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
@@ -175,6 +177,8 @@ cp %{SOURCE10} packaging/Fedora/
 %patch116 -p0 -b .arch_macro
 %patch117 -p0 -b .pam_winbind
 %patch118 -p0 -b .tar_options
+%patch119 -p0 -b .pam_nss_test
+%patch120 -p0 -b .nss_wins
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -224,7 +228,7 @@ make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" \
 	proto
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
-	all nsswitch/libnss_wins.so modules
+	all nsswitch/libnss_wins.so modules test_pam_modules test_nss_modules
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	debug2html
@@ -627,6 +631,10 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Apr 03 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-11.fc7
+- enable PAM and NSS dlopen checks during build
+- fix unresolved symbols in libnss_wins.so (bug #198230)
+
 * Fri Mar 30 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-10.fc7
 - set passdb backend = tdbsam as default in smb.conf
 - remove samba-docs dependency from swat, that was a mistake
