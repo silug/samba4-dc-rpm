@@ -584,6 +584,7 @@ exit 0
 %attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
+%dir /var/lib/samba/scripts
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
@@ -631,6 +632,11 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Wed Apr 4 2007 Simo Sorce <ssorce@redhat.com>
+- fixes in smb.conf
+- advice in smb.conf to put scripts in /var/lib/samba/scripts
+- create /var/lib/samba/scripts so that selinux can be happy
+
 * Tue Apr 03 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-11.fc7
 - enable PAM and NSS dlopen checks during build
 - fix unresolved symbols in libnss_wins.so (bug #198230)

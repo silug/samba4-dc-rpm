@@ -19,6 +19,39 @@
 # NOTE: Whenever you modify this file you should run the command "testparm"
 # to check that you have not made any basic syntactic errors. 
 #
+#---------------
+# SELINUX NOTES:
+#
+# If you want to use the useradd/groupadd family of binaries please run:
+# setsebool -P samba_domain_controller on
+#
+# If you want to share home directories via samba please run:
+# setsebool -P samba_enable_home_dirs on
+#
+# If you create a new directory you want to share you should mark it as
+# "samba-share_t" so that selinux will let you write into it.
+# Make sure not to do that on system directories as they may already have
+# been marked with othe SELinux labels.
+#
+# Use ls -ldZ /path to see which context a directory has
+#
+# Set labels only on directories you created!
+# To set a label use the following: chcon -t samba_share_t /path
+#
+# If you need to share a system created directory you can use one of the
+# following (read-only/read-write):
+# setsebool -P samba_export_all_ro on
+# or
+# setsebool -P samba_export_all_rw on
+#
+# If you want to run scripts (preexec/root prexec/print command/...) please
+# put them into the /var/lib/samba/scripts directory so that smbd will be
+# allowed to run them.
+# Make sure you COPY them and not MOVE them so that the right SELinux context
+# is applied, to check all is ok use restorecon -R -v /var/lib/samba/scripts
+#
+#--------------
+#
 #======================= Global Settings =====================================
 	
 [global]
@@ -132,9 +165,9 @@
 	
 ;	add user script = /usr/sbin/useradd "%u" -n -g users
 ;	add group script = /usr/sbin/groupadd "%g"
-;	add machine script = /usr/sbin/adduser -n -c "Workstation (%u)" -M -d /nohome -s /bin/false "%u"
+;	add machine script = /usr/sbin/useradd -n -c "Workstation (%u)" -M -d /nohome -s /bin/false "%u"
 ;	delete user script = /usr/sbin/userdel "%u"
-;	delete user from group script = /usr/sbin/deluser "%u" "%g"
+;	delete user from group script = /usr/sbin/userdel "%u" "%g"
 ;	delete group script = /usr/sbin/groupdel "%g"
 	
 	
