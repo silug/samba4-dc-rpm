@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.24
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -53,6 +53,7 @@ Patch117: samba-3.0.24-pam_winbind-fixes.patch
 Patch118: samba-3.0.24-tar_options.patch
 Patch119: samba-3.0.24-enable_pam_nss_tests.patch
 Patch120: samba-3.0.24-nss_wins.patch
+Patch121: samba-3.0.24-vista_msdfs_errcodes.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
@@ -179,6 +180,7 @@ cp %{SOURCE10} packaging/Fedora/
 %patch118 -p0 -b .tar_options
 %patch119 -p0 -b .pam_nss_test
 %patch120 -p0 -b .nss_wins
+%patch121 -p1 -b .msdfs
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -252,6 +254,7 @@ mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/private
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/winbindd_privileged
+mkdir -p $RPM_BUILD_ROOT/var/lib/samba/scripts
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
@@ -632,10 +635,11 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Wed Apr 4 2007 Simo Sorce <ssorce@redhat.com>
+* Wed Apr 4 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-12.fc7
 - fixes in smb.conf
 - advice in smb.conf to put scripts in /var/lib/samba/scripts
 - create /var/lib/samba/scripts so that selinux can be happy
+- fix Vista problems with msdfs errors
 
 * Tue Apr 03 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.24-11.fc7
 - enable PAM and NSS dlopen checks during build
