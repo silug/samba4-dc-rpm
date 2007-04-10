@@ -3,15 +3,15 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.0.24
-Release: 12%{?dist}
+Version: 3.0.25
+Release: 0.1.rc1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}rc3.tar.gz
-Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
+Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc1.tar.gz
+#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -33,12 +33,12 @@ Source999: filter-requires-samba.sh
 # (none right now)
 
 # generic patches
-Patch101: samba-2.2.0-smbw.patch
+#Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
 #Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 #Patch105: samba-3.0.23-smb.conf.patch
-Patch106: samba-3.0.23d-man.patch
+#Patch106: samba-3.0.23d-man.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.0.23rc3-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
@@ -46,14 +46,6 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 #Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
-Patch114: samba-3.0.24-msdfs-root-no.patch
-Patch115: samba-3.0.24-vista-patchset.patch
-Patch116: samba-3.0.24-arch_macro.patch
-Patch117: samba-3.0.24-pam_winbind-fixes.patch
-Patch118: samba-3.0.24-tar_options.patch
-Patch119: samba-3.0.24-enable_pam_nss_tests.patch
-Patch120: samba-3.0.24-nss_wins.patch
-Patch121: samba-3.0.24-vista_msdfs_errcodes.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
@@ -145,8 +137,8 @@ develop programs that link against the SMB client library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-# % setup -q -n samba-3.0.23rc3
-%setup -q 
+%setup -q -n samba-3.0.25rc1
+#%setup -q 
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -161,26 +153,18 @@ cp %{SOURCE10} packaging/Fedora/
 # Upstream patches
 #(none)
 # generic patches
-%patch101 -p1 -b .smbw
+#%patch101 -p1 -b .smbw
 %patch102 -p1 -b .pipedir
 #%patch103 -p1 -b .logfiles
 %patch104 -p1 -b .nmbd-netbiosname
 #%patch105 -p1 -b .upstream
-%patch106 -p1 -b .man
+#%patch106 -p1 -b .man
 %patch107 -p1 -b .passwd
 #%patch108 -p1 -b .non-ascii-domain
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
 #%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
-%patch114 -p1 -b .dfsroot
-%patch115 -p1 -b .vista
-%patch116 -p0 -b .arch_macro
-%patch117 -p0 -b .pam_winbind
-%patch118 -p0 -b .tar_options
-%patch119 -p0 -b .pam_nss_test
-%patch120 -p0 -b .nss_wins
-%patch121 -p1 -b .msdfs
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -317,12 +301,15 @@ ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
 #install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
 install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
-#libmsrpc
+# various libs we currently remove
+# TODO: evaluate how to make them back by extracting the correct .h files
 
 #this lib is not really useful or usable (libmsrpc.h requires the samba source)
 #so better to remove it until upstream fixes it
 rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libmsrpc.so
 rm -f $RPM_BUILD_ROOT%{_includedir}/libmsrpc.h
+
+rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbsharemodes.so
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -511,6 +498,8 @@ exit 0
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/nmbd.8*
 %{_mandir}/man8/smbd.8*
+%{_mandir}/man8/eventlogadm.8*
+%{_mandir}/man8/vfs_*.8*
 %{_libdir}/samba/vfs
 %{_libdir}/samba/auth
 %attr(1777,root,root) %dir /var/spool/samba
@@ -615,6 +604,8 @@ exit 0
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/tdbbackup.8*
 %{_mandir}/man8/tdbdump.8*
+%{_mandir}/man8/tdbtool.8*
+%{_mandir}/man8/idmap_*.8*
 
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
