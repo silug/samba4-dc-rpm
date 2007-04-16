@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.1.rc1%{?dist}
+Release: 0.7.rc1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -24,6 +24,7 @@ Source7: smbprint
 Source8: winbind.init
 Source9: smb.conf.default
 Source10: nmb.init
+Source11: pam_winbind.conf
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -46,6 +47,10 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 #Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
+Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch201: samba-3-0-25rc1-bugday-apr10.patch
+Patch202: samba3_idmap_loop.patch
+
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64 %{auth} 
@@ -149,6 +154,7 @@ cp %{SOURCE7} packaging/Fedora/
 cp %{SOURCE8} packaging/Fedora/winbind.init
 cp %{SOURCE9} packaging/Fedora/
 cp %{SOURCE10} packaging/Fedora/
+cp %{SOURCE11} packaging/Fedora/
 
 # Upstream patches
 #(none)
@@ -165,6 +171,9 @@ cp %{SOURCE10} packaging/Fedora/
 %patch111 -p1 -b .smbclient
 #%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
+%patch200 -p0 -b .inotify
+%patch201 -p0 -b .bugday
+%patch202 -p0 -b .idmap_loop
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -206,6 +215,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-logfilebase=/var/log/samba \
 	--with-libdir=%{_libdir}/samba \
 	--with-configdir=%{_sysconfdir}/samba \
+	--with-pammodulesdir=%{_sysconfdir}/security \
 	--with-swatdir=%{_datadir}/swat \
 	--with-shared-modules=idmap_ad,idmap_rid \
 
@@ -233,7 +243,7 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
 mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d}
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d,security}
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/private
@@ -271,6 +281,7 @@ install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
 install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
 install -m755 packaging/Fedora/nmb.init $RPM_BUILD_ROOT%{_initrddir}/nmb
 install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
+install -m644 packaging/Fedora/pam_winbind.conf $RPM_BUILD_ROOT%{_sysconfdir}/security
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/samba
 install -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/samba
