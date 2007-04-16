@@ -265,6 +265,7 @@ cd source
 	PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
 	LIBDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
 	CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+	PAMMODULESDIR=$RPM_BUILD_ROOT/%{_lib}/security \
 	MANDIR=$RPM_BUILD_ROOT%{_mandir} \
 	VARDIR=$RPM_BUILD_ROOT/var/log/samba \
 	CODEPAGEDIR=$RPM_BUILD_ROOT%{_datadir}/samba/codepages \
@@ -586,6 +587,7 @@ exit 0
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
+%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %dir %{_datadir}/samba
 #%dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
