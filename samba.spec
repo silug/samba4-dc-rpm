@@ -215,7 +215,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-logfilebase=/var/log/samba \
 	--with-libdir=%{_libdir}/samba \
 	--with-configdir=%{_sysconfdir}/samba \
-	--with-pammodulesdir=%{_sysconfdir}/security \
+	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
 	--with-shared-modules=idmap_ad,idmap_rid \
 
@@ -244,6 +244,7 @@ mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
 mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d,security}
+mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
 mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/private
@@ -288,11 +289,6 @@ install -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/samba
 echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema
 install -m644 examples/LDAP/samba.schema $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema/samba.schema
-
-# pam_smbpass
-mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
-install -m 755 source/bin/pam_smbpass.so $RPM_BUILD_ROOT/%{_lib}/security/pam_smbpass.so
-install -m 755 source/bin/pam_winbind.so $RPM_BUILD_ROOT/%{_lib}/security/pam_winbind.so
 
 # winbind
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
@@ -342,7 +338,6 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 # why are these getting installed in the wrong place?
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/security/pam_{smbpass,winbind}.so
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 
 
