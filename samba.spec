@@ -4,7 +4,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.7.rc1%{?dist}
+Release: 0.7.rc1%{?dist}.2
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -50,6 +50,7 @@ Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch201: samba-3-0-25rc1-bugday-apr10.patch
 Patch202: samba3_idmap_loop.patch
+Patch203: samba3_idmap_offline.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -174,6 +175,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch200 -p0 -b .inotify
 %patch201 -p0 -b .bugday
 %patch202 -p0 -b .idmap_loop
+%patch203 -p0 -b .idmap_offline
 
 # crap
 rm -f examples/VFS/.cvsignore
