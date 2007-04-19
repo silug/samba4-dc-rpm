@@ -301,7 +301,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # libsmbclient
 
 # make install puts libsmbclient.so in the wrong place on x86_64
-rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.so $RPM_BUILD_ROOT/usr/lib*/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
@@ -314,10 +314,10 @@ install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 
 #this lib is not really useful or usable (libmsrpc.h requires the samba source)
 #so better to remove it until upstream fixes it
-rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libmsrpc.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libmsrpc.so
 rm -f $RPM_BUILD_ROOT%{_includedir}/libmsrpc.h
 
-rm -f $RPM_BUILD_ROOT/usr/lib*/samba/libsmbsharemodes.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
