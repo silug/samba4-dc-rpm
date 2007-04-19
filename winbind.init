@@ -8,13 +8,7 @@
 
 
 # Source function library.
-if [ -f /etc/init.d/functions ] ; then
-  . /etc/init.d/functions
-elif [ -f /etc/rc.d/init.d/functions ] ; then
-  . /etc/rc.d/init.d/functions
-else
-  exit 0
-fi
+. /etc/rc.d/init.d/functions
 
 # Avoid using root's TMPDIR
 unset TMPDIR
@@ -22,15 +16,13 @@ unset TMPDIR
 # Source networking configuration.
 . /etc/sysconfig/network
 
-if [ -f /etc/sysconfig/samba ]; then
-   . /etc/sysconfig/samba
-fi
-
 # Check that networking is up.
 [ ${NETWORKING} = "no" ] && exit 0
 
 # Check that smb.conf exists.
 [ -f /etc/samba/smb.conf ] || exit 0
+
+[ -f /etc/sysconfig/samba ] && . /etc/sysconfig/samba
 
 RETVAL=0
 
