@@ -1,10 +1,8 @@
-%define auth %(test -f /etc/pam.d/system-auth && echo /etc/pam.d/system-auth || echo)
-
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.7.rc1%{?dist}.2
+Release: 0.7.rc1%{?dist}.3
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -54,7 +52,7 @@ Patch203: samba3_idmap_offline.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
-Requires: pam >= 0:0.64 %{auth} 
+Requires: pam >= 0:0.64
 Requires: logrotate >= 0:3.4
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
@@ -517,6 +515,7 @@ exit 0
 
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
+%doc docs/registry
 
 %files swat
 %defattr(-,root,root)
@@ -625,7 +624,6 @@ exit 0
 %doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
 %doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
 %doc docs/htmldocs
-%doc docs/registry
 
 %files -n libsmbclient
 %{_libdir}/libsmbclient.so.0
@@ -636,6 +634,11 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Thu Apr 19 2007 Simo Sorce <ssorce@redhat.com>
+- fixes in the spec file
+- moved to 3.0.25rc1
+- addedd parches (merged upstream so they will be removed in 3.0.25rc2)
+
 * Wed Apr 4 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-12.fc7
 - fixes in smb.conf
 - advice in smb.conf to put scripts in /var/lib/samba/scripts
@@ -699,7 +702,7 @@ exit 0
 
 * Thu Mar 15 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-3.fc7
 - Directories reorg, tdb files must go to /var/lib, not
-  to /var/cache, add migration script in %post common
+  to /var/cache, add migration script in %%post common
 - Split out libsmbclient, devel and doc packages
 - Remove libmsrpc.[h|so] for now as they are not really usable
 - Remove kill -HUP from rotate, samba use -HUP for other things
@@ -910,7 +913,7 @@ exit 0
   This moved many files from /usr/share/doc/samba-3.0.7/docs/* to
   /usr/share/doc/samba-3.0.7/*
 - Modify spec file as suggested by Rex Dieter (rdieter@math.unl.edu)
-  to correctly create libsmbclient.so.0 and to use %_initrddir instead
+  to correctly create libsmbclient.so.0 and to use %%_initrddir instead
   of rolling our own.  This closes #132642
 - Add patch to default "use sendfile" to no, since sendfile appears to
   be broken
@@ -961,12 +964,12 @@ exit 0
 
 * Fri Jul 2 2004 Jay Fenlason <fenlason@redhat.com> 3.0.5.0pre1.0
 - New upstream version
-- use % { SOURCE1 } instead of a hardcoded path
+- use %% { SOURCE1 } instead of a hardcoded path
 - include -winbind patch from Gerald (Jerry) Carter (jerry@samba.org)
   https://bugzilla.samba.org/show_bug.cgi?id=1315
   to make winbindd work against Windows versions that do not have
   128 bit encryption enabled.
-- Moved %{_bindir}/net to the -common package, so that folks who just
+- Moved %%{_bindir}/net to the -common package, so that folks who just
   want to use winbind, etc don't have to install -client in order to
   "net join" their domain.
 - New upstream version obsoletes the patches added in 3.0.3-5
@@ -1016,7 +1019,7 @@ exit 0
 
 * Fri Feb 13 2004 Jay Fenlason <fenlason@redhat.com>
 - Change all requires lines to list an explicit epoch.  Closes #102715
-- Add an explicit Epoch so that %{epoch} is defined.
+- Add an explicit Epoch so that %%{epoch} is defined.
 
 * Mon Feb 9 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-5
 - New upstream version: 3.0.2 final includes security fix for #114995
@@ -1025,7 +1028,7 @@ exit 0
   appropriate.  Fixes bugzilla #114051.
 
 * Mon Feb 2 2004 Jay Fenlason <fenlason@redhat.com> 3.0.2-3rc2
-- add %dir entries for %{_libdir}/samba and %{_libdir}/samba/charset
+- add %%dir entries for %%{_libdir}/samba and %%{_libdir}/samba/charset
 - Upgrade to new upstream version
 - build mount.cifs for the new cifs filesystem in the 2.6 kernel.
 
@@ -1100,7 +1103,7 @@ exit 0
 - remove swat.desktop file
 
 * Thu Feb 20 2003 Nalin Dahyabhai <nalin@redhat.com> 2.2.7a-4
-- relink libnss_wins.so with SHLD="%{__cc} -lnsl" to force libnss_wins.so to
+- relink libnss_wins.so with SHLD="%%{__cc} -lnsl" to force libnss_wins.so to
   link with libnsl, avoiding unresolved symbol errors on functions in libnsl
 
 * Mon Feb 10 2003 Jay Fenlason <fenlason@redhat.com> 2.2.7a-3
@@ -1299,9 +1302,9 @@ exit 0
 
 * Mon May 21 2001 Helge Deller <hdeller@redhat.de> 
 - updated to samba 2.2.0
-- moved codepages to %{_datadir}/samba/codepages
+- moved codepages to %%{_datadir}/samba/codepages
 - use all available CPUs for building rpm packages
-- use %{_xxx} defines at most places in spec-file
+- use %%{_xxx} defines at most places in spec-file
 - "License:" replaces "Copyright:"
 - dropped excludearch sparc
 - de-activated japanese patches 100 and 200 for now 
@@ -1494,7 +1497,7 @@ exit 0
 - update to 2.0.6
 
 * Fri Oct 29 1999 Bill Nottingham <notting@redhat.com>
-- add a %defattr for -common
+- add a %%defattr for -common
 
 * Tue Oct  5 1999 Bill Nottingham <notting@redhat.com>
 - shift some files into -client
@@ -1522,7 +1525,7 @@ exit 0
 - fix typo in mount.smb
 
 * Fri Aug 20 1999 Bill Nottingham <notting@redhat.com>
-- add a %trigger to work around (sort of) broken scripts in
+- add a %%trigger to work around (sort of) broken scripts in
   previous releases
 
 * Mon Aug 16 1999 Bill Nottingham <notting@redhat.com>
@@ -1535,7 +1538,7 @@ exit 0
 - add a -common package, shuffle files around.
 
 * Fri Jul 23 1999 Bill Nottingham <notting@redhat.com>
-- add a chmod in %postun so /etc/services & inetd.conf don't become unreadable
+- add a chmod in %%postun so /etc/services & inetd.conf don't become unreadable
 
 * Wed Jul 21 1999 Bill Nottingham <notting@redhat.com>
 - update to 2.0.5
@@ -1604,19 +1607,19 @@ exit 0
 
 * Thu Sep 17 1998 Jeff Johnson <jbj@redhat.com>
 - update to 1.9.18p10.
-- fix %triggerpostun.
+- fix %%triggerpostun.
 
 * Tue Jul 07 1998 Erik Troan <ewt@redhat.com>
 - updated postun triggerscript to check $0
-- clear /etc/codepages from %preun instead of %postun
+- clear /etc/codepages from %%preun instead of %%postun
 
 * Mon Jun 08 1998 Erik Troan <ewt@redhat.com>
-- made the %postun script a tad less agressive; no reason to remove
+- made the %%postun script a tad less agressive; no reason to remove
   the logs or lock file (after all, if the lock file is still there,
   samba is still running)
-- the %postun and %preun should only exectute if this is the final
+- the %%postun and %%preun should only exectute if this is the final
   removal
-- migrated %triggerpostun from Red Hat's samba package to work around
+- migrated %%triggerpostun from Red Hat's samba package to work around
   packaging problems in some Red Hat samba releases
 
 * Sun Apr 26 1998 John H Terpstra <jht@samba.anu.edu.au>
