@@ -2,13 +2,13 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.7.rc1%{?dist}.3
+Release: 0.1.rc2%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc1.tar.gz
+Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc2.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -46,9 +46,6 @@ Patch111: samba-3.0.13-smbclient.patch
 #Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: samba-3-0-25rc1-bugday-apr10.patch
-Patch202: samba3_idmap_loop.patch
-Patch203: samba3_idmap_offline.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -141,7 +138,7 @@ develop programs that link against the SMB client library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.25rc1
+%setup -q -n samba-3.0.25rc2
 #%setup -q 
 
 # copy Red Hat specific scripts
@@ -171,9 +168,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
 %patch200 -p0 -b .inotify
-%patch201 -p0 -b .bugday
-%patch202 -p0 -b .idmap_loop
-%patch203 -p0 -b .idmap_offline
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -580,6 +574,7 @@ exit 0
 %{_bindir}/tdbtool
 %{_sbindir}/winbindd
 %{_libdir}/samba/idmap
+%{_libdir}/samba/nss_info
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/run/winbindd
