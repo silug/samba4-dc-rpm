@@ -2,13 +2,13 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.8.rc2%{?dist}
+Release: 0.8.rc3%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc2.tar.gz
+Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc3.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -46,8 +46,8 @@ Patch111: samba-3.0.13-smbclient.patch
 #Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: samba-3.0.25rc2-idmap-fix.patch
-Patch202: samba-3.0.25rc2-pie.patch
+#Patch201: samba-3.0.25rc2-idmap-fix.patch
+#Patch202: samba-3.0.25rc2-pie.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -140,7 +140,7 @@ develop programs that link against the SMB client library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.25rc2
+%setup -q -n samba-3.0.25rc3
 #%setup -q 
 
 # copy Red Hat specific scripts
@@ -170,8 +170,8 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
 %patch200 -p0 -b .inotify
-%patch201 -p0 -b .idmap-fix
-%patch202 -p0 -b .pie
+#%patch201 -p0 -b .idmap-fix
+#%patch202 -p0 -b .pie
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -633,10 +633,13 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Mon Apr 30 2007 Guenther Deschner <gdeschner@redhat.com>
+- move to 3.0.25rc3
+
 * Thu Apr 19 2007 Simo Sorce <ssorce@redhat.com>
 - fixes in the spec file
 - moved to 3.0.25rc1
-- addedd parches (merged upstream so they will be removed in 3.0.25rc2)
+- addedd patches (merged upstream so they will be removed in 3.0.25rc2)
 
 * Wed Apr 4 2007 Simo Sorce <ssorce@redhat.com> 3.0.24-12.fc7
 - fixes in smb.conf
