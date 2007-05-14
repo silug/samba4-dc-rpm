@@ -2,14 +2,14 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25
-Release: 0.8.rc3%{?dist}
+Release: 1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc3.tar.gz
-#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
+#Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc3.tar.gz
+Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -138,8 +138,8 @@ develop programs that link against the SMB client library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.0.25rc3
-#%setup -q 
+#%setup -q -n samba-3.0.25rc3
+%setup -q 
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -629,6 +629,10 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Mon May 14 2007 Simo Sorce <ssorce@redhat.com>
+- final 3.0.25
+- includes security fixes for CVE-2007-2444,CVE-2007-2446,CVE-2007-2447
+
 * Mon Apr 30 2007 Guenther Deschner <gdeschner@redhat.com>
 - move to 3.0.25rc3
 
