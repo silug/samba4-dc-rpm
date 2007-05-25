@@ -1,0 +1,83 @@
+Author: gd
+Revision: r23121
+Modified: source/Makefile.in source/pam_smbpass/general.h source/pam_smbpass/pam_smb_acct.c source/pam_smbpass/pam_smb_auth.c source/pam_smbpass/pam_smb_passwd.c /branches/SAMBA_3_0_25/source/Makefile.in /branches/SAMBA_3_0_25/source/pam_smbpass/general.h /branches/SAMBA_3_0_26/source/Makefile.in /branches/SAMBA_3_0_26/source/pam_smbpass/general.h
+Added: 
+Removed: 
+
+
+Fix Bug #2727 and let pam_smbpass at least link and dlopen correctly again.
+
+Thanks to Bartlomiej Solarz-Niesluchowski &lt;Bartlomiej.Solarz-Niesluchowski@wit.edu.pl&gt;.
+
+Guenther
+
+
+Index: source/Makefile.in
+===================================================================
+--- source/Makefile.in	(revision 23120)
++++ source/Makefile.in	(revision 23121)
+@@ -751,9 +751,9 @@
+ 
+ PAM_SMBPASS_OBJ_0 = pam_smbpass/pam_smb_auth.o pam_smbpass/pam_smb_passwd.o \
+ 		pam_smbpass/pam_smb_acct.o pam_smbpass/support.o \
+-		$(PARAM_OBJ) $(LIB_NONSMBD_OBJ) $(PASSDB_OBJ) $(GROUPDB_OBJ) \
++PAM_SMBPASS_OBJ = $(PAM_SMBPASS_OBJ_0) $(PARAM_OBJ) $(LIB_NONSMBD_OBJ) $(PASSDB_OBJ) $(GROUPDB_OBJ) \
+ 		$(SECRETS_OBJ) $(SMBLDAP_OBJ) $(LIBSAMBA_OBJ) \
+-		$(RPC_PARSE_OBJ1) $(DOSERR_OBJ)
++		$(RPC_PARSE_OBJ1) $(DOSERR_OBJ) $(ERRORMAP_OBJ)
+ 
+ IDMAP_OBJ     = nsswitch/idmap.o nsswitch/idmap_cache.o nsswitch/idmap_util.o @IDMAP_STATIC@ 
+
+Index: source/pam_smbpass/pam_smb_auth.c
+===================================================================
+--- source/pam_smbpass/pam_smb_auth.c	(revision 23120)
++++ source/pam_smbpass/pam_smb_auth.c	(revision 23121)
+@@ -109,7 +109,7 @@
+ 		_log_err( LOG_DEBUG, "username [%s] obtained", name );
+ 	}
+ 
+-	if (!initialize_password_db(True)) {
++	if (!initialize_password_db(True, NULL)) {
+ 		_log_err( LOG_ALERT, "Cannot access samba password database" );
+ 		retval = PAM_AUTHINFO_UNAVAIL;
+ 		AUTH_RETURN;
+Index: source/pam_smbpass/pam_smb_passwd.c
+===================================================================
+--- source/pam_smbpass/pam_smb_passwd.c	(revision 23120)
++++ source/pam_smbpass/pam_smb_passwd.c	(revision 23121)
+@@ -137,7 +137,7 @@
+        from a SIGPIPE it's not expecting */
+     oldsig_handler = CatchSignal(SIGPIPE, SIGNAL_CAST SIG_IGN);
+ 
+-    if (!initialize_password_db(False)) {
++    if (!initialize_password_db(False, NULL)) {
+         _log_err( LOG_ALERT, "Cannot access samba password database" );
+         CatchSignal(SIGPIPE, SIGNAL_CAST oldsig_handler);
+         return PAM_AUTHINFO_UNAVAIL;
+Index: source/pam_smbpass/general.h
+===================================================================
+--- source/pam_smbpass/general.h	(revision 23120)
++++ source/pam_smbpass/general.h	(revision 23121)
+@@ -121,7 +121,7 @@
+ 
+ struct _pam_failed_auth {
+     char *user;                 /* user that's failed to be authenticated */
+-    int id;                     /* uid of requested user */
++    uid_t id;                   /* uid of requested user */
+     char *agent;                /* attempt from user with name */
+     int count;                  /* number of failures so far */
+ };
+Index: source/pam_smbpass/pam_smb_acct.c
+===================================================================
+--- source/pam_smbpass/pam_smb_acct.c	(revision 23120)
++++ source/pam_smbpass/pam_smb_acct.c	(revision 23121)
+@@ -81,7 +81,7 @@
+ 	/* Getting into places that might use LDAP -- protect the app
+ 		from a SIGPIPE it's not expecting */
+ 	oldsig_handler = CatchSignal(SIGPIPE, SIGNAL_CAST SIG_IGN);
+-	if (!initialize_password_db(True)) {
++	if (!initialize_password_db(True, NULL)) {
+ 		_log_err( LOG_ALERT, "Cannot access samba password database" );
+ 		CatchSignal(SIGPIPE, SIGNAL_CAST oldsig_handler);
+ 		return PAM_AUTHINFO_UNAVAIL;
+

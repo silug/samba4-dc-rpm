@@ -1,8 +1,8 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.0.25
-Release: 2%{?dist}
+Version: 3.0.25a
+Release: 1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -46,6 +46,7 @@ Patch111: samba-3.0.13-smbclient.patch
 #Patch112: samba-3.0.15pre2-bug106483.patch
 #Patch113: samba-3.0.21-warnings.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch201: samba-3.0.25a-pam_smbpass.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -168,6 +169,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch112 -p1 -b .bug106483
 #%patch113 -p1 -b .warnings
 %patch200 -p0 -b .inotify
+%patch201 -p0 -b .pam_smbpass
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -629,11 +631,15 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Fri May 25 2007 Simo Sorce <ssorce@redhat.com>
+- update to 3.0.25a as it contains many fixes
+- add a fix for pam_smbpass made by Günther but committed upstream after 3.0.25a was cut.
+
 * Mon May 14 2007 Simo Sorce <ssorce@redhat.com>
 - final 3.0.25
 - includes security fixes for CVE-2007-2444,CVE-2007-2446,CVE-2007-2447
 
-* Mon Apr 30 2007 Guenther Deschner <gdeschner@redhat.com>
+* Mon Apr 30 2007 Günther Deschner <gdeschner@redhat.com>
 - move to 3.0.25rc3
 
 * Thu Apr 19 2007 Simo Sorce <ssorce@redhat.com>
