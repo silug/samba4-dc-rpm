@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25a
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -631,6 +631,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue May 29 2007 Günther Deschner <gdeschner@redhat.com>
+- fix pam_smbpass patch.
+
 * Fri May 25 2007 Simo Sorce <ssorce@redhat.com>
 - update to 3.0.25a as it contains many fixes
 - add a fix for pam_smbpass made by Günther but committed upstream after 3.0.25a was cut.
