@@ -17,10 +17,10 @@ unset TMPDIR
 . /etc/sysconfig/network
 
 # Check that networking is up.
-[ ${NETWORKING} = "no" ] && exit 0
+[ ${NETWORKING} = "no" ] && exit 1
 
 # Check that smb.conf exists.
-[ -f /etc/samba/smb.conf ] || exit 0
+[ -f /etc/samba/smb.conf ] || exit 6
 
 [ -f /etc/sysconfig/samba ] && . /etc/sysconfig/samba
 
@@ -63,7 +63,17 @@ reload() {
 
 rhstatus() {
 	status winbindd
+	return $?
 }	
+
+# Allow status as non-root.
+if [ "$1" = status ]; then
+       rhstatus
+       exit $?
+fi
+
+# Check that we can write to it... so non-root users stop here
+[ -w /etc/samba/smb.conf ] || exit 4
 
 case "$1" in
   start)
@@ -86,7 +96,7 @@ case "$1" in
 	;;
   *)
 	echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"
-	exit 1
+	exit 2
 esac
 
 exit $?

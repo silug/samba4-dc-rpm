@@ -14,7 +14,7 @@ if [ -f /etc/init.d/functions ] ; then
 elif [ -f /etc/rc.d/init.d/functions ] ; then
   . /etc/rc.d/init.d/functions
 else
-  exit 0
+  exit 1
 fi
 
 # Avoid using root's TMPDIR
@@ -28,10 +28,10 @@ if [ -f /etc/sysconfig/samba ]; then
 fi
 
 # Check that networking is up.
-[ ${NETWORKING} = "no" ] && exit 0
+[ ${NETWORKING} = "no" ] && exit 1
 
 # Check that smb.conf exists.
-[ -f /etc/samba/smb.conf ] || exit 0
+[ -f /etc/samba/smb.conf ] || exit 6
 
 RETVAL=0
 
@@ -72,9 +72,7 @@ reload() {
 
 rhstatus() {
 	status smbd
-	if [ $? -ne 0 ] ; then
-		return 1
-	fi
+	return $?
 }	
 
 
@@ -85,7 +83,7 @@ if [ "$1" = status ]; then
 fi
 
 # Check that we can write to it... so non-root users stop here
-[ -w /etc/samba/smb.conf ] || exit 0
+[ -w /etc/samba/smb.conf ] || exit 4
 
 
 
@@ -110,7 +108,7 @@ case "$1" in
 	;;
   *)
 	echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"
-	exit 1
+	exit 2
 esac
 
 exit $?
