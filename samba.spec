@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25b
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -619,7 +619,7 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-1.fc8
+* Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-2.fc8
 - update to 3.0.25b
 - better error codes for init scripts: #244823
 - handle cases defined in #243766
