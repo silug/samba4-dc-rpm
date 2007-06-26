@@ -1,8 +1,8 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.0.25a
-Release: 2%{?dist}
+Version: 3.0.25b
+Release: 1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -32,21 +32,15 @@ Source999: filter-requires-samba.sh
 # (none right now)
 
 # generic patches
-#Patch101: samba-2.2.0-smbw.patch
 Patch102: samba-3.0.0beta1-pipedir.patch
 #Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
-#Patch105: samba-3.0.23-smb.conf.patch
-#Patch106: samba-3.0.23d-man.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.0.23rc3-passwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
-#Patch112: samba-3.0.15pre2-bug106483.patch
-#Patch113: samba-3.0.21-warnings.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: samba-3.0.25a-pam_smbpass.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -156,20 +150,14 @@ cp %{SOURCE11} packaging/Fedora/
 # Upstream patches
 #(none)
 # generic patches
-#%patch101 -p1 -b .smbw
 %patch102 -p1 -b .pipedir
 #%patch103 -p1 -b .logfiles
 %patch104 -p1 -b .nmbd-netbiosname
-#%patch105 -p1 -b .upstream
-#%patch106 -p1 -b .man
 %patch107 -p1 -b .passwd
 #%patch108 -p1 -b .non-ascii-domain
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
-#%patch112 -p1 -b .bug106483
-#%patch113 -p1 -b .warnings
 %patch200 -p0 -b .inotify
-%patch201 -p0 -b .pam_smbpass
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -631,6 +619,10 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-1.fc8
+- update to 3.0.25b
+- better error codes for init scripts: #244823
+
 * Tue May 29 2007 Günther Deschner <gdeschner@redhat.com>
 - fix pam_smbpass patch.
 
