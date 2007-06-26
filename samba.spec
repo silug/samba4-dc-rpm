@@ -622,6 +622,7 @@ exit 0
 * Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-1.fc8
 - update to 3.0.25b
 - better error codes for init scripts: #244823
+- handle cases defined in #243766
 
 * Tue May 29 2007 Günther Deschner <gdeschner@redhat.com>
 - fix pam_smbpass patch.
