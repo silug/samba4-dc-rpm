@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25b
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -378,6 +378,10 @@ NEWPATH="/var/lib/samba"
 
 eval ls $OLDPATH/*.tdb >/dev/null 2>&1
 if [ $? = 0 ]; then
+    eval testparm -s 2>/dev/null |grep "lock dir" >/dev/null
+    if [ $? = 0 ]; then 
+	echo "Warning: lock dir explicitly set. Not moving tdb files to new default location"
+    else
 
 	#Stop daemons before we move the files around
 
@@ -419,6 +423,8 @@ if [ $? = 0 ]; then
 	mv -f $OLDPATH/*.dat $NEWPATH/ >/dev/null 2>&1
 	mv -f $OLDPATH/perfmon $NEWPATH/ >/dev/null 2>&1
 	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
+
+    fi
 fi
 
 # We also moved private files from /etc/samba to
@@ -426,26 +432,41 @@ fi
 
 #secrets.tdb
 if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
-	if [ -f /var/lib/samba/private/secrets.tdb ]; then
-		mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
+	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null
+	if [ $? = 0 ]; then
+		echo "Warning: private dir explicitly set. Not moving secrets.tdb to new default location"
+	else
+		if [ -f /var/lib/samba/private/secrets.tdb ]; then
+			mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
+		fi
+		mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
 	fi
-	mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
 fi
 
 #smbpasswd
 if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
-	if [ -f /var/lib/samba/private/smbpasswd ]; then
-		mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
+	eval testparm -s 2>/dev/null |grep "smb passwd file" >/dev/null
+	if [ $? = 0 ]; then
+		echo "Warning: smbpasswd file location explicitly set. Not moving smbpasswd to new default location"
+	else
+		if [ -f /var/lib/samba/private/smbpasswd ]; then
+			mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
+		fi
+		mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
 	fi
-	mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
 fi
 
 #passdb.tdb
 if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
-	if [ -f /var/lib/samba/private/passdb.tdb ]; then
-		mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
+	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null || testparm -s 2>/dev/null |grep -P "^\s*passdb\s*backend\s*=.*tdbsam:/etc/samba/passdb.tdb.*"
+	if [ $? = 0 ]; then
+		echo "Warning: passdb.tdb location explicitly set. Not moving passdb.tdb to new default location"
+	else
+		if [ -f /var/lib/samba/private/passdb.tdb ]; then
+			mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
+		fi
+		mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
 	fi
-	mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
 fi
 
 #remove schannel_store if existing, it is not info we need to keep across restarts
@@ -619,10 +640,12 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Jun 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-3.fc8
+- handle cases defined in #243766
+
 * Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-2.fc8
 - update to 3.0.25b
 - better error codes for init scripts: #244823
-- handle cases defined in #243766
 
 * Tue May 29 2007 Günther Deschner <gdeschner@redhat.com>
 - fix pam_smbpass patch.
