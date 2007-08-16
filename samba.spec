@@ -3,7 +3,7 @@ Name: samba
 Epoch: 0
 Version: 3.0.25b
 Release: 3%{?dist}
-License: GPLv2+
+License: GPLv2+ and LGPLv2+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
