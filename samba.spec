@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25c
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -642,7 +642,7 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-1.fc8
+* Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-2.fc8
 - remove old source
 - add patch to fix samba bugzilla 4772
 
