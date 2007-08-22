@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25c
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -42,6 +42,7 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch210: samba-3.0.25-imdap-basedn.patch
+Patch300: samba3-glibc-open.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -51,7 +52,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
-BuildRequires: autoconf
+BuildRequires: autoconf, gawk
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -160,6 +161,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch111 -p1 -b .smbclient
 %patch200 -p0 -b .inotify
 %patch210 -p1 -b .idmap_basedn
+%patch300 -p0 -b .glibc_open
 
 # crap
 rm -f examples/VFS/.cvsignore
@@ -642,6 +644,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-3.fc8
+- fix a few places were "open" is used an interfere with the new glibc
+
 * Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-2.fc8
 - remove old source
 - add patch to fix samba bugzilla 4772
