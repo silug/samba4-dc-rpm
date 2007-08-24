@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.0.25c
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -42,6 +42,7 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch210: samba-3.0.25-imdap-basedn.patch
+Patch211: samba3_idmap_ldap_memleak.patch
 Patch300: samba3-glibc-open.patch
 
 
@@ -161,6 +162,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch111 -p1 -b .smbclient
 %patch200 -p0 -b .inotify
 %patch210 -p1 -b .idmap_basedn
+%patch211 -p0 -b .idmap_ldap_memleak
 %patch300 -p0 -b .glibc_open
 
 # crap
@@ -644,6 +646,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Aug 24 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-4.fc8
+- add fix reported upstream for heavy idmap_ldap memleak
+
 * Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-3.fc8
 - fix a few places were "open" is used an interfere with the new glibc
 
