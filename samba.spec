@@ -52,7 +52,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
-BuildRequires: autoconf, gawk
+BuildRequires: autoconf, gawk, popt-devel
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
