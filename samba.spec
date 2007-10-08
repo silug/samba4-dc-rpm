@@ -1,15 +1,15 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.0.26a
-Release: 1%{?dist}
-License: GPLv2+ and LGPLv2+
+Version: 3.2.0
+Release: 0.pre1%{?dist}
+License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-#Source: http://www.samba.org/samba/ftp/rc/%{name}-%{version}rc3.tar.gz
-Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
+Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre1.tar.gz
+#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -32,11 +32,11 @@ Source999: filter-requires-samba.sh
 # (none right now)
 
 # generic patches
-Patch102: samba-3.0.0beta1-pipedir.patch
+Patch102: samba-3.2.0pre1-pipedir.patch
 #Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
-Patch107: samba-3.0.23rc3-passwd.patch
+Patch107: samba-3.2.0pre1-grouppwd.patch
 #Patch108: samba-3.0.8-non-ascii-domain.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
@@ -133,8 +133,8 @@ develop programs that link against the SMB client library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-#%setup -q -n samba-3.0.25rc3
-%setup -q 
+%setup -q -n samba-3.2.0pre1
+#%setup -q 
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -153,19 +153,20 @@ cp %{SOURCE11} packaging/Fedora/
 %patch102 -p1 -b .pipedir
 #%patch103 -p1 -b .logfiles
 %patch104 -p1 -b .nmbd-netbiosname
-%patch107 -p1 -b .passwd
+%patch107 -p1 -b .grouppwd
 #%patch108 -p1 -b .non-ascii-domain
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
 %patch200 -p0 -b .inotify
 
-# crap
-rm -f examples/VFS/.cvsignore
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
 cd source
 script/mkversion.sh
 cd ..
+
+#Remove smbldap-tools, they are already packaged separately in Fedora
+rm -fr examples/LDAP/smbldap-tools-*/
 
 
 %build
@@ -185,6 +186,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-acl-support \
 	--with-automount \
 	--with-libsmbclient \
+	--with-libsmbsharemodes \
 	--with-mmap \
 	--with-pam \
 	--with-pam_smbpass \
@@ -192,6 +194,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-syslog \
 	--with-utmp \
 	--with-vfs \
+	--with-sendfile-support \
 	--without-smbwrapper \
 	--with-lockdir=/var/lib/samba \
 	--with-piddir=/var/run \
@@ -202,7 +205,10 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-configdir=%{_sysconfdir}/samba \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
-	--with-shared-modules=idmap_ad,idmap_rid \
+	--with-shared-modules=idmap_ad,idmap_rid
+
+#	--with-cluster-support \
+#	--with-aio-support \
 
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" \
@@ -230,11 +236,12 @@ mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
 mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d,security}
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
-mkdir -p $RPM_BUILD_ROOT/var/{log,spool}/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/private
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/winbindd_privileged
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba/scripts
+mkdir -p $RPM_BUILD_ROOT/var/log/samba/old
+mkdir -p $RPM_BUILD_ROOT/var/spool/samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
@@ -283,16 +290,23 @@ ln -sf /%{_lib}/libnss_winbind.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_winbind.so
 install -m 755 source/nsswitch/libnss_wins.so $RPM_BUILD_ROOT/%{_lib}/libnss_wins.so.2
 ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 
-# libsmbclient
-
-# make install puts libsmbclient.so in the wrong place on x86_64
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.a $RPM_BUILD_ROOT/usr/lib || true
+# libraries {
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
+
+# make install puts libraries in the wrong place 
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.a || true
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so || true
+
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
-/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
+install -m 755 source/bin/libsmbsharemodes.so $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so.0
 ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
+ln -s libsmbsharemodes.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so
 #install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
-install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
+#install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
+
+/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
+
+# }
 
 # various libs we currently remove
 # TODO: evaluate how to make them back by extracting the correct .h files
@@ -301,8 +315,6 @@ install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
 #so better to remove it until upstream fixes it
 rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libmsrpc.so
 rm -f $RPM_BUILD_ROOT%{_includedir}/libmsrpc.h
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -584,6 +596,11 @@ exit 0
 %{_bindir}/tdbbackup
 %{_bindir}/tdbdump
 %{_bindir}/tdbtool
+%{_bindir}/ldbadd
+%{_bindir}/ldbdel
+%{_bindir}/ldbedit
+%{_bindir}/ldbmodify
+%{_bindir}/ldbsearch
 %{_sbindir}/winbindd
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
@@ -600,6 +617,7 @@ exit 0
 #%dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
+%attr(0700,root,root) %dir /var/log/samba/old
 %{_initrddir}/winbind
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/profiles.1*
@@ -633,14 +651,26 @@ exit 0
 %doc docs/htmldocs
 
 %files -n libsmbclient
+%{_libdir}/libsmbclient.so
 %{_libdir}/libsmbclient.so.0
+%{_libdir}/libsmbsharemodes.so
+%{_libdir}/libsmbsharemodes.so.0
 
 %files -n libsmbclient-devel
-%{_libdir}/libsmbclient.so
 %{_includedir}/libsmbclient.h
+%{_includedir}/smb_share_modes.h
+
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Wed Oct 8 2007 Simo Sorce <ssorce@redhat.com> 3.2.0-0.pre1.fc9
+- New major relase, minor switched from 0 to 2
+- License change, the code is now GPLv3+
+- Numerous improvements and bugfixes included
+- package libsmbsharemodes too
+- remove smbldap-tools as they are already packaged separately in Fedora
+- Fix bug 245506 
+
 * Tue Oct 2 2007 Simo Sorce <ssorce@redhat.com> 3.0.26a-1.fc8
 - rebuild with AD DNS Update support
 
