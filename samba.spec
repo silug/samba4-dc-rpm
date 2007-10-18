@@ -1,6 +1,6 @@
 Summary: The Samba Suite of programs
 Name: samba
-Epoch: 0
+Epoch: 1
 Version: 3.2.0
 Release: 0.pre1%{?dist}
 License: GPLv3+ and LGPLv3+
@@ -41,6 +41,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch201: winbind-padding.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -158,6 +159,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch110 -p1 -b .smbspool
 %patch111 -p1 -b .smbclient
 %patch200 -p0 -b .inotify
+%patch201 -p0 -b .winbind-padding
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -663,6 +665,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Wed Oct 8 2007 Guenther Deschner <gdeschner@redhat.com> 3.2.0-1.pre1.fc9
+- 32/64bit padding fix
+
 * Wed Oct 8 2007 Simo Sorce <ssorce@redhat.com> 3.2.0-0.pre1.fc9
 - New major relase, minor switched from 0 to 2
 - License change, the code is now GPLv3+
