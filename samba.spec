@@ -1,8 +1,8 @@
 Summary: The Samba Suite of programs
 Name: samba
-Epoch: 1
+Epoch: 0
 Version: 3.2.0
-Release: 0.pre1%{?dist}
+Release: 0.pre1.1%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -41,7 +41,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: winbind-padding.patch
+Patch201: samba-3.2.0pre1-winbindd-padding.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -665,8 +665,8 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
-* Wed Oct 8 2007 Guenther Deschner <gdeschner@redhat.com> 3.2.0-1.pre1.fc9
-- 32/64bit padding fix
+* Thu Oct 18 2007 Guenther Deschner <gdeschner@redhat.com> 3.2.0-0.pre1.1.fc9
+- 32/64bit padding fix (affects multilib installations)
 
 * Wed Oct 8 2007 Simo Sorce <ssorce@redhat.com> 3.2.0-0.pre1.fc9
 - New major relase, minor switched from 0 to 2
