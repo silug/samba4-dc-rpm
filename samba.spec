@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 0.pre1.1%{?dist}
+Release: 0.pre1.2%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -665,6 +665,9 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Tue Dec 04 2007 Release Engineering <rel-eng at fedoraproject dot org> - 3.2.0-0.pre1.2
+ - Rebuild for openldap bump
+
 * Thu Oct 18 2007 Guenther Deschner <gdeschner@redhat.com> 3.2.0-0.pre1.1.fc9
 - 32/64bit padding fix (affects multilib installations)
 
