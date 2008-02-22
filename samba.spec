@@ -2,7 +2,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre1.2%{?dist}
+Release: 1.pre1.3%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -42,6 +42,7 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch201: samba-3.2.0pre1-winbindd-padding.patch
+patch202: samba-3.2.0pre1-buildfix.patch
 
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -135,7 +136,7 @@ develop programs that link against the SMB client library in the Samba suite.
 %prep
 # TAG: change for non-pre
 %setup -q -n samba-3.2.0pre1
-#%setup -q 
+#%setup -q
 
 # copy Red Hat specific scripts
 mkdir packaging/Fedora
@@ -160,6 +161,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch111 -p1 -b .smbclient
 %patch200 -p0 -b .inotify
 %patch201 -p0 -b .winbind-padding
+%patch202 -p1 -b .buildfix
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -179,24 +181,27 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 %endif
 %ifarch ia64
 #libtoolize --copy --force     # get it to recognize IA-64
-#autoheader                                               
+#autoheader
 #autoconf
 EXTRA="-D_LARGEFILE64_SOURCE"
 %endif
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-dnsupdate \
+	--with-ads \
 	--with-acl-support \
 	--with-automount \
+	--with-dnsupdate \
 	--with-libsmbclient \
 	--with-libsmbsharemodes \
 	--with-mmap \
 	--with-pam \
 	--with-pam_smbpass \
 	--with-quotas \
+	--with-sendfile-support \
 	--with-syslog \
 	--with-utmp \
 	--with-vfs \
-	--with-sendfile-support \
+	--with-winbind \
 	--without-smbwrapper \
 	--with-lockdir=/var/lib/samba \
 	--with-piddir=/var/run \
@@ -665,6 +670,12 @@ exit 0
 #%{_includedir}/libmsrpc.h
 
 %changelog
+* Fri Feb 22 2008 Simo Sorce <ssorce@redhat.com> - 3.2.0-0.pre1.3
+- Try to fix GCC 4.3 build
+- Add --with-dnsupdate flag and also make sure other flags are required just to
+  be sure the features are included without relying on autodetection to be
+  successful
+
 * Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 0:3.2.0-1.pre1.2
 - Autorebuild for GCC 4.3
 
