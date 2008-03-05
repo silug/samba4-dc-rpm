@@ -6,7 +6,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre2.3%{?dist}
+Release: 2.pre2.0%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
