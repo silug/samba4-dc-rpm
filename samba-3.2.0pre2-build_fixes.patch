@@ -1251,3 +1251,24 @@ index cfe0095..b0e73fb 100644
  	@echo "Linking shared library $@"
  	@$(SHLD) $(LDSHFLAGS) -o $@ $(PAM_SMBPASS_OBJ) -lpam $(DYNEXP) \
  		$(LIBS) $(LDAP_LIBS) $(KRB5LIBS) $(NSCD_LIBS) \
+commit 5159e3dafa9f9bb85cde6681052d8f54b8bf8a2e
+Author: Günther Deschner <gd@samba.org>
+Date:   Wed Mar 5 22:21:10 2008 +0100
+
+    Fix build targets for bin/net.
+    
+    Guenther
+
+diff --git a/source/Makefile.in b/source/Makefile.in
+index b0e73fb..6d3ab60 100644
+--- a/source/Makefile.in
++++ b/source/Makefile.in
+@@ -1300,7 +1300,7 @@ bin/smbclient@EXEEXT@: $(BINARY_PREREQS) $(CLIENT_OBJ) @BUILD_POPT@ @LIBTALLOC_S
+ 		$(KRB5LIBS) $(LDAP_LIBS) $(NSCD_LIBS) $(DNSSD_LIBS) \
+ 		@LIBTALLOC_LIBS@ @LIBTDB_LIBS@ @WINBIND_LIBS@
+ 
+-bin/net@EXEEXT@: $(BINARY_PREREQS) $(NET_OBJ) @BUILD_POPT@ @LIBTALLOC_SHARED@ @LIBTDB_SHARED@ @LIBWBCLIENT_SHARED@
++bin/net@EXEEXT@: $(BINARY_PREREQS) $(NET_OBJ) @BUILD_POPT@ @LIBTALLOC_SHARED@ @LIBTDB_SHARED@ @LIBWBCLIENT_SHARED@ @LIBNETAPI_SHARED@
+ 	@echo Linking $@
+ 	@$(CC) $(FLAGS) -o $@ $(NET_OBJ) $(DYNEXP) $(LDFLAGS) $(LIBS) \
+ 		@POPTLIBS@ $(KRB5LIBS) $(UUID_LIBS) $(LDAP_LIBS) \
