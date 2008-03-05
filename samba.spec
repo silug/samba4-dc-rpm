@@ -1,14 +1,18 @@
+%define samba_version 3.2.0pre2
+%define tdb_version 1.1.1
+%define talloc_version 1.2.0
+
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre1.3%{?dist}
+Release: 1.pre2.3%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre1.tar.gz
+Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre2.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -41,9 +45,9 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: samba-3.2.0pre1-winbindd-padding.patch
 patch202: samba-3.2.0pre1-buildfix.patch
-
+Patch203: samba-3.2.0pre2-build_fixes.patch
+Patch204: samba-3.2.0pre2-libnetapi_fix.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -52,7 +56,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
-BuildRequires: autoconf, gawk, popt-devel
+BuildRequires: autoconf, gawk, popt-devel, gtk2-devel
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -85,6 +89,8 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 
 %package common
 Summary: Files used by both Samba servers and clients
+Requires: libtdb >= 0:%{tdb_version}
+Requires: libtalloc >= 0:%{talloc_version}
 Group: Applications/System
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, /sbin/service, coreutils
@@ -116,6 +122,15 @@ The samba-doc package includes all the non-manpage documentation for the
 Samba suite.
 
 
+%package domainjoin-gui
+Summary: Domainjoin GUI
+Group: Applications/System
+Requires: samba-common = %{epoch}:%{version}-%{release}, gtk2
+
+%description domainjoin-gui
+The samba-domainjoin-gui package includes a domainjoin gtk application.
+
+
 %package -n libsmbclient
 Summary: The SMB client library
 Group: Applications/System
@@ -132,10 +147,55 @@ Requires: libsmbclient = %{epoch}:%{version}-%{release}
 The libsmbclient-devel package contains the header files and libraries needed to
 develop programs that link against the SMB client library in the Samba suite.
 
+%package -n libtdb
+Summary: The TDB library and tools
+Group: Applications/System
+Version: %{tdb_version}
+
+%description -n libtdb
+The TDB library from the Samba suite.
+
+%package -n tdb-tools
+Summary: The TDB tools
+Group: Applications/System
+Version: %{tdb_version}
+Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
+
+%description -n tdb-tools
+Some TDB tools from the Samba suite.
+
+%package -n libtdb-devel
+Summary: Developer tools for the TDB library
+Group: Development
+Version: %{tdb_version}
+Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
+
+%description -n libtdb-devel
+The libtdb-devel package contains the header files and libraries needed to
+develop programs that link against the TDB library in the Samba suite.
+
+%package -n libtalloc
+Summary: The talloc library
+Group: Applications/System
+Version: %{talloc_version}
+
+%description -n libtalloc
+The talloc library from the Samba suite.
+
+%package -n libtalloc-devel
+Summary: Developer tools for the talloc library
+Group: Development
+Version: %{talloc_version}
+Requires: libtalloc = %{epoch}:%{talloc_version}-%{release}
+
+%description -n libtalloc-devel
+The libtalloc-devel package contains the header files and libraries needed to
+develop programs that link against the talloc library in the Samba suite.
+
 
 %prep
 # TAG: change for non-pre
-%setup -q -n samba-3.2.0pre1
+%setup -q -n %{name}-%{samba_version}
 #%setup -q
 
 # copy Red Hat specific scripts
@@ -154,14 +214,14 @@ cp %{SOURCE11} packaging/Fedora/
 # generic patches
 %patch102 -p1 -b .pipedir
 #%patch103 -p1 -b .logfiles
-%patch104 -p1 -b .nmbd-netbiosname
+#%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 #%patch108 -p1 -b .non-ascii-domain
 %patch110 -p1 -b .smbspool
-%patch111 -p1 -b .smbclient
-%patch200 -p0 -b .inotify
-%patch201 -p0 -b .winbind-padding
-%patch202 -p1 -b .buildfix
+#%patch111 -p1 -b .smbclient # FIXME: does not apply
+#%patch200 -p0 -b .inotify # FIXME: does not compile
+%patch203 -p1 -b .build_fixes
+%patch204 -p1 -b .libnetapi
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -221,14 +281,16 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" \
 	proto
 
-make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
-	all nsswitch/libnss_wins.so modules test_pam_modules test_nss_modules
+make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
+	CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
+	all nsswitch/libnss_wins.so modules test_pam_modules test_nss_modules test_shlibs
+
+make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
+	CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
+	-C lib/netapi/examples
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
-	debug2html
-
-make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
-	smbfilter
+	debug2html smbfilter
 
 ( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
 ( cd client ; gcc -o umount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE umount.cifs.c )
@@ -250,8 +312,8 @@ mkdir -p $RPM_BUILD_ROOT/var/lib/samba/scripts
 mkdir -p $RPM_BUILD_ROOT/var/log/samba/old
 mkdir -p $RPM_BUILD_ROOT/var/spool/samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
-mkdir -p $RPM_BUILD_ROOT/%{_datadir}/samba/codepages 
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 
 cd source
 
@@ -267,7 +329,7 @@ cd source
 	PAMMODULESDIR=$RPM_BUILD_ROOT/%{_lib}/security \
 	MANDIR=$RPM_BUILD_ROOT%{_mandir} \
 	VARDIR=$RPM_BUILD_ROOT/var/log/samba \
-	CODEPAGEDIR=$RPM_BUILD_ROOT%{_datadir}/samba/codepages \
+	CODEPAGEDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
 	SWATDIR=$RPM_BUILD_ROOT%{_datadir}/swat \
 	SAMBABOOK=$RPM_BUILD_ROOT%{_datadir}/swat/using_samba \
 	PIDDIR=$RPM_BUILD_ROOT/var/run
@@ -300,28 +362,53 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # libraries {
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 
+# talloc
+cd source/lib/talloc
+# just to get the correct .pc file generated
+./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
+cd ../../..
+
+# tdb
+cd source/lib/tdb
+# just to get the correct .pc file generated
+./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
+cd ../../..
+
 # make install puts libraries in the wrong place 
 rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.a || true
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so || true
-
 install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
-install -m 755 source/bin/libsmbsharemodes.so $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so.0
+install -m 644 source/pkgconfig/smbclient.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/smbclient.pc
 ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
-ln -s libsmbsharemodes.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so
 #install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
-#install -m 644 source/include/libsmbclient.h $RPM_BUILD_ROOT%{_includedir}
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so || true
+install -m 755 source/bin/libsmbsharemodes.so $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so.0
+install -m 644 source/pkgconfig/smbsharemodes.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/smbsharemodes.pc
+ln -s libsmbsharemodes.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libnetapi.so $RPM_BUILD_ROOT%{_libdir}/samba/libnetapi.a || true
+install -m 755 source/bin/libnetapi.so $RPM_BUILD_ROOT%{_libdir}/libnetapi.so.0
+install -m 644 source/pkgconfig/netapi.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/netapi.pc
+ln -s libnetapi.so.0 $RPM_BUILD_ROOT%{_libdir}/libnetapi.so
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libtalloc.so $RPM_BUILD_ROOT%{_libdir}/samba/libtalloc.a || true
+install -m 755 source/bin/libtalloc.so $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.1
+install -m 644 source/lib/talloc/talloc.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/talloc.pc
+ln -s libtalloc.so.1 $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.so $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.a || true
+install -m 755 source/bin/libtdb.so $RPM_BUILD_ROOT%{_libdir}/libtdb.so.0
+install -m 644 source/lib/tdb/tdb.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
+ln -s libtdb.so.0 $RPM_BUILD_ROOT%{_libdir}/libtdb.so
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.a || true
+install -m 755 source/bin/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/libwbclient.so.0
+install -m 644 source/pkgconfig/wbclient.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/wbclient.pc
+ln -s libwbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libwbclient.so
 
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 
 # }
-
-# various libs we currently remove
-# TODO: evaluate how to make them back by extracting the correct .h files
-
-#this lib is not really useful or usable (libmsrpc.h requires the samba source)
-#so better to remove it until upstream fixes it
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libmsrpc.so
-rm -f $RPM_BUILD_ROOT%{_includedir}/libmsrpc.h
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
@@ -330,6 +417,12 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
+
+install -m 755 source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
+install -m 644 source/lib/netapi/examples/netdomjoin-gui/samba.ico $RPM_BUILD_ROOT/%{_datadir}/pixmaps/%{name}/samba.ico
+install -m 644 source/lib/netapi/examples/netdomjoin-gui/logo.png $RPM_BUILD_ROOT/%{_datadir}/pixmaps/%{name}/logo.png
+install -m 644 source/lib/netapi/examples/netdomjoin-gui/logo-small.png $RPM_BUILD_ROOT/%{_datadir}/pixmaps/%{name}/logo-small.png
 
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/editreg.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/log2pcap.1*
@@ -534,6 +627,7 @@ exit 0
 %{_mandir}/man8/vfs_*.8*
 %{_libdir}/samba/vfs
 %{_libdir}/samba/auth
+%{_libdir}/samba/charset
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
@@ -580,17 +674,20 @@ exit 0
 %defattr(-,root,root)
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
-%{_libdir}/samba/charset
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
-#%{_libdir}/samba/libmsrpc.so
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
 %{_libdir}/libnss_winbind.so
 /%{_lib}/libnss_winbind.so.2
 /%{_lib}/security/pam_winbind.so
-
+%{_libdir}/libnetapi.so*
+%{_libdir}/libwbclient.so*
+%{_includedir}/netapi.h
+%{_includedir}/wbclient.h
+%{_libdir}/pkgconfig/netapi.pc
+%{_libdir}/pkgconfig/wbclient.pc
 %{_bindir}/net
 %{_bindir}/testparm
 %{_bindir}/smbpasswd
@@ -600,9 +697,6 @@ exit 0
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
 %{_bindir}/smbcontrol
-%{_bindir}/tdbbackup
-%{_bindir}/tdbdump
-%{_bindir}/tdbtool
 %{_bindir}/ldbadd
 %{_bindir}/ldbdel
 %{_bindir}/ldbedit
@@ -620,12 +714,15 @@ exit 0
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
-%dir %{_datadir}/samba
-#%dir %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
 %{_initrddir}/winbind
+%{_mandir}/man1/ldbadd.1.*
+%{_mandir}/man1/ldbdel.1.*
+%{_mandir}/man1/ldbedit.1.*
+%{_mandir}/man1/ldbmodify.1.*
+%{_mandir}/man1/ldbsearch.1.*
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
@@ -643,14 +740,10 @@ exit 0
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/winbindd.8*
-%{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
-%{_mandir}/man8/tdbtool.8*
 %{_mandir}/man8/idmap_*.8*
 
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
-
 
 %files doc
 %doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
@@ -658,18 +751,54 @@ exit 0
 %doc docs/htmldocs
 
 %files -n libsmbclient
-%{_libdir}/libsmbclient.so
-%{_libdir}/libsmbclient.so.0
-%{_libdir}/libsmbsharemodes.so
-%{_libdir}/libsmbsharemodes.so.0
+%{_libdir}/libsmbclient.so.*
+%{_libdir}/libsmbsharemodes.so.*
 
 %files -n libsmbclient-devel
 %{_includedir}/libsmbclient.h
 %{_includedir}/smb_share_modes.h
+%{_libdir}/libsmbclient.so
+%{_libdir}/libsmbsharemodes.so
+%{_libdir}/pkgconfig/smbclient.pc
+%{_libdir}/pkgconfig/smbsharemodes.pc
 
-#%{_includedir}/libmsrpc.h
+%files -n libtalloc
+%{_libdir}/libtalloc.so.*
+
+%files -n libtalloc-devel
+%{_includedir}/talloc.h
+%{_libdir}/libtalloc.so
+%{_libdir}/pkgconfig/talloc.pc
+
+%files -n libtdb
+%{_libdir}/libtdb.so.*
+
+%files -n libtdb-devel
+%{_includedir}/tdb.h
+%{_libdir}/libtdb.so
+%{_libdir}/pkgconfig/tdb.pc
+
+%files -n tdb-tools
+%{_bindir}/tdbbackup
+%{_bindir}/tdbdump
+%{_bindir}/tdbtool
+%{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/tdbdump.8*
+%{_mandir}/man8/tdbtool.8*
+
+%files domainjoin-gui
+%{_sbindir}/netdomjoin-gui
+%dir %{_datadir}/pixmaps/samba
+%{_datadir}/pixmaps/samba/samba.ico
+%{_datadir}/pixmaps/samba/logo.png
+%{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Mar 05 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1pre2.3
+- Update to 3.2.0pre2
+- Add talloc and tdb lib and devel packages
+- Add domainjoin-gui package
+
 * Fri Feb 22 2008 Simo Sorce <ssorce@redhat.com> - 3.2.0-0.pre1.3
 - Try to fix GCC 4.3 build
 - Add --with-dnsupdate flag and also make sure other flags are required just to

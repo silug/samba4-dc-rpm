@@ -1,0 +1,20 @@
+commit 29fca3c0353f2be4577613d7e38fbc51d2a370fa
+Author: Günther Deschner <gd@samba.org>
+Date:   Wed Mar 5 13:20:32 2008 +0100
+
+    Add PICFLAG to libnetapi Makefile.
+    
+    Guenther
+
+diff --git a/source/lib/netapi/examples/Makefile.in b/source/lib/netapi/examples/Makefile.in
+index 6de3e65..000eef1 100644
+--- a/source/lib/netapi/examples/Makefile.in
++++ b/source/lib/netapi/examples/Makefile.in
+@@ -7,6 +7,7 @@ LIBS=@LIBS@ -lnetapi -ltdb -ltalloc
+ DEVELOPER_CFLAGS=@DEVELOPER_CFLAGS@
+ FLAGS=-I../ -L../../../bin @CFLAGS@ $(GTK_FLAGS)
+ CC=@CC@
++PICFLAG=@PICFLAG@
+ LDFLAGS=@PIE_LDFLAGS@ @LDFLAGS@
+ DYNEXP=@DYNEXP@
+ 
