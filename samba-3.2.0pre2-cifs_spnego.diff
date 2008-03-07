@@ -1,0 +1,21 @@
+commit 9eaaf17d30388ef9446fb18e69197baa699b7eac
+Author: Günther Deschner <gd@samba.org>
+Date:   Thu Mar 6 19:47:28 2008 +0100
+
+    Fix the build of cifs.spnego.
+    
+    Guenther
+
+diff --git a/source/Makefile.in b/source/Makefile.in
+index 7dfa312..8ae62fa 100644
+--- a/source/Makefile.in
++++ b/source/Makefile.in
+@@ -1326,7 +1326,7 @@ bin/umount.cifs@EXEEXT@: $(BINARY_PREREQS) $(CIFS_UMOUNT_OBJ) @BUILD_POPT@
+ 	@echo Linking $@
+ 	@$(CC) $(FLAGS) -o $@ $(CIFS_UMOUNT_OBJ) $(DYNEXP) $(LDFLAGS) @POPTLIBS@
+ 
+-bin/cifs.spnego@EXEEXT@: $(BINARY_PREREQS) $(CIFS_SPNEGO_OBJ) $(LIBSMBCLIENT_OBJ0) @BUILD_POPT@ @LIBTALLOC_SHARED@ @LIBTDB_SHARED@
++bin/cifs.spnego@EXEEXT@: $(BINARY_PREREQS) $(CIFS_SPNEGO_OBJ) $(LIBSMBCLIENT_OBJ0) @BUILD_POPT@ @LIBTALLOC_SHARED@ @LIBTDB_SHARED@ @LIBWBCLIENT_SHARED@
+ 	@echo Linking $@
+ 	@$(CC) $(FLAGS) -o $@ $(CIFS_SPNEGO_OBJ) $(DYNEXP) $(LDFLAGS) \
+ 		-lkeyutils $(LIBS) $(LIBSMBCLIENT_OBJ0) $(KRB5LIBS) \

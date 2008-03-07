@@ -6,7 +6,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre2.5%{?dist}
+Release: 1.pre2.6%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -48,6 +48,7 @@ Patch200: samba-3.0.25rc1-inotifiy.patch
 patch202: samba-3.2.0pre1-buildfix.patch
 Patch203: samba-3.2.0pre2-build_fixes.patch
 Patch204: samba-3.2.0pre2-libnetapi_fix.diff
+Patch205: samba-3.2.0pre2-cifs_spnego.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -101,6 +102,29 @@ Samba-common provides files necessary for both the server and client
 packages of Samba.
 
 
+%package winbind
+Summary: Samba winbind
+Group: Applications/System
+Requires: samba-common = %{epoch}:%{version}-%{release}
+Requires(pre): /usr/sbin/groupadd
+Requires(post): /sbin/chkconfig, /sbin/service, coreutils
+Requires(preun): /sbin/chkconfig, /sbin/service
+
+%description winbind
+The samba-winbind package provides the winbind daemon, a NSS library, a PAM
+module and some client tools. Winbind enables Linux to be a full member in
+Windows domains and to use Windows user and group accounts on Linux.
+
+
+%package winbind-devel
+Summary: Developer tools for the winbind library
+Group: Development
+Requires: samba-winbind = %{epoch}:%{version}-%{release}
+
+%description winbind-devel
+The samba-winbind package provides developer tools for the wbclient library.
+
+
 %package swat
 Summary: The Samba SMB server Web configuration program
 Group: Applications/System
@@ -138,6 +162,7 @@ Group: Applications/System
 %description -n libsmbclient
 The libsmbclient contains the SMB client library from the Samba suite.
 
+
 %package -n libsmbclient-devel
 Summary: Developer tools for the SMB client library
 Group: Development
@@ -147,6 +172,7 @@ Requires: libsmbclient = %{epoch}:%{version}-%{release}
 The libsmbclient-devel package contains the header files and libraries needed to
 develop programs that link against the SMB client library in the Samba suite.
 
+
 %package -n libtdb
 Summary: The TDB library and tools
 Group: Applications/System
@@ -154,6 +180,7 @@ Version: %{tdb_version}
 
 %description -n libtdb
 The TDB library from the Samba suite.
+
 
 %package -n tdb-tools
 Summary: The TDB tools
@@ -163,6 +190,7 @@ Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
 
 %description -n tdb-tools
 Some TDB tools from the Samba suite.
+
 
 %package -n libtdb-devel
 Summary: Developer tools for the TDB library
@@ -174,6 +202,7 @@ Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
 The libtdb-devel package contains the header files and libraries needed to
 develop programs that link against the TDB library in the Samba suite.
 
+
 %package -n libtalloc
 Summary: The talloc library
 Group: Applications/System
@@ -181,6 +210,7 @@ Version: %{talloc_version}
 
 %description -n libtalloc
 The talloc library from the Samba suite.
+
 
 %package -n libtalloc-devel
 Summary: Developer tools for the talloc library
@@ -222,6 +252,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch200 -p0 -b .inotify # FIXME: does not compile
 %patch203 -p1 -b .build_fixes
 %patch204 -p1 -b .libnetapi
+%patch205 -p1 -b .cifs_spnego
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -272,7 +303,8 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-configdir=%{_sysconfdir}/samba \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
-	--with-shared-modules=idmap_ad,idmap_rid
+	--with-shared-modules=idmap_ad,idmap_rid \
+	--with-cifsspnego
 
 #	--with-cluster-support \
 #	--with-aio-support \
@@ -290,7 +322,7 @@ make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
 	-C lib/netapi/examples
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
-	debug2html smbfilter
+	debug2html smbfilter bin/cifs.spnego
 
 ( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
 ( cd client ; gcc -o umount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE umount.cifs.c )
@@ -417,6 +449,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
+install -m755 source/bin/cifs.spnego $RPM_BUILD_ROOT/sbin/cifs.spnego
 
 install -m 755 source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -437,6 +470,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 # why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
+rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.spnego
 
 
 %clean
@@ -465,11 +499,17 @@ exit 0
 #%postun
 
 
-%pre common
+%pre winbind
 /usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
 
-%post common
+%post winbind
 /sbin/chkconfig --add winbind
+
+if [ "$1" -ge "1" ]; then
+	/sbin/service winbind condrestart >/dev/null 2>&1 || :
+fi
+
+%post common
 /sbin/ldconfig
 
 # This script must be run always on installs or upgrades
@@ -587,11 +627,7 @@ if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
 	rm -f %{_sysconfdir}/samba/schannel_store.tdb
 fi
 
-if [ "$1" -ge "1" ]; then
-	/sbin/service winbind condrestart >/dev/null 2>&1 || :
-fi
-
-%preun common
+%preun winbind
 if [ $1 = 0 ] ; then
     /sbin/service winbind stop >/dev/null 2>&1 || :
     /sbin/chkconfig --del winbind
@@ -606,6 +642,18 @@ exit 0
 /sbin/ldconfig
 
 %postun -n libsmbclient
+/sbin/ldconfig
+
+%post -n libtdb
+/sbin/ldconfig
+
+%postun -n libtdb
+/sbin/ldconfig
+
+%post -n libtalloc
+/sbin/ldconfig
+
+%postun -n libtalloc
 /sbin/ldconfig
 
 %files
@@ -648,6 +696,7 @@ exit 0
 %defattr(-,root,root)
 /sbin/mount.cifs
 /sbin/umount.cifs
+/sbin/cifs.spnego
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
@@ -679,20 +728,12 @@ exit 0
 %{_libdir}/samba/valid.dat
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
-%{_libdir}/libnss_winbind.so
-/%{_lib}/libnss_winbind.so.2
-/%{_lib}/security/pam_winbind.so
 %{_libdir}/libnetapi.so*
-%{_libdir}/libwbclient.so*
 %{_includedir}/netapi.h
-%{_includedir}/wbclient.h
 %{_libdir}/pkgconfig/netapi.pc
-%{_libdir}/pkgconfig/wbclient.pc
 %{_bindir}/net
 %{_bindir}/testparm
 %{_bindir}/smbpasswd
-%{_bindir}/wbinfo
-%{_bindir}/ntlm_auth
 %{_bindir}/pdbedit
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
@@ -702,48 +743,60 @@ exit 0
 %{_bindir}/ldbedit
 %{_bindir}/ldbmodify
 %{_bindir}/ldbsearch
-%{_sbindir}/winbindd
-%{_libdir}/samba/idmap
-%{_libdir}/samba/nss_info
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
-%dir /var/run/winbindd
-%attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %dir /var/lib/samba/scripts
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
-%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
-%{_initrddir}/winbind
 %{_mandir}/man1/ldbadd.1.*
 %{_mandir}/man1/ldbdel.1.*
 %{_mandir}/man1/ldbedit.1.*
 %{_mandir}/man1/ldbmodify.1.*
 %{_mandir}/man1/ldbsearch.1.*
-%{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbcontrol.1*
-%{_mandir}/man1/wbinfo.1*
 #%{_mandir}/man1/vfstest.1*
 %{_mandir}/man1/testparm.1*
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man5/smb.conf.5*
 %{_mandir}/man5/lmhosts.5*
-%{_mandir}/man7/pam_winbind.7*
-%{_mandir}/man7/libsmbclient.7*
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/net.8*
-%{_mandir}/man8/winbindd.8*
-%{_mandir}/man8/idmap_*.8*
 
 %doc README COPYING Manifest 
 %doc WHATSNEW.txt Roadmap
+
+%files winbind
+%{_bindir}/ntlm_auth
+%{_bindir}/wbinfo
+%{_libdir}/libnss_winbind.so
+%{_libdir}/libwbclient.so.*
+%{_libdir}/samba/idmap
+%{_libdir}/samba/nss_info
+/%{_lib}/libnss_winbind.so.2
+/%{_lib}/security/pam_winbind.so
+%{_sbindir}/winbindd
+%dir /var/run/winbindd
+%attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
+%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
+%{_initrddir}/winbind
+%{_mandir}/man1/ntlm_auth.1*
+%{_mandir}/man1/wbinfo.1*
+%{_mandir}/man7/pam_winbind.7*
+%{_mandir}/man8/winbindd.8*
+%{_mandir}/man8/idmap_*.8*
+
+%files winbind-devel
+%{_includedir}/wbclient.h
+%{_libdir}/libwbclient.so
+%{_libdir}/pkgconfig/wbclient.pc
 
 %files doc
 %doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
@@ -761,6 +814,7 @@ exit 0
 %{_libdir}/libsmbsharemodes.so
 %{_libdir}/pkgconfig/smbclient.pc
 %{_libdir}/pkgconfig/smbsharemodes.pc
+%{_mandir}/man7/libsmbclient.7*
 
 %files -n libtalloc
 %{_libdir}/libtalloc.so.*
@@ -794,7 +848,11 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Wed Mar 05 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1pre2.3
+* Thu Mar 06 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.6
+- Create separate packages for samba-winbind and samba-winbind-devel
+- Add cifs.spnego helper
+
+* Wed Mar 05 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.3
 - Update to 3.2.0pre2
 - Add talloc and tdb lib and devel packages
 - Add domainjoin-gui package
