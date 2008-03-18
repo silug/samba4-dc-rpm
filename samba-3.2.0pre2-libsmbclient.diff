@@ -1,0 +1,70 @@
+commit 38eab68dfb2d8abe8ad00f5a86fc54c778d0d303
+Author: Derrell Lipman <derrell.lipman@unwireduniverse.com>
+Date:   Mon Mar 17 11:34:25 2008 -0400
+
+    Fix use of AuthDataWithContext capability
+    
+    During my initial plans for, and the subsequent discussion of a more
+    significant change to the API for libsmbclient, I had removed the
+    AuthDataWithContext usage, in favor of a more generalized planned interface.
+    When the API returned to its original state, I neglected to reinsert this
+    code.
+    
+    Use of an authentication function with the context can be tested using
+    
+      examples/libsmbclient/testbrowse -C
+    
+    Derrell
+
+diff --git a/source/libsmb/libsmb_context.c b/source/libsmb/libsmb_context.c
+index 3e67943..dd78bce 100644
+--- a/source/libsmb/libsmb_context.c
++++ b/source/libsmb/libsmb_context.c
+@@ -421,7 +421,8 @@ smbc_init_context(SMBCCTX *context)
+                 return NULL;
+         }
+         
+-        if (!smbc_getFunctionAuthData(context) ||
++        if ((!smbc_getFunctionAuthData(context) &&
++             !smbc_getFunctionAuthDataWithContext(context)) ||
+             smbc_getDebug(context) < 0 ||
+             smbc_getDebug(context) > 100) {
+                 
+diff --git a/source/libsmb/libsmb_server.c b/source/libsmb/libsmb_server.c
+index 37612c6..7af5ca3 100644
+--- a/source/libsmb/libsmb_server.c
++++ b/source/libsmb/libsmb_server.c
+@@ -101,15 +101,29 @@ SMBC_call_auth_fn(TALLOC_CTX *ctx,
+ 	fstring workgroup;
+ 	fstring username;
+ 	fstring password;
++        smbc_get_auth_data_with_context_fn auth_with_context_fn;
+         
+ 	strlcpy(workgroup, *pp_workgroup, sizeof(workgroup));
+ 	strlcpy(username, *pp_username, sizeof(username));
+ 	strlcpy(password, *pp_password, sizeof(password));
+         
+-        smbc_getFunctionAuthData(context)(server, share,
+-                                          workgroup, sizeof(workgroup),
+-                                          username, sizeof(username),
+-                                          password, sizeof(password));
++        /* See if there's an authentication with context function provided */
++        auth_with_context_fn = smbc_getFunctionAuthDataWithContext(context);
++        if (auth_with_context_fn)
++        {
++            (* auth_with_context_fn)(context,
++                                     server, share,
++                                     workgroup, sizeof(workgroup),
++                                     username, sizeof(username),
++                                     password, sizeof(password));
++        }
++        else
++        {
++            smbc_getFunctionAuthData(context)(server, share,
++                                              workgroup, sizeof(workgroup),
++                                              username, sizeof(username),
++                                              password, sizeof(password));
++        }
+         
+ 	TALLOC_FREE(*pp_workgroup);
+ 	TALLOC_FREE(*pp_username);

@@ -1,4 +1,4 @@
-%define main_release 7
+%define main_release 8
 %define samba_version 3.2.0pre2
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
@@ -51,6 +51,8 @@ Patch203: samba-3.2.0pre2-build_fixes.patch
 Patch204: samba-3.2.0pre2-libnetapi_fix.diff
 Patch205: samba-3.2.0pre2-cifs_spnego.diff
 Patch206: samba-3.2.0pre2-msrpc.diff
+Patch207: samba-3.2.0pre2-roreloc.diff
+Patch208: samba-3.2.0pre2-libsmbclient.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -261,6 +263,8 @@ cp %{SOURCE11} packaging/Fedora/
 %patch204 -p1 -b .libnetapi
 %patch205 -p1 -b .cifs_spnego
 %patch206 -p1 -b .msrpc
+%patch207 -p1 -b .roreloc
+%patch208 -p1 -b .libsmbclient
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -856,6 +860,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Mar 18 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.8
+- Add fixes for libsmbclient and support for r/o relocations
+
 * Mon Mar 10 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.7
 - Fix libnetconf, libnetapi and msrpc DSSETUP call
 
