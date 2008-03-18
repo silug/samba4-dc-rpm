@@ -1,3 +1,4 @@
+%define main_release 7
 %define samba_version 3.2.0pre2
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
@@ -6,7 +7,7 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre2.6%{?dist}
+Release: 1.pre2.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -49,6 +50,7 @@ patch202: samba-3.2.0pre1-buildfix.patch
 Patch203: samba-3.2.0pre2-build_fixes.patch
 Patch204: samba-3.2.0pre2-libnetapi_fix.diff
 Patch205: samba-3.2.0pre2-cifs_spnego.diff
+Patch206: samba-3.2.0pre2-msrpc.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -177,6 +179,7 @@ develop programs that link against the SMB client library in the Samba suite.
 Summary: The TDB library and tools
 Group: Applications/System
 Version: %{tdb_version}
+Release: %{main_release}%{?dist}
 
 %description -n libtdb
 The TDB library from the Samba suite.
@@ -186,7 +189,8 @@ The TDB library from the Samba suite.
 Summary: The TDB tools
 Group: Applications/System
 Version: %{tdb_version}
-Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
+Release: %{main_release}%{?dist}
+Requires: libtdb = %{epoch}:%{tdb_version}-%{main_release}%{?dist}
 
 %description -n tdb-tools
 Some TDB tools from the Samba suite.
@@ -196,7 +200,8 @@ Some TDB tools from the Samba suite.
 Summary: Developer tools for the TDB library
 Group: Development
 Version: %{tdb_version}
-Requires: libtdb = %{epoch}:%{tdb_version}-%{release}
+Release: %{main_release}%{?dist}
+Requires: libtdb = %{epoch}:%{tdb_version}-%{main_release}%{?dist}
 
 %description -n libtdb-devel
 The libtdb-devel package contains the header files and libraries needed to
@@ -207,6 +212,7 @@ develop programs that link against the TDB library in the Samba suite.
 Summary: The talloc library
 Group: Applications/System
 Version: %{talloc_version}
+Release: %{main_release}%{?dist}
 
 %description -n libtalloc
 The talloc library from the Samba suite.
@@ -216,7 +222,8 @@ The talloc library from the Samba suite.
 Summary: Developer tools for the talloc library
 Group: Development
 Version: %{talloc_version}
-Requires: libtalloc = %{epoch}:%{talloc_version}-%{release}
+Release: %{main_release}%{?dist}
+Requires: libtalloc = %{epoch}:%{talloc_version}-%{main_release}%{?dist}
 
 %description -n libtalloc-devel
 The libtalloc-devel package contains the header files and libraries needed to
@@ -253,6 +260,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch203 -p1 -b .build_fixes
 %patch204 -p1 -b .libnetapi
 %patch205 -p1 -b .cifs_spnego
+%patch206 -p1 -b .msrpc
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -848,6 +856,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Mar 10 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.7
+- Fix libnetconf, libnetapi and msrpc DSSETUP call
+
 * Thu Mar 06 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.6
 - Create separate packages for samba-winbind and samba-winbind-devel
 - Add cifs.spnego helper
