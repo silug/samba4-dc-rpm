@@ -1,5 +1,5 @@
-%define main_release 8
-%define samba_version 3.2.0pre2
+%define main_release 9
+%define samba_version 3.2.0pre3
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -7,13 +7,13 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre2.%{main_release}%{?dist}
+Release: 1.pre3.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre2.tar.gz
+Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre3.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -46,13 +46,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-patch202: samba-3.2.0pre1-buildfix.patch
-Patch203: samba-3.2.0pre2-build_fixes.patch
-Patch204: samba-3.2.0pre2-libnetapi_fix.diff
-Patch205: samba-3.2.0pre2-cifs_spnego.diff
-Patch206: samba-3.2.0pre2-msrpc.diff
 Patch207: samba-3.2.0pre2-roreloc.diff
-Patch208: samba-3.2.0pre2-libsmbclient.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -259,12 +253,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch110 -p1 -b .smbspool
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
-%patch203 -p1 -b .build_fixes
-%patch204 -p1 -b .libnetapi
-%patch205 -p1 -b .cifs_spnego
-%patch206 -p1 -b .msrpc
 %patch207 -p1 -b .roreloc
-%patch208 -p1 -b .libsmbclient
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -694,7 +683,6 @@ exit 0
 
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
-%doc docs/registry
 
 %files swat
 %defattr(-,root,root)
@@ -811,7 +799,7 @@ exit 0
 %{_libdir}/pkgconfig/wbclient.pc
 
 %files doc
-%doc docs/REVISION docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
+%doc docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
 %doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
 %doc docs/htmldocs
 
@@ -860,6 +848,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Apr 25 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.9
+- Update to 3.2.0pre3
+
 * Tue Mar 18 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre2.8
 - Add fixes for libsmbclient and support for r/o relocations
 
