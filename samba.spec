@@ -1,4 +1,4 @@
-%define main_release 9
+%define main_release 10
 %define samba_version 3.2.0pre3
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
@@ -47,6 +47,7 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch207: samba-3.2.0pre2-roreloc.diff
+Patch208: samba-3.2.0pre3-smbclient.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -254,6 +255,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
 %patch207 -p1 -b .roreloc
+%patch208 -p1 -b .smbclient
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -848,6 +850,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri May 09 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.10
+- Add smbclient fix (BZO #5452)
+
 * Fri Apr 25 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.9
 - Update to 3.2.0pre3
 

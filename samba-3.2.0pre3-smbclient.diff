@@ -1,0 +1,29 @@
+commit 687275cd532f8f8ad710acd222a0c76625da53c6
+Author: Jeremy Allison <jra@samba.org>
+Date:   Thu May 8 22:07:35 2008 -0700
+
+    Fix bug #5452 - smbclient put always creates zero length
+    files. Thanks to Kai Engert <kengert@redhat.com> for
+    reporting.
+    Jeremy.
+
+diff --git a/source/lib/xfile.c b/source/lib/xfile.c
+index d20a95b..e44a92d 100644
+--- a/source/lib/xfile.c
++++ b/source/lib/xfile.c
+@@ -263,13 +263,13 @@ int x_fflush(XFILE *f)
+ 
+ 	if (f->flags & X_FLAG_ERROR) return -1;
+ 
++	if (f->bufused == 0 || !f->buf) return 0;
++
+ 	if ((f->open_flags & O_ACCMODE) != O_WRONLY) {
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+ 
+-	if (f->bufused == 0 || !f->buf) return 0;
+-
+ 	ret = write(f->fd, f->buf, f->bufused);
+ 	if (ret == -1) return -1;
+ 	
