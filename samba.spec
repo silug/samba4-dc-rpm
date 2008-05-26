@@ -1,5 +1,5 @@
-%define main_release 11
-%define samba_version 3.2.0pre3
+%define main_release 13
+%define samba_version 3.2.0rc1
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -7,13 +7,13 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.pre3.%{main_release}%{?dist}
+Release: 1.rc1.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://download.samba.org/samba/ftp/pre/%{name}-%{version}pre3.tar.gz
+Source: http://download.samba.org/samba/ftp/rc/%{name}-%{version}rc1.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -46,9 +46,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch207: samba-3.2.0pre2-roreloc.diff
-Patch208: samba-3.2.0pre3-smbclient.diff
-Patch209: samba-3.2.0pre3-join.diff
+Patch220: samba-3.2.0rc1-capget.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -252,12 +250,10 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 #%patch108 -p1 -b .non-ascii-domain
-%patch110 -p1 -b .smbspool
+#%patch110 -p1 -b .smbspool # FIXME: does not apply
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
-%patch207 -p1 -b .roreloc
-%patch208 -p1 -b .smbclient
-%patch209 -p1 -b .join
+%patch220 -p1 -b .capget
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -434,9 +430,9 @@ install -m 644 source/lib/talloc/talloc.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/t
 ln -s libtalloc.so.1 $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.so $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.a || true
-install -m 755 source/bin/libtdb.so $RPM_BUILD_ROOT%{_libdir}/libtdb.so.0
+install -m 755 source/bin/libtdb.so $RPM_BUILD_ROOT%{_libdir}/libtdb.so.1
 install -m 644 source/lib/tdb/tdb.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
-ln -s libtdb.so.0 $RPM_BUILD_ROOT%{_libdir}/libtdb.so
+ln -s libtdb.so.1 $RPM_BUILD_ROOT%{_libdir}/libtdb.so
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.a || true
 install -m 755 source/bin/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/libwbclient.so.0
@@ -852,6 +848,13 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri May 23 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.13
+- Update to 3.2.0rc1
+
+* Wed May 21 2008 Simo Sorce <ssorce@redhat.com> - 3.2.0-1.pre3.12
+- impossit made iimpossible to print against Vista and XP SP3 as servers
+- resolves: #439154
+
 * Thu May 15 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.11
 - Add "net ads join createcomputer=ou1/ou2/ou3" fix (BZO #5465)
 
