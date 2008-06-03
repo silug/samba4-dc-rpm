@@ -1,4 +1,4 @@
-%define main_release 13
+%define main_release 15
 %define samba_version 3.2.0rc1
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
@@ -47,6 +47,8 @@ Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
 Patch220: samba-3.2.0rc1-capget.diff
+Patch221: samba-CVE-2008-1105.diff
+Patch222: samba-3.2.0rc1-server.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -254,6 +256,8 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
 %patch220 -p1 -b .capget
+%patch221 -p1 -b .CVE-2008-1105
+%patch222 -p1 -b .server
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -848,11 +852,19 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Fri May 23 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.13
+* Fri May 30 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc1.15
+- Fix security=server
+- resolves: #449038, #449039
+
+* Wed May 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc1.14
+- Add fix for CVE-2008-1105
+- resolves: #446724
+
+* Fri May 23 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc1.13
 - Update to 3.2.0rc1
 
 * Wed May 21 2008 Simo Sorce <ssorce@redhat.com> - 3.2.0-1.pre3.12
-- impossit made iimpossible to print against Vista and XP SP3 as servers
+- make it possible to print against Vista and XP SP3 as servers
 - resolves: #439154
 
 * Thu May 15 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.pre3.11
