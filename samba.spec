@@ -1,5 +1,5 @@
-%define main_release 15
-%define samba_version 3.2.0rc1
+%define main_release 16
+%define samba_version 3.2.0rc2
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -7,13 +7,13 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.rc1.%{main_release}%{?dist}
+Release: 1.rc2.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
 #TAG: change for non-pre
-Source: http://download.samba.org/samba/ftp/rc/%{name}-%{version}rc1.tar.gz
+Source: http://download.samba.org/samba/ftp/rc/%{name}-%{version}rc2.tar.gz
 #Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
@@ -46,9 +46,6 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch220: samba-3.2.0rc1-capget.diff
-Patch221: samba-CVE-2008-1105.diff
-Patch222: samba-3.2.0rc1-server.diff
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -255,9 +252,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch110 -p1 -b .smbspool # FIXME: does not apply
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
-%patch220 -p1 -b .capget
-%patch221 -p1 -b .CVE-2008-1105
-%patch222 -p1 -b .server
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
@@ -852,6 +846,11 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Jun 10 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc2.16
+- Update to 3.2.0rc2
+- resolves: #449522
+- resolves: #448107
+
 * Fri May 30 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc1.15
 - Fix security=server
 - resolves: #449038, #449039
