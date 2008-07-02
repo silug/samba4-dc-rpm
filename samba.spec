@@ -1,5 +1,5 @@
-%define main_release 16
-%define samba_version 3.2.0rc2
+%define main_release 17
+%define samba_version 3.2.0
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -7,14 +7,12 @@ Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.0
-Release: 1.rc2.%{main_release}%{?dist}
+Release: 2.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-#TAG: change for non-pre
-Source: http://download.samba.org/samba/ftp/rc/%{name}-%{version}rc2.tar.gz
-#Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
+Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -846,6 +844,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Jul  1 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-2.17
+- Update to 3.2.0 final
+- resolves: #452622
+
 * Tue Jun 10 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-1.rc2.16
 - Update to 3.2.0rc2
 - resolves: #449522
