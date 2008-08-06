@@ -1,13 +1,13 @@
-%define main_release 17
-%define samba_version 3.2.0
+%define main_release 18
+%define samba_version 3.2.1
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.2.0
-Release: 2.%{main_release}%{?dist}
+Version: 3.2.1
+Release: 0.%{main_release}%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -844,6 +844,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Aug  6 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-0.18
+- Update to 3.2.1
+
 * Tue Jul  1 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.0-2.17
 - Update to 3.2.0 final
 - resolves: #452622
