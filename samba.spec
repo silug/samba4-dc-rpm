@@ -3,11 +3,13 @@
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
+%define samba_release 0.%{main_release}%{?dist}
+
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
 Version: 3.2.1
-Release: 0.%{main_release}%{?dist}
+Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -252,7 +254,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch200 -p0 -b .inotify # FIXME: does not compile
 
 mv source/VERSION source/VERSION.orig
-sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{release}\"/' < source/VERSION.orig > source/VERSION
+sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
 cd source
 script/mkversion.sh
 cd ..
