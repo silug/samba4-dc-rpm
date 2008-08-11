@@ -3,7 +3,7 @@
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
-%define samba_release 0.%{main_release}%{?dist}
+%define samba_release 1.%{main_release}%{?dist}
 
 Summary: The Samba Suite of programs
 Name: samba
@@ -46,6 +46,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch201: samba-3.2.1-cups-bug-5675.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -252,6 +253,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch110 -p1 -b .smbspool # FIXME: does not apply
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
+%patch201 -p1 -b .cups_5675
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -846,6 +848,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Aug 11 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-1.18
+- Add fix for CUPS problem, fixes bug #453951
+
 * Wed Aug  6 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-0.18
 - Update to 3.2.1
 
