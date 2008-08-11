@@ -1,9 +1,9 @@
-%define main_release 18
+%define main_release 19
 %define samba_version 3.2.1
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
-%define samba_release 1.%{main_release}%{?dist}
+%define samba_release 0.%{main_release}%{?dist}
 
 Summary: The Samba Suite of programs
 Name: samba
@@ -848,7 +848,7 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Mon Aug 11 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-1.18
+* Mon Aug 11 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-0.19
 - Add fix for CUPS problem, fixes bug #453951
 
 * Wed Aug  6 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-0.18
