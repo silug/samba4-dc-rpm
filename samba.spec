@@ -1,5 +1,5 @@
-%define main_release 19
-%define samba_version 3.2.1
+%define main_release 20
+%define samba_version 3.2.2
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -8,7 +8,7 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.2.1
+Version: 3.2.2
 Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
@@ -46,7 +46,6 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
-Patch201: samba-3.2.1-cups-bug-5675.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -253,7 +252,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch110 -p1 -b .smbspool # FIXME: does not apply
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
-%patch201 -p1 -b .cups_5675
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -305,7 +303,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
 	--with-shared-modules=idmap_ad,idmap_rid \
-	--with-cifsspnego
+	--with-cifsupcall
 
 #	--with-cluster-support \
 #	--with-aio-support \
@@ -323,7 +321,7 @@ make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
 	-C lib/netapi/examples
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
-	debug2html smbfilter bin/cifs.spnego
+	debug2html smbfilter bin/cifs.upcall
 
 ( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
 ( cd client ; gcc -o umount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE umount.cifs.c )
@@ -407,37 +405,19 @@ cd source/lib/tdb
 ./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
 cd ../../..
 
-# make install puts libraries in the wrong place 
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libsmbclient.a || true
-install -m 755 source/bin/libsmbclient.so $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so.0
-install -m 644 source/pkgconfig/smbclient.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/smbclient.pc
-ln -s libsmbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbclient.so
-#install -m 644 source/bin/libsmbclient.a $RPM_BUILD_ROOT%{_libdir}/libsmbclient.a
+# make install puts libraries in the wrong place
+# (but at least gets the versioning right now)
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libsmbsharemodes.so || true
-install -m 755 source/bin/libsmbsharemodes.so $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so.0
-install -m 644 source/pkgconfig/smbsharemodes.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/smbsharemodes.pc
-ln -s libsmbsharemodes.so.0 $RPM_BUILD_ROOT%{_libdir}/libsmbsharemodes.so
+list="smbclient smbsharemodes netapi talloc tdb wbclient"
+build_libdir="$RPM_BUILD_ROOT%{_libdir}"
+for i in $list; do
+	cp -P $build_libdir/samba/lib$i.so* $build_libdir/
+	install -m 644 source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
+	rm -f $build_libdir/samba/lib$i.so* $build_libdir/samba/lib$i.a || true
+done
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libnetapi.so $RPM_BUILD_ROOT%{_libdir}/samba/libnetapi.a || true
-install -m 755 source/bin/libnetapi.so $RPM_BUILD_ROOT%{_libdir}/libnetapi.so.0
-install -m 644 source/pkgconfig/netapi.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/netapi.pc
-ln -s libnetapi.so.0 $RPM_BUILD_ROOT%{_libdir}/libnetapi.so
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libtalloc.so $RPM_BUILD_ROOT%{_libdir}/samba/libtalloc.a || true
-install -m 755 source/bin/libtalloc.so $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.1
-install -m 644 source/lib/talloc/talloc.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/talloc.pc
-ln -s libtalloc.so.1 $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.so $RPM_BUILD_ROOT%{_libdir}/samba/libtdb.a || true
-install -m 755 source/bin/libtdb.so $RPM_BUILD_ROOT%{_libdir}/libtdb.so.1
-install -m 644 source/lib/tdb/tdb.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
-ln -s libtdb.so.1 $RPM_BUILD_ROOT%{_libdir}/libtdb.so
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/samba/libwbclient.a || true
-install -m 755 source/bin/libwbclient.so $RPM_BUILD_ROOT%{_libdir}/libwbclient.so.0
-install -m 644 source/pkgconfig/wbclient.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/wbclient.pc
-ln -s libwbclient.so.0 $RPM_BUILD_ROOT%{_libdir}/libwbclient.so
+install -m 644 source/lib/talloc/talloc.pc $build_libdir/pkgconfig/
+install -m 644 source/lib/tdb/tdb.pc $build_libdir/pkgconfig/
 
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 
@@ -450,7 +430,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
-install -m755 source/bin/cifs.spnego $RPM_BUILD_ROOT/sbin/cifs.spnego
+install -m755 source/bin/cifs.upcall $RPM_BUILD_ROOT/sbin/cifs.upcall
 
 install -m 755 source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -471,7 +451,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 # why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
-rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.spnego
+rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.upcall
 
 
 %clean
@@ -696,7 +676,7 @@ exit 0
 %defattr(-,root,root)
 /sbin/mount.cifs
 /sbin/umount.cifs
-/sbin/cifs.spnego
+/sbin/cifs.upcall
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
@@ -718,6 +698,7 @@ exit 0
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/mount.cifs.8*
 %{_mandir}/man8/umount.cifs.8*
+%{_mandir}/man8/cifs.upcall.8*
 
 %files common
 %defattr(-,root,root)
@@ -728,7 +709,8 @@ exit 0
 %{_libdir}/samba/valid.dat
 %{_libdir}/libnss_wins.so
 /%{_lib}/libnss_wins.so.2
-%{_libdir}/libnetapi.so*
+%{_libdir}/libnetapi.so
+%attr(755,root,root) %{_libdir}/libnetapi.so.*
 %{_includedir}/netapi.h
 %{_libdir}/pkgconfig/netapi.pc
 %{_bindir}/net
@@ -777,7 +759,7 @@ exit 0
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
 %{_libdir}/libnss_winbind.so
-%{_libdir}/libwbclient.so.*
+%attr(755,root,root) %{_libdir}/libwbclient.so.*
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
 /%{_lib}/libnss_winbind.so.2
@@ -804,8 +786,8 @@ exit 0
 %doc docs/htmldocs
 
 %files -n libsmbclient
-%{_libdir}/libsmbclient.so.*
-%{_libdir}/libsmbsharemodes.so.*
+%attr(755,root,root) %{_libdir}/libsmbclient.so.*
+%attr(755,root,root) %{_libdir}/libsmbsharemodes.so.*
 
 %files -n libsmbclient-devel
 %{_includedir}/libsmbclient.h
@@ -817,7 +799,7 @@ exit 0
 %{_mandir}/man7/libsmbclient.7*
 
 %files -n libtalloc
-%{_libdir}/libtalloc.so.*
+%attr(755,root,root) %{_libdir}/libtalloc.so.*
 
 %files -n libtalloc-devel
 %{_includedir}/talloc.h
@@ -825,7 +807,7 @@ exit 0
 %{_libdir}/pkgconfig/talloc.pc
 
 %files -n libtdb
-%{_libdir}/libtdb.so.*
+%attr(755,root,root) %{_libdir}/libtdb.so.*
 
 %files -n libtdb-devel
 %{_includedir}/tdb.h
@@ -848,6 +830,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Aug 25 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.2-0.20
+- Update to 3.2.2
+
 * Mon Aug 11 2008 Simo Sorce <ssorce@redhat.com> - 3.2.1-0.19
 - Add fix for CUPS problem, fixes bug #453951
 
