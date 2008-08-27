@@ -1,5 +1,5 @@
-%define main_release 20
-%define samba_version 3.2.2
+%define main_release 21
+%define samba_version 3.2.3
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -8,7 +8,7 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.2.2
+Version: 3.2.3
 Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
@@ -830,6 +830,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Aug 27 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.3-0.21
+- Security fix for CVE-2008-3789
+
 * Mon Aug 25 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.2-0.20
 - Update to 3.2.2
 
