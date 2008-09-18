@@ -1,5 +1,5 @@
-%define main_release 21
-%define samba_version 3.2.3
+%define main_release 22
+%define samba_version 3.2.4
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -8,7 +8,7 @@
 Summary: The Samba Suite of programs
 Name: samba
 Epoch: 0
-Version: 3.2.3
+Version: 3.2.4
 Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
@@ -46,6 +46,7 @@ Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch110: samba-3.0.21pre1-smbspool.patch
 Patch111: samba-3.0.13-smbclient.patch
 Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch201: samba-3.2.4-build.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -252,6 +253,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch110 -p1 -b .smbspool # FIXME: does not apply
 #%patch111 -p1 -b .smbclient # FIXME: does not apply
 #%patch200 -p0 -b .inotify # FIXME: does not compile
+%patch201 -p1 -b .build
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -430,7 +432,6 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
-install -m755 source/bin/cifs.upcall $RPM_BUILD_ROOT/sbin/cifs.upcall
 
 install -m 755 source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -451,7 +452,6 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 # why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
-rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.upcall
 
 
 %clean
@@ -676,7 +676,7 @@ exit 0
 %defattr(-,root,root)
 /sbin/mount.cifs
 /sbin/umount.cifs
-/sbin/cifs.upcall
+%{_sbindir}/cifs.upcall
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
@@ -830,6 +830,11 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Sep 18 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.4-0.22
+- Update to 3.2.4
+- resolves: #456889
+- move cifs.upcall to /usr/sbin
+
 * Wed Aug 27 2008 Guenther Deschner <gdeschner@redhat.com> - 3.2.3-0.21
 - Security fix for CVE-2008-3789
 
