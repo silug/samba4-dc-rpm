@@ -5,7 +5,7 @@
  	struct sys_notify_context *ctx;
  	int fd;
  	struct inotify_watch_context *watches;
-+	BOOL broken_inotify;	/* Late stop for broken SELinux policy */
++	bool broken_inotify;	/* Late stop for broken system */
  };
  
  struct inotify_watch_context {
@@ -18,7 +18,7 @@
 +
 +	if ((ioctl(in->fd, FIONREAD, &bufsize) != 0) && (errno == EACCES)) {
 +		/*
-+		 * Workaround for broken SELinux policies on Fedora
++		 * Workaround for broken system (SELinux policy bug fixed since long but it is always better not to loop on EACCES)
 +		 */
 +		TALLOC_FREE(fde);
 +		in->broken_inotify = True;

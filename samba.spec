@@ -1,11 +1,11 @@
-%define main_release 23
+%define main_release 24
 %define samba_version 3.2.5
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
 %define samba_release 0.%{main_release}%{?dist}
 
-Summary: The Samba Suite of programs
+Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 0
 Version: 3.2.5
@@ -38,14 +38,10 @@ Source999: filter-requires-samba.sh
 
 # generic patches
 Patch102: samba-3.2.0pre1-pipedir.patch
-#Patch103: samba-3.0.23-logfiles.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
-#Patch108: samba-3.0.8-non-ascii-domain.patch
-Patch110: samba-3.0.21pre1-smbspool.patch
-Patch111: samba-3.0.13-smbclient.patch
-Patch200: samba-3.0.25rc1-inotifiy.patch
+Patch200: samba-3.2.5-inotify.patch
 Patch201: samba-3.2.4-build.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
@@ -249,10 +245,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch103 -p1 -b .logfiles
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
-#%patch108 -p1 -b .non-ascii-domain
-#%patch110 -p1 -b .smbspool # FIXME: does not apply
-#%patch111 -p1 -b .smbclient # FIXME: does not apply
-#%patch200 -p0 -b .inotify # FIXME: does not compile
+%patch200 -p0 -b .inotify
 %patch201 -p1 -b .build
 
 mv source/VERSION source/VERSION.orig
