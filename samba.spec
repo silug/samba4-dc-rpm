@@ -1,5 +1,5 @@
 %define main_release 24
-%define samba_version 3.2.5
+%define samba_version 3.3.0rc1
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
 
@@ -8,7 +8,7 @@
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 0
-Version: 3.2.5
+Version: 3.3.0rc1
 Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
@@ -42,7 +42,6 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
-Patch201: samba-3.2.4-build.patch
 
 Requires(pre): samba-common = %{epoch}:%{version}-%{release}
 Requires: pam >= 0:0.64
@@ -246,7 +245,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
-%patch201 -p1 -b .build
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -293,11 +291,12 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-mandir=%{_mandir} \
 	--with-privatedir=/var/lib/samba/private \
 	--with-logfilebase=/var/log/samba \
-	--with-libdir=%{_libdir}/samba \
+	--with-libdir=%{_libdir} \
+	--with-modulesdir=%{_libdir}/samba \
 	--with-configdir=%{_sysconfdir}/samba \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
-	--with-shared-modules=idmap_ad,idmap_rid \
+	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash \
 	--with-cifsupcall
 
 #	--with-cluster-support \
@@ -305,7 +304,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" \
-	proto
+	pch
 
 make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
 	CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %{?_smp_mflags} \
@@ -317,10 +316,6 @@ make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}/source/bin \
 
 make  CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 	debug2html smbfilter bin/cifs.upcall
-
-( cd client ; gcc -o mount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE mount.cifs.c )
-( cd client ; gcc -o umount.cifs $RPM_OPT_FLAGS -Wall -O -D_GNU_SOURCE -D_LARGEFILE64_SOURCE umount.cifs.c )
-
 
 
 %install
@@ -339,6 +334,7 @@ mkdir -p $RPM_BUILD_ROOT/var/log/samba/old
 mkdir -p $RPM_BUILD_ROOT/var/spool/samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}/samba
 mkdir -p $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 
 cd source
@@ -350,7 +346,8 @@ cd source
 	DATADIR=$RPM_BUILD_ROOT%{_datadir} \
 	LOCKDIR=$RPM_BUILD_ROOT/var/lib/samba \
 	PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
-	LIBDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
+	LIBDIR=$RPM_BUILD_ROOT%{_libdir}/ \
+	MODULESDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
 	CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
 	PAMMODULESDIR=$RPM_BUILD_ROOT/%{_lib}/security \
 	MANDIR=$RPM_BUILD_ROOT%{_mandir} \
@@ -406,9 +403,7 @@ cd ../../..
 list="smbclient smbsharemodes netapi talloc tdb wbclient"
 build_libdir="$RPM_BUILD_ROOT%{_libdir}"
 for i in $list; do
-	cp -P $build_libdir/samba/lib$i.so* $build_libdir/
 	install -m 644 source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
-	rm -f $build_libdir/samba/lib$i.so* $build_libdir/samba/lib$i.a || true
 done
 
 install -m 644 source/lib/talloc/talloc.pc $build_libdir/pkgconfig/
@@ -423,8 +418,8 @@ install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
-install -m755 source/client/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
-install -m755 source/client/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
+install -m755 $RPM_BUILD_ROOT/usr/sbin/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
+install -m755 $RPM_BUILD_ROOT/usr/sbin/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
 
 install -m 755 source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -765,8 +760,10 @@ exit 0
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man7/pam_winbind.7*
+%{_mandir}/man7/winbind_krb5_locator.7*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
+%{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
 
 %files winbind-devel
 %{_includedir}/wbclient.h
@@ -775,7 +772,7 @@ exit 0
 
 %files doc
 %doc docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
-%doc docs/Samba3-HOWTO.pdf docs/THANKS docs/history
+%doc docs/Samba3-HOWTO.pdf
 %doc docs/htmldocs
 
 %files -n libsmbclient
@@ -823,6 +820,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Nov 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.3.0rc1-0.24
+- Update to 3.3.0rc1
+
 * Thu Nov 27 2008 Simo Sorce <ssorce@redhat.com> - 3.2.5-0.23
 - Security Release, fixes CVE-2008-4314
 
