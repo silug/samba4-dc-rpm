@@ -1,20 +1,21 @@
 %define main_release 24
-%define samba_version 3.3.0rc1
+%define samba_version 3.3.0
 %define tdb_version 1.1.1
 %define talloc_version 1.2.0
+%define pre_release rc1
 
-%define samba_release 0.%{main_release}%{?dist}
+%define samba_release 0%{pre_release}.%{main_release}%{?dist}
 
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 0
-Version: 3.3.0rc1
+Version: %{samba_version}
 Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-Source: http://www.samba.org/samba/ftp/samba/%{name}-%{version}.tar.gz
+Source: http://www.samba.org/samba/ftp/samba/%{name}-%{samba_version}%{pre_release}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -43,10 +44,10 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
 
-Requires(pre): samba-common = %{epoch}:%{version}-%{release}
+Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
 Requires: logrotate >= 0:3.4
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
@@ -72,7 +73,7 @@ need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 %package client
 Summary: Samba client programs
 Group: Applications/System
-Requires: samba-common = %{epoch}:%{version}-%{release}
+Requires: samba-common = %{epoch}:%{samba_version}-%{release}
 Obsoletes: smbfs
 
 %description client
@@ -98,7 +99,7 @@ packages of Samba.
 %package winbind
 Summary: Samba winbind
 Group: Applications/System
-Requires: samba-common = %{epoch}:%{version}-%{release}
+Requires: samba-common = %{epoch}:%{samba_version}-%{release}
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, /sbin/service, coreutils
 Requires(preun): /sbin/chkconfig, /sbin/service
@@ -112,7 +113,7 @@ Windows domains and to use Windows user and group accounts on Linux.
 %package winbind-devel
 Summary: Developer tools for the winbind library
 Group: Development
-Requires: samba-winbind = %{epoch}:%{version}-%{release}
+Requires: samba-winbind = %{epoch}:%{samba_version}-%{release}
 
 %description winbind-devel
 The samba-winbind package provides developer tools for the wbclient library.
@@ -121,7 +122,7 @@ The samba-winbind package provides developer tools for the wbclient library.
 %package swat
 Summary: The Samba SMB server Web configuration program
 Group: Applications/System
-Requires: samba = %{epoch}:%{version}-%{release}, xinetd
+Requires: samba = %{epoch}:%{samba_version}-%{release}, xinetd
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -132,7 +133,7 @@ Web browser.
 %package doc
 Summary: Documentation for the Samba suite
 Group: Documentation
-Requires: samba-common = %{epoch}:%{version}-%{release}
+Requires: samba-common = %{epoch}:%{samba_version}-%{release}
 
 %description doc
 The samba-doc package includes all the non-manpage documentation for the
@@ -142,7 +143,7 @@ Samba suite.
 %package domainjoin-gui
 Summary: Domainjoin GUI
 Group: Applications/System
-Requires: samba-common = %{epoch}:%{version}-%{release}, gtk2
+Requires: samba-common = %{epoch}:%{samba_version}-%{release}, gtk2
 
 %description domainjoin-gui
 The samba-domainjoin-gui package includes a domainjoin gtk application.
@@ -159,7 +160,7 @@ The libsmbclient contains the SMB client library from the Samba suite.
 %package -n libsmbclient-devel
 Summary: Developer tools for the SMB client library
 Group: Development
-Requires: libsmbclient = %{epoch}:%{version}-%{release}
+Requires: libsmbclient = %{epoch}:%{samba_version}-%{release}
 
 %description -n libsmbclient-devel
 The libsmbclient-devel package contains the header files and libraries needed to
@@ -223,7 +224,7 @@ develop programs that link against the talloc library in the Samba suite.
 
 %prep
 # TAG: change for non-pre
-%setup -q -n %{name}-%{samba_version}
+%setup -q -n %{name}-%{samba_version}%{pre_release}
 #%setup -q
 
 # copy Red Hat specific scripts
@@ -820,7 +821,7 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Fri Nov 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.3.0rc1-0.24
+* Fri Nov 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0rc1.24
 - Update to 3.3.0rc1
 
 * Thu Nov 27 2008 Simo Sorce <ssorce@redhat.com> - 3.2.5-0.23
