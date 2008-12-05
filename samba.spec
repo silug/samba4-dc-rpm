@@ -482,121 +482,126 @@ fi
 %post common
 /sbin/ldconfig
 
-# This script must be run always on installs or upgrades
-# it checks if a previous installation have created files
-# under /var/cache/samba and move them in that case as the
-# new package wants them to be under /var/lib/samba for
-# FHS compliance
-#
-# - we must stop the dameon if running and restart it
-#   after the script if it was
-# - we do not overwrite newer files
-# - even if /etc/init.d/smb is in samba and not
-#   samba-common we need to stop smbd/nmbd, if they
-#   are running, here as well, or we will mess up
-#   shared (between winbindd and smbd/nmbd) tdbs
-
-OLDPATH="/var/cache/samba"
-NEWPATH="/var/lib/samba"
-
-eval ls $OLDPATH/*.tdb >/dev/null 2>&1
-if [ $? = 0 ]; then
-    eval testparm -s 2>/dev/null |grep "lock dir" >/dev/null
-    if [ $? = 0 ]; then 
-	echo "Warning: lock dir explicitly set. Not moving tdb files to new default location"
-    else
-
-	#Stop daemons before we move the files around
-
-	#this is what condrestart checks as well
-	if [ -f /var/lock/subsys/winbindd ]; then
-		/sbin/service winbind stop >/dev/null 2>&1 || :
-		# Use a dirty trick to fool condrestart later
-		touch /var/lock/subsys/winbindd
-	fi
-
-	if [ -f /var/lock/subsys/smb ]; then
-		/sbin/service smb stop >/dev/null 2>&1 || :
-		# We need to stop smbd here as we are moving also smbd owned files
-		# but we can't restart it until the new server is installed.
-		# Use a dirty trick to fool condrestart later
-		touch /var/lock/subsys/smb
-	fi
-
-	if [ -f /var/lock/subsys/nmb ]; then
-		/sbin/service nmb stop >/dev/null 2>&1 || :
-		# We need to stop smbd here as we are moving also smbd owned files
-		# but we can't restart it until the new server is installed.
-		# Use a dirty trick to fool condrestart later
-		touch /var/lock/subsys/nmb
-	fi
-
-	eval ls $NEWPATH/*.tdb >/dev/null 2>&1
-	if [ $? = 0 ]; then
-		#something strange here, lets backup this stuff and avoid just wiping it
-
-		mkdir $NEWPATH.pkgbkp
-		mv -f $NEWPATH/*.tdb $NEWPATH.pkgbkp/ >/dev/null 2>&1
-		mv -f $NEWPATH/*.dat $NEWPATH.pkgbkp/ >/dev/null 2>&1
-		mv -f $NEWPATH/perfmon $NEWPATH.pkgbkp/ >/dev/null 2>&1
-		mv -f $NEWPATH/printing $NEWPATH.pkgbkp/ >/dev/null 2>&1
-	fi
-
-	mv -f $OLDPATH/*.tdb $NEWPATH/ >/dev/null 2>&1
-	mv -f $OLDPATH/*.dat $NEWPATH/ >/dev/null 2>&1
-	mv -f $OLDPATH/perfmon $NEWPATH/ >/dev/null 2>&1
-	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
-
-    fi
-fi
-
-# We also moved private files from /etc/samba to
-# /var/lib/samba/private so we need to migrate these as well
-
-#secrets.tdb
-if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
-	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null
-	if [ $? = 0 ]; then
-		echo "Warning: private dir explicitly set. Not moving secrets.tdb to new default location"
-	else
-		if [ -f /var/lib/samba/private/secrets.tdb ]; then
-			mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
-		fi
-		mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
-	fi
-fi
-
-#smbpasswd
-if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
-	eval testparm -s 2>/dev/null |grep "smb passwd file" >/dev/null
-	if [ $? = 0 ]; then
-		echo "Warning: smbpasswd file location explicitly set. Not moving smbpasswd to new default location"
-	else
-		if [ -f /var/lib/samba/private/smbpasswd ]; then
-			mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
-		fi
-		mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
-	fi
-fi
-
-#passdb.tdb
-if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
-	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null || testparm -s 2>/dev/null |grep -P "^\s*passdb\s*backend\s*=.*tdbsam:/etc/samba/passdb.tdb.*"
-	if [ $? = 0 ]; then
-		echo "Warning: passdb.tdb location explicitly set. Not moving passdb.tdb to new default location"
-	else
-		if [ -f /var/lib/samba/private/passdb.tdb ]; then
-			mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
-		fi
-		mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
-	fi
-fi
-
-#remove schannel_store if existing, it is not info we need to keep across restarts
-if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
-	rm -f %{_sysconfdir}/samba/schannel_store.tdb
-fi
-
+###############################################################################
+## We have new default since F-8, time to stop checking for old files are there
+## should be none in any support upgrade case
+## (keeping it commented just for reference for a while
+## 
+## # This script must be run always on installs or upgrades
+## # it checks if a previous installation have created files
+## # under /var/cache/samba and move them in that case as the
+## # new package wants them to be under /var/lib/samba for
+## # FHS compliance
+## #
+## # - we must stop the dameon if running and restart it
+## #   after the script if it was
+## # - we do not overwrite newer files
+## # - even if /etc/init.d/smb is in samba and not
+## #   samba-common we need to stop smbd/nmbd, if they
+## #   are running, here as well, or we will mess up
+## #   shared (between winbindd and smbd/nmbd) tdbs
+## 
+## OLDPATH="/var/cache/samba"
+## NEWPATH="/var/lib/samba"
+## 
+## eval ls $OLDPATH/*.tdb >/dev/null 2>&1
+## if [ $? = 0 ]; then
+##     eval testparm -s 2>/dev/null |grep "lock dir" >/dev/null
+##     if [ $? = 0 ]; then 
+## 	echo "Warning: lock dir explicitly set. Not moving tdb files to new default location"
+##     else
+## 
+## 	#Stop daemons before we move the files around
+## 
+## 	#this is what condrestart checks as well
+## 	if [ -f /var/lock/subsys/winbindd ]; then
+## 		/sbin/service winbind stop >/dev/null 2>&1 || :
+## 		# Use a dirty trick to fool condrestart later
+## 		touch /var/lock/subsys/winbindd
+## 	fi
+## 
+## 	if [ -f /var/lock/subsys/smb ]; then
+## 		/sbin/service smb stop >/dev/null 2>&1 || :
+## 		# We need to stop smbd here as we are moving also smbd owned files
+## 		# but we can't restart it until the new server is installed.
+## 		# Use a dirty trick to fool condrestart later
+## 		touch /var/lock/subsys/smb
+## 	fi
+## 
+## 	if [ -f /var/lock/subsys/nmb ]; then
+## 		/sbin/service nmb stop >/dev/null 2>&1 || :
+## 		# We need to stop smbd here as we are moving also smbd owned files
+## 		# but we can't restart it until the new server is installed.
+## 		# Use a dirty trick to fool condrestart later
+## 		touch /var/lock/subsys/nmb
+## 	fi
+## 
+## 	eval ls $NEWPATH/*.tdb >/dev/null 2>&1
+## 	if [ $? = 0 ]; then
+## 		#something strange here, lets backup this stuff and avoid just wiping it
+## 
+## 		mkdir $NEWPATH.pkgbkp
+## 		mv -f $NEWPATH/*.tdb $NEWPATH.pkgbkp/ >/dev/null 2>&1
+## 		mv -f $NEWPATH/*.dat $NEWPATH.pkgbkp/ >/dev/null 2>&1
+## 		mv -f $NEWPATH/perfmon $NEWPATH.pkgbkp/ >/dev/null 2>&1
+## 		mv -f $NEWPATH/printing $NEWPATH.pkgbkp/ >/dev/null 2>&1
+## 	fi
+## 
+## 	mv -f $OLDPATH/*.tdb $NEWPATH/ >/dev/null 2>&1
+## 	mv -f $OLDPATH/*.dat $NEWPATH/ >/dev/null 2>&1
+## 	mv -f $OLDPATH/perfmon $NEWPATH/ >/dev/null 2>&1
+## 	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
+## 
+##     fi
+## fi
+## 
+## # We also moved private files from /etc/samba to
+## # /var/lib/samba/private so we need to migrate these as well
+## 
+## #secrets.tdb
+## if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
+## 	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null
+## 	if [ $? = 0 ]; then
+## 		echo "Warning: private dir explicitly set. Not moving secrets.tdb to new default location"
+## 	else
+## 		if [ -f /var/lib/samba/private/secrets.tdb ]; then
+## 			mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
+## 		fi
+## 		mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
+## 	fi
+## fi
+## 
+## #smbpasswd
+## if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
+## 	eval testparm -s 2>/dev/null |grep "smb passwd file" >/dev/null
+## 	if [ $? = 0 ]; then
+## 		echo "Warning: smbpasswd file location explicitly set. Not moving smbpasswd to new default location"
+## 	else
+## 		if [ -f /var/lib/samba/private/smbpasswd ]; then
+## 			mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
+## 		fi
+## 		mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
+## 	fi
+## fi
+## 
+## #passdb.tdb
+## if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
+## 	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null || testparm -s 2>/dev/null |grep -P "^\s*passdb\s*backend\s*=.*tdbsam:/etc/samba/passdb.tdb.*"
+## 	if [ $? = 0 ]; then
+## 		echo "Warning: passdb.tdb location explicitly set. Not moving passdb.tdb to new default location"
+## 	else
+## 		if [ -f /var/lib/samba/private/passdb.tdb ]; then
+## 			mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
+## 		fi
+## 		mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
+## 	fi
+## fi
+## 
+## #remove schannel_store if existing, it is not info we need to keep across restarts
+## if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
+## 	rm -f %{_sysconfdir}/samba/schannel_store.tdb
+## fi
+## 
 %preun winbind
 if [ $1 = 0 ] ; then
     /sbin/service winbind stop >/dev/null 2>&1 || :
