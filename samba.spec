@@ -1,6 +1,6 @@
 %define main_release 25
 %define samba_version 3.3.0
-%define tdb_version 1.1.1
+%define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
 
