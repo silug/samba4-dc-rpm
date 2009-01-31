@@ -43,6 +43,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
+Patch201: 0001-fix-bug-6073-prevent-ads_connect-from-using-SSL.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -246,6 +247,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
+%patch201 -p1 -b .ldap_ssl
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -826,8 +828,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Fri Jan 30 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
+* Sat Jan 31 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
 - Update to 3.3.0 final
+- Add upstream fix for ldap connections to AD (Bug #6073)
 
 * Fri Nov 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0rc1.24
 - Update to 3.3.0rc1
