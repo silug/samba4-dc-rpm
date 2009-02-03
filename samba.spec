@@ -828,9 +828,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Sat Jan 31 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
+* Tue Feb  3 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
 - Update to 3.3.0 final
 - Add upstream fix for ldap connections to AD (Bug #6073)
+- Remove bogus perl dependencies (resolves: #473051)
 
 * Fri Nov 28 2008 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0rc1.24
 - Update to 3.3.0rc1
