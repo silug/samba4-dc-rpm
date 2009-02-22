@@ -1,4 +1,4 @@
-%define main_release 25
+%define main_release 26
 %define samba_version 3.3.0
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
@@ -42,6 +42,7 @@ Patch102: samba-3.2.0pre1-pipedir.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
+Patch199: samba-3.3.0-ldbrename.patch
 Patch200: samba-3.2.5-inotify.patch
 Patch201: 0001-fix-bug-6073-prevent-ads_connect-from-using-SSL.patch
 
@@ -246,6 +247,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch103 -p1 -b .logfiles
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
+%patch199 -p1 -b .ldbrename
 %patch200 -p0 -b .inotify
 %patch201 -p1 -b .ldap_ssl
 
@@ -443,6 +445,20 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
 
 # why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
+
+#Rename ldb tools, as samba3 has an old copy of ldb.
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbadd $RPM_BUILD_ROOT%{_bindir}/ldb3add
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbdel $RPM_BUILD_ROOT%{_bindir}/ldb3del
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbmodify $RPM_BUILD_ROOT%{_bindir}/ldb3modify
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbsearch $RPM_BUILD_ROOT%{_bindir}/ldb3search
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbrename $RPM_BUILD_ROOT%{_bindir}/ldb3rename
+mv -f $RPM_BUILD_ROOT%{_bindir}/ldbedit $RPM_BUILD_ROOT%{_bindir}/ldb3edit
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbadd.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3add.1
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbdel.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3del.1
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbedit.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3edit.1
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3modify.1
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3search.1
+#mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
 
 
 %clean
@@ -716,11 +732,12 @@ exit 0
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
 %{_bindir}/smbcontrol
-%{_bindir}/ldbadd
-%{_bindir}/ldbdel
-%{_bindir}/ldbedit
-%{_bindir}/ldbmodify
-%{_bindir}/ldbsearch
+%{_bindir}/ldb3add
+%{_bindir}/ldb3del
+%{_bindir}/ldb3edit
+%{_bindir}/ldb3modify
+%{_bindir}/ldb3search
+%{_bindir}/ldb3rename
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/lib/samba/scripts
@@ -730,11 +747,12 @@ exit 0
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
-%{_mandir}/man1/ldbadd.1.*
-%{_mandir}/man1/ldbdel.1.*
-%{_mandir}/man1/ldbedit.1.*
-%{_mandir}/man1/ldbmodify.1.*
-%{_mandir}/man1/ldbsearch.1.*
+%{_mandir}/man1/ldb3add.1.gz
+%{_mandir}/man1/ldb3del.1.gz
+%{_mandir}/man1/ldb3edit.1.gz
+%{_mandir}/man1/ldb3modify.1.gz
+%{_mandir}/man1/ldb3search.1.gz
+#%{_mandir}/man1/ldb3rename.1.gz
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbcontrol.1*
@@ -828,6 +846,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Feb 21 2009 Simo Sorce <ssorce@redhat.com> - 3.3.0-0.26
+- Rename ldb* tools to ldb3* to avoid conflicts with newer ldb releases
+
 * Tue Feb  3 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
 - Update to 3.3.0 final
 - Add upstream fix for ldap connections to AD (Bug #6073)
