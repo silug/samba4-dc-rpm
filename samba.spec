@@ -1,5 +1,5 @@
-%define main_release 26
-%define samba_version 3.3.0
+%define main_release 27
+%define samba_version 3.3.1
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
@@ -42,9 +42,7 @@ Patch102: samba-3.2.0pre1-pipedir.patch
 Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
-Patch199: samba-3.3.0-ldbrename.patch
 Patch200: samba-3.2.5-inotify.patch
-Patch201: 0001-fix-bug-6073-prevent-ads_connect-from-using-SSL.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -247,9 +245,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch103 -p1 -b .logfiles
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
-%patch199 -p1 -b .ldbrename
 %patch200 -p0 -b .inotify
-%patch201 -p1 -b .ldap_ssl
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -458,7 +454,7 @@ mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbdel.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbedit.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3edit.1
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3modify.1
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3search.1
-#mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
+mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
 
 
 %clean
@@ -699,6 +695,7 @@ exit 0
 %{_bindir}/smbspool
 %{_bindir}/smbtar
 %{_bindir}/smbtree
+%{_bindir}/sharesec
 %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/rpcclient.1*
@@ -707,6 +704,7 @@ exit 0
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
 %{_mandir}/man1/smbget.1*
+%{_mandir}/man1/sharesec.1*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/mount.cifs.8*
 %{_mandir}/man8/umount.cifs.8*
@@ -752,7 +750,7 @@ exit 0
 %{_mandir}/man1/ldb3edit.1.gz
 %{_mandir}/man1/ldb3modify.1.gz
 %{_mandir}/man1/ldb3search.1.gz
-#%{_mandir}/man1/ldb3rename.1.gz
+%{_mandir}/man1/ldb3rename.1.gz
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbcontrol.1*
@@ -846,6 +844,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Feb 24 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.27
+- Update to 3.3.1
+
 * Thu Feb 21 2009 Simo Sorce <ssorce@redhat.com> - 3.3.0-0.26
 - Rename ldb* tools to ldb3* to avoid conflicts with newer ldb releases
 
