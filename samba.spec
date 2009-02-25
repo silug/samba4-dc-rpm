@@ -1,4 +1,4 @@
-%define main_release 27
+%define main_release 28
 %define samba_version 3.3.1
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
@@ -50,7 +50,7 @@ Requires: logrotate >= 0:3.4
 BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
-BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel
+BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel
 
 # Working around perl dependency problem from docs
@@ -298,9 +298,9 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
 	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash \
-	--with-cifsupcall
+	--with-cifsupcall \
+	--with-cluster-support
 
-#	--with-cluster-support \
 #	--with-aio-support \
 
 
@@ -844,6 +844,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Feb 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.28
+- Enable cluster support
+
 * Tue Feb 24 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.27
 - Update to 3.3.1
 
