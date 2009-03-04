@@ -1,10 +1,13 @@
-%define main_release 28
+%define main_release 29
 %define samba_version 3.3.1
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
 
 %define samba_release 0%{pre_release}.%{main_release}%{?dist}
+
+%define enable_talloc 0
+%define enable_tdb    0
 
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
@@ -166,7 +169,7 @@ Requires: libsmbclient = %{epoch}:%{samba_version}-%{release}
 The libsmbclient-devel package contains the header files and libraries needed to
 develop programs that link against the SMB client library in the Samba suite.
 
-
+%if %enable_tdb
 %package -n libtdb
 Summary: The TDB library and tools
 Group: Applications/System
@@ -198,8 +201,9 @@ Requires: libtdb = %{epoch}:%{tdb_version}-%{main_release}%{?dist}
 %description -n libtdb-devel
 The libtdb-devel package contains the header files and libraries needed to
 develop programs that link against the TDB library in the Samba suite.
+%endif
 
-
+%if %enable_talloc
 %package -n libtalloc
 Summary: The talloc library
 Group: Applications/System
@@ -220,7 +224,7 @@ Requires: libtalloc = %{epoch}:%{talloc_version}-%{main_release}%{?dist}
 %description -n libtalloc-devel
 The libtalloc-devel package contains the header files and libraries needed to
 develop programs that link against the talloc library in the Samba suite.
-
+%endif
 
 %prep
 # TAG: change for non-pre
@@ -386,17 +390,23 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 # libraries {
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 
+%if %enable_talloc
 # talloc
 cd source/lib/talloc
 # just to get the correct .pc file generated
 ./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
 cd ../../..
+install -m 644 source/lib/talloc/talloc.pc $build_libdir/pkgconfig/
+%endif
 
+%if %enable_tdb
 # tdb
 cd source/lib/tdb
 # just to get the correct .pc file generated
 ./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
 cd ../../..
+install -m 644 source/lib/tdb/tdb.pc $build_libdir/pkgconfig/
+%endif
 
 # make install puts libraries in the wrong place
 # (but at least gets the versioning right now)
@@ -407,8 +417,6 @@ for i in $list; do
 	install -m 644 source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
 done
 
-install -m 644 source/lib/talloc/talloc.pc $build_libdir/pkgconfig/
-install -m 644 source/lib/tdb/tdb.pc $build_libdir/pkgconfig/
 
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 
@@ -456,6 +464,25 @@ mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1 $RPM_BUILD_ROOT%{_mandir}/man1/
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3search.1
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
 
+%if ! %enable_talloc
+rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.*
+rm -f $RPM_BUILD_ROOT%{_includedir}/talloc.h
+rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/talloc.pc
+%endif
+
+%if ! %enable_tdb
+rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so.*
+rm -f $RPM_BUILD_ROOT%{_includedir}/tdb.h
+rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
+rm -f $RPM_BUILD_ROOT%{_bindir}/tdbbackup
+rm -f $RPM_BUILD_ROOT%{_bindir}/tdbdump
+rm -f $RPM_BUILD_ROOT%{_bindir}/tdbtool
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbbackup.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbdump.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbtool.8*
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -633,17 +660,21 @@ exit 0
 %postun -n libsmbclient
 /sbin/ldconfig
 
+%if %enable_tdb
 %post -n libtdb
 /sbin/ldconfig
 
 %postun -n libtdb
 /sbin/ldconfig
+%endif
 
+%if %enable_talloc
 %post -n libtalloc
 /sbin/ldconfig
 
 %postun -n libtalloc
 /sbin/ldconfig
+%endif
 
 %files
 %defattr(-,root,root)
@@ -812,6 +843,7 @@ exit 0
 %{_libdir}/pkgconfig/smbsharemodes.pc
 %{_mandir}/man7/libsmbclient.7*
 
+%if %enable_talloc
 %files -n libtalloc
 %attr(755,root,root) %{_libdir}/libtalloc.so.*
 
@@ -819,7 +851,9 @@ exit 0
 %{_includedir}/talloc.h
 %{_libdir}/libtalloc.so
 %{_libdir}/pkgconfig/talloc.pc
+%endif
 
+%if %enable_tdb
 %files -n libtdb
 %attr(755,root,root) %{_libdir}/libtdb.so.*
 
@@ -835,6 +869,7 @@ exit 0
 %{_mandir}/man8/tdbbackup.8*
 %{_mandir}/man8/tdbdump.8*
 %{_mandir}/man8/tdbtool.8*
+%endif
 
 %files domainjoin-gui
 %{_sbindir}/netdomjoin-gui
@@ -844,6 +879,11 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Mar  3 2009 Simo Sorce <ssorce@redhat.com> - 3.3.1-0.29
+- Make the talloc and ldb packages optionsl and disable their build within
+  the samba3 package, they are now built as part of the samba4 package
+  until they will both be released as independent packages.
+
 * Wed Feb 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.28
 - Enable cluster support
 
