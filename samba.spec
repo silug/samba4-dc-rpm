@@ -1,4 +1,4 @@
-%define main_release 29
+%define main_release 30
 %define samba_version 3.3.1
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
@@ -54,7 +54,7 @@ BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
-BuildRequires: autoconf, gawk, popt-devel, gtk2-devel
+BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -879,6 +879,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Mar 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.30
+- Add libcap-devel to requires list (resolves: #488559)
+
 * Tue Mar  3 2009 Simo Sorce <ssorce@redhat.com> - 3.3.1-0.29
 - Make the talloc and ldb packages optionsl and disable their build within
   the samba3 package, they are now built as part of the samba4 package
