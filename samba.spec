@@ -1,5 +1,5 @@
-%define main_release 30
-%define samba_version 3.3.1
+%define main_release 31
+%define samba_version 3.3.2
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
@@ -879,7 +879,11 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Thu Mar 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.30
+* Thu Mar 12 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.2-0.31
+- Update to 3.3.2
+- resolves: #489547
+
+* Thu Mar  5 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.30
 - Add libcap-devel to requires list (resolves: #488559)
 
 * Tue Mar  3 2009 Simo Sorce <ssorce@redhat.com> - 3.3.1-0.29
