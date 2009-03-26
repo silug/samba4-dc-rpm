@@ -64,7 +64,7 @@ restart() {
 
 reload() {
         echo -n $"Reloading smb.conf file: "
-	killproc smbd -HUP
+	killproc nmbd -HUP
 	RETVAL=$?
 	echo
 	return $RETVAL
