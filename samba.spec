@@ -881,7 +881,7 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
-* Thu Mar 26 2009 Simo Sorce <ssorce@redhat.com> - 3.3.1-0.32
+* Thu Mar 26 2009 Simo Sorce <ssorce@redhat.com> - 3.3.2-0.32
 - Fix nmbd init script nmbd reload was causing smbd not nmbd to reload the
   configuration
 - Fix upstream bug 6224, nmbd was waiting 5+ minutes before running elections on
