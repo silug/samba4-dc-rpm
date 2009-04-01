@@ -1,5 +1,5 @@
-%define main_release 33
-%define samba_version 3.3.2
+%define main_release 34
+%define samba_version 3.3.3
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
@@ -46,7 +46,6 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
-Patch201: samba-3.2.8-nmbd_lmb_delay.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -251,7 +250,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
-%patch201 -p1 -b .nmbd_lmb_delay
 
 mv source/VERSION source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < source/VERSION.orig > source/VERSION
@@ -881,6 +879,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Apr  1 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.3-0.34
+- Update to 3.3.3
+
 * Thu Mar 26 2009 Simo Sorce <ssorce@redhat.com> - 3.3.2-0.33
 - Fix nmbd init script nmbd reload was causing smbd not nmbd to reload the
   configuration
