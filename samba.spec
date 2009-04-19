@@ -1,4 +1,4 @@
-%define main_release 34
+%define main_release 35
 %define samba_version 3.3.3
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
@@ -301,7 +301,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-configdir=%{_sysconfdir}/samba \
 	--with-pammodulesdir=%{_lib}/security \
 	--with-swatdir=%{_datadir}/swat \
-	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash \
+	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
 	--with-cifsupcall \
 	--with-cluster-support
 
@@ -879,6 +879,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Apr 20 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.3-0.35
+- Enable build of idmap_tdb2 for clustered setups
+
 * Wed Apr  1 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.3-0.34
 - Update to 3.3.3
 
