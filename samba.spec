@@ -1,5 +1,5 @@
-%define main_release 35
-%define samba_version 3.3.3
+%define main_release 36
+%define samba_version 3.3.4
 %define tdb_version 1.1.2
 %define talloc_version 1.2.0
 %define pre_release %nil
@@ -879,6 +879,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Apr 29 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.4-0.36
+- Update to 3.3.4
+
 * Mon Apr 20 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.3-0.35
 - Enable build of idmap_tdb2 for clustered setups
 
