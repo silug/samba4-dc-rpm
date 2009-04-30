@@ -1,0 +1,28 @@
+commit eee446a94841a5df97b3a47c7076ef52fb5ccdcf
+Author:     Günther Deschner <gd@samba.org>
+AuthorDate: Thu Apr 30 14:16:01 2009 +0200
+Commit:     Günther Deschner <gd@samba.org>
+CommitDate: Thu Apr 30 14:18:09 2009 +0200
+
+    s3-nss_wins: Fix unresolved ldb symbols in libnss_wins.so.
+    
+    The objects for this module should probably be cleaned up once.
+    
+    Guenther
+---
+ source3/Makefile.in |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/source3/Makefile.in b/source3/Makefile.in
+index f765818..8bf29dd 100644
+--- a/source3/Makefile.in
++++ b/source3/Makefile.in
+@@ -1063,7 +1063,7 @@ SMBFILTER_OBJ = utils/smbfilter.o $(PARAM_OBJ) $(LIBSMB_OBJ) $(LDB_OBJ) \
+ 
+ WINBIND_WINS_NSS_OBJ = ../nsswitch/wins.o $(PARAM_OBJ) \
+ 	$(LIBSMB_OBJ) $(LIB_NONSMBD_OBJ) $(NSSWINS_OBJ) $(KRBCLIENT_OBJ) \
+-	$(LIBNDR_GEN_OBJ0)
++	$(LIBNDR_GEN_OBJ0) $(LDB_OBJ)
+ 
+ PAM_SMBPASS_OBJ_0 = pam_smbpass/pam_smb_auth.o pam_smbpass/pam_smb_passwd.o \
+ 		pam_smbpass/pam_smb_acct.o pam_smbpass/support.o
