@@ -1,9 +1,9 @@
 %define main_release 37
 %define samba_version 3.4.0
-%define tdb_version 1.1.2
+%define tdb_version 1.1.3
 %define talloc_version 1.2.0
 #%define pre_release %nil
-%define pre_release pre1
+%define pre_release pre2
 
 %define samba_release 0%{pre_release}.%{main_release}%{?dist}
 
@@ -48,7 +48,6 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
-Patch201: samba-3.4.0pre1-nss_wins.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -58,6 +57,12 @@ Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel
+%if ! %enable_talloc
+BuildRequires: libtalloc-devel
+%endif
+%if ! %enable_tdb
+BuildRequires: libtdb-devel
+%endif
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -253,7 +258,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
-%patch201 -p1 -b .nss_wins
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -391,6 +395,7 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 
 # libraries {
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
+build_libdir="$RPM_BUILD_ROOT%{_libdir}"
 
 %if %enable_talloc
 # talloc
@@ -414,7 +419,6 @@ install -m 644 lib/tdb/tdb.pc $build_libdir/pkgconfig/
 # (but at least gets the versioning right now)
 
 list="smbclient smbsharemodes netapi talloc tdb wbclient"
-build_libdir="$RPM_BUILD_ROOT%{_libdir}"
 for i in $list; do
 	install -m 644 %samba_source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
 done
@@ -881,6 +885,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Jun 08 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0pre2-0.38
+- Update to 3.4.0pre2
+
 * Thu Apr 30 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0pre1-0.37
 - Update to 3.4.0pre1
 
