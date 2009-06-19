@@ -1,9 +1,9 @@
-%define main_release 37
+%define main_release 38
 %define samba_version 3.4.0
 %define tdb_version 1.1.3
 %define talloc_version 1.2.0
 #%define pre_release %nil
-%define pre_release pre2
+%define pre_release rc1
 
 %define samba_release 0%{pre_release}.%{main_release}%{?dist}
 
@@ -820,7 +820,7 @@ exit 0
 %{_initrddir}/winbind
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/wbinfo.1*
-%{_mandir}/man7/pam_winbind.7*
+%{_mandir}/man8/pam_winbind.8*
 %{_mandir}/man7/winbind_krb5_locator.7*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
@@ -885,6 +885,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Jun 19 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0rc1-0.39
+- Update to 3.4.0rc1
+
 * Mon Jun 08 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0pre2-0.38
 - Update to 3.4.0pre2
 
