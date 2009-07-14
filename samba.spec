@@ -1,9 +1,9 @@
-%define main_release 38
+%define main_release 40
 %define samba_version 3.4.0
 %define tdb_version 1.1.3
 %define talloc_version 1.2.0
-#%define pre_release %nil
-%define pre_release rc1
+#%define pre_release rc1
+%define pre_release %nil
 
 %define samba_release 0%{pre_release}.%{main_release}%{?dist}
 
@@ -48,6 +48,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
+Patch201: samba-3.4.0-build.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -56,7 +57,7 @@ BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
-BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel
+BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel
 %if ! %enable_talloc
 BuildRequires: libtalloc-devel
 %endif
@@ -258,6 +259,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
+%patch201 -p1 -b .build
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -312,7 +314,6 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
 	--with-cifsupcall \
 	--with-cluster-support
-
 #	--with-aio-support \
 
 
@@ -885,6 +886,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Jul 03 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0-0.40
+- Update to 3.4.0
+
 * Fri Jun 19 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0rc1-0.39
 - Update to 3.4.0rc1
 
