@@ -15,7 +15,7 @@ Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 0
 Version: %{samba_version}
-Release: %{samba_release}
+Release: %{samba_release}.1
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -888,6 +888,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:3.4.0-0.41.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Fri Jul 17 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0-0.41
 - Fix Bug #6551 (vuid and tid not set in sessionsetupX and tconX)
 - Specify required talloc and tdb version for BuildRequires
