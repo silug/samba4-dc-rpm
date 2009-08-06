@@ -1,7 +1,7 @@
-%define main_release 41
+%define main_release 42
 %define samba_version 3.4.0
 %define tdb_version 1.1.3
-%define talloc_version 1.2.0
+%define talloc_version 1.3.0
 #%define pre_release rc1
 %define pre_release %nil
 
@@ -888,6 +888,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Aug 06 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.0-0.42
+- Fix required talloc version number
+- resolves: #516086
+
 * Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:3.4.0-0.41.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
