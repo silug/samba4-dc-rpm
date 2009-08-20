@@ -1,0 +1,31 @@
+commit 33d27797d3ae9ab3ff7e1aa940941cc450f5ad1d
+Author:     Jeremy Allison <jra@samba.org>
+AuthorDate: Wed Aug 19 15:33:08 2009 -0700
+Commit:     Jeremy Allison <jra@samba.org>
+CommitDate: Wed Aug 19 15:33:08 2009 -0700
+
+    Fix Red Hat bugzilla bug : https://bugzilla.redhat.com/show_bug.cgi?id=516165
+    nautilus fails to copy files from an SMB share. This is a show-stopper
+    for 3.4.1 (I'll open a Samba.org bug). Although gnome-vfs is doing
+    *incredibly* stupid things by asking for a read size of 65535 - this
+    translates on the wire to a 65534 byte read followed by a 1 byte
+    read. Please send this back to the gnome developers that they
+    will ge horrid on the wire performance for this.
+    Jeremy.
+---
+ source3/libsmb/clireadwrite.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/source3/libsmb/clireadwrite.c b/source3/libsmb/clireadwrite.c
+index d38de19..0d1f9e5 100644
+--- a/source3/libsmb/clireadwrite.c
++++ b/source3/libsmb/clireadwrite.c
+@@ -200,7 +200,7 @@ static void cli_read_andx_done(struct tevent_req *subreq)
+ 	state->buf = (uint8_t *)smb_base(inbuf) + SVAL(vwv+6, 0);
+ 
+ 	if (trans_oob(smb_len(inbuf), SVAL(vwv+6, 0), state->received)
+-	    || (state->buf < bytes)) {
++	    || (state->received && (state->buf < bytes))) {
+ 		DEBUG(5, ("server returned invalid read&x data offset\n"));
+ 		tevent_req_nterror(req, NT_STATUS_INVALID_NETWORK_RESPONSE);
+ 		return;
