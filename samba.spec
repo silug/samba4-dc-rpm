@@ -1,4 +1,4 @@
-%define main_release 44
+%define main_release 45
 %define samba_version 3.4.1
 %define tdb_version 1.1.3
 %define talloc_version 1.3.0
@@ -884,6 +884,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Sep 16 2009 Tomas Mraz <tmraz@redhat.com> - 3.4.1-0.45
+- Use password-auth common PAM configuration instead of system-auth
+
 * Wed Sep 09 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.1-0.44
 - Update to 3.4.1
 
