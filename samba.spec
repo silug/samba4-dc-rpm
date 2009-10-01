@@ -1,5 +1,5 @@
-%define main_release 45
-%define samba_version 3.4.1
+%define main_release 46
+%define samba_version 3.4.2
 %define tdb_version 1.1.3
 %define talloc_version 1.3.0
 #%define pre_release rc1
@@ -884,6 +884,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Oct 01 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.2-0.46
+- Update to 3.4.2
+- Security Release, fixes CVE-2009-2813, CVE-2009-2948 and CVE-2009-2906
+
 * Wed Sep 16 2009 Tomas Mraz <tmraz@redhat.com> - 3.4.1-0.45
 - Use password-auth common PAM configuration instead of system-auth
 
