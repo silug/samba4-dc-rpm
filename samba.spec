@@ -1,21 +1,18 @@
-%define main_release 46
+%define main_release 47
 %define samba_version 3.4.2
 %define tdb_version 1.1.3
 %define talloc_version 1.3.0
 #%define pre_release rc1
 %define pre_release %nil
 
-%define samba_release 0%{pre_release}.%{main_release}%{?dist}
-
-%define enable_talloc 0
-%define enable_tdb    0
+%define samba_release %{main_release}%{pre_release}%{?dist}
 
 %define samba_source source3
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 0
 Version: %{samba_version}
-Release: %{samba_release}.1
+Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -57,12 +54,7 @@ Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel
-%if ! %enable_talloc
-BuildRequires: libtalloc-devel >= %{talloc_version}
-%endif
-%if ! %enable_tdb
-BuildRequires: libtdb-devel >= %{tdb_version}
-%endif
+BuildRequires: libtalloc-devel, libtdb-devel
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -85,7 +77,6 @@ need the NetBEUI (Microsoft Raw NetBIOS frame) protocol.
 Summary: Samba client programs
 Group: Applications/System
 Requires: samba-common = %{epoch}:%{samba_version}-%{release}
-Obsoletes: smbfs
 
 %description client
 The samba-client package provides some SMB/CIFS clients to complement
@@ -111,14 +102,24 @@ packages of Samba.
 Summary: Samba winbind
 Group: Applications/System
 Requires: samba-common = %{epoch}:%{samba_version}-%{release}
+Requires: samba-winbind-clients = %{epoch}:%{samba_version}-%{release}
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, /sbin/service, coreutils
 Requires(preun): /sbin/chkconfig, /sbin/service
 
 %description winbind
-The samba-winbind package provides the winbind daemon, a NSS library, a PAM
-module and some client tools. Winbind enables Linux to be a full member in
-Windows domains and to use Windows user and group accounts on Linux.
+The samba-winbind package provides the winbind daemon and some client tools.
+Winbind enables Linux to be a full member in Windows domains and to use
+Windows user and group accounts on Linux.
+
+
+%package winbind-clients
+Summary: Samba winbind clients
+Group: Applications/System
+
+%description winbind-clients
+The samba-winbind-clients package provides the NSS library and a PAM
+module necessary to communicate to the Winbind Daemon
 
 
 %package winbind-devel
@@ -177,63 +178,6 @@ Requires: libsmbclient = %{epoch}:%{samba_version}-%{release}
 The libsmbclient-devel package contains the header files and libraries needed to
 develop programs that link against the SMB client library in the Samba suite.
 
-%if %enable_tdb
-%package -n libtdb
-Summary: The TDB library and tools
-Group: Applications/System
-Version: %{tdb_version}
-Release: %{main_release}%{?dist}
-
-%description -n libtdb
-The TDB library from the Samba suite.
-
-
-%package -n tdb-tools
-Summary: The TDB tools
-Group: Applications/System
-Version: %{tdb_version}
-Release: %{main_release}%{?dist}
-Requires: libtdb = %{epoch}:%{tdb_version}-%{main_release}%{?dist}
-
-%description -n tdb-tools
-Some TDB tools from the Samba suite.
-
-
-%package -n libtdb-devel
-Summary: Developer tools for the TDB library
-Group: Development
-Version: %{tdb_version}
-Release: %{main_release}%{?dist}
-Requires: libtdb = %{epoch}:%{tdb_version}-%{main_release}%{?dist}
-
-%description -n libtdb-devel
-The libtdb-devel package contains the header files and libraries needed to
-develop programs that link against the TDB library in the Samba suite.
-%endif
-
-%if %enable_talloc
-%package -n libtalloc
-Summary: The talloc library
-Group: Applications/System
-Version: %{talloc_version}
-Release: %{main_release}%{?dist}
-
-%description -n libtalloc
-The talloc library from the Samba suite.
-
-
-%package -n libtalloc-devel
-Summary: Developer tools for the talloc library
-Group: Development
-Version: %{talloc_version}
-Release: %{main_release}%{?dist}
-Requires: libtalloc = %{epoch}:%{talloc_version}-%{main_release}%{?dist}
-
-%description -n libtalloc-devel
-The libtalloc-devel package contains the header files and libraries needed to
-develop programs that link against the talloc library in the Samba suite.
-%endif
-
 %prep
 # TAG: change for non-pre
 %setup -q -n %{name}-%{samba_version}%{pre_release}
@@ -282,48 +226,52 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D_FILE_OFFSET_BITS=64"
 EXTRA="-D_LARGEFILE64_SOURCE"
 %endif
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
-	--with-dnsupdate \
-	--with-ads \
-	--with-acl-support \
-	--with-automount \
-	--with-dnsupdate \
-	--with-libsmbclient \
-	--with-libsmbsharemodes \
-	--with-mmap \
-	--with-pam \
-	--with-pam_smbpass \
-	--with-quotas \
-	--with-sendfile-support \
-	--with-syslog \
-	--with-utmp \
-	--with-vfs \
-	--with-winbind \
-	--without-smbwrapper \
-	--with-lockdir=/var/lib/samba \
-	--with-piddir=/var/run \
-	--with-mandir=%{_mandir} \
-	--with-privatedir=/var/lib/samba/private \
-	--with-logfilebase=/var/log/samba \
-	--with-libdir=%{_libdir} \
-	--with-modulesdir=%{_libdir}/samba \
-	--with-configdir=%{_sysconfdir}/samba \
-	--with-pammodulesdir=%{_lib}/security \
-	--with-swatdir=%{_datadir}/swat \
-	--with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
-	--with-cifsupcall \
-	--with-cluster-support
-#	--with-aio-support \
+    --with-dnsupdate \
+    --with-ads \
+    --with-acl-support \
+    --with-automount \
+    --with-dnsupdate \
+    --with-libsmbclient \
+    --with-libsmbsharemodes \
+    --with-mmap \
+    --with-pam \
+    --with-pam_smbpass \
+    --with-quotas \
+    --with-sendfile-support \
+    --with-syslog \
+    --with-utmp \
+    --with-vfs \
+    --with-winbind \
+    --without-smbwrapper \
+    --with-lockdir=/var/lib/samba \
+    --with-piddir=/var/run \
+    --with-mandir=%{_mandir} \
+    --with-privatedir=/var/lib/samba/private \
+    --with-logfilebase=/var/log/samba \
+    --with-libdir=%{_libdir} \
+    --with-modulesdir=%{_libdir}/samba \
+    --with-configdir=%{_sysconfdir}/samba \
+    --with-pammodulesdir=%{_lib}/security \
+    --with-swatdir=%{_datadir}/swat \
+    --with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
+    --with-cifsupcall \
+    --with-cluster-support \
+    --with-libtalloc=no \
+    --enable-external-libtalloc=yes \
+    --with-libtdb=no \
+#    --enable-external-libtdb=yes \
+#    --with-aio-support \
 
 
 make  pch
 
 make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}%{pre_release}/%samba_source/bin \
-	%{?_smp_mflags} \
-	all ../nsswitch/libnss_wins.so modules test_pam_modules test_nss_modules test_shlibs
+    %{?_smp_mflags} \
+    all ../nsswitch/libnss_wins.so modules test_pam_modules test_nss_modules test_shlibs
 
 make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}%{pre_release}/%samba_source/bin \
-	%{?_smp_mflags} \
-	-C lib/netapi/examples
+    %{?_smp_mflags} \
+    -C lib/netapi/examples
 
 make  debug2html smbfilter bin/cifs.upcall
 
@@ -350,22 +298,22 @@ mkdir -p $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 cd %samba_source
 
 %makeinstall \
-	BINDIR=$RPM_BUILD_ROOT%{_bindir} \
-	BASEDIR=$RPM_BUILD_ROOT%{_prefix} \
-	SBINDIR=$RPM_BUILD_ROOT%{_sbindir} \
-	DATADIR=$RPM_BUILD_ROOT%{_datadir} \
-	LOCKDIR=$RPM_BUILD_ROOT/var/lib/samba \
-	PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
-	LIBDIR=$RPM_BUILD_ROOT%{_libdir}/ \
-	MODULESDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
-	CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
-	PAMMODULESDIR=$RPM_BUILD_ROOT/%{_lib}/security \
-	MANDIR=$RPM_BUILD_ROOT%{_mandir} \
-	VARDIR=$RPM_BUILD_ROOT/var/log/samba \
-	CODEPAGEDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
-	SWATDIR=$RPM_BUILD_ROOT%{_datadir}/swat \
-	SAMBABOOK=$RPM_BUILD_ROOT%{_datadir}/swat/using_samba \
-	PIDDIR=$RPM_BUILD_ROOT/var/run
+    BINDIR=$RPM_BUILD_ROOT%{_bindir} \
+    BASEDIR=$RPM_BUILD_ROOT%{_prefix} \
+    SBINDIR=$RPM_BUILD_ROOT%{_sbindir} \
+    DATADIR=$RPM_BUILD_ROOT%{_datadir} \
+    LOCKDIR=$RPM_BUILD_ROOT/var/lib/samba \
+    PRIVATEDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+    LIBDIR=$RPM_BUILD_ROOT%{_libdir}/ \
+    MODULESDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
+    CONFIGDIR=$RPM_BUILD_ROOT%{_sysconfdir}/samba \
+    PAMMODULESDIR=$RPM_BUILD_ROOT/%{_lib}/security \
+    MANDIR=$RPM_BUILD_ROOT%{_mandir} \
+    VARDIR=$RPM_BUILD_ROOT/var/log/samba \
+    CODEPAGEDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
+    SWATDIR=$RPM_BUILD_ROOT%{_datadir}/swat \
+    SAMBABOOK=$RPM_BUILD_ROOT%{_datadir}/swat/using_samba \
+    PIDDIR=$RPM_BUILD_ROOT/var/run
 
 cd ..
 
@@ -396,30 +344,12 @@ ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 build_libdir="$RPM_BUILD_ROOT%{_libdir}"
 
-%if %enable_talloc
-# talloc
-cd lib/talloc
-# just to get the correct .pc file generated
-./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
-cd ../..
-install -m 644 lib/talloc/talloc.pc $build_libdir/pkgconfig/
-%endif
-
-%if %enable_tdb
-# tdb
-cd lib/tdb
-# just to get the correct .pc file generated
-./autogen.sh && ./configure --prefix=%{_prefix} --libdir=%{_libdir}
-cd ../..
-install -m 644 lib/tdb/tdb.pc $build_libdir/pkgconfig/
-%endif
-
 # make install puts libraries in the wrong place
 # (but at least gets the versioning right now)
 
 list="smbclient smbsharemodes netapi talloc tdb wbclient"
 for i in $list; do
-	install -m 644 %samba_source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
+    install -m 644 %samba_source/pkgconfig/$i.pc $build_libdir/pkgconfig/ || true
 done
 
 
@@ -469,25 +399,21 @@ mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1 $RPM_BUILD_ROOT%{_mandir}/man1/
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3search.1
 mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
 
-%if ! %enable_talloc
-rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.*
-rm -f $RPM_BUILD_ROOT%{_includedir}/talloc.h
-rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
-rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/talloc.pc
-%endif
+#rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.*
+#rm -f $RPM_BUILD_ROOT%{_includedir}/talloc.h
+#rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
+#rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/talloc.pc
 
-%if ! %enable_tdb
-rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so.*
-rm -f $RPM_BUILD_ROOT%{_includedir}/tdb.h
-rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so
-rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
+#rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so.*
+#rm -f $RPM_BUILD_ROOT%{_includedir}/tdb.h
+#rm -f $RPM_BUILD_ROOT%{_libdir}/libtdb.so
+#rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/tdb.pc
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbbackup
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbdump
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbtool
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbbackup.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbdump.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbtool.8*
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -498,8 +424,8 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add smb
 /sbin/chkconfig --add nmb
 if [ "$1" -ge "1" ]; then
-	/sbin/service smb condrestart >/dev/null 2>&1 || :
-	/sbin/service nmb condrestart >/dev/null 2>&1 || :
+    /sbin/service smb condrestart >/dev/null 2>&1 || :
+    /sbin/service nmb condrestart >/dev/null 2>&1 || :
 fi
 exit 0
 
@@ -522,132 +448,12 @@ exit 0
 /sbin/chkconfig --add winbind
 
 if [ "$1" -ge "1" ]; then
-	/sbin/service winbind condrestart >/dev/null 2>&1 || :
+    /sbin/service winbind condrestart >/dev/null 2>&1 || :
 fi
 
 %post common
 /sbin/ldconfig
 
-###############################################################################
-## We have new default since F-8, time to stop checking for old files are there
-## should be none in any support upgrade case
-## (keeping it commented just for reference for a while
-## 
-## # This script must be run always on installs or upgrades
-## # it checks if a previous installation have created files
-## # under /var/cache/samba and move them in that case as the
-## # new package wants them to be under /var/lib/samba for
-## # FHS compliance
-## #
-## # - we must stop the dameon if running and restart it
-## #   after the script if it was
-## # - we do not overwrite newer files
-## # - even if /etc/init.d/smb is in samba and not
-## #   samba-common we need to stop smbd/nmbd, if they
-## #   are running, here as well, or we will mess up
-## #   shared (between winbindd and smbd/nmbd) tdbs
-## 
-## OLDPATH="/var/cache/samba"
-## NEWPATH="/var/lib/samba"
-## 
-## eval ls $OLDPATH/*.tdb >/dev/null 2>&1
-## if [ $? = 0 ]; then
-##     eval testparm -s 2>/dev/null |grep "lock dir" >/dev/null
-##     if [ $? = 0 ]; then 
-## 	echo "Warning: lock dir explicitly set. Not moving tdb files to new default location"
-##     else
-## 
-## 	#Stop daemons before we move the files around
-## 
-## 	#this is what condrestart checks as well
-## 	if [ -f /var/lock/subsys/winbindd ]; then
-## 		/sbin/service winbind stop >/dev/null 2>&1 || :
-## 		# Use a dirty trick to fool condrestart later
-## 		touch /var/lock/subsys/winbindd
-## 	fi
-## 
-## 	if [ -f /var/lock/subsys/smb ]; then
-## 		/sbin/service smb stop >/dev/null 2>&1 || :
-## 		# We need to stop smbd here as we are moving also smbd owned files
-## 		# but we can't restart it until the new server is installed.
-## 		# Use a dirty trick to fool condrestart later
-## 		touch /var/lock/subsys/smb
-## 	fi
-## 
-## 	if [ -f /var/lock/subsys/nmb ]; then
-## 		/sbin/service nmb stop >/dev/null 2>&1 || :
-## 		# We need to stop smbd here as we are moving also smbd owned files
-## 		# but we can't restart it until the new server is installed.
-## 		# Use a dirty trick to fool condrestart later
-## 		touch /var/lock/subsys/nmb
-## 	fi
-## 
-## 	eval ls $NEWPATH/*.tdb >/dev/null 2>&1
-## 	if [ $? = 0 ]; then
-## 		#something strange here, lets backup this stuff and avoid just wiping it
-## 
-## 		mkdir $NEWPATH.pkgbkp
-## 		mv -f $NEWPATH/*.tdb $NEWPATH.pkgbkp/ >/dev/null 2>&1
-## 		mv -f $NEWPATH/*.dat $NEWPATH.pkgbkp/ >/dev/null 2>&1
-## 		mv -f $NEWPATH/perfmon $NEWPATH.pkgbkp/ >/dev/null 2>&1
-## 		mv -f $NEWPATH/printing $NEWPATH.pkgbkp/ >/dev/null 2>&1
-## 	fi
-## 
-## 	mv -f $OLDPATH/*.tdb $NEWPATH/ >/dev/null 2>&1
-## 	mv -f $OLDPATH/*.dat $NEWPATH/ >/dev/null 2>&1
-## 	mv -f $OLDPATH/perfmon $NEWPATH/ >/dev/null 2>&1
-## 	mv -f $OLDPATH/printing $NEWPATH/ >/dev/null 2>&1
-## 
-##     fi
-## fi
-## 
-## # We also moved private files from /etc/samba to
-## # /var/lib/samba/private so we need to migrate these as well
-## 
-## #secrets.tdb
-## if [ -f %{_sysconfdir}/samba/secrets.tdb ]; then
-## 	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null
-## 	if [ $? = 0 ]; then
-## 		echo "Warning: private dir explicitly set. Not moving secrets.tdb to new default location"
-## 	else
-## 		if [ -f /var/lib/samba/private/secrets.tdb ]; then
-## 			mv -f /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.old
-## 		fi
-## 		mv -f %{_sysconfdir}/samba/secrets.tdb /var/lib/samba/private/secrets.tdb
-## 	fi
-## fi
-## 
-## #smbpasswd
-## if [ -f %{_sysconfdir}/samba/smbpasswd ]; then
-## 	eval testparm -s 2>/dev/null |grep "smb passwd file" >/dev/null
-## 	if [ $? = 0 ]; then
-## 		echo "Warning: smbpasswd file location explicitly set. Not moving smbpasswd to new default location"
-## 	else
-## 		if [ -f /var/lib/samba/private/smbpasswd ]; then
-## 			mv -f /var/lib/samba/private/smbpasswd /var/lib/samba/private/smbpasswd.old
-## 		fi
-## 		mv -f %{_sysconfdir}/samba/smbpasswd /var/lib/samba/private/smbpasswd
-## 	fi
-## fi
-## 
-## #passdb.tdb
-## if [ -f %{_sysconfdir}/samba/passdb.tdb ]; then
-## 	eval testparm -s 2>/dev/null |grep "private dir" >/dev/null || testparm -s 2>/dev/null |grep -P "^\s*passdb\s*backend\s*=.*tdbsam:/etc/samba/passdb.tdb.*"
-## 	if [ $? = 0 ]; then
-## 		echo "Warning: passdb.tdb location explicitly set. Not moving passdb.tdb to new default location"
-## 	else
-## 		if [ -f /var/lib/samba/private/passdb.tdb ]; then
-## 			mv -f /var/lib/samba/private/passdb.tdb /var/lib/samba/private/passdb.tdb.old
-## 		fi
-## 		mv -f %{_sysconfdir}/samba/passdb.tdb /var/lib/samba/private/passdb.tdb
-## 	fi
-## fi
-## 
-## #remove schannel_store if existing, it is not info we need to keep across restarts
-## if [ -f %{_sysconfdir}/samba/schannel_store.tdb ]; then
-## 	rm -f %{_sysconfdir}/samba/schannel_store.tdb
-## fi
-## 
 %preun winbind
 if [ $1 = 0 ] ; then
     /sbin/service winbind stop >/dev/null 2>&1 || :
@@ -664,22 +470,6 @@ exit 0
 
 %postun -n libsmbclient
 /sbin/ldconfig
-
-%if %enable_tdb
-%post -n libtdb
-/sbin/ldconfig
-
-%postun -n libtdb
-/sbin/ldconfig
-%endif
-
-%if %enable_talloc
-%post -n libtalloc
-/sbin/ldconfig
-
-%postun -n libtalloc
-/sbin/ldconfig
-%endif
 
 %files
 %defattr(-,root,root)
@@ -753,8 +543,6 @@ exit 0
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
 %{_libdir}/samba/valid.dat
-%{_libdir}/libnss_wins.so
-/%{_lib}/libnss_wins.so.2
 %{_libdir}/libnetapi.so
 %attr(755,root,root) %{_libdir}/libnetapi.so.*
 %{_includedir}/netapi.h
@@ -800,18 +588,15 @@ exit 0
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/net.8*
 
-%doc README COPYING Manifest 
+%doc README COPYING Manifest
 %doc WHATSNEW.txt Roadmap
 
 %files winbind
+%defattr(-,root,root)
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
-%{_libdir}/libnss_winbind.so
-%attr(755,root,root) %{_libdir}/libwbclient.so.*
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
-/%{_lib}/libnss_winbind.so.2
-/%{_lib}/security/pam_winbind.so
 %{_sbindir}/winbindd
 %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
@@ -825,21 +610,34 @@ exit 0
 %{_mandir}/man8/idmap_*.8*
 %{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
 
+%files winbind-clients
+%defattr(-,root,root)
+%{_libdir}/libnss_winbind.so
+/%{_lib}/libnss_winbind.so.2
+%{_libdir}/libnss_wins.so
+/%{_lib}/libnss_wins.so.2
+/%{_lib}/security/pam_winbind.so
+%attr(755,root,root) %{_libdir}/libwbclient.so.*
+
 %files winbind-devel
+%defattr(-,root,root)
 %{_includedir}/wbclient.h
 %{_libdir}/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 
 %files doc
+%defattr(-,root,root)
 %doc docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
 %doc docs/Samba3-HOWTO.pdf
 %doc docs/htmldocs
 
 %files -n libsmbclient
+%defattr(-,root,root)
 %attr(755,root,root) %{_libdir}/libsmbclient.so.*
 %attr(755,root,root) %{_libdir}/libsmbsharemodes.so.*
 
 %files -n libsmbclient-devel
+%defattr(-,root,root)
 %{_includedir}/libsmbclient.h
 %{_includedir}/smb_share_modes.h
 %{_libdir}/libsmbclient.so
@@ -847,34 +645,6 @@ exit 0
 %{_libdir}/pkgconfig/smbclient.pc
 %{_libdir}/pkgconfig/smbsharemodes.pc
 %{_mandir}/man7/libsmbclient.7*
-
-%if %enable_talloc
-%files -n libtalloc
-%attr(755,root,root) %{_libdir}/libtalloc.so.*
-
-%files -n libtalloc-devel
-%{_includedir}/talloc.h
-%{_libdir}/libtalloc.so
-%{_libdir}/pkgconfig/talloc.pc
-%endif
-
-%if %enable_tdb
-%files -n libtdb
-%attr(755,root,root) %{_libdir}/libtdb.so.*
-
-%files -n libtdb-devel
-%{_includedir}/tdb.h
-%{_libdir}/libtdb.so
-%{_libdir}/pkgconfig/tdb.pc
-
-%files -n tdb-tools
-%{_bindir}/tdbbackup
-%{_bindir}/tdbdump
-%{_bindir}/tdbtool
-%{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
-%{_mandir}/man8/tdbtool.8*
-%endif
 
 %files domainjoin-gui
 %{_sbindir}/netdomjoin-gui
@@ -884,6 +654,18 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Oct 09 2009 Simo Sorce <ssorce@redhat.com> - 3.4.2-47
+- Spec file cleanup
+- Fix sources upstream location
+- Remove conditionals to build talloc and tdb, now they are completely indepent
+  packages in Fedora
+- Add defattr() where missing
+- Turn all tabs into 4 spaces
+- Remove unused migration script
+- Split winbind-clients out of main winbind package to avoid multilib to include
+  huge packages for no good reason
+
+
 * Thu Oct 01 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.2-0.46
 - Update to 3.4.2
 - Security Release, fixes CVE-2009-2813, CVE-2009-2948 and CVE-2009-2906
