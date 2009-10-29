@@ -1,5 +1,5 @@
-%define main_release 47
-%define samba_version 3.4.2
+%define main_release 48
+%define samba_version 3.4.3
 %define tdb_version 1.1.3
 %define talloc_version 1.3.0
 #%define pre_release rc1
@@ -654,6 +654,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Oct 29 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.3-0.47
+- Update to 3.4.3
+
 * Fri Oct 09 2009 Simo Sorce <ssorce@redhat.com> - 3.4.2-47
 - Spec file cleanup
 - Fix sources upstream location
@@ -664,7 +667,6 @@ exit 0
 - Remove unused migration script
 - Split winbind-clients out of main winbind package to avoid multilib to include
   huge packages for no good reason
-
 
 * Thu Oct 01 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.2-0.46
 - Update to 3.4.2
