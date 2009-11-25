@@ -1,4 +1,4 @@
-%define main_release 48
+%define main_release 49
 %define samba_version 3.4.3
 %define tdb_version 1.1.3
 %define talloc_version 1.3.0
@@ -654,6 +654,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Nov 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.3-49
+- Various updates to inline documentation in default smb.conf file
+- resolves: #483703
+
 * Thu Oct 29 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.3-48
 - Update to 3.4.3
 
