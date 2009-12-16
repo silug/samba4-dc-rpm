@@ -1,0 +1,11 @@
+--- source3/configure.in.orig	2009-12-15 14:36:46.000000000 +0100
++++ source3/configure.in	2009-12-15 14:36:52.000000000 +0100
+@@ -1885,7 +1885,7 @@
+ 
+ if test "x$enable_external_libtalloc" != xno
+ then
+-	PKG_CHECK_MODULES(LIBTALLOC, talloc >= 2.0.1,
++	PKG_CHECK_MODULES(LIBTALLOC, talloc >= 2.0.0,
+ 		[ enable_external_libtalloc=yes ],
+ 		[if test x$enable_external_libtalloc = xyes; then
+ 			AC_MSG_ERROR([Unable to find libtalloc])

@@ -1,9 +1,9 @@
-%define main_release 49
-%define samba_version 3.4.3
-%define tdb_version 1.1.3
-%define talloc_version 1.3.0
-#%define pre_release rc1
-%define pre_release %nil
+%define main_release 50
+%define samba_version 3.5.0
+%define tdb_version 1.1.7
+%define talloc_version 2.0.0
+#%define pre_release %nil
+%define pre_release pre2
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -17,7 +17,7 @@ License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-Source: http://www.samba.org/samba/ftp/%{name}-%{samba_version}%{pre_release}.tar.gz
+Source: http://www.samba.org/samba/%{name}-%{samba_version}%{pre_release}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -45,6 +45,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
+Patch201: samba-3.5.0pre2-build.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -202,6 +203,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
+%patch201 -p0 -b .build
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -255,10 +257,10 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
     --with-swatdir=%{_datadir}/swat \
     --with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
     --with-cifsupcall \
-    --with-cluster-support \
+    --with-cluster-support=auto \
     --with-libtalloc=no \
     --enable-external-libtalloc=yes \
-    --with-libtdb=no \
+    --with-libtdb=no
 #    --enable-external-libtdb=yes \
 #    --with-aio-support \
 
@@ -363,7 +365,6 @@ install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
 install -m755 $RPM_BUILD_ROOT/usr/sbin/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
-install -m755 $RPM_BUILD_ROOT/usr/sbin/umount.cifs $RPM_BUILD_ROOT/sbin/umount.cifs
 
 install -m 755 %samba_source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -381,6 +382,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmount.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/umount.cifs.8*
 
 # why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
@@ -509,7 +511,6 @@ exit 0
 %files client
 %defattr(-,root,root)
 /sbin/mount.cifs
-/sbin/umount.cifs
 %{_sbindir}/cifs.upcall
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
@@ -533,7 +534,6 @@ exit 0
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/mount.cifs.8*
-%{_mandir}/man8/umount.cifs.8*
 %{_mandir}/man8/cifs.upcall.8*
 
 %files common
@@ -587,6 +587,7 @@ exit 0
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/net.8*
+%{_datadir}/locale/*/LC_MESSAGES/net.mo
 
 %doc README COPYING Manifest
 %doc WHATSNEW.txt Roadmap
@@ -622,6 +623,7 @@ exit 0
 %files winbind-devel
 %defattr(-,root,root)
 %{_includedir}/wbclient.h
+%{_includedir}/wbc_async.h
 %{_libdir}/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 
@@ -647,6 +649,7 @@ exit 0
 %{_mandir}/man7/libsmbclient.7*
 
 %files domainjoin-gui
+%defattr(-,root,root)
 %{_sbindir}/netdomjoin-gui
 %dir %{_datadir}/pixmaps/samba
 %{_datadir}/pixmaps/samba/samba.ico
@@ -654,6 +657,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Dec 15 2009 Guenther Deschner <gdeschner@redhat.com> - 3.5.0pre2-50
+- Update to 3.5.0pre2
+- Remove umount.cifs
+
 * Wed Nov 25 2009 Guenther Deschner <gdeschner@redhat.com> - 3.4.3-49
 - Various updates to inline documentation in default smb.conf file
 - resolves: #483703
