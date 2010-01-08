@@ -1,9 +1,9 @@
-%define main_release 51
+%define main_release 52
 %define samba_version 3.5.0
 %define tdb_version 1.1.7
 %define talloc_version 2.0.1
 #%define pre_release %nil
-%define pre_release pre2
+%define pre_release rc1
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -655,6 +655,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Jan 08 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0rc1-52
+- Update to 3.5.0rc1
+
 * Tue Dec 15 2009 Guenther Deschner <gdeschner@redhat.com> - 3.5.0pre2-51
 - Update to 3.5.0pre2
 - Remove umount.cifs
