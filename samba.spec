@@ -1,4 +1,4 @@
-%define main_release 52
+%define main_release 53
 %define samba_version 3.5.0
 %define tdb_version 1.1.7
 %define talloc_version 2.0.1
@@ -83,6 +83,14 @@ The samba-client package provides some SMB/CIFS clients to complement
 the built-in SMB/CIFS filesystem in Linux. These clients allow access
 of SMB/CIFS shares and printing to SMB/CIFS printers.
 
+%package -n cifs-utils
+Summary: Helper programs for mounting shares using the in-kernel CIFS client
+Group: Applications/System
+Requires: samba-common = %{epoch}:%{samba_version}-%{release}
+
+%description -n cifs-utils
+The cifs-utils package contains helper programs for mounting shares
+using the in-kernel Linux CIFS client.
 
 %package common
 Summary: Files used by both Samba servers and clients
@@ -508,8 +516,6 @@ exit 0
 
 %files client
 %defattr(-,root,root)
-/sbin/mount.cifs
-%{_sbindir}/cifs.upcall
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
@@ -531,6 +537,11 @@ exit 0
 %{_mandir}/man1/smbget.1*
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man8/smbspool.8*
+
+%files -n cifs-utils
+%defattr(-,root,root)
+/sbin/mount.cifs
+%{_sbindir}/cifs.upcall
 %{_mandir}/man8/mount.cifs.8*
 %{_mandir}/man8/cifs.upcall.8*
 
@@ -655,6 +666,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Jan 15 2010 Jeff Layton <jlayton@redhat.com> - 3.5.0rc1-53
+- separate out CIFS tools into cifs-utils package
+
 * Fri Jan 08 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0rc1-52
 - Update to 3.5.0rc1
 
