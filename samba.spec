@@ -1,9 +1,9 @@
-%define main_release 53
+%define main_release 54
 %define samba_version 3.5.0
 %define tdb_version 1.1.7
 %define talloc_version 2.0.1
 #%define pre_release %nil
-%define pre_release rc1
+%define pre_release rc2
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -614,6 +614,7 @@ exit 0
 %{_initrddir}/winbind
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/wbinfo.1*
+%{_mandir}/man5/pam_winbind.conf.5*
 %{_mandir}/man8/pam_winbind.8*
 %{_mandir}/man7/winbind_krb5_locator.7*
 %{_mandir}/man8/winbindd.8*
@@ -666,6 +667,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Jan 26 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0rc2-54
+- Update to 3.5.0rc2
+
 * Fri Jan 15 2010 Jeff Layton <jlayton@redhat.com> - 3.5.0rc1-53
 - separate out CIFS tools into cifs-utils package
 
