@@ -1,4 +1,4 @@
-%define main_release 56
+%define main_release 57
 %define samba_version 3.5.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
@@ -82,15 +82,6 @@ Requires: samba-common = %{epoch}:%{samba_version}-%{release}
 The samba-client package provides some SMB/CIFS clients to complement
 the built-in SMB/CIFS filesystem in Linux. These clients allow access
 of SMB/CIFS shares and printing to SMB/CIFS printers.
-
-%package -n cifs-utils
-Summary: Helper programs for mounting shares using the in-kernel CIFS client
-Group: Applications/System
-Requires: samba-common = %{epoch}:%{samba_version}-%{release}
-
-%description -n cifs-utils
-The cifs-utils package contains helper programs for mounting shares
-using the in-kernel Linux CIFS client.
 
 %package common
 Summary: Files used by both Samba servers and clients
@@ -262,7 +253,6 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
     --with-pammodulesdir=%{_lib}/security \
     --with-swatdir=%{_datadir}/swat \
     --with-shared-modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2 \
-    --with-cifsupcall \
     --with-cluster-support=auto \
     --with-libtalloc=no \
     --enable-external-libtalloc=yes \
@@ -281,7 +271,7 @@ make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}%{pre_release}/%sam
     %{?_smp_mflags} \
     -C lib/netapi/examples
 
-make  debug2html smbfilter bin/cifs.upcall
+make  debug2html smbfilter
 
 
 %install
@@ -370,7 +360,6 @@ install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/xinetd.d/swat
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 install -m644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/samba
-install -m755 $RPM_BUILD_ROOT/usr/sbin/mount.cifs $RPM_BUILD_ROOT/sbin/mount.cifs
 
 install -m 755 %samba_source/lib/netapi/examples/bin/netdomjoin-gui $RPM_BUILD_ROOT/%{_sbindir}/netdomjoin-gui
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps/%{name}
@@ -388,10 +377,11 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/testprns.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmount.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbmnt.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/smbumount.8*
-rm -f $RPM_BUILD_ROOT%{_mandir}/man8/umount.cifs.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/{u,}mount.cifs.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/{u,}cifs.upcall.8*
 
-# why are these getting installed in the wrong place?
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
+rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.upcall
 
 #Rename ldb tools, as samba3 has an old copy of ldb.
 mv -f $RPM_BUILD_ROOT%{_bindir}/ldbadd $RPM_BUILD_ROOT%{_bindir}/ldb3add
@@ -538,13 +528,6 @@ exit 0
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man8/smbspool.8*
 
-%files -n cifs-utils
-%defattr(-,root,root)
-/sbin/mount.cifs
-%{_sbindir}/cifs.upcall
-%{_mandir}/man8/mount.cifs.8*
-%{_mandir}/man8/cifs.upcall.8*
-
 %files common
 %defattr(-,root,root)
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
@@ -667,6 +650,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Mar 08 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0-57
+- Remove cifs.upcall and mount.cifs entirely
+
 * Mon Mar 01 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0-56
 - Update to 3.5.0
 
