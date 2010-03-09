@@ -1,5 +1,5 @@
-%define main_release 57
-%define samba_version 3.5.0
+%define main_release 58
+%define samba_version 3.5.1
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
 #%define pre_release rc3
@@ -650,6 +650,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Mar 08 2010 Simo Sorce <ssorce@redhat.com> - 3.5.1-58
+- Security update to 3.5.1
+- Fixes CVE-2010-0728
+
 * Mon Mar 08 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.0-57
 - Remove cifs.upcall and mount.cifs entirely
 
