@@ -1,5 +1,5 @@
-%define main_release 58
-%define samba_version 3.5.1
+%define main_release 59
+%define samba_version 3.5.2
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
 #%define pre_release rc3
@@ -650,6 +650,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Apr 07 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.2-59
+- Update to 3.5.2
+
 * Mon Mar 08 2010 Simo Sorce <ssorce@redhat.com> - 3.5.1-58
 - Security update to 3.5.1
 - Fixes CVE-2010-0728
