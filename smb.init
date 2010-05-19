@@ -71,7 +71,7 @@ reload() {
 }	
 
 rhstatus() {
-	status smbd
+	status -l smb smbd
 	return $?
 }	
 

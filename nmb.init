@@ -71,7 +71,7 @@ reload() {
 }	
 
 rhstatus() {
-	status nmbd
+	status -l nmb nmbd
 	return $?
 }	
 
