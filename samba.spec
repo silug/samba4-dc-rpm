@@ -1,9 +1,9 @@
-%define main_release 61
-%define samba_version 3.5.4
+%define main_release 62
+%define samba_version 3.6.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
-#%define pre_release rc3
-%define pre_release %nil
+#%define pre_release %nil
+%define pre_release pre1
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -261,6 +261,8 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
 #    --with-aio-support \
 
 
+make samba3-idl
+
 make  pch
 
 make  LD_LIBRARY_PATH=$RPM_BUILD_DIR/%{name}-%{samba_version}%{pre_release}/%samba_source/bin \
@@ -383,20 +385,6 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man8/{u,}cifs.upcall.8*
 rm -f $RPM_BUILD_ROOT%{_sbindir}/{u,}mount.cifs
 rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.upcall
 
-#Rename ldb tools, as samba3 has an old copy of ldb.
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbadd $RPM_BUILD_ROOT%{_bindir}/ldb3add
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbdel $RPM_BUILD_ROOT%{_bindir}/ldb3del
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbmodify $RPM_BUILD_ROOT%{_bindir}/ldb3modify
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbsearch $RPM_BUILD_ROOT%{_bindir}/ldb3search
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbrename $RPM_BUILD_ROOT%{_bindir}/ldb3rename
-mv -f $RPM_BUILD_ROOT%{_bindir}/ldbedit $RPM_BUILD_ROOT%{_bindir}/ldb3edit
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbadd.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3add.1
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbdel.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3del.1
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbedit.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3edit.1
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3modify.1
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3search.1
-mv -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1 $RPM_BUILD_ROOT%{_mandir}/man1/ldb3rename.1
-
 #rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so.*
 #rm -f $RPM_BUILD_ROOT%{_includedir}/talloc.h
 #rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.so
@@ -412,6 +400,13 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/tdbtool
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbbackup.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbdump.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbtool.8*
+
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbadd.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbdel.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbedit.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -517,6 +512,7 @@ exit 0
 %{_bindir}/smbtar
 %{_bindir}/smbtree
 %{_bindir}/sharesec
+%{_bindir}/smbta-util
 %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/rpcclient.1*
@@ -527,6 +523,7 @@ exit 0
 %{_mandir}/man1/smbget.1*
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man8/smbspool.8*
+%{_mandir}/man8/smbta-util.8*
 
 %files common
 %defattr(-,root,root)
@@ -546,12 +543,6 @@ exit 0
 %{_bindir}/profiles
 %{_bindir}/smbcquotas
 %{_bindir}/smbcontrol
-%{_bindir}/ldb3add
-%{_bindir}/ldb3del
-%{_bindir}/ldb3edit
-%{_bindir}/ldb3modify
-%{_bindir}/ldb3search
-%{_bindir}/ldb3rename
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/lib/samba/scripts
@@ -561,12 +552,6 @@ exit 0
 %dir %{_sysconfdir}/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
-%{_mandir}/man1/ldb3add.1.gz
-%{_mandir}/man1/ldb3del.1.gz
-%{_mandir}/man1/ldb3edit.1.gz
-%{_mandir}/man1/ldb3modify.1.gz
-%{_mandir}/man1/ldb3search.1.gz
-%{_mandir}/man1/ldb3rename.1.gz
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbcontrol.1*
@@ -616,7 +601,6 @@ exit 0
 %files winbind-devel
 %defattr(-,root,root)
 %{_includedir}/wbclient.h
-%{_includedir}/wbc_async.h
 %{_libdir}/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 
@@ -650,6 +634,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Aug 03 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-62
+- Update to 3.6.0pre1
+
 * Wed Jun 23 2010 Guenther Deschner <gdeschner@redhat.com> - 3.5.4-61
 - Update to 3.5.4
 
