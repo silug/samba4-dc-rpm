@@ -1,4 +1,4 @@
-%define main_release 62
+%define main_release 63
 %define samba_version 3.6.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
@@ -111,6 +111,15 @@ The samba-winbind package provides the winbind daemon and some client tools.
 Winbind enables Linux to be a full member in Windows domains and to use
 Windows user and group accounts on Linux.
 
+
+%package winbind-krb5-locator
+Summary: Samba winbind krb5 locator
+Requires: samba-winbind-clients = %{epoch}:%{samba_version}-%{release}
+Group: Applications/System
+
+%description winbind-krb5-locator
+The winbind krb5 locator is a plugin for the system kerberos library to allow
+the local kerberos library to use the same KDC as samba and winbind use
 
 %package winbind-clients
 Summary: Samba winbind clients
@@ -339,6 +348,11 @@ install -m 755 nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/%{_lib}/libnss_winbind
 ln -sf /%{_lib}/libnss_winbind.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_winbind.so
 install -m 755 nsswitch/libnss_wins.so $RPM_BUILD_ROOT/%{_lib}/libnss_wins.so.2
 ln -sf /%{_lib}/libnss_wins.so.2  $RPM_BUILD_ROOT%{_libdir}/libnss_wins.so
+
+# winbind krb5 locator
+#mkdir -p $RPM_BUILD_ROOT%{_libdir}/krb5/plugins/libkrb5
+install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
+install -m 755 source3/bin/winbind_krb5_locator.so $RPM_BUILD_ROOT/%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 # libraries {
 mkdir -p $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
@@ -584,10 +598,13 @@ exit 0
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man5/pam_winbind.conf.5*
 %{_mandir}/man8/pam_winbind.8*
-%{_mandir}/man7/winbind_krb5_locator.7*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
 %{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
+
+%files winbind-krb5-locator
+%{_mandir}/man7/winbind_krb5_locator.7*
+%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 %files winbind-clients
 %defattr(-,root,root)
@@ -634,6 +651,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Aug 26 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-63
+- Put winbind krb5 locator plugin into a separate rpm
+- resolves: #627181
+
 * Tue Aug 03 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-62
 - Update to 3.6.0pre1
 
