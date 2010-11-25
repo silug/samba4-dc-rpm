@@ -652,7 +652,7 @@ exit 0
 
 %changelog
 * Wed Nov 24 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-64
-- Add %ghost directives for systemd
+- Add %ghost entry for /var/run using tmpfs
 - resolves: #656685
 
 * Thu Aug 26 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-63
