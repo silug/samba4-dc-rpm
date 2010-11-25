@@ -1,4 +1,4 @@
-%define main_release 63
+%define main_release 64
 %define samba_version 3.6.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
@@ -590,7 +590,7 @@ exit 0
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
 %{_sbindir}/winbindd
-%dir /var/run/winbindd
+%ghost %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_initrddir}/winbind
@@ -651,6 +651,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Nov 24 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-64
+- Add %ghost directives for systemd
+- resolves: #656685
+
 * Thu Aug 26 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-63
 - Put winbind krb5 locator plugin into a separate rpm
 - resolves: #627181
