@@ -1,4 +1,4 @@
-%define main_release 64
+%define main_release 65
 %define samba_version 3.6.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
@@ -53,7 +53,7 @@ BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
-BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel
+BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel, quota-devel
 BuildRequires: libtalloc-devel, libtdb-devel
 
 # Working around perl dependency problem from docs
@@ -651,6 +651,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Mar 11 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-65
+- Enable quota support
+
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:3.6.0-64pre1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
