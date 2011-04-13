@@ -1,9 +1,9 @@
-%define main_release 65
+%define main_release 66
 %define samba_version 3.6.0
 %define tdb_version 1.2.1
 %define talloc_version 2.0.1
 #%define pre_release %nil
-%define pre_release pre1
+%define pre_release pre2
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -45,6 +45,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
+Patch201: samba-3.6.0pre2.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -210,6 +211,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
+%patch201 -p1 -b .buildfix
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -411,6 +413,7 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/cifs.upcall
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbbackup
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbdump
 rm -f $RPM_BUILD_ROOT%{_bindir}/tdbtool
+rm -f $RPM_BUILD_ROOT%{_bindir}/tdbrestore
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbbackup.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbdump.8*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/tdbtool.8*
@@ -624,7 +627,7 @@ exit 0
 %files doc
 %defattr(-,root,root)
 %doc docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
-%doc docs/Samba3-HOWTO.pdf
+#%doc docs/Samba3-HOWTO.pdf
 %doc docs/htmldocs
 
 %files -n libsmbclient
@@ -651,6 +654,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Apr 13 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre2-66
+- Update to 3.6.0pre2
+
 * Fri Mar 11 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-65
 - Enable quota support
 

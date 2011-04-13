@@ -1,0 +1,26 @@
+From 6e482682528445659d05574c2bd37b8730e35ce5 Mon Sep 17 00:00:00 2001
+From: Michael Adam <obnox@samba.org>
+Date: Mon, 4 Apr 2011 11:46:31 +0200
+Subject: [PATCH] s3:idmap_tdb2: fix build of tdb2
+
+The include of system/filesys.h was removed from includes.h. ...
+(cherry picked from commit b7e330a2b325463e49abceb8f3e8d792248179ed)
+---
+ source3/winbindd/idmap_tdb2.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/source3/winbindd/idmap_tdb2.c b/source3/winbindd/idmap_tdb2.c
+index 82121f8..1a5a51a 100644
+--- a/source3/winbindd/idmap_tdb2.c
++++ b/source3/winbindd/idmap_tdb2.c
+@@ -32,6 +32,7 @@
+ */
+ 
+ #include "includes.h"
++#include "system/filesys.h"
+ #include "winbindd.h"
+ #include "idmap.h"
+ #include "idmap_rw.h"
+-- 
+1.7.4.2
+
