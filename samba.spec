@@ -1,9 +1,9 @@
-%define main_release 67
+%define main_release 68
 %define samba_version 3.6.0
-%define tdb_version 1.2.1
-%define talloc_version 2.0.1
+%define tdb_version 1.2.9
+%define talloc_version 2.0.5
 #%define pre_release %nil
-%define pre_release pre3
+%define pre_release rc1
 
 %define samba_release %{main_release}%{pre_release}%{?dist}
 
@@ -652,6 +652,9 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue May 17 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0rc1-68
+- Update to 3.6.0rc1
+
 * Wed Apr 27 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre3-67
 - Update to 3.6.0pre3
 
