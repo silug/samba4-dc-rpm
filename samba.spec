@@ -1,4 +1,4 @@
-%define main_release 71
+%define main_release 72
 %define samba_version 3.6.0
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -10,9 +10,9 @@
 %define samba_source source3
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
-Epoch: 0
+Epoch: 1
 Version: %{samba_version}
-Release: %{samba_release}.1
+Release: %{samba_release}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -24,12 +24,12 @@ Source1: samba.log
 Source2: samba.xinetd
 Source3: swat.desktop
 Source4: samba.sysconfig
-Source5: smb.init
+Source5: smb.service
 Source6: samba.pamd
 Source7: smbprint
-Source8: winbind.init
+Source8: winbind.service
 Source9: smb.conf.default
-Source10: nmb.init
+Source10: nmb.service
 Source11: pam_winbind.conf
 
 # Don't depend on Net::LDAP
@@ -49,9 +49,11 @@ Patch200: samba-3.2.5-inotify.patch
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
 Requires: logrotate >= 0:3.4
-BuildRoot: %{_tmppath}/%{name}-%{samba_version}-%{release}-root
-Requires(post): /sbin/chkconfig, /sbin/service
-Requires(preun): /sbin/chkconfig, /sbin/service
+Requires(post): systemd-sysv
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
+BuildRequires: systemd-units
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel, quota-devel
 BuildRequires: libtalloc-devel, libtdb-devel
@@ -89,8 +91,7 @@ Requires: libtdb >= 0:%{tdb_version}
 Requires: libtalloc >= 0:%{talloc_version}
 Group: Applications/System
 Requires(pre): /usr/sbin/groupadd
-Requires(post): /sbin/chkconfig, /sbin/service, coreutils
-Requires(preun): /sbin/chkconfig, /sbin/service
+Requires(post): coreutils
 
 %description common
 Samba-common provides files necessary for both the server and client
@@ -103,8 +104,7 @@ Group: Applications/System
 Requires: samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: samba-winbind-clients = %{epoch}:%{samba_version}-%{release}
 Requires(pre): /usr/sbin/groupadd
-Requires(post): /sbin/chkconfig, /sbin/service, coreutils
-Requires(preun): /sbin/chkconfig, /sbin/service
+Requires(post): coreutils
 
 %description winbind
 The samba-winbind package provides the winbind daemon and some client tools.
@@ -197,7 +197,7 @@ cp packaging/RHEL/setup/smbusers packaging/Fedora/
 cp %{SOURCE5} packaging/Fedora/
 cp %{SOURCE6} packaging/Fedora/
 cp %{SOURCE7} packaging/Fedora/
-cp %{SOURCE8} packaging/Fedora/winbind.init
+cp %{SOURCE8} packaging/Fedora/winbind.service
 cp %{SOURCE9} packaging/Fedora/
 cp %{SOURCE10} packaging/Fedora/
 cp %{SOURCE11} packaging/Fedora/
@@ -286,11 +286,9 @@ make  debug2html smbfilter
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 mkdir -p $RPM_BUILD_ROOT/sbin
 mkdir -p $RPM_BUILD_ROOT/usr/{sbin,bin}
-mkdir -p $RPM_BUILD_ROOT/%{_initrddir}
+mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/{pam.d,logrotate.d,security}
 mkdir -p $RPM_BUILD_ROOT/%{_lib}/security
 mkdir -p $RPM_BUILD_ROOT/var/lib/samba
@@ -331,9 +329,9 @@ install -m644 packaging/Fedora/smb.conf.default $RPM_BUILD_ROOT%{_sysconfdir}/sa
 install -m755 %samba_source/script/mksmbpasswd.sh $RPM_BUILD_ROOT%{_bindir}
 install -m644 packaging/Fedora/smbusers $RPM_BUILD_ROOT%{_sysconfdir}/samba/smbusers
 install -m755 packaging/Fedora/smbprint $RPM_BUILD_ROOT%{_bindir}
-install -m755 packaging/Fedora/smb.init $RPM_BUILD_ROOT%{_initrddir}/smb
-install -m755 packaging/Fedora/nmb.init $RPM_BUILD_ROOT%{_initrddir}/nmb
-install -m755 packaging/Fedora/winbind.init $RPM_BUILD_ROOT%{_initrddir}/winbind
+install -m644 packaging/Fedora/smb.service $RPM_BUILD_ROOT%{_unitdir}/smb.service
+install -m644 packaging/Fedora/nmb.service $RPM_BUILD_ROOT%{_unitdir}/nmb.service
+install -m644 packaging/Fedora/winbind.service $RPM_BUILD_ROOT%{_unitdir}/winbind.service
 install -m644 packaging/Fedora/pam_winbind.conf $RPM_BUILD_ROOT%{_sysconfdir}/security
 #ln -s ../..%{_initrddir}/smb  $RPM_BUILD_ROOT%{_sbindir}/samba
 install -m644 packaging/Fedora/samba.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/samba
@@ -423,72 +421,95 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1*
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-#%pre
-
 %post
-/sbin/chkconfig --add smb
-/sbin/chkconfig --add nmb
-if [ "$1" -ge "1" ]; then
-    /sbin/service smb condrestart >/dev/null 2>&1 || :
-    /sbin/service nmb condrestart >/dev/null 2>&1 || :
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-exit 0
 
 %preun
-if [ $1 = 0 ] ; then
-    /sbin/service smb stop >/dev/null 2>&1 || :
-    /sbin/service nmb stop >/dev/null 2>&1 || :
-    /sbin/chkconfig --del smb
-    /sbin/chkconfig --del nmb
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable smb.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable nmb.service > /dev/null 2>&1 || :
+    /bin/systemctl stop smb.service > /dev/null 2>&1 || :
+    /bin/systemctl stop nmb.service > /dev/null 2>&1 || :
 fi
-exit 0
 
-#%postun
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
+    /bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
+fi
 
+%triggerun -- samba < 1:3.6.0-72
+# Save the current service runlevel info
+# User must manually run 
+#   systemd-sysv-convert --apply smb
+#   systemd-sysv-convert --apply nmb
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save smb >/dev/null 2>&1 ||:
+/usr/bin/systemd-sysv-convert --save nmb >/dev/null 2>&1 ||:
+
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del smb >/dev/null 2>&1 || :
+/sbin/chkconfig --del nmb >/dev/null 2>&1 || :
+/bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
+/bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
 
 %pre winbind
 /usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
 
 %post winbind
-/sbin/chkconfig --add winbind
-
-if [ "$1" -ge "1" ]; then
-    /sbin/service winbind condrestart >/dev/null 2>&1 || :
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-
-%post common
-/sbin/ldconfig
 
 %preun winbind
-if [ $1 = 0 ] ; then
-    /sbin/service winbind stop >/dev/null 2>&1 || :
-    /sbin/chkconfig --del winbind
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable winbind.service > /dev/null 2>&1 || :
+    /bin/systemctl stop winbind.service > /dev/null 2>&1 || :
 fi
-exit 0
 
-%postun common
-/sbin/ldconfig
+%postun winbind
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
+fi
 
+%triggerun winbind -- samba-winbind < 1:3.6.0-72
+# Save the current service runlevel info
+# User must manually run
+#   systemd-sysv-convert --apply winbind
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save winbind >/dev/null 2>&1 ||:
 
-%post -n libsmbclient
-/sbin/ldconfig
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del winbind >/dev/null 2>&1 || :
+/bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
 
-%postun -n libsmbclient
-/sbin/ldconfig
+%post common -p	/sbin/ldconfig
+
+%postun common -p /sbin/ldconfig
+
+%post -n libsmbclient -p /sbin/ldconfig
+
+%postun -n libsmbclient -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root)
 %{_sbindir}/smbd
 %{_sbindir}/nmbd
 %{_bindir}/mksmbpasswd.sh
 %{_bindir}/smbstatus
 %{_bindir}/eventlogadm
 %config(noreplace) %{_sysconfdir}/samba/smbusers
-%attr(755,root,root) %{_initrddir}/smb
-%attr(755,root,root) %{_initrddir}/nmb
+%{_unitdir}/smb.service
+%{_unitdir}/nmb.service
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_mandir}/man7/samba.7*
@@ -507,7 +528,6 @@ exit 0
 %doc examples/printing
 
 %files swat
-%defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat
 %{_datadir}/swat
 %{_sbindir}/swat
@@ -515,7 +535,6 @@ exit 0
 %attr(755,root,root) %{_libdir}/samba/*.msg
 
 %files client
-%defattr(-,root,root)
 %{_bindir}/rpcclient
 %{_bindir}/smbcacls
 %{_bindir}/findsmb
@@ -541,7 +560,6 @@ exit 0
 %{_mandir}/man8/smbta-util.8*
 
 %files common
-%defattr(-,root,root)
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %dir %{_libdir}/samba
 %{_libdir}/samba/lowcase.dat
@@ -585,7 +603,6 @@ exit 0
 %doc WHATSNEW.txt Roadmap
 
 %files winbind
-%defattr(-,root,root)
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
 %{_libdir}/samba/idmap
@@ -594,7 +611,7 @@ exit 0
 %ghost %dir /var/run/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
-%{_initrddir}/winbind
+%{_unitdir}/winbind.service
 %{_mandir}/man1/ntlm_auth.1*
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man5/pam_winbind.conf.5*
@@ -608,7 +625,6 @@ exit 0
 %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 %files winbind-clients
-%defattr(-,root,root)
 %{_libdir}/libnss_winbind.so
 /%{_lib}/libnss_winbind.so.2
 %{_libdir}/libnss_wins.so
@@ -617,24 +633,20 @@ exit 0
 %attr(755,root,root) %{_libdir}/libwbclient.so.*
 
 %files winbind-devel
-%defattr(-,root,root)
 %{_includedir}/wbclient.h
 %{_libdir}/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 
 %files doc
-%defattr(-,root,root)
 %doc docs/Samba3-Developers-Guide.pdf docs/Samba3-ByExample.pdf
 %doc docs/Samba3-HOWTO.pdf
 %doc docs/htmldocs
 
 %files -n libsmbclient
-%defattr(-,root,root)
 %attr(755,root,root) %{_libdir}/libsmbclient.so.*
 %attr(755,root,root) %{_libdir}/libsmbsharemodes.so.*
 
 %files -n libsmbclient-devel
-%defattr(-,root,root)
 %{_includedir}/libsmbclient.h
 %{_includedir}/smb_share_modes.h
 %{_libdir}/libsmbclient.so
@@ -644,7 +656,6 @@ exit 0
 %{_mandir}/man7/libsmbclient.7*
 
 %files domainjoin-gui
-%defattr(-,root,root)
 %{_sbindir}/netdomjoin-gui
 %dir %{_datadir}/pixmaps/samba
 %{_datadir}/pixmaps/samba/samba.ico
@@ -652,6 +663,10 @@ exit 0
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Sep 20 2011 Tom Callaway <spot@fedoraproject.org> - 1:3.6.0-72
+- convert to systemd
+- restore epoch from f15
+
 * Sat Aug 13 2011 Guenther Deschner <gdeschner@redhat.com> - 3.6.0-71
 - Update to 3.6.0 final
 
