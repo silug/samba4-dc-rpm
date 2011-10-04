@@ -1,4 +1,4 @@
-%define main_release 72
+%define main_release 73
 %define samba_version 3.6.0
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -265,7 +265,8 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
     --with-cluster-support=auto \
     --with-libtalloc=no \
     --enable-external-libtalloc=yes \
-    --with-libtdb=no
+    --with-libtdb=no \
+    --with-nmbdsocketdir=/var/run/nmbd
 #    --enable-external-libtdb=yes \
 #    --with-aio-support \
 
@@ -298,6 +299,7 @@ mkdir -p $RPM_BUILD_ROOT/var/lib/samba/scripts
 mkdir -p $RPM_BUILD_ROOT/var/log/samba/old
 mkdir -p $RPM_BUILD_ROOT/var/spool/samba
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/swat/using_samba
+mkdir -p $RPM_BUILD_ROOT/var/run/nmbd
 mkdir -p $RPM_BUILD_ROOT/var/run/winbindd
 mkdir -p $RPM_BUILD_ROOT/%{_libdir}/samba
 mkdir -p $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
@@ -320,7 +322,8 @@ cd %samba_source
     CODEPAGEDIR=$RPM_BUILD_ROOT%{_libdir}/samba \
     SWATDIR=$RPM_BUILD_ROOT%{_datadir}/swat \
     SAMBABOOK=$RPM_BUILD_ROOT%{_datadir}/swat/using_samba \
-    PIDDIR=$RPM_BUILD_ROOT/var/run
+    PIDDIR=$RPM_BUILD_ROOT/var/run \
+    NMBDSOCKETDIR=$RPM_BUILD_ROOT/var/run/nmbd
 
 cd ..
 
@@ -523,6 +526,7 @@ fi
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
+%ghost %dir /var/run/nmbd
 
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
 %doc examples/printing
@@ -663,6 +667,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue Oct 04 2011 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.0-73
+- Fix nmbd startup
+- resolves: #741630
+
 * Tue Sep 20 2011 Tom Callaway <spot@fedoraproject.org> - 1:3.6.0-72
 - convert to systemd
 - restore epoch from f15
