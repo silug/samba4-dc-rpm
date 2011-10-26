@@ -1,5 +1,5 @@
-%define main_release 73
-%define samba_version 3.6.0
+%define main_release 74
+%define samba_version 3.6.1
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
 #%define pre_release rc3
@@ -667,6 +667,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed Oct 26 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-74
+- Update to 3.6.1
+
 * Tue Oct 04 2011 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.0-73
 - Fix nmbd startup
 - resolves: #741630
