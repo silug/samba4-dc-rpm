@@ -1,4 +1,4 @@
-%define main_release 74
+%define main_release 75
 %define samba_version 3.6.1
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -667,6 +667,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Nov 04 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-75
+- Fix systemd dependencies
+- resolves: #751397
+
 * Wed Oct 26 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-74
 - Update to 3.6.1
 
