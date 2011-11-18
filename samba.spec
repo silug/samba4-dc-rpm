@@ -1,4 +1,4 @@
-%define main_release 75
+%define main_release 76
 %define samba_version 3.6.1
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -45,6 +45,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
+Patch300: samba-3.6.1-debug.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -210,6 +211,7 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
+%patch300 -p1 -b .debug
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -252,7 +254,7 @@ CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -DLDAP_DEPRECATED" %configure \
     --with-winbind \
     --without-smbwrapper \
     --with-lockdir=/var/lib/samba \
-    --with-piddir=/var/run \
+    --with-piddir=/run \
     --with-mandir=%{_mandir} \
     --with-privatedir=/var/lib/samba/private \
     --with-logfilebase=/var/log/samba \
@@ -667,6 +669,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri Nov 18 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-76
+- Fix piddir to match with systemd files.
+- Fix crash bug in the debug system.
+- resolves: #754525
 * Fri Nov 04 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-75
 - Fix systemd dependencies
 - resolves: #751397
