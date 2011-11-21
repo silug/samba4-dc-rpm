@@ -673,6 +673,7 @@ fi
 - Fix piddir to match with systemd files.
 - Fix crash bug in the debug system.
 - resolves: #754525
+
 * Fri Nov 04 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-75
 - Fix systemd dependencies
 - resolves: #751397
