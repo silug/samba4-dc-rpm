@@ -12,7 +12,7 @@ Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 1
 Version: %{samba_version}
-Release: %{samba_release}
+Release: %{samba_release}.1
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -671,6 +671,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.6.1-77.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Mon Dec 05 2011 Andreas Schneider <asn@redhat.com> - 1:3.6.1-77
 - Fix winbind cache upgrade.
 - resolves: #760137
