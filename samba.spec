@@ -1,5 +1,5 @@
-%define main_release 77
-%define samba_version 3.6.1
+%define main_release 78
+%define samba_version 3.6.3
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
 #%define pre_release rc3
@@ -45,8 +45,6 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 # The passwd part has been applied, but not the group part
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
-Patch300: samba-3.6.1-debug.patch
-Patch301: samba-3.6.1-winbind_upgrade_cache.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -212,8 +210,6 @@ cp %{SOURCE11} packaging/Fedora/
 #%patch104 -p1 -b .nmbd-netbiosname # FIXME: does not apply
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
-%patch300 -p1 -b .debug
-%patch301 -p1 -b .winbind
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -671,6 +667,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Jan 30 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.3-78
+- Update to 3.6.3
+
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.6.1-77.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
