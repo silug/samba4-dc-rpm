@@ -669,6 +669,7 @@ fi
 %changelog
 * Mon Jan 30 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.3-78
 - Update to 3.6.3
+- Fixes CVE-2012-0817
 
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.6.1-77.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
