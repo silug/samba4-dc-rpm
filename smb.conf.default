@@ -79,9 +79,12 @@
 #
 # hosts allow = the hosts allowed to connect. This option can also be used on a
 # per-share basis.
-
+#
 # hosts deny = the hosts not allowed to connect. This option can also be used on
 # a per-share basis.
+#
+# max protocol = used to define the supported protocol. The default is NT1. You
+# can set it to SMB2 if you want experimental SMB2 support.
 #
 	workgroup = MYGROUP
 	server string = Samba Server Version %v
@@ -90,6 +93,8 @@
 
 ;	interfaces = lo eth0 192.168.12.2/24 192.168.13.2/24
 ;	hosts allow = 127. 192.168.12. 192.168.13.
+
+;	max protocol = SMB2
 
 # --------------------------- Logging Options -----------------------------
 #
