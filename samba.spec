@@ -1,4 +1,4 @@
-%define main_release 80
+%define main_release 81
 %define samba_version 3.6.3
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -198,8 +198,8 @@ Summary: Developer tools for the Winbind client library
 Group: Development
 Requires: libwbclient = %{epoch}:%{samba_version}-%{release}
 
-Obsoletes: winbind-devel
-Provides: winbind-devel = %{epoch}:%{samba_version}-%{release}
+Obsoletes: samba-winbind-devel
+Provides: samba-winbind-devel = %{epoch}:%{samba_version}-%{release}
 
 %description -n libwbclient-devel
 The libwbclient-devel package contains the header files and libraries needed to
@@ -688,6 +688,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Mar 19 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.3-81
+- Fix provides for of libwclient-devel for samba-winbind-devel.
+
 * Thu Feb 23 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.3-80
 - Add commented out 'max protocol' to the default config.
 
