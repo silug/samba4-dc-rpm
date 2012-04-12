@@ -1,5 +1,5 @@
-%define main_release 81
-%define samba_version 3.6.3
+%define main_release 82
+%define samba_version 3.6.4
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
 #%define pre_release rc3
@@ -688,6 +688,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Apr 12 2012 Jon Ciesla <limburgher@gmail.com> - 1:3.6.4-82
+- Update to 3.6.4
+- Fixes CVE-2012-1182
+
 * Mon Mar 19 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.3-81
 - Fix provides for of libwclient-devel for samba-winbind-devel.
 
