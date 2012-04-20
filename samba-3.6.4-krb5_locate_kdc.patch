@@ -148,8 +148,8 @@ diff --git a/source3/wscript b/source3/wscript
 index 901d2b6..40b2cde 100644
 --- a/source3/wscript
 +++ b/source3/wscript
-@@ -585,7 +585,7 @@ msg.msg_acctrightslen = sizeof(fd);
- krb5_set_default_in_tkt_etypes krb5_set_default_tgs_enctypes
+@@ -639,7 +639,7 @@
+ krb5_set_real_time krb5_set_default_in_tkt_etypes krb5_set_default_tgs_enctypes
  krb5_set_default_tgs_ktypes krb5_principal2salt krb5_use_enctype
  krb5_string_to_key krb5_get_pw_salt krb5_string_to_key_salt krb5_auth_con_setkey
 -krb5_auth_con_setuseruserkey krb5_locate_kdc krb5_get_permitted_enctypes
