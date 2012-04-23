@@ -1,4 +1,4 @@
-%define main_release 83
+%define main_release 84
 %define samba_version 3.6.4
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -31,6 +31,7 @@ Source8: winbind.service
 Source9: smb.conf.default
 Source10: nmb.service
 Source11: pam_winbind.conf
+Source12: samba.conf.tmp
 
 # Don't depend on Net::LDAP
 Source999: filter-requires-samba.sh
@@ -364,6 +365,9 @@ echo 127.0.0.1 localhost > $RPM_BUILD_ROOT%{_sysconfdir}/samba/lmhosts
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema
 install -m644 examples/LDAP/samba.schema $RPM_BUILD_ROOT%{_sysconfdir}/openldap/schema/samba.schema
 
+install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
+install -m644 %{SOURCE12} %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+
 # winbind
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 install -m 755 nsswitch/libnss_winbind.so $RPM_BUILD_ROOT/%{_lib}/libnss_winbind.so.2
@@ -547,6 +551,7 @@ fi
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
+%{_sysconfdir}/tmpfiles.d/samba.conf
 %ghost %dir /var/run/nmbd
 
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
@@ -690,6 +695,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Apr 23 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.4-84
+- Fix creation of /var/run/samba.
+- resolves: #751625
+
 * Fri Apr 20 2012 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.4-83
 - Avoid private krb5_locate_kdc usage
 - resolves: #754783
