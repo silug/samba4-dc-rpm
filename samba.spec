@@ -1,5 +1,5 @@
-%define main_release 84
-%define samba_version 3.6.4
+%define main_release 85
+%define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
 #%define pre_release rc3
@@ -695,6 +695,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Apr 30 2012 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.5-85
+- Security Release, fixes CVE-2012-2111
+- resolves: #XXXXX
+
 * Mon Apr 23 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.4-84
 - Fix creation of /var/run/samba.
 - resolves: #751625
