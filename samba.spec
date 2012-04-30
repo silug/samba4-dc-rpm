@@ -697,7 +697,7 @@ fi
 %changelog
 * Mon Apr 30 2012 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.5-85
 - Security Release, fixes CVE-2012-2111
-- resolves: #XXXXX
+- resolves: #817551
 
 * Mon Apr 23 2012 Andreas Schneider <asn@redhat.com> - 1:3.6.4-84
 - Fix creation of /var/run/samba.
