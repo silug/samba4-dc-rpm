@@ -1,4 +1,4 @@
-%define main_release 85
+%define main_release 86
 %define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -10,7 +10,7 @@
 %define samba_source source3
 Summary: Server and Client software to interoperate with Windows machines
 Name: samba
-Epoch: 1
+Epoch: 2
 Version: %{samba_version}
 Release: %{samba_release}.1
 License: GPLv3+ and LGPLv3+
@@ -695,6 +695,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Fri May 04 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-86
+- Bump Epoch to fix a problem with a Samba4 update in testing.
+
 * Mon Apr 30 2012 Guenther Deschner <gdeschner@redhat.com> - 1:3.6.5-85
 - Security Release, fixes CVE-2012-2111
 - resolves: #817551
