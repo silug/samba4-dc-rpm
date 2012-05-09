@@ -1,4 +1,4 @@
-%define main_release 86
+%define main_release 87
 %define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -47,6 +47,7 @@ Patch104: samba-3.0.0rc3-nmbd-netbiosname.patch
 Patch107: samba-3.2.0pre1-grouppwd.patch
 Patch200: samba-3.2.5-inotify.patch
 Patch201: samba-3.6.4-krb5_locate_kdc.patch
+Patch202: samba-3.6.5-iniparser.patch
 
 Requires(pre): samba-common = %{epoch}:%{samba_version}-%{release}
 Requires: pam >= 0:0.64
@@ -58,7 +59,7 @@ Requires(postun): systemd-units
 BuildRequires: systemd-units
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel, quota-devel
-BuildRequires: libtalloc-devel, libtdb-devel
+BuildRequires: libtalloc-devel, libtdb-devel, iniparser-devel
 
 # Working around perl dependency problem from docs
 %define __perl_requires %{SOURCE999}
@@ -232,6 +233,7 @@ cp %{SOURCE11} packaging/Fedora/
 %patch107 -p1 -b .grouppwd
 %patch200 -p0 -b .inotify
 %patch201 -p1 -b .krb5_locate_kdc
+%patch202 -p1 -b .iniparser
 
 mv %samba_source/VERSION %samba_source/VERSION.orig
 sed -e 's/SAMBA_VERSION_VENDOR_SUFFIX=$/&\"%{samba_release}\"/' < %samba_source/VERSION.orig > %samba_source/VERSION
@@ -695,6 +697,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Wed May 09 2012 Guenther Deschner <gdeschner@redhat.com> - 2:3.6.5-87
+- Correctly use system iniparser library
+
 * Fri May 04 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-86
 - Bump Epoch to fix a problem with a Samba4 update in testing.
 

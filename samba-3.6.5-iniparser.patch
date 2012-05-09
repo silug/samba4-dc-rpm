@@ -1,0 +1,47 @@
+From adbace20a24b6ae4fbd6d17b7153833f4ac8c88d Mon Sep 17 00:00:00 2001
+From: Simo Sorce <idra@samba.org>
+Date: Mon, 23 Apr 2012 17:23:35 -0400
+Subject: [PATCH] Fix pam_winbind build against newer iniparser library
+
+iniparser_getstr is deprecated and has been removed in newer libraries
+available in Fedora. Use iniparse_getstring instead.
+
+Autobuild-User: Simo Sorce <idra@samba.org>
+Autobuild-Date: Tue Apr 24 02:56:10 CEST 2012 on sn-devel-104
+---
+ nsswitch/pam_winbind.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/nsswitch/pam_winbind.c b/nsswitch/pam_winbind.c
+index 831fa84..e3e9af1 100644
+--- a/nsswitch/pam_winbind.c
++++ b/nsswitch/pam_winbind.c
+@@ -437,13 +437,13 @@ static int _pam_parse(const pam_handle_t *pamh,
+ 		ctrl |= WINBIND_SILENT;
+ 	}
+ 
+-	if (iniparser_getstr(d, CONST_DISCARD(char *, "global:krb5_ccache_type")) != NULL) {
++	if (iniparser_getstring(d, CONST_DISCARD(char *, "global:krb5_ccache_type"), NULL) != NULL) {
+ 		ctrl |= WINBIND_KRB5_CCACHE_TYPE;
+ 	}
+ 
+-	if ((iniparser_getstr(d, CONST_DISCARD(char *, "global:require-membership-of"))
++	if ((iniparser_getstring(d, CONST_DISCARD(char *, "global:require-membership-of"), NULL)
+ 	     != NULL) ||
+-	    (iniparser_getstr(d, CONST_DISCARD(char *, "global:require_membership_of"))
++	    (iniparser_getstring(d, CONST_DISCARD(char *, "global:require_membership_of"), NULL)
+ 	     != NULL)) {
+ 		ctrl |= WINBIND_REQUIRED_MEMBERSHIP;
+ 	}
+@@ -2278,7 +2278,7 @@ static const char *get_conf_item_string(struct pwb_context *ctx,
+ 			goto out;
+ 		}
+ 
+-		parm_opt = iniparser_getstr(ctx->dict, key);
++		parm_opt = iniparser_getstring(ctx->dict, key, NULL);
+ 		TALLOC_FREE(key);
+ 
+ 		_pam_log_debug(ctx, LOG_INFO, "CONFIG file: %s '%s'\n",
+-- 
+1.7.7.6
+
