@@ -1,4 +1,4 @@
-%define main_release 87
+%define main_release 88
 %define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -523,7 +523,9 @@ fi
 /sbin/chkconfig --del winbind >/dev/null 2>&1 || :
 /bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
 
-%post common -p	/sbin/ldconfig
+%post common
+/sbin/ldconfig
+/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
 
 %postun common -p /sbin/ldconfig
 
@@ -553,7 +555,6 @@ fi
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
-%{_sysconfdir}/tmpfiles.d/samba.conf
 %ghost %dir /var/run/nmbd
 
 %doc examples/autofs examples/LDAP examples/libsmbclient examples/misc examples/printer-accounting
@@ -593,6 +594,7 @@ fi
 
 %files common
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
+%{_sysconfdir}/tmpfiles.d/samba.conf
 %dir %{_libdir}/samba
 %{_libdir}/samba/lowcase.dat
 %{_libdir}/samba/upcase.dat
@@ -697,6 +699,11 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Tue May 15 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-88
+- Move tmpfiles.d config to common package as it is needed for smbd and
+  winbind.
+- Make sure tmpfiles get created after installation.
+
 * Wed May 09 2012 Guenther Deschner <gdeschner@redhat.com> - 2:3.6.5-87
 - Correctly use system iniparser library
 
