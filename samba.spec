@@ -1,4 +1,4 @@
-%define main_release 88
+%define main_release 89
 %define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -395,7 +395,7 @@ for i in $list; do
 done
 
 
-/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
+/usr/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 
 # }
 
@@ -454,24 +454,24 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1*
 %post
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
-    /bin/systemctl --no-reload disable smb.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable nmb.service > /dev/null 2>&1 || :
-    /bin/systemctl stop smb.service > /dev/null 2>&1 || :
-    /bin/systemctl stop nmb.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable smb.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable nmb.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop smb.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop nmb.service > /dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
-    /bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
 fi
 
 %triggerun -- samba < 1:3.6.0-72
@@ -484,10 +484,10 @@ fi
 /usr/bin/systemd-sysv-convert --save nmb >/dev/null 2>&1 ||:
 
 # Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del smb >/dev/null 2>&1 || :
-/sbin/chkconfig --del nmb >/dev/null 2>&1 || :
-/bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del smb >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del nmb >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart smb.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart nmb.service >/dev/null 2>&1 || :
 
 %pre winbind
 /usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
@@ -495,21 +495,21 @@ fi
 %post winbind
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun winbind
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
-    /bin/systemctl --no-reload disable winbind.service > /dev/null 2>&1 || :
-    /bin/systemctl stop winbind.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable winbind.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop winbind.service > /dev/null 2>&1 || :
 fi
 
 %postun winbind
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
-    /bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
 fi
 
 %triggerun winbind -- samba-winbind < 1:3.6.0-72
@@ -520,18 +520,18 @@ fi
 /usr/bin/systemd-sysv-convert --save winbind >/dev/null 2>&1 ||:
 
 # Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del winbind >/dev/null 2>&1 || :
-/bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del winbind >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
 
 %post common
-/sbin/ldconfig
-/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
+/usr/sbin/ldconfig
+/usr/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
 
-%postun common -p /sbin/ldconfig
+%postun common -p /usr/sbin/ldconfig
 
-%post -n libsmbclient -p /sbin/ldconfig
+%post -n libsmbclient -p /usr/sbin/ldconfig
 
-%postun -n libsmbclient -p /sbin/ldconfig
+%postun -n libsmbclient -p /usr/sbin/ldconfig
 
 %files
 %{_sbindir}/smbd
@@ -699,6 +699,10 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Mon Jun 18 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-89
+- Fix usrmove paths.
+- resolves: #829197
+
 * Tue May 15 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-88
 - Move tmpfiles.d config to common package as it is needed for smbd and
   winbind.
