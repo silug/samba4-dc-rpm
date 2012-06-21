@@ -1,4 +1,4 @@
-%define main_release 89
+%define main_release 90
 %define samba_version 3.6.5
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -95,6 +95,7 @@ Requires: libtalloc >= 0:%{talloc_version}
 Group: Applications/System
 Requires(pre): /usr/sbin/groupadd
 Requires(post): coreutils
+Requires(post): systemd
 
 %description common
 Samba-common provides files necessary for both the server and client
@@ -395,7 +396,7 @@ for i in $list; do
 done
 
 
-/usr/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
+/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}/
 
 # }
 
@@ -524,14 +525,14 @@ fi
 /usr/bin/systemctl try-restart winbind.service >/dev/null 2>&1 || :
 
 %post common
-/usr/sbin/ldconfig
+/sbin/ldconfig
 /usr/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
 
-%postun common -p /usr/sbin/ldconfig
+%postun common -p /sbin/ldconfig
 
-%post -n libsmbclient -p /usr/sbin/ldconfig
+%post -n libsmbclient -p /sbin/ldconfig
 
-%postun -n libsmbclient -p /usr/sbin/ldconfig
+%postun -n libsmbclient -p /sbin/ldconfig
 
 %files
 %{_sbindir}/smbd
@@ -699,6 +700,11 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Thu Jun 21 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-90
+- Fix ldonfig.
+- Require systemd for samba-common package.
+- resolves: #829197
+
 * Mon Jun 18 2012 Andreas Schneider <asn@redhat.com> - 2:3.6.5-89
 - Fix usrmove paths.
 - resolves: #829197
