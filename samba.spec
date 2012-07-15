@@ -1,4 +1,4 @@
-%define main_release 91
+%define main_release 92
 %define samba_version 3.6.6
 %define tdb_version 1.2.9
 %define talloc_version 2.0.5
@@ -17,7 +17,7 @@ License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
 
-Source: http://www.samba.org/samba/%{name}-%{samba_version}%{pre_release}.tar.gz
+Source: http://www.samba.org/samba/ftp/%{name}-%{samba_version}%{pre_release}.tar.gz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -55,7 +55,7 @@ Requires(post): systemd-sysv
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-BuildRequires: systemd-units
+BuildRequires: systemd-units, gettext
 BuildRequires: pam-devel, readline-devel, ncurses-devel, libacl-devel, krb5-devel, openldap-devel, openssl-devel, cups-devel, ctdb-devel
 BuildRequires: autoconf, gawk, popt-devel, gtk2-devel, libcap-devel, libuuid-devel, quota-devel
 BuildRequires: libtalloc-devel, libtdb-devel, iniparser-devel
@@ -450,6 +450,9 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbmodify.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbsearch.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/ldbrename.1*
 
+%find_lang net
+%find_lang pam_winbind
+
 %post
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
@@ -528,9 +531,18 @@ fi
 
 %postun common -p /sbin/ldconfig
 
+
+%post winbind-clients -p /sbin/ldconfig
+
+%postun winbind-clients -p /sbin/ldconfig
+
 %post -n libsmbclient -p /sbin/ldconfig
 
 %postun -n libsmbclient -p /sbin/ldconfig
+
+%post -n libwbclient -p /sbin/ldconfig
+
+%postun -n libwbclient -p /sbin/ldconfig
 
 %files
 %{_sbindir}/smbd
@@ -591,7 +603,7 @@ fi
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbta-util.8*
 
-%files common
+%files common -f net.lang
 %attr(755,root,root) /%{_lib}/security/pam_smbpass.so
 %{_sysconfdir}/tmpfiles.d/samba.conf
 %dir %{_libdir}/samba
@@ -630,12 +642,11 @@ fi
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/net.8*
-%{_datadir}/locale/*/LC_MESSAGES/net.mo
 
 %doc README COPYING Manifest
 %doc WHATSNEW.txt Roadmap
 
-%files winbind
+%files winbind -f pam_winbind.lang
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
 %{_libdir}/samba/idmap
@@ -651,7 +662,6 @@ fi
 %{_mandir}/man8/pam_winbind.8*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
-%{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
 
 %files winbind-krb5-locator
 %{_mandir}/man7/winbind_krb5_locator.7*
@@ -698,6 +708,12 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Sun Jul 15 2012 Ville Skyttä <ville.skytta@iki.fi> - 2:3.6.6-92
+- Call ldconfig at libwbclient and -winbind-clients post(un)install time.
+- Fix empty localization files, use %%find_lang to find and %%lang-mark them.
+- Escape macros in %%changelog.
+- Fix source tarball URL.
+
 * Tue Jun 26 2012 Guenther Deschner <gdeschner@redhat.com> - 2:3.6.6-91
 - Update to 3.6.6
 
@@ -803,7 +819,7 @@ fi
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
 * Wed Nov 24 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-64
-- Add %ghost entry for /var/run using tmpfs
+- Add %%ghost entry for /var/run using tmpfs
 - resolves: #656685
 
 * Thu Aug 26 2010 Guenther Deschner <gdeschner@redhat.com> - 3.6.0pre1-63
