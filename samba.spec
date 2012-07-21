@@ -12,7 +12,7 @@ Summary: Server and Client software to interoperate with Windows machines
 Name: samba
 Epoch: 2
 Version: %{samba_version}
-Release: %{samba_release}.1
+Release: %{samba_release}.2
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Daemons
 URL: http://www.samba.org/
@@ -710,6 +710,9 @@ fi
 %{_datadir}/pixmaps/samba/logo-small.png
 
 %changelog
+* Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:3.6.6-93.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Thu Jul 19 2012 Guenther Deschner <gdeschner@redhat.com> - 2:3.6.6-93
 - Fix printing tdb upgrade for 3.6.6
 - resolves: #841609
