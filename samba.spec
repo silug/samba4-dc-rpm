@@ -1,4 +1,4 @@
-%define main_release 96
+%define main_release 150
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -40,10 +40,8 @@ Epoch:          2
 
 %if 0%{?epoch} > 0
 %define samba_depver %{epoch}:%{version}-%{release}
-%define samba_conflict_ver %{epoch}:3.9.9
 %else
 %define samba_depver %{version}-%{release}
-%define samba_conflict_ver 3.9.9
 %endif
 
 Summary:        Server and Client software to interoperate with Windows machines
@@ -89,8 +87,8 @@ Requires: logrotate
 Requires: pam
 Requires: perl(Parse::Yapp)
 
-Obsoletes: samba4
-Provides: samba4
+Provides: samba4 = %{samba_depver}
+Obsoletes: samba4 < %{samba_depver}
 
 BuildRequires: autoconf
 %if %with_clustering_support
@@ -167,8 +165,8 @@ Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
-Obsoletes: samba4-client
-Provides: samba4-client
+Provides: samba4-client = %{samba_depver}
+Obsoletes: samba4-client < %{samba_depver}
 
 %description client
 The samba4-client package provides some SMB/CIFS clients to complement
@@ -182,8 +180,8 @@ Group: Applications/System
 Requires: libwbclient
 %endif
 
-Obsoletes: samba4-libs
-Provides: samba4-libs
+Provides: samba4-libs = %{samba_depver}
+Obsoletes: samba4-libs < %{samba_depver}
 
 %description libs
 The samba4-libs package contains the libraries needed by programs that
@@ -195,8 +193,8 @@ Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
-Obsoletes: samba4-python
-Provides: samba4-python
+Provides: samba4-python = %{samba_depver}
+Obsoletes: samba4-python < %{samba_depver}
 
 %description python
 The samba4-python package contains the Python libraries needed by programs
@@ -209,8 +207,8 @@ Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-test = %{samba_depver}
 
-Obsoletes: samba4-devel
-Provides: samba4-devel
+Provides: samba4-devel = %{samba_depver}
+Obsoletes: samba4-devel < %{samba_depver}
 
 %description devel
 The samba4-devel package contains the header files for the libraries
@@ -222,8 +220,8 @@ Summary: Perl IDL compiler
 Group: Development/Tools
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
-Obsoletes: samba4-pidl
-Provides: samba4-pidl
+Provides: samba4-pidl = %{samba_depver}
+Obsoletes: samba4-pidl < %{samba_depver}
 
 %description pidl
 The samba4-pidl package contains the Perl IDL compiler used by Samba
@@ -235,8 +233,8 @@ Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
 Requires(post): systemd
 
-Obsoletes: samba4-common
-Provides: samba4-common
+Provides: samba4-common = %{samba_depver}
+Obsoletes: samba4-common < %{samba_depver}
 
 %description common
 samba4-common provides files necessary for both the server and client
@@ -251,8 +249,8 @@ Requires: %{name}-dc = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 
-Obsoletes: samba4-test
-Provides: samba4-test
+Provides: samba4-test = %{samba_depver}
+Obsoletes: samba4-test < %{samba_depver}
 
 %description test
 samba4-test provides testing tools for both the server and client
@@ -264,8 +262,8 @@ Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
-Obsoletes: samba4-winbind
-Provides: samba4-winbind
+Provides: samba4-winbind = %{samba_depver}
+Obsoletes: samba4-winbind < %{samba_depver}
 
 %description winbind
 The samba-winbind package provides the winbind NSS library, and some
@@ -281,8 +279,8 @@ Requires: libwbclient
 Requires: %{name}-libs = %{samba_depver}
 %endif
 
-Obsoletes: samba4-winbind-krb5-locator
-Provides: samba4-winbind-krb5-locator
+Provides: samba4-winbind-krb5-locator = %{samba_depver}
+Obsoletes: samba4-winbind-krb5-locator < %{samba_depver}
 
 %description winbind-krb5-locator
 The winbind krb5 locator is a plugin for the system kerberos library to allow
@@ -297,8 +295,8 @@ Requires: %{name}-libs = %{samba_depver}
 Requires: libwbclient
 %endif
 
-Obsoletes: samba4-winbind-clients
-Provides: samba4-winbind-clients
+Provides: samba4-winbind-clients = %{samba_depver}
+Obsoletes: samba4-winbind-clients < %{samba_depver}
 
 %description winbind-clients
 The samba-winbind-clients package provides the NSS library and a PAM
@@ -313,8 +311,8 @@ Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: xinetd
 
-Obsoletes: samba4-swat
-Provides: samba4-swat
+Provides: samba4-swat = %{samba_depver}
+Obsoletes: samba4-swat < %{samba_depver}
 
 %description swat
 The samba-swat package includes the new SWAT (Samba Web Administration
@@ -364,8 +362,8 @@ Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-python = %{samba_depver}
 
-Obsoletes: samba4-dc
-Provides: samba4-dc
+Provides: samba4-dc = %{samba_depver}
+Obsoletes: samba4-dc < %{samba_depver}
 
 %description dc
 The samba-dc package provides AD Domain Controller functionality
@@ -376,8 +374,8 @@ Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
-Obsoletes: samba4-dc-libs
-Provides: samba4-dc-libs
+Provides: samba4-dc-libs = %{samba_depver}
+Obsoletes: samba4-dc-libs < %{samba_depver}
 
 %description dc-libs
 The samba4-dc-libs package contains the libraries needed by the DC to
@@ -1262,6 +1260,10 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> 2:4.0.0-150.rc1
+- Fix Obsoletes/Provides for update from samba4.
+- Bump release number to be bigger than samba4.
+
 * Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-96.rc1
 - Package smbprint again.
 
