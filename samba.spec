@@ -1,4 +1,4 @@
-%define main_release 95
+%define main_release 96
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
