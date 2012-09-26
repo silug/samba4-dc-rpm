@@ -1,0 +1,30 @@
+commit e7a58bc251bd74c3c7c64ee4f5cb85ec76852a8d
+Author:     Alexander Bokovoy <ab@samba.org>
+AuthorDate: Mon Sep 17 19:09:35 2012 +0300
+Commit:     Alexander Bokovoy <ab@samba.org>
+CommitDate: Mon Sep 17 19:52:53 2012 +0200
+
+    docs-xml: fix build of winbindd- and krb5 locator-related manpages
+    
+    These manpages depend on docs-xml infrastructure (samba DTDs)
+    
+    Autobuild-User(master): Alexander Bokovoy <ab@samba.org>
+    Autobuild-Date(master): Mon Sep 17 19:52:53 CEST 2012 on sn-devel-104
+---
+ docs-xml/wscript_build | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/wscript_build b/docs-xml/wscript_build
+index c5d5839..32cf9be 100644
+--- a/docs-xml/wscript_build
++++ b/docs-xml/wscript_build
+@@ -113,7 +113,7 @@ if ('XSLTPROC_MANPAGES' in bld.env and bld.env['XSLTPROC_MANPAGES']):
+     bld.SAMBAMANPAGES(manpages)
+ 
+     if bld.CONFIG_SET('WITH_PAM_MODULES') and bld.CONFIG_SET('HAVE_PAM_START'):
+-        bld.MANPAGES(pam_winbind_manpages)
++        bld.SAMBAMANPAGES(pam_winbind_manpages)
+ 
+     if bld.CONFIG_SET('HAVE_KRB5_LOCATE_PLUGIN_H'):
+-        bld.MANPAGES(krb5_locator_manpages)
++        bld.SAMBAMANPAGES(krb5_locator_manpages)

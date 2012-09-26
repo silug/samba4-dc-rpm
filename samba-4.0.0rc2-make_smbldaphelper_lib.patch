@@ -1,0 +1,112 @@
+commit 86a4ca28649141f77556208b833db2e076c0125d
+Author:     Alexander Bokovoy <ab@samba.org>
+AuthorDate: Thu Sep 13 20:29:25 2012 +0300
+Commit:     Alexander Bokovoy <ab@samba.org>
+CommitDate: Fri Sep 14 01:02:21 2012 +0200
+
+    s3: make smbldaphelper subsystem an internal library
+    
+    Break pdb_ldap -> smbldaphelper -> pdb -> pdb_ldap loop by
+    making smbldaphelp intentionally underlinked internal library.
+    
+    It means that libsmbldaphelp is not usable unless its user is
+    also linked to libpdb (that is the case for both its users,
+    idmap_ldap and pdb_ldap, already) but gives us a break of
+    the circular dependency in case pdb_ldap statically linked
+    into pdb (default).
+    
+    This should solve case when idmap_ldap and pdb_ldap are dynamically
+    loaded modules
+    
+    Autobuild-User(master): Alexander Bokovoy <ab@samba.org>
+    Autobuild-Date(master): Fri Sep 14 01:02:21 CEST 2012 on sn-devel-104
+---
+ source3/passdb/ABI/pdb-0.sigs  |  7 -------
+ source3/winbindd/wscript_build |  2 +-
+ source3/wscript_build          | 12 +++++++++---
+ 3 files changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/source3/passdb/ABI/pdb-0.sigs b/source3/passdb/ABI/pdb-0.sigs
+index 2b57301..bc82ff3 100644
+--- a/source3/passdb/ABI/pdb-0.sigs
++++ b/source3/passdb/ABI/pdb-0.sigs
+@@ -16,19 +16,14 @@ algorithmic_pdb_rid_is_user: bool (uint32_t)
+ algorithmic_pdb_uid_to_user_rid: uint32_t (uid_t)
+ algorithmic_pdb_user_rid_to_uid: uid_t (uint32_t)
+ algorithmic_rid_base: int (void)
+-attrib_map_to_delete_v30: {attrib = 5, name = 0xXXXX "sambaPwdLastSet"}, {attrib = 6, name = 0xXXXX "sambaPwdCanChange"}, {attrib = 7, name = 0xXXXX "sambaPwdMustChange"}, {attrib = 8, name = 0xXXXX "sambaLogonTime"}, {attrib = 9, name = 0xXXXX "sambaLogoffTime"}, {attrib = 10, name = 0xXXXX "sambaKickoffTime"}, {attrib = 12, name = 0xXXXX "displayName"}, {attrib = 29, name = 0xXXXX "sambaHomeDrive"}, {attrib = 13, name = 0xXXXX "sambaHomePath"}, {attrib = 14, name = 0xXXXX "sambaLogonScript"}, {attrib = 15, name = 0xXXXX "sambaProfilePath"}, {attrib = 17, name = 0xXXXX "sambaUserWorkstations"}, {attrib = 18, name = 0xXXXX "sambaSID"}, {attrib = 19, name = 0xXXXX "sambaPrimaryGroupSID"}, {attrib = 21, name = 0xXXXX "sambaLMPassword"}, {attrib = 22, name = 0xXXXX "sambaNTPassword"}, {attrib = 23, name = 0xXXXX "sambaDomainName"}, {attrib = 25, name = 0xXXXX "sambaAcctFlags"}, {attrib = 37, name = 0xXXXX "sambaMungedDial"}, {attrib = 35, name = 0xXXXX "sambaBadPasswordCount"}, {attrib = 38, name = 0xXXXX "sambaBadPasswordTime"}, {attrib = 39, name = 0xXXXX "sambaPasswordHistory"}, {attrib = 42, name = 0xXXXX "sambaLogonHours"}, {attrib = 0, name = 0xXXXX}
+-attrib_map_v30: {attrib = 1, name = 0xXXXX "uid"}, {attrib = 2, name = 0xXXXX "uidNumber"}, {attrib = 3, name = 0xXXXX "gidNumber"}, {attrib = 4, name = 0xXXXX "homeDirectory"}, {attrib = 5, name = 0xXXXX "sambaPwdLastSet"}, {attrib = 6, name = 0xXXXX "sambaPwdCanChange"}, {attrib = 7, name = 0xXXXX "sambaPwdMustChange"}, {attrib = 8, name = 0xXXXX "sambaLogonTime"}, {attrib = 9, name = 0xXXXX "sambaLogoffTime"}, {attrib = 10, name = 0xXXXX "sambaKickoffTime"}, {attrib = 11, name = 0xXXXX "cn"}, {attrib = 44, name = 0xXXXX "sn"}, {attrib = 12, name = 0xXXXX "displayName"}, {attrib = 29, name = 0xXXXX "sambaHomeDrive"}, {attrib = 13, name = 0xXXXX "sambaHomePath"}, {attrib = 14, name = 0xXXXX "sambaLogonScript"}, {attrib = 15, name = 0xXXXX "sambaProfilePath"}, {attrib = 16, name = 0xXXXX "description"}, {attrib = 17, name = 0xXXXX "sambaUserWorkstations"}, {attrib = 18, name = 0xXXXX "sambaSID"}, {attrib = 19, name = 0xXXXX "sambaPrimaryGroupSID"}, {attrib = 21, name = 0xXXXX "sambaLMPassword"}, {attrib = 22, name = 0xXXXX "sambaNTPassword"}, {attrib = 23, name = 0xXXXX "sambaDomainName"}, {attrib = 24, name = 0xXXXX "objectClass"}, {attrib = 25, name = 0xXXXX "sambaAcctFlags"}, {attrib = 37, name = 0xXXXX "sambaMungedDial"}, {attrib = 35, name = 0xXXXX "sambaBadPasswordCount"}, {attrib = 38, name = 0xXXXX "sambaBadPasswordTime"}, {attrib = 39, name = 0xXXXX "sambaPasswordHistory"}, {attrib = 41, name = 0xXXXX "modifyTimestamp"}, {attrib = 42, name = 0xXXXX "sambaLogonHours"}, {attrib = 0, name = 0xXXXX}
+ builtin_domain_name: const char *(void)
+ cache_account_policy_get: bool (enum pdb_policy_type, uint32_t *)
+ cache_account_policy_set: bool (enum pdb_policy_type, uint32_t)
+ create_builtin_administrators: NTSTATUS (const struct dom_sid *)
+ create_builtin_users: NTSTATUS (const struct dom_sid *)
+ decode_account_policy_name: const char *(enum pdb_policy_type)
+-dominfo_attr_list: {attrib = 23, name = 0xXXXX "sambaDomainName"}, {attrib = 34, name = 0xXXXX "sambaNextRid"}, {attrib = 26, name = 0xXXXX "sambaNextUserRid"}, {attrib = 27, name = 0xXXXX "sambaNextGroupRid"}, {attrib = 28, name = 0xXXXX "sambaSID"}, {attrib = 33, name = 0xXXXX "sambaAlgorithmicRidBase"}, {attrib = 24, name = 0xXXXX "objectClass"}, {attrib = 0, name = 0xXXXX}
+ get_account_pol_db: struct db_context *(void)
+ get_account_policy_attr: const char *(enum pdb_policy_type)
+-get_attr_key2string: const char *(ATTRIB_MAP_ENTRY *, int)
+-get_attr_list: const char **(TALLOC_CTX *, ATTRIB_MAP_ENTRY *)
+ get_domain_group_from_sid: bool (struct dom_sid, GROUP_MAP *)
+ get_primary_group_sid: NTSTATUS (TALLOC_CTX *, const char *, struct passwd **, struct dom_sid **)
+ get_privileges_for_sid_as_set: NTSTATUS (TALLOC_CTX *, PRIVILEGE_SET **, struct dom_sid *)
+@@ -42,7 +37,6 @@ grant_all_privileges: bool (const struct dom_sid *)
+ grant_privilege_by_name: bool (const struct dom_sid *, const char *)
+ grant_privilege_set: bool (const struct dom_sid *, struct lsa_PrivilegeSet *)
+ groupdb_tdb_init: const struct mapping_backend *(void)
+-idpool_attr_list: {attrib = 2, name = 0xXXXX "uidNumber"}, {attrib = 3, name = 0xXXXX "gidNumber"}, {attrib = 24, name = 0xXXXX "objectClass"}, {attrib = 0, name = 0xXXXX}
+ init_account_policy: bool (void)
+ init_buffer_from_samu: uint32_t (uint8_t **, struct samu *, bool)
+ init_samu_from_buffer: bool (struct samu *, uint32_t, uint8_t *, uint32_t)
+@@ -272,7 +266,6 @@ sid_check_is_wellknown_builtin: bool (const struct dom_sid *)
+ sid_check_is_wellknown_domain: bool (const struct dom_sid *, const char **)
+ sid_to_gid: bool (const struct dom_sid *, gid_t *)
+ sid_to_uid: bool (const struct dom_sid *, uid_t *)
+-sidmap_attr_list: {attrib = 32, name = 0xXXXX "sambaSID"}, {attrib = 2, name = 0xXXXX "uidNumber"}, {attrib = 3, name = 0xXXXX "gidNumber"}, {attrib = 24, name = 0xXXXX "objectClass"}, {attrib = 0, name = 0xXXXX}
+ sids_to_unixids: bool (const struct dom_sid *, uint32_t, struct unixid *)
+ smb_add_user_group: int (const char *, const char *)
+ smb_create_group: int (const char *, gid_t *)
+diff --git a/source3/winbindd/wscript_build b/source3/winbindd/wscript_build
+index af3741b..302b9ee 100644
+--- a/source3/winbindd/wscript_build
++++ b/source3/winbindd/wscript_build
+@@ -62,7 +62,7 @@ bld.SAMBA3_MODULE('idmap_passdb',
+ bld.SAMBA3_MODULE('idmap_ldap',
+                  subsystem='idmap',
+                  source=IDMAP_LDAP_SRC,
+-                 deps='smbldap smbldaphelper',
++                 deps='smbldap smbldaphelper pdb',
+                  init_function='',
+                  internal_module=bld.SAMBA3_IS_STATIC_MODULE('idmap_ldap'),
+                  enabled=bld.SAMBA3_IS_ENABLED_MODULE('idmap_ldap') and bld.env.HAVE_LDAP)
+diff --git a/source3/wscript_build b/source3/wscript_build
+index c534ae6..60965ef 100755
+--- a/source3/wscript_build
++++ b/source3/wscript_build
+@@ -710,7 +710,11 @@ private_pdb_match.append('!idmap_xids_to_sids')
+ 
+ # ldap module is actually three modules merged together: ldapsam, ipa, and nds
+ static_pdb_match = static_pdb_match + ['ldap', 'ipa', 'nds']
+-ldapsam_pdb_match = ['!priv2ld', '!smbldap_search_domain_info', '!ldapsam_*', '!groupmap_attr_list*', '!get_userattr_list']
++ldapsam_pdb_match = ['!priv2ld', '!smbldap_search_domain_info',
++                     '!ldapsam_*', '!groupmap_attr_list*', '!get_userattr_list',
++                     '!dominfo_attr_list', '!get_attr_key2string',
++                     '!sidmap_attr_list', '!attrib_map_*', '!idpool_attr_list',
++                     '!get_attr_list']
+ private_pdb_match.append('!pdb_nds_*')
+ private_pdb_match.append('!pdb_init_ldapsam')
+ private_pdb_match = private_pdb_match + ldapsam_pdb_match
+@@ -732,9 +736,11 @@ bld.SAMBA3_LIBRARY('pdb',
+                    vnum='0',
+                    vars=locals())
+ 
+-bld.SAMBA3_SUBSYSTEM('smbldaphelper',
++bld.SAMBA3_LIBRARY('smbldaphelper',
+                    source='passdb/pdb_ldap_schema.c passdb/pdb_ldap_util.c',
+-                   deps='smbldap secrets3 pdb')
++                   deps='smbldap secrets3',
++                   allow_undefined_symbols=True,
++                   private_library=True)
+ 
+ bld.SAMBA3_SUBSYSTEM('SERVER_MUTEX',
+                      source=SERVER_MUTEX_SRC,

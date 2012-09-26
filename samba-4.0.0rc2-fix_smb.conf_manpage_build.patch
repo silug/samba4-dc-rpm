@@ -1,0 +1,155 @@
+commit 73ed1533105ac3f90813e5a0e7888a095eff4b75
+Author:     Alexander Bokovoy <ab@samba.org>
+AuthorDate: Mon Sep 17 13:07:26 2012 +0300
+Commit:     Alexander Bokovoy <ab@samba.org>
+CommitDate: Mon Sep 17 14:18:31 2012 +0200
+
+    docs-xml: convert smb.conf.5 build to waf
+    
+    smb.conf(5) is different from other manpages because before it is
+    built, it gets merged together from a number of smaller files, one
+    per parameter. So we first create a parameters.all.xml file that
+    references all these files and then include it into master smb.conf.5.xml
+    
+    One small issue is how to handle generated files in WAF build
+    from xi:include perspective as the files are generated in bin/default/docs-xml
+    rather than in docs-xml. We solve this by further expanding use of XML catalogs
+    and rewriting virtual path http://www.samba.org/samba/smbdotconf/ to proper
+    location.
+    
+    Both docs-xml autoconf and waf builds work correctly now.
+    
+    Autobuild-User(master): Alexander Bokovoy <ab@samba.org>
+    Autobuild-Date(master): Mon Sep 17 14:18:31 CEST 2012 on sn-devel-104
+---
+ buildtools/wafsamba/wafsamba.py  |  6 ++++--
+ docs-xml/build/catalog.xml.in    |  7 +++++--
+ docs-xml/manpages/smb.conf.5.xml |  5 ++++-
+ docs-xml/wscript_build           | 25 +++++++++++++++++++++++--
+ wscript_build                    |  6 ++++--
+ 5 files changed, 40 insertions(+), 9 deletions(-)
+
+diff --git a/buildtools/wafsamba/wafsamba.py b/buildtools/wafsamba/wafsamba.py
+index 1f71bd3..50bd4fa 100644
+--- a/buildtools/wafsamba/wafsamba.py
++++ b/buildtools/wafsamba/wafsamba.py
+@@ -789,14 +789,16 @@ def SAMBAMANPAGES(bld, manpages):
+     '''build and install manual pages'''
+     bld.env.SAMBA_EXPAND_XSL = bld.srcnode.abspath() + '/docs-xml/xslt/expand-sambadoc.xsl'
+     bld.env.SAMBA_MAN_XSL = bld.srcnode.abspath() + '/docs-xml/xslt/man.xsl'
+-    os.environ["XML_CATALOG_FILES"] = 'file:///etc/xml/catalog file://' + bld.srcnode.abspath() + '/bin/default/docs-xml/build/catalog.xml'
++    bld.env.SAMBA_CATALOGS = 'file:///etc/xml/catalog file://' + bld.srcnode.abspath() + '/bin/default/docs-xml/build/catalog.xml'
+     for m in manpages.split():
+         source = m + '.xml'
+         bld.SAMBA_GENERATOR(m,
+                             source=source,
+                             target=m,
+                             group='final',
+-                            rule='${XSLTPROC} --xinclude --stringparam noreference 0 -o ${TGT}.xml --nonet ${SAMBA_EXPAND_XSL} ${SRC} && ${XSLTPROC} --nonet -o ${TGT} ${SAMBA_MAN_XSL} ${TGT}.xml'
++                            rule='''export XML_CATALOG_FILES="${SAMBA_CATALOGS}"
++                                    ${XSLTPROC} --xinclude --stringparam noreference 0 -o ${TGT}.xml --nonet ${SAMBA_EXPAND_XSL} ${SRC}
++                                    ${XSLTPROC} --nonet -o ${TGT} ${SAMBA_MAN_XSL} ${TGT}.xml'''
+                             )
+         bld.INSTALL_FILES('${MANDIR}/man%s' % m[-1], m, flat=True)
+ Build.BuildContext.SAMBAMANPAGES = SAMBAMANPAGES
+diff --git a/docs-xml/build/catalog.xml.in b/docs-xml/build/catalog.xml.in
+index 4b99cf5..56d13a6 100644
+--- a/docs-xml/build/catalog.xml.in
++++ b/docs-xml/build/catalog.xml.in
+@@ -6,9 +6,12 @@
+ 
+     <rewriteURI
+ 			uriStartString="http://www.samba.org/samba/DTD/"
+-			rewritePrefix="file://@abs_top_builddir@/build/DTD/"/>
++			rewritePrefix="file://@abs_top_srcdir@/build/DTD/"/>
+ 
+     <rewriteURI
+ 			uriStartString="http://www.gnu.org/licenses/"
+-			rewritePrefix="file://@abs_top_builddir@/Samba3-ByExample/"/>
++			rewritePrefix="file://@abs_top_srcdir@/Samba3-ByExample/"/>
++    <rewriteURI
++			uriStartString="http://www.samba.org/samba/smbdotconf/"
++			rewritePrefix="file://@abs_top_builddir@/smbdotconf/"/>
+ </catalog>
+diff --git a/docs-xml/manpages/smb.conf.5.xml b/docs-xml/manpages/smb.conf.5.xml
+index e09eee0..a73382f 100644
+--- a/docs-xml/manpages/smb.conf.5.xml
++++ b/docs-xml/manpages/smb.conf.5.xml
+@@ -757,7 +757,10 @@ chmod 1770 /usr/local/samba/lib/usershares
+ 	<title>EXPLANATION OF EACH PARAMETER</title>
+ 	
+ 	<samba:parameterlist>
+-		<xi:include href="../smbdotconf/parameters.all.xml" parse="xml"/>
++		<!-- The URI below is resolved to local generated version of parameters.all.xml //-->
++		<!-- WAF build places it in bin/default/docs-xml/smbdotconf/parameters.all.xml //-->
++		<!-- and we redirect there via use of XML_CATALOG_FILES, see docs-xml/build/catalog.xml.in //-->
++		<xi:include href="http://www.samba.org/samba/smbdotconf/parameters.all.xml" parse="xml"/>
+ 	</samba:parameterlist>
+ 
+ </refsect1>
+diff --git a/docs-xml/wscript_build b/docs-xml/wscript_build
+index 011854b..c5d5839 100644
+--- a/docs-xml/wscript_build
++++ b/docs-xml/wscript_build
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python
+-
++from samba_utils import save_file
+ manpages='''
+          manpages/eventlogadm.8
+          manpages/findsmb.1
+@@ -23,7 +23,6 @@ manpages='''
+          manpages/rpcclient.1
+          manpages/samba.7
+          manpages/sharesec.1
+-         manpages/smb.conf.5
+          manpages/smbcacls.1
+          manpages/smbclient.1
+          manpages/smbcontrol.1
+@@ -87,8 +86,30 @@ pam_winbind_manpages = '''
+ 
+ krb5_locator_manpages = 'manpages/winbind_krb5_locator.7'
+ 
++def smbdotconf_generate_parameter_list(task):
++    parameter_all = task.outputs[0].bldpath(task.env)
++    articles = task.inputs
++
++    t = '<section xmlns:xi="http://www.w3.org/2003/XInclude">\n'
++    for article in articles:
++        t += "<xi:include href='file://" + article.abspath(task.env) + "' parse='xml'/>\n"
++    t += "</section>\n"
++    save_file(parameter_all, t , create_dir=True)
++    return 0
++
++def SMBDOTCONF_MANPAGE(bld, target):
++    ''' assemble and build smb.conf.5 manual page'''
++    articles = bld.path.ant_glob("smbdotconf/**/*.xml")
++    parameter_all = 'smbdotconf/parameters.all.xml'
++    bld.SAMBA_GENERATOR(parameter_all,
++                        source=articles,
++                        target=parameter_all,
++                        rule=smbdotconf_generate_parameter_list)
++    bld.SAMBAMANPAGES(target)
++
+ if ('XSLTPROC_MANPAGES' in bld.env and bld.env['XSLTPROC_MANPAGES']):
+ 
++    SMBDOTCONF_MANPAGE(bld, 'manpages/smb.conf.5')
+     bld.SAMBAMANPAGES(manpages)
+ 
+     if bld.CONFIG_SET('WITH_PAM_MODULES') and bld.CONFIG_SET('HAVE_PAM_START'):
+diff --git a/wscript_build b/wscript_build
+index 5434056..0098036 100755
+--- a/wscript_build
++++ b/wscript_build
+@@ -144,7 +144,9 @@ bld.RECURSE('testsuite/headers')
+ bld.SYMBOL_CHECK()
+ bld.DUP_SYMBOL_CHECK()
+ 
+-bld.env.ABS_TOP_BUILDDIR = bld.srcnode.abspath() + '/docs-xml'
++bld.env.ABS_TOP_SRCDIR = bld.srcnode.abspath() + '/docs-xml'
++bld.env.ABS_TOP_BUILDDIR = bld.srcnode.abspath() + '/bin/default/docs-xml'
+ bld.CONFIGURE_FILE('docs-xml/build/catalog.xml',
+-                   ABS_TOP_BUILDDIR = bld.env.ABS_TOP_BUILDDIR)
++                   ABS_TOP_BUILDDIR = bld.env.ABS_TOP_BUILDDIR,
++                   ABS_TOP_SRCDIR=bld.env.ABS_TOP_SRCDIR)
+ bld.RECURSE('docs-xml')

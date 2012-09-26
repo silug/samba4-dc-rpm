@@ -1,0 +1,42 @@
+commit 2a7484eb7286a6896826ad1ed15aa7b1760a451c
+Author:     Matthieu Patou <mat@matws.net>
+AuthorDate: Mon Sep 17 16:51:02 2012 -0700
+Commit:     Stefan Metzmacher <metze@samba.org>
+CommitDate: Tue Sep 18 06:12:00 2012 +0200
+
+    panic action is defined as GLOBAL_VAR(szPanicAction) not GLOBAL_VAR(panic_action)
+    
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+    
+    Autobuild-User(master): Stefan Metzmacher <metze@samba.org>
+    Autobuild-Date(master): Tue Sep 18 06:12:00 CEST 2012 on sn-devel-104
+---
+ lib/param/loadparm.c     | 2 +-
+ source3/param/loadparm.c | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/lib/param/loadparm.c b/lib/param/loadparm.c
+index 990dd29..b2e4218 100644
+--- a/lib/param/loadparm.c
++++ b/lib/param/loadparm.c
+@@ -2295,7 +2295,7 @@ static bool lpcfg_update(struct loadparm_context *lp_ctx)
+ 		return true;
+ 	}
+ 
+-	panic_action = lp_ctx->globals->panic_action;
++	panic_action = lp_ctx->globals->szPanicAction;
+ 
+ 	reload_charcnv(lp_ctx);
+ 
+diff --git a/source3/param/loadparm.c b/source3/param/loadparm.c
+index f1999ad..61606ce 100644
+--- a/source3/param/loadparm.c
++++ b/source3/param/loadparm.c
+@@ -131,7 +131,6 @@ static bool defaults_saved = false;
+ 	char *tls_cafile;						\
+ 	char *tls_crlfile;						\
+ 	char *tls_dhpfile;						\
+-	char *panic_action;						\
+ 	int bPreferredMaster;
+ 
+ #include "param/param_global.h"

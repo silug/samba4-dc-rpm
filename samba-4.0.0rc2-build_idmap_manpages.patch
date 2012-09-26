@@ -1,0 +1,33 @@
+From a7a6a368f87c8b8af80511f1a3b32a457e48aa99 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 13 Sep 2012 17:52:13 +0200
+Subject: [PATCH] docs: Fix generating idmap manpages.
+
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/wscript_build | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/wscript_build b/docs-xml/wscript_build
+index 14fa152..9a17be3 100644
+--- a/docs-xml/wscript_build
++++ b/docs-xml/wscript_build
+@@ -6,6 +6,14 @@ manpages='''
+          manpages/libsmbclient.7
+          manpages/lmhosts.5
+          manpages/log2pcap.1
++         manpages/idmap_ad.8
++         manpages/idmap_autorid.8
++         manpages/idmap_hash.8
++         manpages/idmap_ldap.8
++         manpages/idmap_nss.8
++         manpages/idmap_rid.8
++         manpages/idmap_tdb.8
++         manpages/idmap_tdb2.8
+          manpages/net.8
+          manpages/nmbd.8
+          manpages/nmblookup.1
+-- 
+1.7.12
+
