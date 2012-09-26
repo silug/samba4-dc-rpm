@@ -62,6 +62,8 @@ Source5: pam_winbind.conf
 Source6: samba.pamd
 Source7: samba.conf.tmp
 
+Source100: smbprint
+
 Source200: README.dc
 Source201: README.downgrade
 
@@ -510,6 +512,8 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
 
+install -m 0744 %{SOURCE100} %{buildroot}%{_bindir}/smbprint
+
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/openldap/schema
@@ -943,6 +947,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbget
 #%{_bindir}/smbiconv
 %{_bindir}/smbpasswd
+%{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbta-util
 %{_bindir}/smbtree
@@ -1257,6 +1262,9 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-96.rc1
+- Package smbprint again.
+
 * Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-95.rc1
 - Update to 4.0.0rc1.
 
