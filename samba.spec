@@ -1,4 +1,4 @@
-%define main_release 150
+%define main_release 151
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -6,7 +6,7 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
-%define pre_release rc1
+%define pre_release rc2
 
 %define samba_release %{main_release}%{?dist}.%{pre_release}
 
@@ -64,14 +64,6 @@ Source100: smbprint
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch1: samba-4.0.0rc2-build_idmap_manpages.patch
-Patch2: samba-4.0.0rc2-create_smbldaphelper.patch
-Patch3: samba-4.0.0rc2-make_smbldaphelper_lib.patch
-Patch4: samba-4.0.0rc2-fix_smbldaphelper_without_ldap.patch
-Patch5: samba-4.0.0rc2-fix_smb.conf_manpage_build.patch
-Patch6: samba-4.0.0rc2-use_smb_man_style.patch
-Patch7: samba-4.0.0rc2-fix_panic_action.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -152,6 +144,7 @@ BuildRequires: python-tdb >= %{libtdb_version}
 %if ! %with_libsmbclient && ! %with_libwbclient
 %{?filter_setup:
 %filter_from_provides /libsmbclient.so.0()/d; /libwbclient.so.0()/d
+%filter_from_requires /libsmbclient.so.0()/d; /libwbclient.so.0()/d
 %filter_setup
 }
 %endif
@@ -177,7 +170,7 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Samba libraries
 Group: Applications/System
 %if %with_libwbclient
-Requires: libwbclient
+Requires: libwbclient = %{samba_depver}
 %endif
 
 Provides: samba4-libs = %{samba_depver}
@@ -274,7 +267,7 @@ domains and to use Windows user and group accounts on Linux.
 Summary: Samba winbind krb5 locator
 Group: Applications/System
 %if %with_libwbclient
-Requires: libwbclient
+Requires: libwbclient = %{samba_depver}
 %else
 Requires: %{name}-libs = %{samba_depver}
 %endif
@@ -292,7 +285,7 @@ Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
-Requires: libwbclient
+Requires: libwbclient = %{samba_depver}
 %endif
 
 Provides: samba4-winbind-clients = %{samba_depver}
@@ -384,14 +377,6 @@ link against the SMB, RPC and other protocols.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch1 -p1 -b .build_idmap_manpages
-%patch2 -p1 -b .create_smbldaphelper
-%patch3 -p1 -b .smbldaphelper_lib
-%patch4 -p1 -b .smbldaphed_without_ldap
-%patch5 -p1 -b .smb.conf_manpage
-%patch6 -p1 -b .smb_man_style
-%patch7 -p1 -b .fix_panic_action
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -448,6 +433,7 @@ link against the SMB, RPC and other protocols.
         --with-shared-modules=%{_samba4_modules} \
         --builtin-libraries=ccan \
         --bundled-libraries=%{_samba4_libraries} \
+        --with-pam \
         --disable-ntdb \
 %if (! %with_libsmbclient) || (! %with_libwbclient)
         --private-libraries=%{_samba4_private_libraries} \
@@ -1206,7 +1192,6 @@ rm -rf %{buildroot}
 %endif # ! with_libsmbclient
 
 %if ! %with_libwbclient
-%{_libdir}/samba/libwbclient.so
 %{_includedir}/samba-4.0/wbclient.h
 %endif # ! with_libwbclient
 
@@ -1260,7 +1245,10 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
-* Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> 2:4.0.0-150.rc1
+* Tue Oct 02 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-151.rc1
+- Update to 4.0.0rc2.
+
+* Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-150.rc1
 - Fix Obsoletes/Provides for update from samba4.
 - Bump release number to be bigger than samba4.
 
