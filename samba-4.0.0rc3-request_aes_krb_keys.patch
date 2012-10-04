@@ -1,35 +1,65 @@
-commit 1bf209dd7e5a0f0001b3d1e3798093772bbd3fd3
-Author:     Karolin Seeger <kseeger@samba.org>
-AuthorDate: Thu Oct 4 11:43:20 2012 +0200
-Commit:     Karolin Seeger <kseeger@samba.org>
-CommitDate: Thu Oct 4 13:48:00 2012 +0200
+commit eae33e96fcaa456830862325b91579faf2a96213
+Author:     Günther Deschner <gd@samba.org>
+AuthorDate: Thu Dec 15 18:12:41 2011 +0100
+Commit:     Günther Deschner <gd@samba.org>
+CommitDate: Tue Oct 2 16:22:31 2012 +0200
 
-    html docs: Remove link to Using Samba.
+    s3-krb5: use and request AES keys in kerberos operations.
     
-    Thanks to Christian Perrier <bubulle@debian.org> for reporting!
-    
-    Fix bug #7826 - HTML docs index file still points to Using Samba.
-    
-    Karolin
-    
-    Autobuild-User(master): Karolin Seeger <kseeger@samba.org>
-    Autobuild-Date(master): Thu Oct  4 13:48:00 CEST 2012 on sn-devel-104
+    Guenther
 ---
- docs-xml/htmldocs.html | 4 ----
- 1 file changed, 4 deletions(-)
+ lib/krb5_wrap/krb5_samba.c       | 6 ++++++
+ source3/libads/kerberos.c        | 1 +
+ source3/libads/kerberos_keytab.c | 8 +++++++-
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/docs-xml/htmldocs.html b/docs-xml/htmldocs.html
-index 44fcc0f..6fb9e73 100644
---- a/docs-xml/htmldocs.html
-+++ b/docs-xml/htmldocs.html
-@@ -23,10 +23,6 @@
-  <td valign="top">This book provides example configurations, it documents key aspects of Microsoft Windows networking, provides in-depth insight into the important configuration of Samba-3, and helps to put all of these into a useful framework.</td>
- </tr>
- <tr>
-- <td valign="top"><a href="using_samba/toc.html">Using Samba</a>, 2nd Edition</td>
-- <td valign="top"><i>Using Samba</i>, Second Edition is a comprehensive guide to Samba administration. It covers all versions of Samba from 2.0 to 2.2, including selected features from an alpha version of 3.0, as well as the SWAT graphical configuration tool. Updated for Windows 2000, ME, and XP, the book also explores Samba's new role as a primary domain controller and domain member server, its support for the use of Windows NT/2000/XP authentication and filesystem security on the host Unix system, and accessing shared files and printers from Unix clients.</td>
--</tr>
--<tr>
-  <td valign="top"><a href="manpages/index.html">Man pages</a></td>
-  <td valign="top">The Samba man pages in HTML.</td>
- </tr>
+diff --git a/lib/krb5_wrap/krb5_samba.c b/lib/krb5_wrap/krb5_samba.c
+index 1a5a710..8037337 100644
+--- a/lib/krb5_wrap/krb5_samba.c
++++ b/lib/krb5_wrap/krb5_samba.c
+@@ -688,6 +688,12 @@ int cli_krb5_get_ticket(TALLOC_CTX *mem_ctx,
+ 		ENCTYPE_ARCFOUR_HMAC,
+ 		ENCTYPE_DES_CBC_MD5,
+ 		ENCTYPE_DES_CBC_CRC,
++#ifdef HAVE_ENCTYPE_AES128_CTS_HMAC_SHA1_96
++		ENCTYPE_AES128_CTS_HMAC_SHA1_96,
++#endif
++#ifdef HAVE_ENCTYPE_AES256_CTS_HMAC_SHA1_96
++		ENCTYPE_AES256_CTS_HMAC_SHA1_96,
++#endif
+ 		ENCTYPE_NULL};
+ 
+ 	initialize_krb5_error_table();
+diff --git a/source3/libads/kerberos.c b/source3/libads/kerberos.c
+index 1093d12..fd39394 100644
+--- a/source3/libads/kerberos.c
++++ b/source3/libads/kerberos.c
+@@ -870,6 +870,7 @@ bool create_local_private_krb5_conf_for_domain(const char *realm,
+ 		goto done;
+ 	}
+ 
++	/* FIXME: add aes here - gd */
+ 	file_contents = talloc_asprintf(fname,
+ 					"[libdefaults]\n\tdefault_realm = %s\n"
+ 					"\tdefault_tgs_enctypes = RC4-HMAC DES-CBC-CRC DES-CBC-MD5\n"
+diff --git a/source3/libads/kerberos_keytab.c b/source3/libads/kerberos_keytab.c
+index eb2603b..b7df50d 100644
+--- a/source3/libads/kerberos_keytab.c
++++ b/source3/libads/kerberos_keytab.c
+@@ -263,9 +263,15 @@ int ads_keytab_add_entry(ADS_STRUCT *ads, const char *srvPrinc)
+ 	krb5_keytab keytab = NULL;
+ 	krb5_data password;
+ 	krb5_kvno kvno;
+-        krb5_enctype enctypes[4] = {
++        krb5_enctype enctypes[6] = {
+ 		ENCTYPE_DES_CBC_CRC,
+ 		ENCTYPE_DES_CBC_MD5,
++#ifdef HAVE_ENCTYPE_AES128_CTS_HMAC_SHA1_96
++		ENCTYPE_AES128_CTS_HMAC_SHA1_96,
++#endif
++#ifdef HAVE_ENCTYPE_AES256_CTS_HMAC_SHA1_96
++		ENCTYPE_AES256_CTS_HMAC_SHA1_96,
++#endif
+ 		ENCTYPE_ARCFOUR_HMAC,
+ 		0
+ 	};
