@@ -1,4 +1,4 @@
-%define main_release 151
+%define main_release 152
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -64,6 +64,11 @@ Source100: smbprint
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-4.0.0rc3-request_aes_krb_keys.patch
+Patch1: samba-4.0.0rc3-add_aes_enctypes_to_krb5_conf.patch
+Patch2: samba-4.0.0rc3-fix_pam_smbpass_option.patch
+Patch3: samba-4.0.0rc3-fix_printing_init.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -376,6 +381,11 @@ link against the SMB, RPC and other protocols.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .request_aes_krb_keys
+%patch1 -p1 -b .add_aes_enctypes_to_krb5_conf
+%patch2 -p1 -b .fix_pam_smbpass_option
+%patch3 -p1 -b .fix_printing_init
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1245,6 +1255,10 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Thu Oct 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-152.rc1
+- Add kerberos AES support.
+- Fix printing initialization.
+
 * Tue Oct 02 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-151.rc1
 - Update to 4.0.0rc2.
 
