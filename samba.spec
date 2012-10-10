@@ -1,4 +1,4 @@
-%define main_release 152
+%define main_release 153
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -273,12 +273,22 @@ Summary: Samba winbind krb5 locator
 Group: Applications/System
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
+Requires: %{name}-winbind = %{samba_depver}
 %else
 Requires: %{name}-libs = %{samba_depver}
 %endif
 
 Provides: samba4-winbind-krb5-locator = %{samba_depver}
 Obsoletes: samba4-winbind-krb5-locator < %{samba_depver}
+
+# Handle winbind_krb5_locator.so as alternatives to allow
+# IPA AD trusts case where it should not be used by libkrb5
+# The plugin will be diverted to /dev/null by the FreeIPA
+# freeipa-server-trust-ad subpackage due to higher priority
+# and restored to the proper one on uninstall
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
+Requires(preun): %{_sbindir}/update-alternatives
 
 %description winbind-krb5-locator
 The winbind krb5 locator is a plugin for the system kerberos library to allow
@@ -289,6 +299,7 @@ Summary: Samba winbind clients
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-winbind = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
@@ -538,8 +549,7 @@ done
 
 # winbind krb5 locator
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
-install -m 755 %{buildroot}/%{_libdir}/winbind_krb5_locator.so %{buildroot}/%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
-rm -f %{buildroot}/%{_libdir}/winbind_krb5_locator.so
+touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 # cleanup stuff that does not belong here
 rm -f %{buildroot}/%{_mandir}/man3/ldb.3*
@@ -556,6 +566,7 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 
 # Fix up permission on perl install.
 %{_fixperms} %{buildroot}%{perl_vendorlib}
+
 
 # Remove stuff the buildsystem did not handle correctly
 rm -f %{buildroot}%{_libdir}/security/pam_smbpass.so
@@ -621,6 +632,22 @@ rm -f %{buildroot}%{python_sitelib}/tevent.py
 
 %postun -n libwbclient -p /sbin/ldconfig
 %endif # with_libwbclient
+
+%postun winbind-krb5-locator
+if [ "$1" -ge "1" ]; then
+        if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/winbind_krb5_locator.so" ]; then
+                %{_sbindir}/alternatives --set winbind_krb5_locator %{_libdir}/winbind_krb5_locator.so
+        fi
+fi
+
+%post winbind-krb5-locator
+%{_sbindir}/update-alternatives --install %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so \
+                                winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so 10
+
+%preun winbind-krb5-locator
+if [ $1 -eq 0 ]; then
+        %{_sbindir}/update-alternatives --remove winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so
+fi
 
 %clean
 rm -rf %{buildroot}
@@ -905,7 +932,8 @@ rm -rf %{buildroot}
 
 %files winbind-krb5-locator
 %defattr(-,root,root)
-%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
+%ghost %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
+%{_libdir}/winbind_krb5_locator.so
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %files winbind-clients
@@ -1255,6 +1283,10 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Wed Oct 10 2012 - Alexander Bokovoy <abokovoy@redhat.com> - 2:4.0.0-153.rc1
+- Use alternatives to configure winbind_krb5_locator.so
+- Fix Requires for winbind.
+
 * Thu Oct 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-152.rc1
 - Add kerberos AES support.
 - Fix printing initialization.
