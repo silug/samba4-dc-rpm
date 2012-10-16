@@ -1,4 +1,4 @@
-%define main_release 155
+%define main_release 156
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -71,9 +71,9 @@ Patch1: samba-4.0.0rc4-add_aes_enctypes_to_krb5_conf.patch
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
@@ -1279,6 +1279,9 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-156.rc3
+- Update systemd Requires to reflect latest packaging guidelines.
+
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-155.rc3
 - Add back the AES patches which didn't make it in rc3.
 
