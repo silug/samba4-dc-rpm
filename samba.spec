@@ -1,4 +1,4 @@
-%define main_release 154
+%define main_release 155
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -64,6 +64,9 @@ Source100: smbprint
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-4.0.0rc4-request_aes_krb_keys.patch
+Patch1: samba-4.0.0rc4-add_aes_enctypes_to_krb5_conf.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -387,6 +390,9 @@ link against the SMB, RPC and other protocols.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .request_aes_krb_keys
+%patch1 -p1 -b .add_aes_enctypes_to_krb5_conf
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1273,6 +1279,9 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-155.rc3
+- Add back the AES patches which didn't make it in rc3.
+
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-154.rc3
 - Update to 4.0.0rc3.
 - resolves: #805562 - Unable to share print queues.
