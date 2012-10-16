@@ -1,4 +1,4 @@
-%define main_release 157
+%define main_release 158
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -918,11 +918,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libidmap.so
 %{_sbindir}/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
-%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_unitdir}/winbind.service
-%{_mandir}/man1/wbinfo.1*
-%{_mandir}/man5/pam_winbind.conf.5*
-%{_mandir}/man8/pam_winbind.8*
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
 #%{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
@@ -941,7 +937,11 @@ rm -rf %{buildroot}
 %{_libdir}/libnss_winbind.so*
 %{_libdir}/libnss_wins.so*
 %{_libdir}/security/pam_winbind.so
+%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_mandir}/man1/ntlm_auth.1.gz
+%{_mandir}/man1/wbinfo.1*
+%{_mandir}/man5/pam_winbind.conf.5*
+%{_mandir}/man8/pam_winbind.8*
 
 %files client
 %defattr(-,root,root)
@@ -1280,6 +1280,9 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
+* Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-158.rc3
+- Move pam_winbind.conf and the manpages to the right package.
+
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-157.rc3
 * resolves: #866959 - Built auth_builtin as static module.
 
