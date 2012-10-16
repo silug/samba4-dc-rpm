@@ -1,4 +1,4 @@
-%define main_release 153
+%define main_release 154
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -6,7 +6,7 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
-%define pre_release rc2
+%define pre_release rc3
 
 %define samba_release %{main_release}%{?dist}.%{pre_release}
 
@@ -64,11 +64,6 @@ Source100: smbprint
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.0.0rc3-request_aes_krb_keys.patch
-Patch1: samba-4.0.0rc3-add_aes_enctypes_to_krb5_conf.patch
-Patch2: samba-4.0.0rc3-fix_pam_smbpass_option.patch
-Patch3: samba-4.0.0rc3-fix_printing_init.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -392,11 +387,6 @@ link against the SMB, RPC and other protocols.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .request_aes_krb_keys
-%patch1 -p1 -b .add_aes_enctypes_to_krb5_conf
-%patch2 -p1 -b .fix_pam_smbpass_option
-%patch3 -p1 -b .fix_printing_init
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1283,15 +1273,20 @@ rm -rf %{buildroot}
 %endif # with_libwbclient
 
 %changelog
-* Wed Oct 10 2012 - Alexander Bokovoy <abokovoy@redhat.com> - 2:4.0.0-153.rc1
+* Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-154.rc3
+- Update to 4.0.0rc3.
+- resolves: #805562 - Unable to share print queues.
+- resolves: #863388 - Unable to reload smbd configuration with systemctl.
+
+* Wed Oct 10 2012 - Alexander Bokovoy <abokovoy@redhat.com> - 2:4.0.0-153.rc2
 - Use alternatives to configure winbind_krb5_locator.so
 - Fix Requires for winbind.
 
-* Thu Oct 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-152.rc1
+* Thu Oct 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-152.rc2
 - Add kerberos AES support.
 - Fix printing initialization.
 
-* Tue Oct 02 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-151.rc1
+* Tue Oct 02 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-151.rc2
 - Update to 4.0.0rc2.
 
 * Wed Sep 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-150.rc1
