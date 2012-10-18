@@ -1,4 +1,4 @@
-%define main_release 158
+%define main_release 159
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -435,9 +435,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %global _samba4_idmap_modules idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2
 %global _samba4_pdb_modules pdb_tdbsam,pdb_ldap,pdb_ads,pdb_smbpasswd,pdb_wbc_sam,pdb_samba4
-%global _samba4_auth_modules auth_sam,auth_unix,auth_winbind,auth_wbc,auth_server,auth_netlogond,auth_script,auth_samba4
-# auth_domain needs to be static
-# auth_builtin needs to be static cause it provides builtin and guest module
+%global _samba4_auth_modules auth_unix,auth_wbc,auth_server,auth_netlogond,auth_script,auth_samba4
 
 %global _samba4_modules %{_samba4_idmap_modules},%{_samba4_pdb_modules},%{_samba4_auth_modules}
 
@@ -1323,11 +1321,14 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Thu Oct 18 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-159.rc3
+- Compile default auth methods into smbd.
+
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-158.rc3
 - Move pam_winbind.conf and the manpages to the right package.
 
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-157.rc3
-* resolves: #866959 - Built auth_builtin as static module.
+* resolves: #866959 - Build auth_builtin as static module.
 
 * Tue Oct 16 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-156.rc3
 - Update systemd Requires to reflect latest packaging guidelines.
