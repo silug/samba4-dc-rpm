@@ -517,9 +517,9 @@ rm -rf %{buildroot}/%{_datadir}/perl5
 # Install PIDL.
 ( cd pidl && make install PERL_INSTALL_ROOT=%{buildroot} )
 
-# winbind
-ln -sf %{_libdir}/libnss_winbind.so.2  %{buildroot}%{_libdir}/libnss_winbind.so
-ln -sf %{_libdir}/libnss_wins.so.2  %{buildroot}%{_libdir}/libnss_wins.so
+# FIXME should be removed with rc4
+ln -s %{_libdir}/libnss_winbind.so.2  %{buildroot}%{_libdir}/libnss_winbind.so
+ln -s %{_libdir}/libnss_wins.so.2  %{buildroot}%{_libdir}/libnss_wins.so
 
 # Install other stuff
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
@@ -527,6 +527,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
 
+# FIXME use packaging/smbprint
 install -m 0744 %{SOURCE100} %{buildroot}%{_bindir}/smbprint
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
@@ -537,6 +538,7 @@ install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/sch
 install -d -m 0755 %{buildroot}%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/xinetd.d/swat
 
+# FIXME use packaging/systemd/samba.conf.tmp
 install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
 install -m644 %{SOURCE7} %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
 
@@ -561,10 +563,6 @@ done
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
 touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
-# cleanup stuff that does not belong here
-rm -f %{buildroot}/%{_mandir}/man3/ldb.3*
-rm -f %{buildroot}/%{_mandir}/man3/talloc.3*
-
 # Clean out crap left behind by the PIDL install.
 find %{buildroot} -type f -name .packlist -exec rm -f {} \;
 rm -f %{buildroot}%{perl_vendorlib}/wscript_build
@@ -576,11 +574,6 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 
 # Fix up permission on perl install.
 %{_fixperms} %{buildroot}%{perl_vendorlib}
-
-
-# Remove stuff the buildsystem did not handle correctly
-rm -f %{buildroot}%{_libdir}/security/pam_smbpass.so
-rm -f %{buildroot}%{python_sitelib}/tevent.py
 
 ### SAMBA
 %post
