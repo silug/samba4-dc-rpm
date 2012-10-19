@@ -1,4 +1,4 @@
-%define main_release 159
+%define main_release 160
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -677,9 +677,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs
 %{_unitdir}/nmb.service
 %{_unitdir}/smb.service
-%config(noreplace) %{_sysconfdir}/logrotate.d/samba
-%attr(0700,root,root) %dir /var/log/samba
-%attr(0700,root,root) %dir /var/log/samba/old
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
@@ -789,6 +786,9 @@ rm -rf %{buildroot}
 %{_libdir}/libnetapi.so.*
 %{_libdir}/samba/libprinting_migrate.so
 %{_datadir}/samba/codepages
+%config(noreplace) %{_sysconfdir}/logrotate.d/samba
+%attr(0700,root,root) %dir /var/log/samba
+%attr(0700,root,root) %dir /var/log/samba/old
 %ghost %dir /var/run/samba
 %ghost %dir /var/run/winbindd
 %attr(700,root,root) %dir /var/lib/samba/private
@@ -1311,6 +1311,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Fri Oct 19 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-160.rc3
+- resolves: #867893 - Move /var/log/samba to samba-common package for
+                      winbind which requires it.
+
 * Thu Oct 18 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-159.rc3
 - Compile default auth methods into smbd.
 
