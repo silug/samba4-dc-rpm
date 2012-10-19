@@ -57,8 +57,7 @@ Source2: samba.xinetd
 Source3: swat.desktop
 Source4: smb.conf.default
 Source5: pam_winbind.conf
-Source6: samba.pamd
-Source7: samba.conf.tmp
+Source6: samba.conf.tmp
 
 Source100: smbprint
 
@@ -495,7 +494,7 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 install -d -m 0755 %{buildroot}/usr/{sbin,bin}
-install -d -m 0755 %{buildroot}%{_sysconfdir}/{pam.d,logrotate.d,security}
+install -d -m 0755 %{buildroot}%{_sysconfdir}/{logrotate.d,security}
 install -d -m 0755 %{buildroot}%{_libdir}/security
 install -d -m 0755 %{buildroot}/var/lib/samba
 install -d -m 0755 %{buildroot}/var/lib/samba/private
@@ -525,7 +524,6 @@ ln -s %{_libdir}/libnss_wins.so.2  %{buildroot}%{_libdir}/libnss_wins.so
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
 
 # FIXME use packaging/smbprint
 install -m 0744 %{SOURCE100} %{buildroot}%{_bindir}/smbprint
@@ -540,7 +538,7 @@ install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/xinetd.d/swat
 
 # FIXME use packaging/systemd/samba.conf.tmp
 install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
-install -m644 %{SOURCE7} %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+install -m644 %{SOURCE6} %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
@@ -680,7 +678,6 @@ rm -rf %{buildroot}
 %{_unitdir}/nmb.service
 %{_unitdir}/smb.service
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
-%config(noreplace) %{_sysconfdir}/pam.d/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
 %attr(1777,root,root) %dir /var/spool/samba
