@@ -1,4 +1,4 @@
-%define main_release 160
+%define main_release 161
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -287,6 +287,10 @@ Summary: Samba Python libraries
 Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+Requires: python-tevent
+Requires: python-tdb
+Requires: pyldb
+Requires: pytalloc
 
 Provides: samba4-python = %{samba_depver}
 Obsoletes: samba4-python < %{samba_depver}
@@ -1311,6 +1315,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Fri Oct 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-161.rc3
+- Add missing Requries for python modules.
+
 * Fri Oct 19 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-160.rc3
 - resolves: #867893 - Move /var/log/samba to samba-common package for
                       winbind which requires it.
