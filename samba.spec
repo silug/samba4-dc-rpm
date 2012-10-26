@@ -58,6 +58,7 @@ Source3: swat.desktop
 Source4: smb.conf.default
 Source5: pam_winbind.conf
 Source6: samba.conf.tmp
+Source7: winbind.networkmanager
 
 Source100: smbprint
 
@@ -560,6 +561,10 @@ for i in nmb smb winbind ; do
     cat packaging/systemd/$i.service | sed -e 's@Type=forking@Type=forking\nEnvironment=KRB5CCNAME=/run/samba/krb5cc_samba@g' >tmp$i.service
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
+
+# FIXME use packaging/NetworkManager/30-winbind
+install -d -m 0755 %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/
+install -m 0755 %{SOURCE7} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
 
 # winbind krb5 locator
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
@@ -1288,9 +1293,9 @@ rm -rf %{buildroot}
 %{_sbindir}/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %{_unitdir}/winbind.service
+%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
-#%{_datadir}/locale/*/LC_MESSAGES/pam_winbind.mo
 
 ### WINBIND-CLIENTS
 %files winbind-clients
@@ -1317,6 +1322,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Oct 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-161.rc3
 - Add missing Requries for python modules.
+- Add NetworkManager dispatcher script for winbind.
 
 * Fri Oct 19 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-160.rc3
 - resolves: #867893 - Move /var/log/samba to samba-common package for
