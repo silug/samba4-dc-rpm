@@ -1,4 +1,4 @@
-%define main_release 161
+%define main_release 162
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -582,7 +582,6 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 # Fix up permission on perl install.
 %{_fixperms} %{buildroot}%{perl_vendorlib}
 
-### SAMBA
 %post
 %systemd_post smb.service
 %systemd_post nmb.service
@@ -595,45 +594,38 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 %systemd_postun_with_restart smb.service
 %systemd_postun_with_restart nmb.service
 
-### COMMON
 %post common
 /sbin/ldconfig
 /usr/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
 
 %postun common -p /sbin/ldconfig
 
-### DC-LIBS
 %if %with_dc
 %post dc-libs -p /sbin/ldconfig
 
 %postun dc-libs -p /sbin/ldconfig
 %endif # with_dc
 
-### LIBS
 %post libs -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
 
-### LIBSMBCLIENT
 %if %with_libsmbclient
 %post -n libsmbclient -p /sbin/ldconfig
 
 %postun -n libsmbclient -p /sbin/ldconfig
 %endif # with_libsmbclient
 
-### LIBWBCLIENT
 %if %with_libwbclient
 %post -n libwbclient -p /sbin/ldconfig
 
 %postun -n libwbclient -p /sbin/ldconfig
 %endif # with_libwbclient
 
-### TEST
 %post test -p /sbin/ldconfig
 
 %postun test -p /sbin/ldconfig
 
-### WINBIND
 %pre winbind
 /usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
 
@@ -647,12 +639,10 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 %systemd_postun_with_restart smb.service
 %systemd_postun_with_restart nmb.service
 
-### WINBIND-CLIENTS
 %post winbind-clients -p /sbin/ldconfig
 
 %postun winbind-clients -p /sbin/ldconfig
 
-### WINBIND-KRB5-LOCATOR
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
         if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/winbind_krb5_locator.so" ]; then
@@ -1320,6 +1310,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Oct 29 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-162.rc3
+- resolves: #870630 - Fix scriptlets interpeting a comment as argument.
+
 * Fri Oct 26 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-161.rc3
 - Add missing Requries for python modules.
 - Add NetworkManager dispatcher script for winbind.
