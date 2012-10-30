@@ -57,10 +57,7 @@ Source2: samba.xinetd
 Source3: swat.desktop
 Source4: smb.conf.default
 Source5: pam_winbind.conf
-Source6: samba.conf.tmp
 Source7: winbind.networkmanager
-
-Source100: smbprint
 
 Source200: README.dc
 Source201: README.downgrade
@@ -523,17 +520,10 @@ rm -rf %{buildroot}/%{_datadir}/perl5
 # Install PIDL.
 ( cd pidl && make install PERL_INSTALL_ROOT=%{buildroot} )
 
-# FIXME should be removed with rc4
-ln -s %{_libdir}/libnss_winbind.so.2  %{buildroot}%{_libdir}/libnss_winbind.so
-ln -s %{_libdir}/libnss_wins.so.2  %{buildroot}%{_libdir}/libnss_wins.so
-
 # Install other stuff
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
-
-# FIXME use packaging/smbprint
-install -m 0744 %{SOURCE100} %{buildroot}%{_bindir}/smbprint
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
@@ -543,9 +533,10 @@ install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/sch
 install -d -m 0755 %{buildroot}%{_sysconfdir}/xinetd.d
 install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/xinetd.d/swat
 
-# FIXME use packaging/systemd/samba.conf.tmp
+install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
+
 install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
-install -m644 %{SOURCE6} %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
