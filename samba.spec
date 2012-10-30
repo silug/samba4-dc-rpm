@@ -1,4 +1,4 @@
-%define main_release 162
+%define main_release 163
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -6,7 +6,7 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
-%define pre_release rc3
+%define pre_release rc4
 
 %define samba_release %{main_release}%{?dist}.%{pre_release}
 
@@ -67,6 +67,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.0.0rc4-request_aes_krb_keys.patch
 Patch1: samba-4.0.0rc4-add_aes_enctypes_to_krb5_conf.patch
+Patch2: samba-4.0.0rc5-fix_winbind_offline_logon.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -412,6 +413,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %patch0 -p1 -b .request_aes_krb_keys
 %patch1 -p1 -b .add_aes_enctypes_to_krb5_conf
+%patch2 -p1 -b .winbind_offline_logon
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1310,6 +1312,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Oct 30 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-163.rc4
+- Update to Samba 4.0.0rc4.
+
 * Mon Oct 29 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-162.rc3
 - resolves: #870630 - Fix scriptlets interpeting a comment as argument.
 

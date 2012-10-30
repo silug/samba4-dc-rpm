@@ -1,0 +1,33 @@
+From 33cb7ed204136a4459cf71a6adc8711b0a554f7a Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Tue, 23 Oct 2012 14:07:38 +0200
+Subject: [PATCH] BUG 9321: Fix winbind offline logon support.
+
+We store the current time in the cache entry but we never read it in
+wcache_fetch_creds(). So the first entry we try to fetch is a hash16,
+which always fails cause we have a time entry first.
+
+The read of the time value has been removed with
+21528da9cd12a4f5c3792a482a5d18fe946a6f7a.
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ source3/winbindd/winbindd_cache.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/source3/winbindd/winbindd_cache.c b/source3/winbindd/winbindd_cache.c
+index 2c9dd4a..1e3ab2d 100644
+--- a/source3/winbindd/winbindd_cache.c
++++ b/source3/winbindd/winbindd_cache.c
+@@ -1397,8 +1397,6 @@ NTSTATUS wcache_save_creds(struct winbindd_domain *domain,
+ 
+ 	dump_data_pw("nt_pass", nt_pass, NT_HASH_LEN);
+ 
+-	centry_put_time(centry, time(NULL));
+-
+ 	/* Create a salt and then salt the hash. */
+ 	generate_random_buffer(cred_salt, NT_HASH_LEN);
+ 	E_md5hash(cred_salt, nt_pass, salted_hash);
+-- 
+1.7.12.3
+
