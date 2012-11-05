@@ -663,8 +663,6 @@ rm -rf %{buildroot}
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
-%{_libdir}/samba/libsmbd_base.so
-%{_libdir}/samba/libsmbd_conn.so
 %{_libdir}/samba/auth
 %{_libdir}/samba/vfs
 %{_unitdir}/nmb.service
@@ -776,6 +774,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbcontrol
 %{_bindir}/testparm
 %{_libdir}/libnetapi.so.*
+%{_libdir}/samba/libgpo.so
 %{_libdir}/samba/libprinting_migrate.so
 %{_datadir}/samba/codepages
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
@@ -799,7 +798,6 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pdbedit.8*
 
 # common libraries
-%{_libdir}/samba/libauth.so
 %{_libdir}/samba/libpopt_samba3.so
 %{_libdir}/samba/pdb
 
@@ -1052,6 +1050,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libaddns.so
 %{_libdir}/samba/libads.so
 %{_libdir}/samba/libasn1util.so
+%{_libdir}/samba/libauth.so
 %{_libdir}/samba/libauth4.so
 %{_libdir}/samba/libauth_sam_reply.so
 %{_libdir}/samba/libauth_unix_token.so
@@ -1072,7 +1071,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/liberrors.so
 %{_libdir}/samba/libevents.so
 %{_libdir}/samba/libflag_mapping.so
-%{_libdir}/samba/libgpo.so
 %{_libdir}/samba/libgse.so
 %{_libdir}/samba/libinterfaces.so
 %{_libdir}/samba/libkrb5samba.so
@@ -1098,6 +1096,8 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libserver-role.so
 %{_libdir}/samba/libshares.so
 %{_libdir}/samba/libsamba3-util.so
+%{_libdir}/samba/libsmbd_base.so
+%{_libdir}/samba/libsmbd_conn.so
 %{_libdir}/samba/libsmbd_shim.so
 %{_libdir}/samba/libsmbldaphelper.so
 %{_libdir}/samba/libsmbpasswdparser.so

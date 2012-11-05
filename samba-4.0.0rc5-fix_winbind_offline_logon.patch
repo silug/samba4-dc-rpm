@@ -1,33 +1,40 @@
-From 33cb7ed204136a4459cf71a6adc8711b0a554f7a Mon Sep 17 00:00:00 2001
-From: Andreas Schneider <asn@samba.org>
-Date: Tue, 23 Oct 2012 14:07:38 +0200
-Subject: [PATCH] BUG 9321: Fix winbind offline logon support.
+From 6c148a1532f9b29b1ec6283a971caeb7de4ff24e Mon Sep 17 00:00:00 2001
+From: Michael Adam <obnox@samba.org>
+Date: Thu, 1 Nov 2012 14:41:56 +0100
+Subject: [PATCH] s3:winbindd:cache: fix offline logons with cached
+ credentials (bug #9321)
 
-We store the current time in the cache entry but we never read it in
-wcache_fetch_creds(). So the first entry we try to fetch is a hash16,
-which always fails cause we have a time entry first.
+The removal of consumption of the time field from the centry
+as "removal of unused variable" in 21528da9cd12a4f5c3792a482a5d18fe946a6f7a
+had the side effect of changing the offset for reading the following
+nt password hash, so the read password hash was wrong.
 
-The read of the time value has been removed with
-21528da9cd12a4f5c3792a482a5d18fe946a6f7a.
+This patch re-installs the consumption of the time,
+thereby fixing the bug without changing the disk format of the cache.
 
-Signed-off-by: Andreas Schneider <asn@samba.org>
+Signed-off-by: Michael Adam <obnox@samba.org>
 ---
- source3/winbindd/winbindd_cache.c | 2 --
- 1 file changed, 2 deletions(-)
+ source3/winbindd/winbindd_cache.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/source3/winbindd/winbindd_cache.c b/source3/winbindd/winbindd_cache.c
-index 2c9dd4a..1e3ab2d 100644
+index 2c9dd4a..c79d3b6 100644
 --- a/source3/winbindd/winbindd_cache.c
 +++ b/source3/winbindd/winbindd_cache.c
-@@ -1397,8 +1397,6 @@ NTSTATUS wcache_save_creds(struct winbindd_domain *domain,
+@@ -1329,6 +1329,13 @@ NTSTATUS wcache_get_creds(struct winbindd_domain *domain,
+ 		return NT_STATUS_OBJECT_NAME_NOT_FOUND;
+ 	}
  
- 	dump_data_pw("nt_pass", nt_pass, NT_HASH_LEN);
- 
--	centry_put_time(centry, time(NULL));
--
- 	/* Create a salt and then salt the hash. */
- 	generate_random_buffer(cred_salt, NT_HASH_LEN);
- 	E_md5hash(cred_salt, nt_pass, salted_hash);
++	/*
++	 * We don't use the time element at this moment,
++	 * but we have to consume it, so that we don't
++	 * neet to change the disk format of the cache.
++	 */
++	(void)centry_time(centry);
++
+ 	/* In the salted case this isn't actually the nt_hash itself,
+ 	   but the MD5 of the salt + nt_hash. Let the caller
+ 	   sort this out. It can tell as we only return the cached_salt
 -- 
-1.7.12.3
+1.7.9.5
 
