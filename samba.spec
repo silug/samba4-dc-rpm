@@ -1,4 +1,4 @@
-%define main_release 164
+%define main_release 165
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -772,9 +772,7 @@ rm -rf %{buildroot}
 %{_bindir}/profiles
 %{_bindir}/smbcontrol
 %{_bindir}/testparm
-%{_libdir}/libnetapi.so.*
 %{_libdir}/samba/libgpo.so
-%{_libdir}/samba/libprinting_migrate.so
 %{_datadir}/samba/codepages
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
@@ -1030,6 +1028,7 @@ rm -rf %{buildroot}
 %{_libdir}/libndr-nbt.so.*
 %{_libdir}/libndr-standard.so.*
 %{_libdir}/libndr.so.*
+%{_libdir}/libnetapi.so.*
 %{_libdir}/libregistry.so.*
 %{_libdir}/libsamba-credentials.so.*
 %{_libdir}/libsamba-hostconfig.so.*
@@ -1084,6 +1083,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnet_keytab.so
 %{_libdir}/samba/libnetif.so
 %{_libdir}/samba/libnpa_tstream.so
+%{_libdir}/samba/libprinting_migrate.so
 %{_libdir}/samba/libreplace.so
 %{_libdir}/samba/libsamba-modules.so
 %{_libdir}/samba/libsamba-net.so
@@ -1302,6 +1302,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Nov 05 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-165.rc4
+- Fix library dependencies of libnetapi.
+
 * Mon Nov 05 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-164.rc4
 - resolves: #872818 - Fix perl dependencies.
 
