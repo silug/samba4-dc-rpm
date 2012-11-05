@@ -1,4 +1,4 @@
-%define main_release 163
+%define main_release 164
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -75,10 +75,6 @@ Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
-
-Requires: logrotate
-Requires: pam
-Requires: perl(Parse::Yapp)
 
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
@@ -175,6 +171,7 @@ Summary: Files used by both Samba servers and clients
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
 Requires(post): systemd
+Requires: logrotate
 
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
@@ -302,6 +299,7 @@ that use SMB, RPC and other Samba provided protocols in Python programs.
 %package pidl
 Summary: Perl IDL compiler
 Group: Development/Tools
+Requires: perl(Parse::Yapp)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 Provides: samba4-pidl = %{samba_depver}
@@ -370,6 +368,7 @@ Requires: %{name}-winbind = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
+Requires: pam
 
 Provides: samba4-winbind-clients = %{samba_depver}
 Obsoletes: samba4-winbind-clients < %{samba_depver}
@@ -1303,6 +1302,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Nov 05 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-164.rc4
+- resolves: #872818 - Fix perl dependencies.
+
 * Tue Oct 30 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-163.rc4
 - Update to Samba 4.0.0rc4.
 
