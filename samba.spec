@@ -476,6 +476,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %endif
 %if %with_clustering_support
         --with-cluster-support \
+        --enable-old-ctdb \
 %endif
 %if ! %with_pam_smbpass
         --without-pam_smbpass
@@ -1302,6 +1303,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-167.rc5
 - Use workaround for winbind default domain only when set.
+- Build with old ctdb support.
 
 * Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-166.rc5
 - Update to Samba 4.0.0rc5.
