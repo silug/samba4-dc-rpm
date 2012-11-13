@@ -1,4 +1,4 @@
-%define main_release 166
+%define main_release 167
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -62,6 +62,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.0.0rc6-LogonSamLogon_failover.patch
+Patch1: samba-4.0.0rc6-winbind_default_domain_workaround.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -405,6 +406,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p1 -b .samlogon_failover
+%patch1 -p1 -b .winbind_default_domain_workaround
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1298,6 +1300,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-167.rc5
+- Use workaround for winbind default domain only when set.
+
 * Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-166.rc5
 - Update to Samba 4.0.0rc5.
 

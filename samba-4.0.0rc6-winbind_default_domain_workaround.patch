@@ -1,0 +1,48 @@
+commit 3bbe690c50a5d4e2ff81ff1eeeaa728990b73637
+Author:     Sumit Bose <sbose@redhat.com>
+AuthorDate: Mon Oct 29 12:09:22 2012 +0100
+Commit:     Andreas Schneider <asn@cryptomilk.org>
+CommitDate: Mon Nov 12 15:54:15 2012 +0100
+
+    Use work around for 'winbind use default domain' only if it is set
+    
+    Currently in smb_getpwnam() the NetBIOS domain name and the winbind separator
+    character is always added to the user name returned by Get_Pwnam_alloc() if it
+    does not contain the winbind separator character. As comments in the code
+    indicates this is done as a work around if 'winbind use default domain' is set
+    to yes in the samba configuration.
+    
+    This make sense if the option is set because otherwise the domain information is
+    lost from the user name. But it causes errors if other services than winbind are
+    used for user lookup, e.g. sssd. sssd can handle different kind of fully
+    qualified user names as input, e.g. user@domain.name or DOM\user, but returns a
+    canonical name, by default user@domain.name.
+    
+    While it would be possible to get around this issue with a special configuration
+    either on the sssd or samba side I think the cleaner solution is to use the work
+    around only if 'winbind use default domain' is set to yes which is what this
+    patch does.
+    
+    Reviewed-by: Andreas Schneider <asn@samba.org>
+    Reviewed-by: Alexander Bokovoy <ab@samba.org>
+    
+    Autobuild-User(master): Andreas Schneider <asn@cryptomilk.org>
+    Autobuild-Date(master): Mon Nov 12 15:54:15 CET 2012 on sn-devel-104
+---
+ source3/auth/auth_util.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/source3/auth/auth_util.c b/source3/auth/auth_util.c
+index a08d094..83c95a9 100644
+--- a/source3/auth/auth_util.c
++++ b/source3/auth/auth_util.c
+@@ -1331,7 +1331,8 @@ struct passwd *smb_getpwnam( TALLOC_CTX *mem_ctx, const char *domuser,
+ 			/* make sure we get the case of the username correct */
+ 			/* work around 'winbind use default domain = yes' */
+ 
+-			if ( !strchr_m( pw->pw_name, *lp_winbind_separator() ) ) {
++			if ( lp_winbind_use_default_domain() &&
++			     !strchr_m( pw->pw_name, *lp_winbind_separator() ) ) {
+ 				char *domain;
+ 
+ 				/* split the domain and username into 2 strings */
