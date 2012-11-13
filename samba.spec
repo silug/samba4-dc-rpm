@@ -1,4 +1,4 @@
-%define main_release 165
+%define main_release 166
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -6,7 +6,7 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
-%define pre_release rc4
+%define pre_release rc5
 
 %define samba_release %{main_release}%{?dist}.%{pre_release}
 
@@ -57,14 +57,11 @@ Source2: samba.xinetd
 Source3: swat.desktop
 Source4: smb.conf.default
 Source5: pam_winbind.conf
-Source7: winbind.networkmanager
 
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0: samba-4.0.0rc4-request_aes_krb_keys.patch
-Patch1: samba-4.0.0rc4-add_aes_enctypes_to_krb5_conf.patch
-Patch2: samba-4.0.0rc5-fix_winbind_offline_logon.patch
+Patch0: samba-4.0.0rc6-LogonSamLogon_failover.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -407,9 +404,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .request_aes_krb_keys
-%patch1 -p1 -b .add_aes_enctypes_to_krb5_conf
-%patch2 -p1 -b .winbind_offline_logon
+%patch0 -p1 -b .samlogon_failover
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -554,9 +549,10 @@ for i in nmb smb winbind ; do
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
 
-# FIXME use packaging/NetworkManager/30-winbind
+# NetworkManager online/offline script
 install -d -m 0755 %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/
-install -m 0755 %{SOURCE7} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
+install -m 0755 packaging/NetworkManager/30-winbind-systemd \
+            %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
 
 # winbind krb5 locator
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
@@ -772,7 +768,6 @@ rm -rf %{buildroot}
 %{_bindir}/profiles
 %{_bindir}/smbcontrol
 %{_bindir}/testparm
-%{_libdir}/samba/libgpo.so
 %{_datadir}/samba/codepages
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
@@ -1069,6 +1064,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/liberrors.so
 %{_libdir}/samba/libevents.so
 %{_libdir}/samba/libflag_mapping.so
+%{_libdir}/samba/libgpo.so
 %{_libdir}/samba/libgse.so
 %{_libdir}/samba/libinterfaces.so
 %{_libdir}/samba/libkrb5samba.so
@@ -1302,6 +1298,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-166.rc5
+- Update to Samba 4.0.0rc5.
+
 * Mon Nov 05 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-165.rc4
 - Fix library dependencies of libnetapi.
 
