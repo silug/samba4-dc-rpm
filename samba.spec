@@ -1,4 +1,4 @@
-%define main_release 167
+%define main_release 168
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -210,9 +210,7 @@ link against the SMB, RPC and other protocols.
 %package devel
 Summary: Developer tools for Samba libraries
 Group: Development/Libraries
-Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
-Requires: %{name}-test = %{samba_depver}
 
 Provides: samba4-devel = %{samba_depver}
 Obsoletes: samba4-devel < %{samba_depver}
@@ -339,6 +337,16 @@ Obsoletes: samba4-test < %{samba_depver}
 
 %description test
 samba4-test provides testing tools for both the server and client
+packages of Samba.
+
+### TEST-DEVEL
+%package test-devel
+Summary: Testing devel files for Samba servers and clients
+Group: Applications/System
+Requires: %{name}-test-devel = %{samba_depver}
+
+%description test-devel
+samba-test-devel provides testing devel files for both the server and client
 packages of Samba.
 
 ### WINBIND
@@ -937,7 +945,6 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/smb_unix_ext.h
 %{_includedir}/samba-4.0/smb_util.h
 %{_includedir}/samba-4.0/tdr.h
-%{_includedir}/samba-4.0/torture.h
 %{_includedir}/samba-4.0/tsocket.h
 %{_includedir}/samba-4.0/tsocket_internal.h
 %{_includedir}/samba-4.0/samba_util.h
@@ -974,7 +981,6 @@ rm -rf %{buildroot}
 %{_libdir}/libsmbclient-raw.so
 %{_libdir}/libsmbconf.so
 %{_libdir}/libtevent-util.so
-%{_libdir}/libtorture.so
 %{_libdir}/pkgconfig/dcerpc.pc
 %{_libdir}/pkgconfig/dcerpc_atsvc.pc
 %{_libdir}/pkgconfig/dcerpc_samr.pc
@@ -991,7 +997,6 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/samba-util.pc
 %{_libdir}/pkgconfig/samdb.pc
 %{_libdir}/pkgconfig/smbclient-raw.pc
-%{_libdir}/pkgconfig/torture.pc
 %{_libdir}/libpdb.so
 %{_libdir}/libsmbldap.so
 
@@ -1263,6 +1268,13 @@ rm -rf %{buildroot}
 %{_mandir}/man1/smbtorture.1*
 %{_mandir}/man1/vfstest.1*
 
+### TEST-DEVEL
+%files test-devel
+%defattr(-,root,root)
+%{_includedir}/samba-4.0/torture.h
+%{_libdir}/libtorture.so
+%{_libdir}/pkgconfig/torture.pc
+
 ### WINBIND
 %files winbind
 %defattr(-,root,root)
@@ -1301,6 +1313,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Thu Nov 15 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-168.rc5
+- Reduce dependencies of samba-devel and create samba-test-devel package.
+
 * Tue Nov 13 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-167.rc5
 - Use workaround for winbind default domain only when set.
 - Build with old ctdb support.
