@@ -86,7 +86,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
 BuildRequires: iniparser-devel
-BuildRequires: krb5-devel
+BuildRequires: krb5-devel >= 1.10
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
 BuildRequires: libattr-devel
@@ -224,6 +224,7 @@ libraries in the Samba suite.
 %package libs
 Summary: Samba libraries
 Group: Applications/System
+Requires: krb5-libs >= 1.10
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
