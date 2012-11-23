@@ -1,4 +1,4 @@
-%define main_release 168
+%define main_release 169
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -63,6 +63,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.0.0rc6-LogonSamLogon_failover.patch
 Patch1: samba-4.0.0rc6-winbind_default_domain_workaround.patch
+Patch2: samba-4.0.0rc6-ncacn_ip_tcp_resolve_name.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -416,6 +417,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %patch0 -p1 -b .samlogon_failover
 %patch1 -p1 -b .winbind_default_domain_workaround
+%patch2 -p1 -b .ncacn_ip_tcp_resolve_name
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1314,6 +1316,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Fri Nov 23 2012 Guenther Deschner <gdeschner@redhat.com> - 2:4.0.0-169.rc5
+- Make sure ncacn_ip_tcp client code looks for NBT_NAME_SERVER name types.
+
 * Thu Nov 15 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-168.rc5
 - Reduce dependencies of samba-devel and create samba-test-devel package.
 

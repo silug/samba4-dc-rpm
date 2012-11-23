@@ -1,0 +1,40 @@
+From 2032f2746d70bbebd1af26a7a046eb1cc61ac175 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 23 Nov 2012 13:19:53 +0100
+Subject: [PATCH] s3-rpc_client: lookup nametype 0x20 in
+ rpc_pipe_open_tcp_port(). (bug #9426)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The server name type (0x20) is much more likely to be available in the name cache, as
+this type gets stored by winbind itself - the primary user of the ncacn_ip_tcp
+code currently.
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+
+Autobuild-User(master): Stefan Metzmacher <metze@samba.org>
+Autobuild-Date(master): Fri Nov 23 16:30:57 CET 2012 on sn-devel-104
+---
+ source3/rpc_client/cli_pipe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/rpc_client/cli_pipe.c b/source3/rpc_client/cli_pipe.c
+index edb3876..f8c7b24 100644
+--- a/source3/rpc_client/cli_pipe.c
++++ b/source3/rpc_client/cli_pipe.c
+@@ -2448,7 +2448,7 @@ static NTSTATUS rpc_pipe_open_tcp_port(TALLOC_CTX *mem_ctx, const char *host,
+ 	result->max_xmit_frag = RPC_MAX_PDU_FRAG_LEN;
+ 	result->max_recv_frag = RPC_MAX_PDU_FRAG_LEN;
+ 
+-	if (!resolve_name(host, &addr, 0, false)) {
++	if (!resolve_name(host, &addr, NBT_NAME_SERVER, false)) {
+ 		status = NT_STATUS_NOT_FOUND;
+ 		goto fail;
+ 	}
+-- 
+1.7.11.7
+
