@@ -1,3 +1,6 @@
+# Set --with testsuite or %bcond_without to run the Samba torture testsuite.
+%bcond_with testsuite
+
 %define main_release 170
 
 %define samba_version 4.0.0
@@ -22,6 +25,12 @@
 
 %global with_mitkrb5 1
 %global with_dc 0
+
+%if %{with testsuite}
+# The testsuite only works with a full build right now.
+%global with_mitkrb5 0
+%global with_dc 1
+%endif
 
 %global with_clustering_support 1
 
@@ -482,6 +491,9 @@ the local kerberos library to use the same KDC as samba and winbind use
         --with-cluster-support \
         --enable-old-ctdb \
 %endif
+%if %{with testsuite}
+        --enable-selftest \
+%endif
 %if ! %with_pam_smbpass
         --without-pam_smbpass
 %endif
@@ -583,6 +595,11 @@ rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
 
 # Fix up permission on perl install.
 %{_fixperms} %{buildroot}%{perl_vendorlib}
+
+%if %{with testsuite}
+%check
+TDB_NO_FSYNC=1 make %{?_smp_mflags} test
+%endif
 
 %post
 %systemd_post smb.service
@@ -1252,6 +1269,13 @@ rm -rf %{buildroot}
 %{_mandir}/man1/ndrdump.1*
 %{_mandir}/man1/smbtorture.1*
 %{_mandir}/man1/vfstest.1*
+
+%if %{with testsuite}
+# files to ignore in testsuite mode
+%{_libdir}/samba/libnss_wrapper.so
+%{_libdir}/samba/libsocket_wrapper.so
+%{_libdir}/samba/libuid_wrapper.so
+%endif
 
 ### TEST-DEVEL
 %files test-devel
