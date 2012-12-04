@@ -1,4 +1,4 @@
-%define main_release 169
+%define main_release 170
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -6,7 +6,7 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
-%define pre_release rc5
+%define pre_release rc6
 
 %define samba_release %{main_release}%{?dist}.%{pre_release}
 
@@ -57,13 +57,10 @@ Source2: samba.xinetd
 Source3: swat.desktop
 Source4: smb.conf.default
 Source5: pam_winbind.conf
+Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.0.0rc6-LogonSamLogon_failover.patch
-Patch1: samba-4.0.0rc6-winbind_default_domain_workaround.patch
-Patch2: samba-4.0.0rc6-ncacn_ip_tcp_resolve_name.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -415,10 +412,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samlogon_failover
-%patch1 -p1 -b .winbind_default_domain_workaround
-%patch2 -p1 -b .ncacn_ip_tcp_resolve_name
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -506,7 +499,6 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 install -d -m 0755 %{buildroot}/usr/{sbin,bin}
-install -d -m 0755 %{buildroot}%{_sysconfdir}/{logrotate.d,security}
 install -d -m 0755 %{buildroot}%{_libdir}/security
 install -d -m 0755 %{buildroot}/var/lib/samba
 install -d -m 0755 %{buildroot}/var/lib/samba/private
@@ -529,9 +521,17 @@ rm -rf %{buildroot}/%{_datadir}/perl5
 ( cd pidl && make install PERL_INSTALL_ROOT=%{buildroot} )
 
 # Install other stuff
+install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
+
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
+
+install -d -m 0755 %{buildroot}%{_sysconfdir}/security
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
+
+# Install pam file for swat
+install -d -m 0755 %{buildroot}%{_sysconfdir}/pam.d
+install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
@@ -691,8 +691,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_bindir}/cifsdd
 %{_bindir}/dbwrap_tool
-%{_bindir}/debug2html
-%{_bindir}/log2pcap
 %{_bindir}/nmblookup
 %{_bindir}/nmblookup4
 %{_bindir}/oLschema2ldif
@@ -706,7 +704,6 @@ rm -rf %{buildroot}
 %{_bindir}/smbclient
 %{_bindir}/smbclient4
 %{_bindir}/smbcquotas
-%{_bindir}/smbfilter
 %{_bindir}/smbget
 #%{_bindir}/smbiconv
 %{_bindir}/smbpasswd
@@ -714,7 +711,6 @@ rm -rf %{buildroot}
 %{_bindir}/smbspool
 %{_bindir}/smbta-util
 %{_bindir}/smbtree
-%{_bindir}/split_tokens
 %{_libdir}/samba/libldb-cmdline.so
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/oLschema2ldif.1*
@@ -814,7 +810,6 @@ rm -rf %{buildroot}
 ### DC
 %files dc
 %defattr(-,root,root)
-%{_bindir}/samba-dig
 %{_libdir}/samba/ldb
 %{_libdir}/samba/libdfs_server_ad.so
 %{_libdir}/samba/libdsdb-module.so
@@ -838,8 +833,11 @@ rm -rf %{buildroot}
 %dir /var/lib/samba/sysvol
 %{_datadir}/samba/setup
 %{_mandir}/man8/samba.8.gz
+%{_mandir}/man8/samba-tool.8.gz
 %else # with_dc
 %doc %{_defaultdocdir}/%{name}/README.dc
+%exclude %{_mandir}/man8/samba.8.gz
+%exclude %{_mandir}/man8/samba-tool.8.gz
 %endif # with_dc
 
 ### DC-LIBS
@@ -1229,6 +1227,7 @@ rm -rf %{buildroot}
 %files swat
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat
+%config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_datadir}/samba/swat
 %{_sbindir}/swat
 %{_mandir}/man8/swat.8*
@@ -1237,28 +1236,11 @@ rm -rf %{buildroot}
 ### TEST
 %files test
 %defattr(-,root,root)
-%{_bindir}/asystest
-%{_bindir}/dbwrap_torture
 %{_bindir}/gentest
 %{_bindir}/locktest
-%{_bindir}/locktest2
-%{_bindir}/locktest3
 %{_bindir}/masktest
-%{_bindir}/masktest3
-%{_bindir}/msgtest
 %{_bindir}/ndrdump
-%{_bindir}/nsstest
-%{_bindir}/pdbtest
-%{_bindir}/pthreadpooltest
-%{_bindir}/rpc_open_tcp
-%{_bindir}/smbconftort
 %{_bindir}/smbtorture
-%{_bindir}/smbtorture3
-%{_bindir}/test_lp_load
-%{_bindir}/timelimit
-%{_bindir}/versiontest
-%{_bindir}/vfstest
-%{_bindir}/vlp
 %{_libdir}/libtorture.so.*
 %{_libdir}/samba/libsubunit.so
 %if %with_dc
@@ -1297,13 +1279,13 @@ rm -rf %{buildroot}
 %files winbind-clients
 %defattr(-,root,root)
 %{_bindir}/ntlm_auth
-%{_bindir}/ntlm_auth3
 %{_bindir}/wbinfo
 %{_libdir}/libnss_winbind.so*
 %{_libdir}/libnss_wins.so*
 %{_libdir}/security/pam_winbind.so
 %config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_mandir}/man1/ntlm_auth.1.gz
+%exclude %{_mandir}/man1/ntlm_auth4.1.gz
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man5/pam_winbind.conf.5*
 %{_mandir}/man8/pam_winbind.8*
@@ -1316,6 +1298,11 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Dec 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-170.rc6
+- Update to Samba 4.0.0rc6.
+- Add /etc/pam.d/samba for swat to work correctly.
+- resolves #882700
+
 * Fri Nov 23 2012 Guenther Deschner <gdeschner@redhat.com> - 2:4.0.0-169.rc5
 - Make sure ncacn_ip_tcp client code looks for NBT_NAME_SERVER name types.
 
