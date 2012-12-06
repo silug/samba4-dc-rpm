@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 170
+%define main_release 171
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -665,7 +665,7 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
         if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/winbind_krb5_locator.so" ]; then
-                %{_sbindir}/alternatives --set winbind_krb5_locator %{_libdir}/winbind_krb5_locator.so
+                %{_sbindir}/update-alternatives --set winbind_krb5_locator %{_libdir}/winbind_krb5_locator.so
         fi
 fi
 
@@ -1322,6 +1322,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Thu Dec 06 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-171.rc6
+- Fix typo in winbind-krb-locator post uninstall script.
+
 * Tue Dec 04 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-170.rc6
 - Update to Samba 4.0.0rc6.
 - Add /etc/pam.d/samba for swat to work correctly.
