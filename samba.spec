@@ -9,9 +9,14 @@
 %define tdb_version 1.2.10
 %define tevent_version 0.9.17
 %define ldb_version 1.1.12
+# This should be rc1 or nil
 %define pre_release rc6
 
-%define samba_release %{main_release}%{?dist}.%{pre_release}
+%if "x%{?pre_release}" != "x"
+%define samba_release 0.%{main_release}.%{pre_release}%{?dist}
+%else
+%define samba_release %{main_release}%{?dist}
+%endif
 
 %global with_libsmbclient 1
 %global with_libwbclient 1
