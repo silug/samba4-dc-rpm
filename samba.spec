@@ -1331,6 +1331,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Dec 11 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-172
+- Update to Samba 4.0.0.
+
 * Thu Dec 06 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-171.rc6
 - Fix typo in winbind-krb-locator post uninstall script.
 
