@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 172
+%define main_release 173
 
 %define samba_version 4.0.0
 %define talloc_version 2.0.7
@@ -1331,7 +1331,7 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
-* Tue Dec 11 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-172
+* Tue Dec 11 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-173
 - Update to Samba 4.0.0.
 
 * Thu Dec 06 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-171.rc6
