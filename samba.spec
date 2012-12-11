@@ -142,6 +142,10 @@ BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
 %endif
 
+%if %{with testsuite}
+BuildRequires: ldb-tools
+%endif
+
 # UGLY HACK: Fix 'Provides' for libsmbclient and libwbclient
 %if ! %with_libsmbclient && ! %with_libwbclient
 %{?filter_setup:
