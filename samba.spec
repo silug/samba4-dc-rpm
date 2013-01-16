@@ -1,9 +1,9 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 174
+%define main_release 1
 
-%define samba_version 4.0.0
+%define samba_version 4.0.1
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.10
@@ -1331,6 +1331,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Jan 16 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.1-1
+- Update to Samba 4.0.1.
+- Fixes CVE-2013-0172.
+
 * Mon Dec 17 2012 - Andreas Schneider <asn@redhat.com> - 2:4.0.0-174
 - Fix typo in winbind-krb-locator post uninstall script.
 
