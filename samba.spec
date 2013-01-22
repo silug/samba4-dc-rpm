@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.0.1
 %define talloc_version 2.0.7
@@ -151,14 +151,12 @@ BuildRequires: python-tdb >= %{libtdb_version}
 BuildRequires: ldb-tools
 %endif
 
-# UGLY HACK: Fix 'Provides' for libsmbclient and libwbclient
-%if ! %with_libsmbclient && ! %with_libwbclient
+# filter out perl requirements pulled in from examples in the docdir.
 %{?filter_setup:
-%filter_from_provides /libsmbclient.so.0()/d; /libwbclient.so.0()/d
-%filter_from_requires /libsmbclient.so.0()/d; /libwbclient.so.0()/d
+%filter_provides_in %{_docdir}
+%filter_requires_in %{_docdir}
 %filter_setup
 }
-%endif
 
 ### SAMBA
 %description
@@ -558,6 +556,7 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
+# openLDAP database schema
 install -d -m 0755 %{buildroot}%{_sysconfdir}/openldap/schema
 install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/schema/samba.schema
 
@@ -695,7 +694,9 @@ rm -rf %{buildroot}
 ### SAMBA
 %files
 %defattr(-,root,root,-)
-%doc COPYING
+%doc COPYING README WHATSNEW.txt
+%doc examples/autofs examples/LDAP examples/misc
+%doc examples/printer-accounting examples/printing
 %{_bindir}/smbstatus
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
@@ -1336,6 +1337,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.1-2
+- Add missing example and make sure we don't introduce perl dependencies.
+- resolves: #639470
+
 * Wed Jan 16 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.1-1
 - Update to Samba 4.0.1.
 - Fixes CVE-2013-0172.
