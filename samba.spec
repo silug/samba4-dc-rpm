@@ -345,7 +345,9 @@ Summary: Testing tools for Samba servers and clients
 Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-common = %{samba_depver}
-Requires: %{name}-dc = %{samba_depver}
+%if %with_dc
+Requires: %{name}-dc-libs = %{samba_depver}
+%endif
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 
@@ -836,9 +838,9 @@ rm -rf %{buildroot}
 ### DC
 %files dc
 %defattr(-,root,root)
-%{_libdir}/samba/ldb
-%{_libdir}/samba/libdfs_server_ad.so
-%{_libdir}/samba/libdsdb-module.so
+%exclude %{_libdir}/samba/ldb/ildap.so
+%exclude %{_libdir}/samba/ldb/ldbsamba_extensions.so
+%exclude %{_libdir}/samba/libdfs_server_ad.so
 
 %if %with_dc
 %{_bindir}/samba-tool
@@ -875,6 +877,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/process_model
 %{_libdir}/samba/service
 %{_libdir}/libdcerpc-server.so.*
+%{_libdir}/samba/libdsdb-module.so
 %{_libdir}/samba/libntvfs.so
 %{_libdir}/samba/libposix_eadb.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
@@ -1271,6 +1274,8 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libsubunit.so
 %if %with_dc
 %{_libdir}/samba/libdlz_bind9_for_torture.so
+%else
+%{_libdir}/samba/libdsdb-module.so
 %endif
 %{_mandir}/man1/gentest.1*
 %{_mandir}/man1/locktest.1*
