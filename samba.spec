@@ -1,9 +1,9 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 1
 
-%define samba_version 4.0.1
+%define samba_version 4.0.2
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.10
@@ -1341,7 +1341,13 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
-* Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.1-2
+* Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.2-1
+- Update to Samba 4.0.2.
+- Fixes CVE-2013-0213.
+- Fixes CVE-2013-0214.
+- resolves: #906002
+- resolves: #905700
+- resolves: #905704
 - Fix conn->share_access which is reset between user switches.
 - resolves: #903806
 - Add missing example and make sure we don't introduce perl dependencies.
