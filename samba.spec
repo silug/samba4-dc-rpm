@@ -76,6 +76,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
+Patch0: samba-4.0.0-fix_conn_share_access_reset.patch
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -429,6 +431,8 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .conn_share_reset
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1338,6 +1342,8 @@ rm -rf %{buildroot}
 
 %changelog
 * Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.1-2
+- Fix conn->share_access which is reset between user switches.
+- resolves: #903806
 - Add missing example and make sure we don't introduce perl dependencies.
 - resolves: #639470
 
