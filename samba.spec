@@ -76,6 +76,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
+Patch0: samba-4.0.3-fix_pidl_with_gcc48.patch
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -429,6 +431,8 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .pidl_gcc48
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1341,6 +1345,7 @@ rm -rf %{buildroot}
 * Thu Feb 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-1
 - Update to Samba 4.0.3.
 - resolves: #907544 - Add unowned directory /usr/lib64/samba.
+- resolves: #906517 - Fix pidl code generation with gcc 4.8.
 
 * Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.2-1
 - Update to Samba 4.0.2.
