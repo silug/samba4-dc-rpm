@@ -3,7 +3,7 @@
 
 %define main_release 1
 
-%define samba_version 4.0.2
+%define samba_version 4.0.3
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.10
@@ -75,8 +75,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.0.0-fix_conn_share_access_reset.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -432,8 +430,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .conn_share_reset
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -745,6 +741,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbta-util
 %{_bindir}/smbtree
 %{_libdir}/samba/libldb-cmdline.so
+%{_mandir}/man1/dbwrap_tool.1*
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/oLschema2ldif.1*
 %{_mandir}/man1/regdiff.1*
@@ -1328,7 +1325,6 @@ rm -rf %{buildroot}
 %{_libdir}/security/pam_winbind.so
 %config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_mandir}/man1/ntlm_auth.1.gz
-%exclude %{_mandir}/man1/ntlm_auth4.1.gz
 %{_mandir}/man1/wbinfo.1*
 %{_mandir}/man5/pam_winbind.conf.5*
 %{_mandir}/man8/pam_winbind.8*
@@ -1341,6 +1337,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Thu Feb 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-1
+- Update to Samba 4.0.3.
+
 * Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.2-1
 - Update to Samba 4.0.2.
 - Fixes CVE-2013-0213.
