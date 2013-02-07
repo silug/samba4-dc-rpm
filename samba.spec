@@ -1077,6 +1077,7 @@ rm -rf %{buildroot}
 %{_libdir}/libsmbldap.so.*
 
 # libraries needed by the public libraries
+%dir %{_libdir}/samba
 %{_libdir}/samba/libCHARSET3.so
 %{_libdir}/samba/libMESSAGING.so
 %{_libdir}/samba/libLIBWBCLIENT_OLD.so
@@ -1339,6 +1340,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Feb 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-1
 - Update to Samba 4.0.3.
+- resolves: #907544 - Add unowned directory /usr/lib64/samba.
 
 * Wed Jan 30 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.2-1
 - Update to Samba 4.0.2.
