@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.0.3
 %define talloc_version 2.0.7
@@ -78,6 +78,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.0.3-fix_pidl_with_gcc48.patch
 Patch1: samba-4.0.3-fix_pdb_ldapsam.patch
+Patch2: samba-4.0.3-fix_libcmdline-credentials_linking.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -435,6 +436,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %patch0 -p1 -b .pidl_gcc48
 %patch1 -p1 -b .pdb_ldapsam
+%patch2 -p1 -b .libreplace_linking
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1344,6 +1346,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Thu Feb 14 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-2
+- resolves: #907915 - libreplace.so => not found
+
 * Thu Feb 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-1
 - Update to Samba 4.0.3.
 - resolves: #907544 - Add unowned directory /usr/lib64/samba.
