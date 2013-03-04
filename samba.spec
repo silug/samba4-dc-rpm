@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.0.3
 %define talloc_version 2.0.7
@@ -488,6 +488,7 @@ the local kerberos library to use the same KDC as samba and winbind use
         --with-modulesdir=%{_libdir}/samba \
         --with-pammodulesdir=%{_libdir}/security \
         --with-lockdir=/var/lib/samba \
+        --with-cachedir=/var/lib/samba \
         --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
@@ -634,6 +635,12 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 %post common
 /sbin/ldconfig
 /usr/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
+if [ -d /var/cache/samba ]; then
+    mv /var/cache/samba/netsamlogon_cache.tdb /var/lib/samba/ 2>/dev/null
+    mv /var/cache/samba/winbindd_cache.tdb /var/lib/samba/ 2>/dev/null
+    rm -rf /var/cache/samba/
+    ln -sf /var/cache/samba /var/lib/samba/
+fi
 
 %postun common -p /sbin/ldconfig
 
@@ -1346,6 +1353,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Mar 04 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-3
+- Fix the cache dir to be /var/lib/samba to support upgrades.
+
 * Thu Feb 14 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-2
 - resolves: #907915 - libreplace.so => not found
 
