@@ -576,6 +576,8 @@ install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
 install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+# create /run/samba too.
+echo "d /run/samba  755 root root" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
@@ -1353,6 +1355,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Mar 11 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-4
+- resolves: #919333 - Create /run/samba too.
+
 * Mon Mar 04 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-3
 - Fix the cache dir to be /var/lib/samba to support upgrades.
 
