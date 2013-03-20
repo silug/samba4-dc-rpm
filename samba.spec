@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.0.4
 %define talloc_version 2.0.7
@@ -1357,7 +1357,7 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
-* Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com>
+* Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-2
 - resolves: #923765 - Improve packaging of README files.
 
 * Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-1
