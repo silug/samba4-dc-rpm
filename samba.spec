@@ -582,12 +582,11 @@ echo "d /run/samba  755 root root" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/samb
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
 
-install -d -m 0755 %{buildroot}%{_defaultdocdir}/%{name}-%{version}
-install -m 0644 %{SOURCE201} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/README.downgrade
+install -m 0644 %{SOURCE201} packaging/README.downgrade
 
 %if ! %with_dc
-install -m 0644 %{SOURCE200} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/README.dc
-install -m 0644 %{SOURCE200} %{buildroot}%{_defaultdocdir}/%{name}-%{version}/README.dc-libs
+install -m 0644 %{SOURCE200} packaging/README.dc
+install -m 0644 %{SOURCE200} packaging/README.dc-libs
 %endif
 
 install -d -m 0755 %{buildroot}%{_unitdir}
@@ -714,6 +713,7 @@ rm -rf %{buildroot}
 %doc COPYING README WHATSNEW.txt
 %doc examples/autofs examples/LDAP examples/misc
 %doc examples/printer-accounting examples/printing
+%doc packaging/README.downgrade
 %{_bindir}/smbstatus
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
@@ -725,7 +725,6 @@ rm -rf %{buildroot}
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
-%doc %{_defaultdocdir}/%{name}-%{version}/README.downgrade
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man8/eventlogadm.8*
 %{_mandir}/man8/smbd.8*
@@ -883,7 +882,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/samba.8.gz
 %{_mandir}/man8/samba-tool.8.gz
 %else # with_dc
-%doc %{_defaultdocdir}/%{name}-%{version}/README.dc
+%doc packaging/README.dc
 %exclude %{_mandir}/man8/samba.8.gz
 %exclude %{_mandir}/man8/samba-tool.8.gz
 %endif # with_dc
@@ -902,7 +901,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libposix_eadb.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
 %else
-%doc %{_defaultdocdir}/%{name}-%{version}/README.dc-libs
+%doc packaging/README.dc-libs
 %endif # with_dc
 
 ### DEVEL
@@ -1358,6 +1357,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com>
+- resolves: #923765 - Improve packaging of README files.
+
 * Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-1
 - Update to Samba 4.0.4.
 
