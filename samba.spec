@@ -1,14 +1,14 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.0.3
+%define samba_version 4.0.4
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
-%define tdb_version 1.2.10
+%define tdb_version 1.2.11
 %define tevent_version 0.9.17
-%define ldb_version 1.1.12
+%define ldb_version 1.1.15
 # This should be rc1 or nil
 %define pre_release %nil
 
@@ -22,11 +22,11 @@
 %global with_libwbclient 1
 
 %global with_pam_smbpass 0
-%global with_talloc 0
-%global with_tevent 0
-%global with_tdb 0
-%global with_ntdb 1
-%global with_ldb 0
+%global with_internal_talloc 0
+%global with_internal_tevent 0
+%global with_internal_tdb 0
+%global with_internal_ntdb 1
+%global with_internal_ldb 0
 
 %global with_mitkrb5 1
 %global with_dc 0
@@ -123,28 +123,28 @@ BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
 BuildRequires: libbsd-devel
 
-%if ! %with_talloc
+%if ! %with_internal_talloc
 %global libtalloc_version 2.0.7
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
-%if ! %with_tevent
+%if ! %with_internal_tevent
 %global libtevent_version 0.9.17
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
-%if ! %with_ldb
+%if ! %with_internal_ldb
 %global libldb_version 1.1.11
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
-%if ! %with_tdb
+%if ! %with_internal_tdb
 %global libtdb_version 1.2.10
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
@@ -444,19 +444,19 @@ the local kerberos library to use the same KDC as samba and winbind use
 %global _tdb_lib ,tdb,pytdb
 %global _ldb_lib ,ldb,pyldb
 
-%if ! %{with_talloc}
+%if ! %{with_internal_talloc}
 %global _talloc_lib ,!talloc,!pytalloc,!pytalloc-util
 %endif
 
-%if ! %{with_tevent}
+%if ! %{with_internal_tevent}
 %global _tevent_lib ,!tevent,!pytevent
 %endif
 
-%if ! %{with_tdb}
+%if ! %{with_internal_tdb}
 %global _tdb_lib ,!tdb,!pytdb
 %endif
 
-%if ! %{with_ldb}
+%if ! %{with_internal_ldb}
 %global _ldb_lib ,!ldb,!pyldb
 %endif
 
@@ -782,14 +782,14 @@ rm -rf %{buildroot}
 %{_mandir}/man8/smbta-util.8*
 
 ## we don't build it for now
-#%if %{with_ntdb}
+#%if %{with_internal_ntdb}
 #%{_bindir}/ntdbbackup
 #%{_bindir}/ntdbdump
 #%{_bindir}/ntdbrestore
 #%{_bindir}/ntdbtool
 #%endif
 
-%if %{with_tdb}
+%if %{with_internal_tdb}
 %{_bindir}/tdbbackup
 %{_bindir}/tdbdump
 %{_bindir}/tdbrestore
@@ -800,13 +800,14 @@ rm -rf %{buildroot}
 %{_mandir}/man8/tdbtool.8.gz
 %endif
 
-%if %with_ldb
+%if %with_internal_ldb
 %{_bindir}/ldbadd
 %{_bindir}/ldbdel
 %{_bindir}/ldbedit
 %{_bindir}/ldbmodify
 %{_bindir}/ldbrename
 %{_bindir}/ldbsearch
+%{_libdir}/samba/ldb/
 %{_mandir}/man1/ldbadd.1.gz
 %{_mandir}/man1/ldbdel.1.gz
 %{_mandir}/man1/ldbedit.1.gz
@@ -1055,7 +1056,7 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/dcerpc_server.pc
 %endif
 
-%if %with_talloc
+%if %with_internal_talloc
 %{_includedir}/samba-4.0/pytalloc.h
 %endif
 
@@ -1188,28 +1189,30 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libwind-samba4.so.0.0.0
 %endif
 
-%if %{with_ldb}
+%if %{with_internal_ldb}
 %{_libdir}/samba/libldb.so.1
 %{_libdir}/samba/libldb.so.%{ldb_version}
 %{_libdir}/samba/libpyldb-util.so.1
 %{_libdir}/samba/libpyldb-util.so.%{ldb_version}
+%{_mandir}/man3/ldb.3.gz
 %endif
-%if %{with_talloc}
+%if %{with_internal_talloc}
 %{_libdir}/samba/libtalloc.so.2
 %{_libdir}/samba/libtalloc.so.%{talloc_version}
 %{_libdir}/samba/libpytalloc-util.so.2
 %{_libdir}/samba/libpytalloc-util.so.%{talloc_version}
+%{_mandir}/man3/talloc.3.gz
 %endif
-%if %{with_tevent}
+%if %{with_internal_tevent}
 %{_libdir}/samba/libtevent.so.0
 %{_libdir}/samba/libtevent.so.%{tevent_version}
 %endif
-%if %{with_tdb}
+%if %{with_internal_tdb}
 %{_libdir}/samba/libtdb.so.1
 %{_libdir}/samba/libtdb.so.%{tdb_version}
 %endif
 ## we don't build it for now
-#%if %{with_ntdb}
+#%if %{with_internal_ntdb}
 #%{_libdir}/samba/libntdb.so.0
 #%{_libdir}/samba/libntdb.so.%{ntdb_version}
 #%endif
@@ -1355,6 +1358,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-1
+- Update to Samba 4.0.4.
+
 * Mon Mar 11 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.3-4
 - resolves: #919333 - Create /run/samba too.
 
