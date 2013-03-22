@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.0.4
 %define talloc_version 2.0.7
@@ -79,6 +79,7 @@ Source201: README.downgrade
 Patch0: samba-4.0.3-fix_pidl_with_gcc48.patch
 Patch1: samba-4.0.3-fix_pdb_ldapsam.patch
 Patch2: samba-4.0.3-fix_libcmdline-credentials_linking.patch
+Patch3: samba-4.0.4-fix_large_read_handling.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -437,6 +438,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %patch0 -p1 -b .pidl_gcc48
 %patch1 -p1 -b .pdb_ldapsam
 %patch2 -p1 -b .libreplace_linking
+%patch3 -p1 -b .large_read
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -516,8 +518,6 @@ the local kerberos library to use the same KDC as samba and winbind use
         --without-pam_smbpass
 %endif
 
-export WAFCACHE=/tmp/wafcache
-mkdir -p $WAFCACHE
 make %{?_smp_mflags}
 
 # Build PIDL for installation into vendor directories before
@@ -1357,6 +1357,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Fri Mar 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-3
+- resolves: #919405 - Fix and improve large_readx handling for broken clients.
+- resolves: #924525 - Don't use waf caching.
+
 * Wed Mar 20 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-2
 - resolves: #923765 - Improve packaging of README files.
 
