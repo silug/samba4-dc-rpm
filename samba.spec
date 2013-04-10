@@ -183,7 +183,6 @@ Summary: Files used by both Samba servers and clients
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
 Requires(post): systemd
-Requires: logrotate
 
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
@@ -1352,6 +1351,7 @@ rm -rf %{buildroot}
 * Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
 - resolves: #928947 - samba-doc is obsolete now.
+- resolves: #948606 - LogRotate should be optional, and not a hard "Requires".
 
 * Fri Mar 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-3
 - resolves: #919405 - Fix and improve large_readx handling for broken clients.
