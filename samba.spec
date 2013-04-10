@@ -188,6 +188,9 @@ Requires: logrotate
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
 
+# This is for upgrading from F17 to F18
+Obsoletes: samba-doc
+
 %description common
 samba4-common provides files necessary for both the server and client
 packages of Samba.
@@ -1348,6 +1351,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
+- resolves: #928947 - samba-doc is obsolete now.
 
 * Fri Mar 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-3
 - resolves: #919405 - Fix and improve large_readx handling for broken clients.
