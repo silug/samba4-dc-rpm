@@ -822,6 +822,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbcontrol
 %{_bindir}/testparm
 %{_datadir}/samba/codepages
+%{_sysconfdir}/logrotate.d/
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
