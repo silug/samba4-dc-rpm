@@ -76,6 +76,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
+Patch0: samba-4.0.6_add_passdb_upn_enum.patch
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -431,6 +433,8 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .add_passdb_upn_enum
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1350,6 +1354,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
+- Add UPN enumeration to passdb internal API (bso #9779).
 - resolves: #928947 - samba-doc is obsolete now.
 - resolves: #948606 - LogRotate should be optional, and not a hard "Requires".
 
