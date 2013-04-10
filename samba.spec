@@ -1,13 +1,13 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.0.4
+%define samba_version 4.0.5
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.11
-%define tevent_version 0.9.17
+%define tevent_version 0.9.18
 %define ldb_version 1.1.15
 # This should be rc1 or nil
 %define pre_release %nil
@@ -75,11 +75,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.0.3-fix_pidl_with_gcc48.patch
-Patch1: samba-4.0.3-fix_pdb_ldapsam.patch
-Patch2: samba-4.0.3-fix_libcmdline-credentials_linking.patch
-Patch3: samba-4.0.4-fix_large_read_handling.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -434,11 +429,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .pidl_gcc48
-%patch1 -p1 -b .pdb_ldapsam
-%patch2 -p1 -b .libreplace_linking
-%patch3 -p1 -b .large_read
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -868,7 +858,6 @@ rm -rf %{buildroot}
 %{_sbindir}/samba_dnsupdate
 %{_sbindir}/samba_spnupdate
 %{_sbindir}/samba_upgradedns
-%{_sbindir}/samba_upgradeprovision
 %{_libdir}/mit_samba.so
 %{_libdir}/samba/bind9/dlz_bind9.so
 %{_libdir}/samba/libheimntlm-samba4.so.1
@@ -1357,6 +1346,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
+- Update to Samba 4.0.5.
+
 * Fri Mar 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.4-3
 - resolves: #919405 - Fix and improve large_readx handling for broken clients.
 - resolves: #924525 - Don't use waf caching.
