@@ -3,7 +3,7 @@
 
 %define main_release 1
 
-%define samba_version 4.0.5
+%define samba_version 4.0.6
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.11
@@ -22,14 +22,14 @@
 %global with_libwbclient 1
 
 %global with_pam_smbpass 0
-%global with_internal_talloc 0
-%global with_internal_tevent 0
-%global with_internal_tdb 0
+%global with_internal_talloc 1
+%global with_internal_tevent 1
+%global with_internal_tdb 1
 %global with_internal_ntdb 1
-%global with_internal_ldb 0
+%global with_internal_ldb 1
 
-%global with_mitkrb5 1
-%global with_dc 0
+%global with_mitkrb5 0
+%global with_dc 1
 
 %if %{with testsuite}
 # The testsuite only works with a full build right now.
@@ -75,8 +75,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.0.6_add_passdb_upn_enum.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -191,6 +189,7 @@ Obsoletes: samba4-common < %{samba_depver}
 
 # This is for upgrading from F17 to F18
 Obsoletes: samba-doc
+Obsoletes: samba-domainjoin-gui
 
 %description common
 samba4-common provides files necessary for both the server and client
@@ -433,8 +432,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .add_passdb_upn_enum
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -822,7 +819,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbcontrol
 %{_bindir}/testparm
 %{_datadir}/samba/codepages
-%{_sysconfdir}/logrotate.d/
+%dir %{_sysconfdir}/logrotate.d/
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
@@ -1353,6 +1350,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue May 21 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-1
+- Update to Samba 4.0.6.
+
 * Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
 - Add UPN enumeration to passdb internal API (bso #9779).
