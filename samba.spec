@@ -31,6 +31,8 @@
 %global with_mitkrb5 0
 %global with_dc 1
 
+%global with_swat 0
+
 %if %{with testsuite}
 # The testsuite only works with a full build right now.
 %global with_mitkrb5 0
@@ -190,6 +192,9 @@ Obsoletes: samba4-common < %{samba_depver}
 # This is for upgrading from F17 to F18
 Obsoletes: samba-doc
 Obsoletes: samba-domainjoin-gui
+%if ! %with_swat
+Obsoletes: samba-swat
+%endif
 
 %description common
 samba4-common provides files necessary for both the server and client
@@ -324,6 +329,7 @@ The samba4-pidl package contains the Perl IDL compiler used by Samba
 and Wireshark to parse IDL and similar protocols
 
 ### SWAT
+%if %with_swat
 %package swat
 Summary: The Samba SMB server Web configuration program
 Group: Applications/System
@@ -339,6 +345,7 @@ Obsoletes: samba4-swat < %{samba_depver}
 The samba-swat package includes the new SWAT (Samba Web Administration
 Tool), for remotely managing Samba's smb.conf file using your favorite
 Web browser.
+%endif
 
 ### TEST
 %package test
@@ -530,7 +537,9 @@ install -d -m 0755 %{buildroot}/var/lib/samba/scripts
 install -d -m 0755 %{buildroot}/var/lib/samba/sysvol
 install -d -m 0755 %{buildroot}/var/log/samba/old
 install -d -m 0755 %{buildroot}/var/spool/samba
+%if %with_swat
 install -d -m 0755 %{buildroot}/%{_datadir}/swat/using_samba
+%endif
 install -d -m 0755 %{buildroot}/var/run/samba
 install -d -m 0755 %{buildroot}/var/run/winbindd
 install -d -m 0755 %{buildroot}/%{_libdir}/samba
@@ -553,17 +562,19 @@ install -d -m 0755 %{buildroot}%{_sysconfdir}/security
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 
 # Install pam file for swat
+%if %with_swat
 install -d -m 0755 %{buildroot}%{_sysconfdir}/pam.d
 install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
+
+install -d -m 0755 %{buildroot}%{_sysconfdir}/xinetd.d
+install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/xinetd.d/swat
+%endif
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
 # openLDAP database schema
 install -d -m 0755 %{buildroot}%{_sysconfdir}/openldap/schema
 install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/schema/samba.schema
-
-install -d -m 0755 %{buildroot}%{_sysconfdir}/xinetd.d
-install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/xinetd.d/swat
 
 install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
 
@@ -1220,6 +1231,12 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libwinbind-client.so
 %endif # ! with_libwbclient
 
+%if ! %with_swat
+%exclude %{_datadir}/samba/swat
+%exclude %{_sbindir}/swat
+%exclude %{_mandir}/man8/swat.8*
+%endif
+
 ### LIBSMBCLIENT
 %if %with_libsmbclient
 %files -n libsmbclient
@@ -1268,6 +1285,7 @@ rm -rf %{buildroot}
 %{python_sitearch}/*
 
 ### SWAT
+%if %with_swat
 %files swat
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/xinetd.d/swat
@@ -1275,7 +1293,7 @@ rm -rf %{buildroot}
 %{_datadir}/samba/swat
 %{_sbindir}/swat
 %{_mandir}/man8/swat.8*
-#%attr(755,root,root) %{_libdir}/samba/*.msg
+%endif
 
 ### TEST
 %files test
@@ -1352,6 +1370,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue May 21 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-1
 - Update to Samba 4.0.6.
+- Remove SWAT.
 
 * Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
