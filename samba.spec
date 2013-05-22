@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.0.6
 %define talloc_version 2.0.7
@@ -22,14 +22,14 @@
 %global with_libwbclient 1
 
 %global with_pam_smbpass 0
-%global with_internal_talloc 1
-%global with_internal_tevent 1
-%global with_internal_tdb 1
+%global with_internal_talloc 0
+%global with_internal_tevent 0
+%global with_internal_tdb 0
 %global with_internal_ntdb 1
-%global with_internal_ldb 1
+%global with_internal_ldb 0
 
-%global with_mitkrb5 0
-%global with_dc 1
+%global with_mitkrb5 1
+%global with_dc 0
 
 %global with_swat 0
 
@@ -723,7 +723,42 @@ rm -rf %{buildroot}
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
 %{_libdir}/samba/auth
-%{_libdir}/samba/vfs
+%dir %{_libdir}/samba/vfs
+%{_libdir}/samba/vfs/acl_tdb.so
+%{_libdir}/samba/vfs/acl_xattr.so
+%{_libdir}/samba/vfs/aio_fork.so
+%{_libdir}/samba/vfs/aio_linux.so
+%{_libdir}/samba/vfs/aio_posix.so
+%{_libdir}/samba/vfs/aio_pthread.so
+%{_libdir}/samba/vfs/audit.so
+%{_libdir}/samba/vfs/cap.so
+%{_libdir}/samba/vfs/catia.so
+%{_libdir}/samba/vfs/commit.so
+%{_libdir}/samba/vfs/crossrename.so
+%{_libdir}/samba/vfs/default_quota.so
+%{_libdir}/samba/vfs/dirsort.so
+%{_libdir}/samba/vfs/expand_msdfs.so
+%{_libdir}/samba/vfs/extd_audit.so
+%{_libdir}/samba/vfs/fake_perms.so
+%{_libdir}/samba/vfs/fileid.so
+%{_libdir}/samba/vfs/full_audit.so
+%{_libdir}/samba/vfs/linux_xfs_sgid.so
+%{_libdir}/samba/vfs/media_harmony.so
+%{_libdir}/samba/vfs/netatalk.so
+%{_libdir}/samba/vfs/preopen.so
+%{_libdir}/samba/vfs/readahead.so
+%{_libdir}/samba/vfs/readonly.so
+%{_libdir}/samba/vfs/recycle.so
+%{_libdir}/samba/vfs/scannedonly.so
+%{_libdir}/samba/vfs/shadow_copy.so
+%{_libdir}/samba/vfs/shadow_copy2.so
+%{_libdir}/samba/vfs/smb_traffic_analyzer.so
+%{_libdir}/samba/vfs/streams_depot.so
+%{_libdir}/samba/vfs/streams_xattr.so
+%{_libdir}/samba/vfs/syncops.so
+%{_libdir}/samba/vfs/time_audit.so
+%{_libdir}/samba/vfs/xattr_tdb.so
+
 %{_unitdir}/nmb.service
 %{_unitdir}/smb.service
 %attr(1777,root,root) %dir /var/spool/samba
@@ -733,7 +768,42 @@ rm -rf %{buildroot}
 %{_mandir}/man8/eventlogadm.8*
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/nmbd.8*
-%{_mandir}/man8/vfs_*.8*
+#%{_mandir}/man8/vfs_*.8*
+%{_mandir}/man8/vfs_acl_tdb.8*
+%{_mandir}/man8/vfs_acl_xattr.8*
+%{_mandir}/man8/vfs_aio_fork.8*
+%{_mandir}/man8/vfs_aio_linux.8*
+%{_mandir}/man8/vfs_aio_pthread.8*
+%{_mandir}/man8/vfs_audit.8*
+%{_mandir}/man8/vfs_cacheprime.8*
+%{_mandir}/man8/vfs_cap.8*
+%{_mandir}/man8/vfs_catia.8*
+%{_mandir}/man8/vfs_commit.8*
+%{_mandir}/man8/vfs_crossrename.8*
+%{_mandir}/man8/vfs_default_quota.8*
+%{_mandir}/man8/vfs_dirsort.8*
+%{_mandir}/man8/vfs_extd_audit.8*
+%{_mandir}/man8/vfs_fake_perms.8*
+%{_mandir}/man8/vfs_fileid.8*
+%{_mandir}/man8/vfs_full_audit.8*
+%{_mandir}/man8/vfs_gpfs.8*
+%{_mandir}/man8/vfs_media_harmony.8*
+%{_mandir}/man8/vfs_netatalk.8*
+%{_mandir}/man8/vfs_notify_fam.8*
+%{_mandir}/man8/vfs_prealloc.8*
+%{_mandir}/man8/vfs_preopen.8*
+%{_mandir}/man8/vfs_readahead.8*
+%{_mandir}/man8/vfs_readonly.8*
+%{_mandir}/man8/vfs_recycle.8*
+%{_mandir}/man8/vfs_scannedonly.8*
+%{_mandir}/man8/vfs_shadow_copy.8*
+%{_mandir}/man8/vfs_shadow_copy2.8*
+%{_mandir}/man8/vfs_smb_traffic_analyzer.8*
+%{_mandir}/man8/vfs_streams_depot.8*
+%{_mandir}/man8/vfs_streams_xattr.8*
+%{_mandir}/man8/vfs_time_audit.8*
+%{_mandir}/man8/vfs_tsmsm.8*
+%{_mandir}/man8/vfs_xattr_tdb.8*
 
 ### CLIENT
 %files client
@@ -797,10 +867,10 @@ rm -rf %{buildroot}
 %{_bindir}/tdbdump
 %{_bindir}/tdbrestore
 %{_bindir}/tdbtool
-%{_mandir}/man8/tdbbackup.8.gz
-%{_mandir}/man8/tdbdump.8.gz
-%{_mandir}/man8/tdbrestore.8.gz
-%{_mandir}/man8/tdbtool.8.gz
+%{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/tdbdump.8*
+%{_mandir}/man8/tdbrestore.8*
+%{_mandir}/man8/tdbtool.8*
 %endif
 
 %if %with_internal_ldb
@@ -862,9 +932,6 @@ rm -rf %{buildroot}
 ### DC
 %files dc
 %defattr(-,root,root)
-%exclude %{_libdir}/samba/ldb/ildap.so
-%exclude %{_libdir}/samba/ldb/ldbsamba_extensions.so
-%exclude %{_libdir}/samba/libdfs_server_ad.so
 
 %if %with_dc
 %{_bindir}/samba-tool
@@ -881,14 +948,20 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libkdc-samba4.so.2.0.0
 %{_libdir}/samba/libpac.so
 %{_libdir}/samba/gensec
+%{_libdir}/samba/ldb/ildap.so
+%{_libdir}/samba/ldb/ldbsamba_extensions.so
+%{_libdir}/samba/vfs/posix_eadb.so
 %dir /var/lib/samba/sysvol
 %{_datadir}/samba/setup
-%{_mandir}/man8/samba.8.gz
-%{_mandir}/man8/samba-tool.8.gz
+%{_mandir}/man8/samba.8*
+%{_mandir}/man8/samba-tool.8*
 %else # with_dc
 %doc packaging/README.dc
-%exclude %{_mandir}/man8/samba.8.gz
-%exclude %{_mandir}/man8/samba-tool.8.gz
+%exclude %{_mandir}/man8/samba.8*
+%exclude %{_mandir}/man8/samba-tool.8*
+%exclude %{_libdir}/samba/ldb/ildap.so
+%exclude %{_libdir}/samba/ldb/ldbsamba_extensions.so
+
 %endif # with_dc
 
 ### DC-LIBS
@@ -900,12 +973,14 @@ rm -rf %{buildroot}
 %{_libdir}/samba/process_model
 %{_libdir}/samba/service
 %{_libdir}/libdcerpc-server.so.*
+%{_libdir}/samba/libdfs_server_ad.so
 %{_libdir}/samba/libdsdb-module.so
 %{_libdir}/samba/libntvfs.so
 %{_libdir}/samba/libposix_eadb.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
 %else
 %doc packaging/README.dc-libs
+%exclude %{_libdir}/samba/libdfs_server_ad.so
 %endif # with_dc
 
 ### DEVEL
@@ -1368,6 +1443,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed May 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-2
+- resolves: #966130 - Fix build with MIT Kerberos.
+- List vfs modules in spec file.
+
 * Tue May 21 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-1
 - Update to Samba 4.0.6.
 - Remove SWAT.
