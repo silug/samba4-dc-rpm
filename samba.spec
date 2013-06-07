@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.0.6
 %define talloc_version 2.0.7
@@ -77,6 +77,8 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-4.0.6_add_passdb_upn_enum.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -439,6 +441,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+%patch0 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1443,6 +1446,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Fri Jun 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-3
+- Add UPN enumeration to passdb internal API (bso #9779).
+
 * Wed May 22 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-2
 - resolves: #966130 - Fix build with MIT Kerberos.
 - List vfs modules in spec file.
