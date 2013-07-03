@@ -1,14 +1,14 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.0.6
+%define samba_version 4.0.7
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
-%define tdb_version 1.2.11
+%define tdb_version 1.2.12
 %define tevent_version 0.9.18
-%define ldb_version 1.1.15
+%define ldb_version 1.1.16
 # This should be rc1 or nil
 %define pre_release %nil
 
@@ -65,7 +65,7 @@ License:        GPLv3+ and LGPLv3+
 Group:          System Environment/Daemons
 URL:            http://www.samba.org/
 
-Source0:        samba-%{version}%{pre_release}.tar.bz2
+Source0:        samba-%{version}%{pre_release}.tar.xz
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -832,6 +832,7 @@ rm -rf %{buildroot}
 %{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbta-util
+%{_bindir}/smbtar
 %{_bindir}/smbtree
 %{_libdir}/samba/libldb-cmdline.so
 %{_mandir}/man1/dbwrap_tool.1*
@@ -951,8 +952,46 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libkdc-samba4.so.2.0.0
 %{_libdir}/samba/libpac.so
 %{_libdir}/samba/gensec
+%{_libdir}/samba/ldb/acl.so
+%{_libdir}/samba/ldb/aclread.so
+%{_libdir}/samba/ldb/anr.so
+%{_libdir}/samba/ldb/descriptor.so
+%{_libdir}/samba/ldb/dirsync.so
+%{_libdir}/samba/ldb/extended_dn_in.so
+%{_libdir}/samba/ldb/extended_dn_out.so
+%{_libdir}/samba/ldb/extended_dn_store.so
 %{_libdir}/samba/ldb/ildap.so
+%{_libdir}/samba/ldb/instancetype.so
+%{_libdir}/samba/ldb/lazy_commit.so
 %{_libdir}/samba/ldb/ldbsamba_extensions.so
+%{_libdir}/samba/ldb/linked_attributes.so
+%{_libdir}/samba/ldb/local_password.so
+%{_libdir}/samba/ldb/new_partition.so
+%{_libdir}/samba/ldb/objectclass.so
+%{_libdir}/samba/ldb/objectclass_attrs.so
+%{_libdir}/samba/ldb/objectguid.so
+%{_libdir}/samba/ldb/operational.so
+%{_libdir}/samba/ldb/partition.so
+%{_libdir}/samba/ldb/password_hash.so
+%{_libdir}/samba/ldb/ranged_results.so
+%{_libdir}/samba/ldb/repl_meta_data.so
+%{_libdir}/samba/ldb/resolve_oids.so
+%{_libdir}/samba/ldb/rootdse.so
+%{_libdir}/samba/ldb/samba3sam.so
+%{_libdir}/samba/ldb/samba3sid.so
+%{_libdir}/samba/ldb/samba_dsdb.so
+%{_libdir}/samba/ldb/samba_secrets.so
+%{_libdir}/samba/ldb/samldb.so
+%{_libdir}/samba/ldb/schema_data.so
+%{_libdir}/samba/ldb/schema_load.so
+%{_libdir}/samba/ldb/secrets_tdb_sync.so
+%{_libdir}/samba/ldb/show_deleted.so
+%{_libdir}/samba/ldb/simple_dn.so
+%{_libdir}/samba/ldb/simple_ldap_map.so
+%{_libdir}/samba/ldb/subtree_delete.so
+%{_libdir}/samba/ldb/subtree_rename.so
+%{_libdir}/samba/ldb/update_keytab.so
+%{_libdir}/samba/ldb/wins_ldb.so
 %{_libdir}/samba/vfs/posix_eadb.so
 %dir /var/lib/samba/sysvol
 %{_datadir}/samba/setup
@@ -1446,6 +1485,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Jul 03 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-1
+- Update to Samba 4.0.7.
+
 * Fri Jun 07 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.6-3
 - Add UPN enumeration to passdb internal API (bso #9779).
 
@@ -1457,7 +1499,7 @@ rm -rf %{buildroot}
 - Update to Samba 4.0.6.
 - Remove SWAT.
 
-* Tue Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
+* Wed Apr 10 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.5-1
 - Update to Samba 4.0.5.
 - Add UPN enumeration to passdb internal API (bso #9779).
 - resolves: #928947 - samba-doc is obsolete now.
