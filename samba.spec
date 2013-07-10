@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.0.7
 %define talloc_version 2.0.7
@@ -486,6 +486,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %global _samba4_private_libraries %{_libsmbclient}%{_libwbclient}
 
+LDFLAGS="-Wl,-z,relro,-z,now" \
 %configure \
         --enable-fhs \
         --with-piddir=/run \
@@ -1485,6 +1486,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Mon Jul 15 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-2
+- resolves: #972692 - Build with PIE and full RELRO.
+
 * Wed Jul 03 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-1
 - Update to Samba 4.0.7.
 
