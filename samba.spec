@@ -89,6 +89,9 @@ Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
@@ -172,6 +175,9 @@ Summary: Samba client programs
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libsmbclient
+Requires: libsmbclient = %{samba_depver}
+%endif
 
 Provides: samba4-client = %{samba_depver}
 Obsoletes: samba4-client < %{samba_depver}
@@ -186,6 +192,9 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Files used by both Samba servers and clients
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 Requires(post): systemd
 
 Provides: samba4-common = %{samba_depver}
@@ -266,6 +275,7 @@ link against the SMB, RPC and other protocols provided by the Samba suite.
 Summary: The SMB client library
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
 
 %description -n libsmbclient
 The libsmbclient contains the SMB client library from the Samba suite.
@@ -360,6 +370,12 @@ Requires: %{name}-dc-libs = %{samba_depver}
 %endif
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
+%if %with_libsmbclient
+Requires: libsmbclient = %{samba_depver}
+%endif
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4-test = %{samba_depver}
 Obsoletes: samba4-test < %{samba_depver}
@@ -372,7 +388,7 @@ packages of Samba.
 %package test-devel
 Summary: Testing devel files for Samba servers and clients
 Group: Applications/System
-Requires: %{name}-test-devel = %{samba_depver}
+Requires: %{name}-test = %{samba_depver}
 
 %description test-devel
 samba-test-devel provides testing devel files for both the server and client
@@ -1488,6 +1504,7 @@ rm -rf %{buildroot}
 %changelog
 * Mon Jul 15 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-2
 - resolves: #972692 - Build with PIE and full RELRO.
+- resolves: #884169 - Add explicit dependencies suggested by rpmdiff.
 
 * Wed Jul 03 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-1
 - Update to Samba 4.0.7.
