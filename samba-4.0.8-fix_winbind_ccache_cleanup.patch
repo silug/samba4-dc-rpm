@@ -1,0 +1,44 @@
+From 91300255f4b93dad920af2399a6cd64720d47e4f Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 11 Jul 2013 13:44:53 +0200
+Subject: [PATCH] s3-winbind: Do not delete an existing valid credential cache.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=9994
+
+Thanks to David Woodhouse <dwmw2@infradead.org>.
+
+Reviewed-by: Günther Deschner <gd@samba.org>
+
+Autobuild-User(master): Andreas Schneider <asn@cryptomilk.org>
+Autobuild-Date(master): Mon Jul 15 12:48:46 CEST 2013 on sn-devel-104
+
+(cherry picked from commit 0529b59fbe3f96509893fc4e93a75d6928b5a532)
+---
+ source3/winbindd/winbindd_pam.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/source3/winbindd/winbindd_pam.c b/source3/winbindd/winbindd_pam.c
+index b23d421..99794e6 100644
+--- a/source3/winbindd/winbindd_pam.c
++++ b/source3/winbindd/winbindd_pam.c
+@@ -677,6 +677,14 @@ static NTSTATUS winbindd_raw_kerberos_login(TALLOC_CTX *mem_ctx,
+ 	return NT_STATUS_OK;
+ 
+ failed:
++	/*
++	 * Do not delete an existing valid credential cache, if the user
++	 * e.g. enters a wrong password
++	 */
++	if ((strequal(krb5_cc_type, "FILE") || strequal(krb5_cc_type, "WRFILE"))
++	    && user_ccache_file != NULL) {
++		return result;
++	}
+ 
+ 	/* we could have created a new credential cache with a valid tgt in it
+ 	 * but we werent able to get or verify the service ticket for this
+-- 
+1.8.3.1
+

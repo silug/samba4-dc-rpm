@@ -79,6 +79,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.0.6_add_passdb_upn_enum.patch
+Patch1: samba-4.0.8-fix_winbind_ccache_cleanup.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -458,6 +459,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1505,6 +1507,7 @@ rm -rf %{buildroot}
 * Mon Jul 15 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-2
 - resolves: #972692 - Build with PIE and full RELRO.
 - resolves: #884169 - Add explicit dependencies suggested by rpmdiff.
+- resolves: #981033 - Local user's krb5cc deleted by winbind.
 
 * Wed Jul 03 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-1
 - Update to Samba 4.0.7.
