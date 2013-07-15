@@ -600,10 +600,10 @@ install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/sch
 
 install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
 
-install -d -m 0755 %{buildroot}%{_sysconfdir}/tmpfiles.d/
-install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+install -d -m 0755 %{buildroot}%{_prefix}/lib/tmpfiles.d/
+install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
 # create /run/samba too.
-echo "d /run/samba  755 root root" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/samba.conf
+echo "d /run/samba  755 root root" >> %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
@@ -661,7 +661,7 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 
 %post common
 /sbin/ldconfig
-/usr/bin/systemd-tmpfiles --create %{_sysconfdir}/tmpfiles.d/samba.conf
+/usr/bin/systemd-tmpfiles --create %{_prefix}/lib/tmpfiles.d/samba.conf
 if [ -d /var/cache/samba ]; then
     mv /var/cache/samba/netsamlogon_cache.tdb /var/lib/samba/ 2>/dev/null
     mv /var/cache/samba/winbindd_cache.tdb /var/lib/samba/ 2>/dev/null
@@ -916,7 +916,7 @@ rm -rf %{buildroot}
 %files common
 %defattr(-,root,root)
 #%{_libdir}/samba/charset ???
-%{_sysconfdir}/tmpfiles.d/samba.conf
+%{_prefix}/lib/tmpfiles.d/samba.conf
 %{_bindir}/net
 %{_bindir}/pdbedit
 %{_bindir}/profiles
@@ -1508,6 +1508,8 @@ rm -rf %{buildroot}
 - resolves: #972692 - Build with PIE and full RELRO.
 - resolves: #884169 - Add explicit dependencies suggested by rpmdiff.
 - resolves: #981033 - Local user's krb5cc deleted by winbind.
+- resolves: #984331 - Fix samba-common tmpfiles configuration file in wrong
+                      directory.
 
 * Wed Jul 03 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-1
 - Update to Samba 4.0.7.
