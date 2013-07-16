@@ -946,7 +946,12 @@ rm -rf %{buildroot}
 
 # common libraries
 %{_libdir}/samba/libpopt_samba3.so
-%{_libdir}/samba/pdb
+
+%dir %{_libdir}/samba/pdb
+%{_libdir}/samba/pdb/ldapsam.so
+%{_libdir}/samba/pdb/smbpasswd.so
+%{_libdir}/samba/pdb/tdbsam.so
+%{_libdir}/samba/pdb/wbc_sam.so
 
 %if %with_pam_smbpass
 %{_libdir}/security/pam_smbpass.so
