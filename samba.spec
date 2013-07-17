@@ -1,16 +1,16 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 1
 
-%define samba_version 4.0.7
+%define samba_version 4.1.0
 %define talloc_version 2.0.7
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
 %define tevent_version 0.9.18
 %define ldb_version 1.1.16
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc1
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -78,8 +78,7 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0: samba-4.0.6_add_passdb_upn_enum.patch
-Patch1: samba-4.0.8-fix_winbind_ccache_cleanup.patch
+Patch0: samba-4.0.8-fix_winbind_ccache_cleanup.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -459,7 +458,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 %patch0 -p1
-%patch1 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -516,10 +514,8 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
-        --builtin-libraries=ccan \
         --bundled-libraries=%{_samba4_libraries} \
         --with-pam \
-        --disable-ntdb \
 %if (! %with_libsmbclient) || (! %with_libwbclient)
         --private-libraries=%{_samba4_private_libraries} \
 %endif
@@ -753,6 +749,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/aio_posix.so
 %{_libdir}/samba/vfs/aio_pthread.so
 %{_libdir}/samba/vfs/audit.so
+%{_libdir}/samba/vfs/btrfs.so
 %{_libdir}/samba/vfs/cap.so
 %{_libdir}/samba/vfs/catia.so
 %{_libdir}/samba/vfs/commit.so
@@ -797,6 +794,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_aio_linux.8*
 %{_mandir}/man8/vfs_aio_pthread.8*
 %{_mandir}/man8/vfs_audit.8*
+%{_mandir}/man8/vfs_btrfs.8*
 %{_mandir}/man8/vfs_cacheprime.8*
 %{_mandir}/man8/vfs_cap.8*
 %{_mandir}/man8/vfs_catia.8*
@@ -836,6 +834,7 @@ rm -rf %{buildroot}
 %{_bindir}/nmblookup4
 %{_bindir}/oLschema2ldif
 %{_bindir}/regdiff
+%{_bindir}/regedit
 %{_bindir}/regpatch
 %{_bindir}/regshell
 %{_bindir}/regtree
@@ -878,12 +877,12 @@ rm -rf %{buildroot}
 %{_mandir}/man8/smbta-util.8*
 
 ## we don't build it for now
-#%if %{with_internal_ntdb}
-#%{_bindir}/ntdbbackup
-#%{_bindir}/ntdbdump
-#%{_bindir}/ntdbrestore
-#%{_bindir}/ntdbtool
-#%endif
+%if %{with_internal_ntdb}
+%{_bindir}/ntdbbackup
+%{_bindir}/ntdbdump
+%{_bindir}/ntdbrestore
+%{_bindir}/ntdbtool
+%endif
 
 %if %{with_internal_tdb}
 %{_bindir}/tdbbackup
@@ -1120,6 +1119,7 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/smb2.h
 %{_includedir}/samba-4.0/smb2_constants.h
 %{_includedir}/samba-4.0/smb2_create_blob.h
+%{_includedir}/samba-4.0/smb2_lease.h
 %{_includedir}/samba-4.0/smb2_signing.h
 %{_includedir}/samba-4.0/smb_cli.h
 %{_includedir}/samba-4.0/smb_cliraw.h
@@ -1251,6 +1251,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libauth_sam_reply.so
 %{_libdir}/samba/libauth_unix_token.so
 %{_libdir}/samba/libauthkrb5.so
+%{_libdir}/samba/libccan.so
 %{_libdir}/samba/libcli-ldap-common.so
 %{_libdir}/samba/libcli-ldap.so
 %{_libdir}/samba/libcli-nbt.so
@@ -1281,6 +1282,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libndr-samba4.so
 %{_libdir}/samba/libnet_keytab.so
 %{_libdir}/samba/libnetif.so
+%{_libdir}/samba/libnon_posix_acls.so
 %{_libdir}/samba/libnpa_tstream.so
 %{_libdir}/samba/libprinting_migrate.so
 %{_libdir}/samba/libreplace.so
@@ -1304,7 +1306,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libtdb_compat.so
 %{_libdir}/samba/libtrusts_util.so
 %{_libdir}/samba/libutil_cmdline.so
-#%{_libdir}/samba/libutil_ntdb.so
+%{_libdir}/samba/libutil_ntdb.so
 %{_libdir}/samba/libutil_reg.so
 %{_libdir}/samba/libutil_setid.so
 %{_libdir}/samba/libutil_tdb.so
@@ -1355,11 +1357,10 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libtdb.so.1
 %{_libdir}/samba/libtdb.so.%{tdb_version}
 %endif
-## we don't build it for now
-#%if %{with_internal_ntdb}
-#%{_libdir}/samba/libntdb.so.0
-#%{_libdir}/samba/libntdb.so.%{ntdb_version}
-#%endif
+%if %{with_internal_ntdb}
+%{_libdir}/samba/libntdb.so.0
+%{_libdir}/samba/libntdb.so.%{ntdb_version}
+%endif
 
 %if ! %with_libsmbclient
 %{_libdir}/samba/libsmbclient.so.*
@@ -1509,6 +1510,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Jul 17 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.1
+- Update to Samba 4.1.0rc1.
+
 * Mon Jul 15 2013 - Andreas Schneider <asn@redhat.com> - 2:4.0.7-2
 - resolves: #972692 - Build with PIE and full RELRO.
 - resolves: #884169 - Add explicit dependencies suggested by rpmdiff.
