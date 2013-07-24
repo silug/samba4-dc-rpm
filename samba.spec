@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.7
@@ -46,7 +46,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -79,6 +79,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.0.8-fix_winbind_ccache_cleanup.patch
+Patch1: samba-4.1.0rc1-fix_regedit_name.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -458,6 +459,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -834,11 +836,11 @@ rm -rf %{buildroot}
 %{_bindir}/nmblookup4
 %{_bindir}/oLschema2ldif
 %{_bindir}/regdiff
-%{_bindir}/regedit
 %{_bindir}/regpatch
 %{_bindir}/regshell
 %{_bindir}/regtree
 %{_bindir}/rpcclient
+%{_bindir}/samba-regedit
 %{_bindir}/sharesec
 %{_bindir}/smbcacls
 %{_bindir}/smbclient
@@ -1510,6 +1512,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Jul 24 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.2
+- resolves: #985985 - Fix file conflict between samba and wine.
+
 * Sat Jul 20 2013 Petr Pisar <ppisar@redhat.com> - 2:4.1.0-0.1.rc1.1
 - Perl 5.18 rebuild
 

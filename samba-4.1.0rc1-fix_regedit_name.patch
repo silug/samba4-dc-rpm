@@ -1,0 +1,36 @@
+From f0ff2d8ee925921c70f2b9149316f123402ab81b Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Fri, 19 Jul 2013 16:08:39 +0200
+Subject: [PATCH] s3-waf: Rename regedit to samba-regedit.
+
+This is needed cause wine already provides a binary with the name
+regedit.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=10040
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Kai Blin <kai@samba.org>
+
+Autobuild-User(master): Andreas Schneider <asn@cryptomilk.org>
+Autobuild-Date(master): Mon Jul 22 14:12:38 CEST 2013 on sn-devel-104
+
+(cherry picked from commit b5051111d2fd3a9ae3b3aa028ccf013a98c20b38)
+---
+ source3/wscript_build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/wscript_build b/source3/wscript_build
+index 19c6d08..a8bdaf0 100755
+--- a/source3/wscript_build
++++ b/source3/wscript_build
+@@ -1615,7 +1615,7 @@ bld.SAMBA3_PYTHON('pylibsmb',
+                   realname='samba/samba3/libsmb_samba_internal.so'
+                   )
+
+-bld.SAMBA3_BINARY('regedit',
++bld.SAMBA3_BINARY('samba-regedit',
+                   source="""utils/regedit.c utils/regedit_samba3.c
+                             utils/regedit_wrap.c utils/regedit_treeview.c
+                             utils/regedit_valuelist.c utils/regedit_dialog.c
+--
+1.8.3.1
