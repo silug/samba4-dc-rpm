@@ -77,6 +77,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.0.8-fix_winbind_ccache_cleanup.patch
 Patch1: samba-4.1.0rc1-fix_regedit_name.patch
+Patch2: samba-4.1.0rc1-add_support_for_cc_type_dir.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -434,8 +435,9 @@ the local kerberos library to use the same KDC as samba and winbind use
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-%patch0 -p1
-%patch1 -p1
+%patch0 -p1 -b .samba-4.0.8-fix_winbind_ccache_cleanup.patch
+%patch1 -p1 -b .samba-4.1.0rc1-fix_regedit_name.patch
+%patch2 -p1 -b .samba-4.1.0rc1-add_support_for_cc_type_dir.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1463,6 +1465,8 @@ rm -rf %{buildroot}
 %changelog
 * Wed Jul 24 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.2
 - resolves: #985985 - Fix file conflict between samba and wine.
+- resolves: #985107 - Add support for new default location for Kerberos
+                      credential caches.
 
 * Sat Jul 20 2013 Petr Pisar <ppisar@redhat.com> - 2:4.1.0-0.1.rc1.1
 - Perl 5.18 rebuild

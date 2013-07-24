@@ -1,0 +1,217 @@
+From bfbf322626965100a72eeaed31573a36a61b33d1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 18 Jul 2013 19:04:29 +0200
+Subject: [PATCH 1/3] wbinfo: allow to define a custom krb5ccname for
+ kerberized pam auth.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Jeremy Allison <jra@samba.org>
+
+(cherry picked from commit 73e6feff9b3f30e70d84fe256aff239fafdfdb95)
+---
+ nsswitch/wbinfo.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/nsswitch/wbinfo.c b/nsswitch/wbinfo.c
+index 1d1557d..cfb430b 100644
+--- a/nsswitch/wbinfo.c
++++ b/nsswitch/wbinfo.c
+@@ -2083,6 +2083,7 @@ int main(int argc, char **argv, char **envp)
+	bool use_lanman = false;
+	char *logoff_user = getenv("USER");
+	int logoff_uid = geteuid();
++	const char *opt_krb5ccname = "FILE";
+
+	struct poptOption long_options[] = {
+		POPT_AUTOHELP
+@@ -2164,6 +2165,7 @@ int main(int argc, char **argv, char **envp)
+		{ "krb5auth", 'K', POPT_ARG_STRING, &string_arg, 'K', "authenticate user using Kerberos", "user%password" },
+			/* destroys wbinfo --help output */
+			/* "user%password,DOM\\user%password,user@EXAMPLE.COM,EXAMPLE.COM\\user%password" }, */
++		{ "krb5ccname", 0, POPT_ARG_STRING, &opt_krb5ccname, '0', "authenticate user using Kerberos and specific credential cache type", "krb5ccname" },
+ #endif
+		{ "separator", 0, POPT_ARG_NONE, 0, OPT_SEPARATOR, "Get the active winbind separator", NULL },
+		{ "verbose", 0, POPT_ARG_NONE, 0, OPT_VERBOSE, "Print additional information per command", NULL },
+@@ -2533,13 +2535,13 @@ int main(int argc, char **argv, char **envp)
+						 WBFLAG_PAM_INFO3_TEXT |
+						 WBFLAG_PAM_CONTACT_TRUSTDOM;
+
+-				if (!wbinfo_auth_krb5(string_arg, "FILE",
++				if (!wbinfo_auth_krb5(string_arg, opt_krb5ccname,
+						      flags)) {
+					d_fprintf(stderr,
+						"Could not authenticate user "
+						"[%s] with Kerberos "
+						"(ccache: %s)\n", string_arg,
+-						"FILE");
++						opt_krb5ccname);
+					goto done;
+				}
+				break;
+--
+1.8.3.1
+
+
+From b9c191e3cde6aa5d726f3bea46d853441bf7daf0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 18 Jul 2013 19:05:51 +0200
+Subject: [PATCH 2/3] s3-winbindd: support the DIR pragma for raw kerberos user
+ pam authentication.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+It is currently only available in MIT. In addition, allow to define custom
+filepaths for FILE, WRFILE and DIR pragmas and substitute one occurence of the
+%u pattern.
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Pair-Programmed-With: Andreas Schneider <asn@samba.org>
+Reviewed-by: Jeremy Allison <jra@samba.org>
+
+(cherry picked from commit 7ad3a367d52b1f123c318946d654e95639202130)
+---
+ source3/winbindd/winbindd_pam.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/source3/winbindd/winbindd_pam.c b/source3/winbindd/winbindd_pam.c
+index aed4741..7b67154 100644
+--- a/source3/winbindd/winbindd_pam.c
++++ b/source3/winbindd/winbindd_pam.c
+@@ -492,6 +492,29 @@ static const char *generate_krb5_ccache(TALLOC_CTX *mem_ctx,
+			gen_cc = talloc_asprintf(
+				mem_ctx, "WRFILE:/tmp/krb5cc_%d", uid);
+		}
++		if (strequal(type, "DIR")) {
++			gen_cc = talloc_asprintf(
++				mem_ctx, "DIR:/run/user/%d/krb5cc", uid);
++		}
++
++		if (strnequal(type, "FILE:/", 6) ||
++		    strnequal(type, "WRFILE:/", 8) ||
++		    strnequal(type, "DIR:/", 5)) {
++
++			/* we allow only one "%u" substitution */
++
++			char *p;
++
++			p = strchr(type, '%');
++			if (p != NULL) {
++
++				p++;
++
++				if (p != NULL && *p == 'u' && strchr(p, '%') == NULL) {
++					gen_cc = talloc_asprintf(mem_ctx, type, uid);
++				}
++			}
++		}
+	}
+
+	*user_ccache_file = gen_cc;
+--
+1.8.3.1
+
+
+From c488253925831a3683446e93bd79d9593c4f9295 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 18 Jul 2013 19:09:14 +0200
+Subject: [PATCH 3/3] pam_winbind: update documentation for "DIR" krb5ccname
+ pragma.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Jeremy Allison <jra@samba.org>
+
+Autobuild-User(master): Jeremy Allison <jra@samba.org>
+Autobuild-Date(master): Wed Jul 24 02:43:10 CEST 2013 on sn-devel-104
+
+(cherry picked from commit 9adfe82a1785aa6a7baefb435072a0a81dfb13cb)
+---
+ docs-xml/manpages/pam_winbind.conf.5.xml | 39 ++++++++++++++++++++++++--------
+ examples/pam_winbind/pam_winbind.conf    |  3 ++-
+ 2 files changed, 31 insertions(+), 11 deletions(-)
+
+diff --git a/docs-xml/manpages/pam_winbind.conf.5.xml b/docs-xml/manpages/pam_winbind.conf.5.xml
+index 7098ff4..be7f684 100644
+--- a/docs-xml/manpages/pam_winbind.conf.5.xml
++++ b/docs-xml/manpages/pam_winbind.conf.5.xml
+@@ -106,16 +106,35 @@
+		<term>krb5_ccache_type = [type]</term>
+		<listitem><para>
+
+-		When pam_winbind is configured to try kerberos authentication
+-		by enabling the <parameter>krb5_auth</parameter> option, it can
+-		store the retrieved Ticket Granting Ticket (TGT) in a
+-		credential cache. The type of credential cache can be set with
+-		this option. Currently the only supported value is:
+-		<parameter>FILE</parameter>. In that case a credential cache in
+-		the form of /tmp/krb5cc_UID will be created, where UID is
+-		replaced with the numeric user id.  Leave empty to just do
+-		kerberos authentication without having a ticket cache after the
+-		logon has succeeded. This setting is empty by default.
++		When pam_winbind is configured to try kerberos authentication by
++		enabling the <parameter>krb5_auth</parameter> option, it can
++		store the retrieved Ticket Granting Ticket (TGT) in a credential
++		cache. The type of credential cache can be controlled with this
++		option.  The supported values are: <parameter>FILE</parameter>
++		and <parameter>DIR</parameter> (when the DIR type is supported
++		by the system's Kerberos library). In case of FILE a credential
++		cache in the form of /tmp/krb5cc_UID will be created -  in case
++		of DIR it will be located under the /run/user/UID/krb5cc
++		directory.  UID is replaced with the numeric user id.</para>
++
++		<para>It is also possible to define custom filepaths and use the "%u"
++		pattern in order to substitue the numeric user id.
++		Examples:</para>
++
++		<variablelist>
++			<varlistentry>
++				<term>krb5_ccache_type = DIR:/run/user/%u/krb5cc</term>
++					<listitem><para>This will create a credential cache file in the specified directory.</para></listitem>
++			</varlistentry>
++			<varlistentry>
++				<term>krb5_ccache_type = FILE:/tmp/krb5cc_%u</term>
++					<listitem><para>This will create a credential cache file.</para></listitem>
++			</varlistentry>
++		</variablelist>
++
++		<para> Leave empty to just do kerberos authentication without
++			having a ticket cache after the logon has succeeded.
++			This setting is empty by default.
+
+		</para></listitem>
+		</varlistentry>
+diff --git a/examples/pam_winbind/pam_winbind.conf b/examples/pam_winbind/pam_winbind.conf
+index dd0b112..87bc388 100644
+--- a/examples/pam_winbind/pam_winbind.conf
++++ b/examples/pam_winbind/pam_winbind.conf
+@@ -3,6 +3,7 @@
+ #
+ # /etc/security/pam_winbind.conf
+ #
++# For more details see man pam_winbind.conf(5)
+
+ [global]
+
+@@ -19,7 +20,7 @@
+ # authenticate using kerberos
+ ;krb5_auth = no
+
+-# when using kerberos, request a "FILE" krb5 credential cache type
++# when using kerberos, request a "FILE" or "DIR" krb5 credential cache type
+ # (leave empty to just do krb5 authentication but not have a ticket
+ # afterwards)
+ ;krb5_ccache_type =
+--
+1.8.3.1
