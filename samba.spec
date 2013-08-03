@@ -44,7 +44,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1463,6 +1463,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 2:4.1.0-0.2.rc1.1
+- Perl 5.18 rebuild
+
 * Wed Jul 24 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.2
 - resolves: #985985 - Fix file conflict between samba and wine.
 - resolves: #985107 - Add support for new default location for Kerberos
