@@ -1,0 +1,292 @@
+From 48ccd15ba80c35a3f3595c8dddcf063efa6d3444 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 22 Aug 2013 15:39:08 +0200
+Subject: [PATCH 1/6] s3-winbindd: remove pointless variable assigment, see the
+ strdup below.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/winbindd_ads.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index 1e45ad9..5e6bb92 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -101,7 +101,6 @@ static ADS_STATUS ads_cached_connection_connect(ADS_STRUCT **adsp,
+ 
+ 	ads->auth.renewable = renewable;
+ 	ads->auth.password = password;
+-	ads->auth.realm = realm;
+ 
+ 	ads->auth.realm = SMB_STRDUP(realm);
+ 	if (!strupper_m(ads->auth.realm)) {
+-- 
+1.8.3.1
+
+
+From 21099d6a30904e0d7aa076d9e494c61b6c70e658 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 23 Aug 2013 12:33:53 +0200
+Subject: [PATCH 2/6] s3-winbindd: Fix memory leak in ads_cached_connection().
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/winbindd_ads.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index 5e6bb92..924bc83 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -220,7 +220,7 @@ static ADS_STRUCT *ads_cached_connection(struct winbindd_domain *domain)
+ 					domain->name, NULL,
+ 					password, realm,
+ 					WINBINDD_PAM_AUTH_KRB5_RENEW_TIME);
+-
++	SAFE_FREE(realm);
+ 
+ 	if (!ADS_ERR_OK(status)) {
+ 		/* if we get ECONNREFUSED then it might be a NT4
+-- 
+1.8.3.1
+
+
+From a2e83d0b0b2fbb6c46a762d19bbf7d4dc3111778 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 22 Aug 2013 16:36:27 +0200
+Subject: [PATCH 3/6] s3-winbindd: Fix winbind on DC crash with trusted AD
+ domains.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/winbindd_ads.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index 924bc83..d6eb4b4 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -193,7 +193,7 @@ static ADS_STRUCT *ads_cached_connection(struct winbindd_domain *domain)
+ 					     NULL ) ) {
+ 			return NULL;
+ 		}
+-		realm = NULL;
++		realm = SMB_STRDUP(domain->alt_name);
+ 	}
+ 	else {
+ 		struct winbindd_domain *our_domain = domain;
+-- 
+1.8.3.1
+
+
+From f1db526d94c2dc7f94f535feabab3e1a3e5bb815 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Wed, 28 Aug 2013 15:00:06 +0200
+Subject: [PATCH 4/6] s3-winbindd: use find_domain_from_name() instead of
+ find_domain_from_name_no_init().
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Otherwise there is a good chance the domain has not been connected and we don't
+know the realm name yet.
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/winbindd_ads.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index d6eb4b4..7aa936b 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -151,12 +151,12 @@ ADS_STATUS ads_idmap_cached_connection(ADS_STRUCT **adsp, const char *dom_name)
+ 	DEBUG(10, ("ldap_server from saf cache: '%s'\n",
+ 		   ldap_server ? ldap_server : ""));
+ 
+-	wb_dom = find_domain_from_name_noinit(dom_name);
++	wb_dom = find_domain_from_name(dom_name);
+ 	if (wb_dom == NULL) {
+ 		DEBUG(10, ("could not find domain '%s'\n", dom_name));
+ 		realm = NULL;
+ 	} else {
+-		DEBUG(10, ("find_domain_from_name_noinit found realm '%s' for "
++		DEBUG(10, ("find_domain_from_name found realm '%s' for "
+ 			  " domain '%s'\n", wb_dom->alt_name, dom_name));
+ 		realm = wb_dom->alt_name;
+ 	}
+-- 
+1.8.3.1
+
+
+From 42f8df74231d085000e24809bb03e868c1e9bd30 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 23 Aug 2013 14:56:17 +0200
+Subject: [PATCH 5/6] s3-winbindd: make sure also the idmap code can deal with
+ trusted domains.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/winbindd_ads.c | 40 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 31 insertions(+), 9 deletions(-)
+
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index 7aa936b..fc44158 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -136,6 +136,7 @@ ADS_STATUS ads_idmap_cached_connection(ADS_STRUCT **adsp, const char *dom_name)
+ {
+ 	char *ldap_server, *realm, *password;
+ 	struct winbindd_domain *wb_dom;
++	ADS_STATUS status;
+ 
+ 	ads_cached_connection_reuse(adsp);
+ 	if (*adsp != NULL) {
+@@ -154,19 +155,40 @@ ADS_STATUS ads_idmap_cached_connection(ADS_STRUCT **adsp, const char *dom_name)
+ 	wb_dom = find_domain_from_name(dom_name);
+ 	if (wb_dom == NULL) {
+ 		DEBUG(10, ("could not find domain '%s'\n", dom_name));
+-		realm = NULL;
+-	} else {
+-		DEBUG(10, ("find_domain_from_name found realm '%s' for "
++		return ADS_ERROR_NT(NT_STATUS_UNSUCCESSFUL);
++	}
++
++	DEBUG(10, ("find_domain_from_name found realm '%s' for "
+ 			  " domain '%s'\n", wb_dom->alt_name, dom_name));
+-		realm = wb_dom->alt_name;
++
++	if (!get_trust_pw_clear(dom_name, &password, NULL, NULL)) {
++		return ADS_ERROR_NT(NT_STATUS_CANT_ACCESS_DOMAIN_INFO);
+ 	}
+ 
+-	/* the machine acct password might have change - fetch it every time */
+-	password = secrets_fetch_machine_password(lp_workgroup(), NULL, NULL);
+-	realm = SMB_STRDUP(lp_realm());
++	if (IS_DC) {
++		realm = SMB_STRDUP(wb_dom->alt_name);
++	} else {
++		struct winbindd_domain *our_domain = wb_dom;
+ 
+-	return ads_cached_connection_connect(adsp, realm, dom_name, ldap_server,
+-					     password, realm, 0);
++		/* always give preference to the alt_name in our
++		   primary domain if possible */
++
++		if (!wb_dom->primary) {
++			our_domain = find_our_domain();
++		}
++
++		if (our_domain->alt_name != NULL) {
++			realm = SMB_STRDUP(our_domain->alt_name);
++		} else {
++			realm = SMB_STRDUP(lp_realm());
++		}
++	}
++
++	status = ads_cached_connection_connect(adsp, realm, dom_name, ldap_server,
++					       password, realm, 0);
++	SAFE_FREE(realm);
++
++	return status;
+ }
+ 
+ /*
+-- 
+1.8.3.1
+
+
+From aeb6a0f932174f9259a04f95701bb8360d777cb5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Wed, 28 Aug 2013 14:53:08 +0200
+Subject: [PATCH 6/6] s3-winbindd: use get_trust_pw_clear() wrapper for AD
+ connection code.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This avoids calling secrets functions directly.
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+---
+ source3/winbindd/idmap_ad.c     |  1 -
+ source3/winbindd/winbindd_ads.c | 11 ++++-------
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/source3/winbindd/idmap_ad.c b/source3/winbindd/idmap_ad.c
+index 1ed6570..8b63801 100644
+--- a/source3/winbindd/idmap_ad.c
++++ b/source3/winbindd/idmap_ad.c
+@@ -31,7 +31,6 @@
+ #include "ads.h"
+ #include "libads/ldap_schema.h"
+ #include "nss_info.h"
+-#include "secrets.h"
+ #include "idmap.h"
+ #include "../libcli/ldap/ldap_ndr.h"
+ #include "../libcli/security/security.h"
+diff --git a/source3/winbindd/winbindd_ads.c b/source3/winbindd/winbindd_ads.c
+index fc44158..c33b1bc 100644
+--- a/source3/winbindd/winbindd_ads.c
++++ b/source3/winbindd/winbindd_ads.c
+@@ -27,7 +27,6 @@
+ #include "../librpc/gen_ndr/ndr_netlogon_c.h"
+ #include "../libds/common/flags.h"
+ #include "ads.h"
+-#include "secrets.h"
+ #include "../libcli/ldap/ldap_ndr.h"
+ #include "../libcli/security/security.h"
+ #include "../libds/common/flag_mapping.h"
+@@ -209,20 +208,18 @@ static ADS_STRUCT *ads_cached_connection(struct winbindd_domain *domain)
+ 
+ 	/* the machine acct password might have change - fetch it every time */
+ 
++	if (!get_trust_pw_clear(domain->name, &password, NULL, NULL)) {
++		return NULL;
++	}
++
+ 	if ( IS_DC ) {
+ 
+-		if ( !pdb_get_trusteddom_pw( domain->name, &password, NULL,
+-					     NULL ) ) {
+-			return NULL;
+-		}
+ 		realm = SMB_STRDUP(domain->alt_name);
+ 	}
+ 	else {
+ 		struct winbindd_domain *our_domain = domain;
+ 
+ 
+-		password = secrets_fetch_machine_password(lp_workgroup(), NULL,
+-							  NULL);
+ 		/* always give preference to the alt_name in our
+ 		   primary domain if possible */
+ 
+-- 
+1.8.3.1
+
