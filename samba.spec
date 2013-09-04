@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 5
+%define main_release 6
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -27,6 +27,8 @@
 %global with_internal_tdb 0
 %global with_internal_ntdb 1
 %global with_internal_ldb 0
+
+%global with_profiling 1
 
 %global with_mitkrb5 1
 %global with_dc 0
@@ -507,6 +509,9 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
 %if %with_clustering_support
         --with-cluster-support \
         --enable-old-ctdb \
+%endif
+%if %with_profiling
+        --with-profiling-data \
 %endif
 %if %{with testsuite}
         --enable-selftest \
@@ -1465,6 +1470,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Sep 04 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.6
+- resolves: #717484 - Enable profiling data support.
+
 * Thu Aug 22 2013 - Guenther Deschner <gdeschner@redhat.com> - 2:4.1.0-0.5
 - resolves: #996160 - Fix winbind with trusted domains.
 
