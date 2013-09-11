@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 6
+%define main_release 7
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -10,7 +10,7 @@
 %define tevent_version 0.9.18
 %define ldb_version 1.1.16
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -77,8 +77,7 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0: samba-4.1.0rc3-fix_winbind_nbtname_segfault.patch
-Patch1: samba-4.1.0rc3-winbind-ads.patch
+Patch0: samba-4.1.0rc4-add_support_for_krb5_keyring.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -437,8 +436,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.1.0rc3-fix_winbind_nbtname_segfault.patch
-%patch1 -p1 -b .samba-4.1.0rc3-winbind_ads.patch
+%patch0 -p1 -b .samba-4.1.0rc4-add_support_for_krb5_keyring.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -782,6 +780,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_fileid.8*
 %{_mandir}/man8/vfs_full_audit.8*
 %{_mandir}/man8/vfs_gpfs.8*
+%{_mandir}/man8/vfs_linux_xfs_sgid.8*
 %{_mandir}/man8/vfs_media_harmony.8*
 %{_mandir}/man8/vfs_netatalk.8*
 %{_mandir}/man8/vfs_notify_fam.8*
@@ -796,11 +795,10 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_smb_traffic_analyzer.8*
 %{_mandir}/man8/vfs_streams_depot.8*
 %{_mandir}/man8/vfs_streams_xattr.8*
+%{_mandir}/man8/vfs_syncops.8*
 %{_mandir}/man8/vfs_time_audit.8*
 %{_mandir}/man8/vfs_tsmsm.8*
 %{_mandir}/man8/vfs_xattr_tdb.8*
-
-%exclude %{_mandir}/man8/swat.8*
 
 ### CLIENT
 %files client
@@ -846,9 +844,15 @@ rm -rf %{buildroot}
 %{_mandir}/man1/smbclient.1*
 %{_mandir}/man1/smbcquotas.1*
 %{_mandir}/man1/smbget.1*
+%{_mandir}/man3/ntdb.3*
 %{_mandir}/man5/smbgetrc.5*
 %exclude %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
+%{_mandir}/man8/ntdbbackup.8*
+%{_mandir}/man8/ntdbdump.8*
+%{_mandir}/man8/ntdbrestore.8*
+%{_mandir}/man8/ntdbtool.8*
+%{_mandir}/man8/samba-regedit.8*
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbta-util.8*
@@ -945,6 +949,7 @@ rm -rf %{buildroot}
 %{_sbindir}/samba_spnupdate
 %{_sbindir}/samba_upgradedns
 %{_libdir}/mit_samba.so
+%{_libdir}/samba/auth/samba4.so
 %{_libdir}/samba/bind9/dlz_bind9.so
 %{_libdir}/samba/libheimntlm-samba4.so.1
 %{_libdir}/samba/libheimntlm-samba4.so.1.0.1
@@ -1470,6 +1475,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Wed Sep 11 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.7
+- related: #985609 - Update to Samba 4.1.0rc3.
+- resolves: #1005422 - Add support for KEYRING ccache type in pam_winbindd.
+
 * Wed Sep 04 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.6
 - resolves: #717484 - Enable profiling data support.
 
