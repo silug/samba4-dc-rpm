@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 7
+%define main_release 8
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -10,7 +10,7 @@
 %define tevent_version 0.9.18
 %define ldb_version 1.1.16
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1475,6 +1475,9 @@ rm -rf %{buildroot}
 %{_mandir}/man7/winbind_krb5_locator.7*
 
 %changelog
+* Tue Oct 01 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.8
+- related: #985609 - Update to Samba 4.1.0rc4.
+
 * Wed Sep 11 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.7
 - related: #985609 - Update to Samba 4.1.0rc3.
 - resolves: #1005422 - Add support for KEYRING ccache type in pam_winbindd.
