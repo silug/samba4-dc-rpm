@@ -391,20 +391,18 @@ domains and to use Windows user and group accounts on Linux.
 %package winbind-clients
 Summary: Samba winbind clients
 Group: Applications/System
-Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
-Requires: pam
 
 Provides: samba4-winbind-clients = %{samba_depver}
 Obsoletes: samba4-winbind-clients < %{samba_depver}
 
 %description winbind-clients
-The samba-winbind-clients package provides the NSS library and a PAM
-module necessary to communicate to the Winbind Daemon
+The samba-winbind-clients package provides the wbinfo and ntlm_auth
+tool.
 
 ### WINBIND-KRB5-LOCATOR
 %package winbind-krb5-locator
@@ -432,6 +430,20 @@ Requires(preun): %{_sbindir}/update-alternatives
 %description winbind-krb5-locator
 The winbind krb5 locator is a plugin for the system kerberos library to allow
 the local kerberos library to use the same KDC as samba and winbind use
+
+### WINBIND-MODULES
+%package winbind-modules
+Summary: Samba winbind modules
+Group: Applications/System
+Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
+Requires: pam
+
+%description winbind-modules
+The samba-winbind-modules package provides the NSS library and a PAM
+module necessary to communicate to the Winbind Daemon
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
@@ -676,10 +688,6 @@ fi
 %systemd_postun_with_restart smb.service
 %systemd_postun_with_restart nmb.service
 
-%post winbind-clients -p /sbin/ldconfig
-
-%postun winbind-clients -p /sbin/ldconfig
-
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
         if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/winbind_krb5_locator.so" ]; then
@@ -695,6 +703,10 @@ fi
 if [ $1 -eq 0 ]; then
         %{_sbindir}/update-alternatives --remove winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so
 fi
+
+%post winbind-modules -p /sbin/ldconfig
+
+%postun winbind-modules -p /sbin/ldconfig
 
 %clean
 rm -rf %{buildroot}
@@ -1458,14 +1470,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
-%{_libdir}/libnss_winbind.so*
-%{_libdir}/libnss_wins.so*
-%{_libdir}/security/pam_winbind.so
-%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 %{_mandir}/man1/ntlm_auth.1.gz
 %{_mandir}/man1/wbinfo.1*
-%{_mandir}/man5/pam_winbind.conf.5*
-%{_mandir}/man8/pam_winbind.8*
 
 ### WINBIND-KRB5-LOCATOR
 %files winbind-krb5-locator
@@ -1474,9 +1480,20 @@ rm -rf %{buildroot}
 %{_libdir}/winbind_krb5_locator.so
 %{_mandir}/man7/winbind_krb5_locator.7*
 
+### WINBIND-MODULES
+%files winbind-modules
+%defattr(-,root,root)
+%{_libdir}/libnss_winbind.so*
+%{_libdir}/libnss_wins.so*
+%{_libdir}/security/pam_winbind.so
+%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
+%{_mandir}/man5/pam_winbind.conf.5*
+%{_mandir}/man8/pam_winbind.8*
+
 %changelog
 * Tue Oct 01 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.8
 - related: #985609 - Update to Samba 4.1.0rc4.
+- resolves: #1010722 - Split out a samba-winbind-modules package.
 
 * Wed Sep 11 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.7
 - related: #985609 - Update to Samba 4.1.0rc3.
