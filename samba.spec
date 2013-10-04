@@ -858,7 +858,7 @@ rm -rf %{buildroot}
 %{_mandir}/man1/smbget.1*
 %{_mandir}/man3/ntdb.3*
 %{_mandir}/man5/smbgetrc.5*
-%exclude %{_mandir}/man1/smbtar.1*
+%{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
 %{_mandir}/man8/ntdbbackup.8*
 %{_mandir}/man8/ntdbdump.8*
@@ -1938,7 +1938,7 @@ rm -rf %{buildroot}
 * Tue Feb 24 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.1-0.27
 - Update to 3.3.1
 
-* Thu Feb 21 2009 Simo Sorce <ssorce@redhat.com> - 3.3.0-0.26
+* Sat Feb 21 2009 Simo Sorce <ssorce@redhat.com> - 3.3.0-0.26
 - Rename ldb* tools to ldb3* to avoid conflicts with newer ldb releases
 
 * Tue Feb  3 2009 Guenther Deschner <gdeschner@redhat.com> - 3.3.0-0.25
@@ -2027,12 +2027,12 @@ rm -rf %{buildroot}
 - Autorebuild for GCC 4.3
 
 * Tue Dec 04 2007 Release Engineering <rel-eng at fedoraproject dot org> - 3.2.0-0.pre1.2
- - Rebuild for openldap bump
+- Rebuild for openldap bump
 
 * Thu Oct 18 2007 Guenther Deschner <gdeschner@redhat.com> 3.2.0-0.pre1.1.fc9
 - 32/64bit padding fix (affects multilib installations)
 
-* Wed Oct 8 2007 Simo Sorce <ssorce@redhat.com> 3.2.0-0.pre1.fc9
+* Mon Oct 8 2007 Simo Sorce <ssorce@redhat.com> 3.2.0-0.pre1.fc9
 - New major relase, minor switched from 0 to 2
 - License change, the code is now GPLv3+
 - Numerous improvements and bugfixes included
@@ -2047,7 +2047,7 @@ rm -rf %{buildroot}
 - upgrade to the latest upstream realease
 - includes security fixes released today in 3.0.26
 
-* Tue Aug 24 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-4.fc8
+* Fri Aug 24 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-4.fc8
 - add fix reported upstream for heavy idmap_ldap memleak
 
 * Tue Aug 21 2007 Simo Sorce <ssorce@redhat.com> 3.0.25c-3.fc8
@@ -2060,7 +2060,7 @@ rm -rf %{buildroot}
 * Tue Aug 21 2007 Guenther Deschner <gdeschner@redhat.com> 3.0.25c-0.fc8
 - update to 3.0.25c
 
-* Tue Jun 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-3.fc8
+* Fri Jun 29 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-3.fc8
 - handle cases defined in #243766
 
 * Tue Jun 26 2007 Simo Sorce <ssorce@redhat.com> 3.0.25b-2.fc8
@@ -2213,7 +2213,7 @@ rm -rf %{buildroot}
 * Fri Dec 09 2005 Jesse Keating <jkeating@redhat.com>
 - rebuilt
 
-* Mon Nov 13 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20b-2
+* Sun Nov 13 2005 Jay Fenlason <fenlason@redhat.com> 3.0.20b-2
 - turn on -DLDAP_DEPRECATED to allow access to ldap functions that have
   been depricated in 2.3.11, but which don't have well-documented
   replacements (ldap_simple_bind_s(), for example).
@@ -2389,7 +2389,7 @@ rm -rf %{buildroot}
 - Modify this spec file to put libsmbclient.{a,so} in the right place on
   x86_64 machines.
 
-* Wed Aug  5 2004 Jason Vas Dias <jvdias@redhat.com> 3.0.5-3
+* Thu Aug  5 2004 Jason Vas Dias <jvdias@redhat.com> 3.0.5-3
 - Removed '-pie' patch - 3.0.5 uses -fPIC/-PIC, and the combination
 - resulted in executables getting corrupt stacks, causing smbmnt to
 - get a SIGBUS in the mount() call (bug 127420).
@@ -2511,7 +2511,7 @@ rm -rf %{buildroot}
 - (Remove obsolete samba-3.0.0beta2.tar.bz2.md5 file)
 - (Move libsmbclient to the -common package (#99449))
 
-* Tue Jun 22 2003 Nalin Dahyabhai <nalin@redhat.com> 2.2.8a-4
+* Sun Jun 22 2003 Nalin Dahyabhai <nalin@redhat.com> 2.2.8a-4
 - rebuild
 
 * Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
@@ -2725,9 +2725,9 @@ rm -rf %{buildroot}
 - Add improvements to the smb.conf as suggested in #16931
 
 * Tue Jun 19 2001 Trond Eivind Glomsrød <teg@redhat.com>
-  (these changes are from the non-head version)
+- (these changes are from the non-head version)
 - Don't include /usr/sbin/samba, it's the same as the initscript
-- unset TMPDIR, as samba can't write into a TMPDIR owned 
+- unset TMPDIR, as samba can't write into a TMPDIR owned
   by root (#41193)
 - Add pidfile: lines for smbd and nmbd and a config: line
   in the initscript  (#15343)
@@ -2953,7 +2953,7 @@ rm -rf %{buildroot}
 * Tue Sep 28 1999 Bill Nottingham <notting@redhat.com>
 - initscript oopsie. killproc <name> -HUP, not other way around.
 
-* Sat Sep 26 1999 Bill Nottingham <notting@redhat.com>
+* Sun Sep 26 1999 Bill Nottingham <notting@redhat.com>
 - script cleanups. Again.
 
 * Wed Sep 22 1999 Bill Nottingham <notting@redhat.com>
