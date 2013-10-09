@@ -391,6 +391,7 @@ domains and to use Windows user and group accounts on Linux.
 %package winbind-clients
 Summary: Samba winbind clients
 Group: Applications/System
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %with_libwbclient
