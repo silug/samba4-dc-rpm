@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 8
+%define main_release 1
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -10,7 +10,7 @@
 %define tevent_version 0.9.18
 %define ldb_version 1.1.16
 # This should be rc1 or nil
-%define pre_release rc4
+%define pre_release %nil
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -76,8 +76,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.1.0rc4-add_support_for_krb5_keyring.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -448,8 +446,6 @@ module necessary to communicate to the Winbind Daemon
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.1.0rc4-add_support_for_krb5_keyring.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1492,6 +1488,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Fri Oct 11 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-1
+- related: #985609 - Update to Samba 4.1.0.
+
 * Tue Oct 01 2013 - Andreas Schneider <asn@redhat.com> - 2:4.1.0-0.8
 - related: #985609 - Update to Samba 4.1.0rc4.
 - resolves: #1010722 - Split out a samba-winbind-modules package.
