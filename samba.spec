@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -29,6 +29,7 @@
 %global with_internal_ldb 0
 
 %global with_profiling 1
+%global with_vfs_glusterfs 1
 
 %global with_mitkrb5 1
 %global with_dc 0
@@ -93,7 +94,6 @@ Requires: libwbclient = %{samba_depver}
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
 
-BuildRequires: autoconf
 %if %with_clustering_support
 BuildRequires: ctdb-devel
 %endif
@@ -122,6 +122,10 @@ BuildRequires: readline-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
 BuildRequires: libbsd-devel
+%if %{with_vfs_glusterfs}
+BuildRequires: glusterfs-api-devel >= 3.4.0.16
+BuildRequires: glusterfs-devel >= 3.4.0.16
+%endif
 
 %if ! %with_internal_talloc
 %global libtalloc_version 2.0.7
@@ -247,6 +251,22 @@ Obsoletes: samba4-devel < %{samba_depver}
 The samba4-devel package contains the header files for the libraries
 needed to develop programs that link against the SMB, RPC and other
 libraries in the Samba suite.
+
+### GLUSTER
+%if %{with_vfs_glusterfs}
+%package vfs-glusterfs
+Summary: Samba VFS module for GlusterFS
+Group: Applications/System
+Requires: glusterfs-api >= 3.4.0.16
+Requires: glusterfs >= 3.4.0.16
+Requires: samba = %{epoch}:%{samba_version}-%{release}
+
+Obsoletes: samba-glusterfs
+Provides: samba-glusterfs
+
+%description vfs-glusterfs
+Samba VFS module for GlusterFS integration.
+%endif
 
 ### LIBS
 %package libs
@@ -1205,6 +1225,12 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/wbclient.h
 %endif # ! with_libwbclient
 
+### VFS-GLUSTERFS
+%if %{with_vfs_glusterfs}
+%files vfs-glusterfs
+%{_libdir}/samba/vfs/glusterfs.so
+%endif
+
 ### LIBS
 %files libs
 %defattr(-,root,root)
@@ -1489,6 +1515,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Fri Oct 18 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-3
+- resolves: #1020329 - Build glusterfs VFS plguin.
+
 * Tue Oct 15 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-2
 - resolves: #1018856 - Fix installation of pam_winbind after upgrade.
 - related: #1010722 - Split out a samba-winbind-modules package.
