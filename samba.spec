@@ -30,6 +30,13 @@
 
 %global with_profiling 1
 %global with_vfs_glusterfs 1
+%if 0%{?rhel}
+%global with_vfs_glusterfs 0
+# Only enable on x86_64
+%ifarch x86_64
+%global with_vfs_glusterfs 1
+%endif
+%endif
 
 %global with_mitkrb5 1
 %global with_dc 0
@@ -533,6 +540,9 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
 %endif
 %if ! %with_dc
         --without-ad-dc \
+%endif
+%if ! %with_vfs_glusterfs
+        --disable-glusterfs \
 %endif
 %if %with_clustering_support
         --with-cluster-support \
