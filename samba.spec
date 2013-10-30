@@ -266,7 +266,8 @@ Summary: Samba VFS module for GlusterFS
 Group: Applications/System
 Requires: glusterfs-api >= 3.4.0.16
 Requires: glusterfs >= 3.4.0.16
-Requires: samba = %{epoch}:%{samba_version}-%{release}
+Requires: %{name} = %{epoch}:%{samba_version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{samba_version}-%{release}
 
 Obsoletes: samba-glusterfs
 Provides: samba-glusterfs
@@ -1525,6 +1526,10 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Oct 30 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-4
+- related: #884169 - Add direct dependency to samba-libs in the
+                     glusterfs package.
+
 * Fri Oct 18 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-3
 - resolves: #1020329 - Build glusterfs VFS plguin.
 
