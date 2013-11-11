@@ -1,9 +1,9 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 5
+%define main_release 1
 
-%define samba_version 4.1.0
+%define samba_version 4.1.1
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -1540,6 +1540,10 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Nov 11 2013 - Andreas Schneider <asn@redhat.com> - 4.1.1-1
+- resolves: #1024544 - Fix CVE-2013-4475.
+- Update to Samba 4.1.1.
+
 * Mon Nov 11 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-5
 - related: #884169 - Fix the upgrade path.
 
