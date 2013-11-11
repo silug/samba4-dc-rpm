@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.1.0
 %define talloc_version 2.0.8
@@ -102,6 +102,14 @@ Requires: libwbclient = %{samba_depver}
 
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
+
+# We don't build it outdated docs anymore
+Obsoletes: samba-doc
+# Is not supported yet
+Obsoletes: samba-domainjoin-gui
+# SWAT been deprecated and removed from samba
+Obsoletes: samba-swat
+Obsoletes: samba4-swat
 
 %if %with_clustering_support
 BuildRequires: ctdb-devel
@@ -328,6 +336,8 @@ The libwbclient package contains the winbind client library from the Samba suite
 Summary: Developer tools for the winbind library
 Group: Development/Libraries
 Requires: libwbclient = %{samba_depver}
+Obsoletes: samba-winbind-devel
+Provides: samba-winbind-devel
 
 %description -n libwbclient-devel
 The libwbclient-devel package provides developer tools for the wbclient library.
@@ -1530,6 +1540,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Nov 11 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-5
+- related: #884169 - Fix the upgrade path.
+
 * Wed Oct 30 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-4
 - related: #884169 - Add direct dependency to samba-libs in the
                      glusterfs package.
