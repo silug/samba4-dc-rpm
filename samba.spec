@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.1.1
 %define talloc_version 2.0.8
@@ -86,6 +86,8 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.1.1-Fix-memset-in-ntdb.patch
+Patch1: samba-4.1.0-upn.patch
+Patch2: samba-4.1.2-fix_strict_aliasing.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -489,6 +491,8 @@ module necessary to communicate to the Winbind Daemon
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p1 -b .samba-4.1.1-Fix-memset-in-ntdb.patch
+%patch1 -p1 -b .samba-4.1.0-upn.patch
+%patch2 -p1 -b .samba-4.1.2-fix_strict_aliasing.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1540,6 +1544,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Fri Nov 15 2013 - Andreas Schneider <asn@redhat.com> - 4.1.1-2
+- related: #884169 - Fix strict aliasing warnings.
+
 * Mon Nov 11 2013 - Andreas Schneider <asn@redhat.com> - 4.1.1-1
 - resolves: #1024544 - Fix CVE-2013-4475.
 - Update to Samba 4.1.1.
@@ -1550,6 +1557,7 @@ rm -rf %{buildroot}
 * Wed Oct 30 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-4
 - related: #884169 - Add direct dependency to samba-libs in the
                      glusterfs package.
+- resolves: #996567 - Fix userPrincipalName composition.
 - related: #884169 - Fix memset call with zero length in in ntdb.
 
 * Fri Oct 18 2013 - Andreas Schneider <asn@redhat.com> - 4.1.0-3
