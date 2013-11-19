@@ -1,0 +1,4246 @@
+From 1573638212a9733a44939a4d38a226f38dca36f1 Mon Sep 17 00:00:00 2001
+From: Michele Baldessari <michele@acksyn.org>
+Date: Tue, 9 Jul 2013 23:23:33 +0200
+Subject: [PATCH] Fix typos in man-pages
+
+Fix some typos in the man-pages.
+
+Signed-off-by: Michele Baldessari <michele@acksyn.org>
+Reviewed-by: Simo Sorce <idra@samba.org>
+
+Autobuild-User(master): Simo Sorce <idra@samba.org>
+Autobuild-Date(master): Wed Jul 10 16:45:07 CEST 2013 on sn-devel-104
+---
+ docs-xml/manpages/dbwrap_tool.1.xml              | 2 +-
+ docs-xml/manpages/idmap_autorid.8.xml            | 2 +-
+ docs-xml/manpages/net.8.xml                      | 2 +-
+ docs-xml/manpages/pdbedit.8.xml                  | 2 +-
+ docs-xml/manpages/samba.7.xml                    | 2 +-
+ docs-xml/manpages/smbclient.1.xml                | 2 +-
+ docs-xml/manpages/smbpasswd.5.xml                | 2 +-
+ docs-xml/manpages/vfs_smb_traffic_analyzer.8.xml | 2 +-
+ 8 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/docs-xml/manpages/dbwrap_tool.1.xml b/docs-xml/manpages/dbwrap_tool.1.xml
+index e2b2cee..a1a2f97 100644
+--- a/docs-xml/manpages/dbwrap_tool.1.xml
++++ b/docs-xml/manpages/dbwrap_tool.1.xml
+@@ -49,7 +49,7 @@
+ 		<listitem><para>fetch: fetch a record</para></listitem>
+ 		<listitem><para>store: create or modify a record</para></listitem>
+ 		<listitem><para>delete: remove a record</para></listitem>
+-		<listitem><para>exists: test for existance of a record</para></listitem>
++		<listitem><para>exists: test for existence of a record</para></listitem>
+ 		<listitem><para>erase: remove all records</para></listitem>
+ 		<listitem><para>listkeys: list all available records</para></listitem>
+ 		<listitem><para>listwatchers: list processes, which are waiting for changes in a record</para></listitem>
+diff --git a/docs-xml/manpages/idmap_autorid.8.xml b/docs-xml/manpages/idmap_autorid.8.xml
+index c35f903..7446d53 100644
+--- a/docs-xml/manpages/idmap_autorid.8.xml
++++ b/docs-xml/manpages/idmap_autorid.8.xml
+@@ -109,7 +109,7 @@
+ 	<title>EXAMPLES</title>
+ 	<para>
+ 		This example shows you the minimal configuration that will
+-		work for the principial domain and 19 trusted domains / range
++		work for the principal domain and 19 trusted domains / range
+ 		extensions.
+ 	</para>
+ 
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index dd5b3ab..0df2e07 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -1671,7 +1671,7 @@ shares created by other users.
+ 
+ <para>Starting with version 3.2.0, a Samba server can be configured by data
+ stored in registry. This configuration data can be edited with the new "net
+-conf" commands. There is also the possiblity to configure a remote Samba server
++conf" commands. There is also the possibility to configure a remote Samba server
+ by enabling the RPC conf mode and specifying the the address of the remote server.
+ </para>
+ 
+diff --git a/docs-xml/manpages/pdbedit.8.xml b/docs-xml/manpages/pdbedit.8.xml
+index 4bb3751..c5d6b23 100644
+--- a/docs-xml/manpages/pdbedit.8.xml
++++ b/docs-xml/manpages/pdbedit.8.xml
+@@ -289,7 +289,7 @@ retype new password
+ </programlisting>
+ </para>
+ 
+-		<note><para>pdbedit does not call the unix password syncronisation 
++		<note><para>pdbedit does not call the unix password synchronization 
+ 				script if <smbconfoption name="unix password sync"/>
+ 				has been set. It only updates the data in the Samba 
+ 				user database. 
+diff --git a/docs-xml/manpages/samba.7.xml b/docs-xml/manpages/samba.7.xml
+index 9299660..cedb4e4 100644
+--- a/docs-xml/manpages/samba.7.xml
++++ b/docs-xml/manpages/samba.7.xml
+@@ -91,7 +91,7 @@
+ 		<manvolnum>8</manvolnum></citerefentry></term>
+ 		<listitem><para>The <command>samba-tool</command>
+ 		is the main Samba Administration tool regarding
+-		Acitive Directory services.</para>
++		Active Directory services.</para>
+ 		</listitem>
+ 		</varlistentry>
+ 
+diff --git a/docs-xml/manpages/smbclient.1.xml b/docs-xml/manpages/smbclient.1.xml
+index 328fd50..b222c56 100644
+--- a/docs-xml/manpages/smbclient.1.xml
++++ b/docs-xml/manpages/smbclient.1.xml
+@@ -564,7 +564,7 @@
+ 		sent to the server on directory listings and file opens. If
+ 		the "backup intent" flag is true, the server will try and
+ 		bypass some file system checks if the user has been granted
+-		SE_BACKUP or SE_RESTORE privilages. This state is useful when
++		SE_BACKUP or SE_RESTORE privileges. This state is useful when
+ 		performing a backup or restore operation.
+ 		</para></listitem>
+ 		</varlistentry>
+diff --git a/docs-xml/manpages/smbpasswd.5.xml b/docs-xml/manpages/smbpasswd.5.xml
+index fc512b8..986dedb 100644
+--- a/docs-xml/manpages/smbpasswd.5.xml
++++ b/docs-xml/manpages/smbpasswd.5.xml
+@@ -39,7 +39,7 @@
+ 	<para>The format of the smbpasswd file used by Samba 2.2 
+ 	is very similar to the familiar Unix <filename>passwd(5)</filename> 
+ 	file. It is an ASCII file containing one line for each user. Each field 
+-	ithin each line is separated from the next by a colon. Any entry 
++	within each line is separated from the next by a colon. Any entry 
+ 	beginning with '#' is ignored. The smbpasswd file contains the 
+ 	following information for each user: </para>
+ 
+diff --git a/docs-xml/manpages/vfs_smb_traffic_analyzer.8.xml b/docs-xml/manpages/vfs_smb_traffic_analyzer.8.xml
+index 0daafc6..38644e7 100644
+--- a/docs-xml/manpages/vfs_smb_traffic_analyzer.8.xml
++++ b/docs-xml/manpages/vfs_smb_traffic_analyzer.8.xml
+@@ -139,7 +139,7 @@
+ 		The module now can identify itself against the receiver with a sub-release number, where
+ 		the receiver may run with a different sub-release number than the module. However, as
+ 		long as both run on the V2.x protocol, the receiver will not crash, even if the module
+-		uses features only implemented in the newer subrelease. Ultimatively, if the module uses
++		uses features only implemented in the newer subrelease. Ultimately, if the module uses
+ 		a new feature from a newer subrelease, and the receiver runs an older protocol, it is just
+ 		ignoring the functionality. Of course it is best to have both the receiver and the module
+ 		running the same subrelease of the protocol.
+-- 
+1.8.3.1
+
+From 16a873bf7c5c3d236e4bc107953dc6f3159764a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:42:06 +0200
+Subject: [PATCH 01/83] docs: remove duplicate word "the" in idmap_ad manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/idmap_ad.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/idmap_ad.8.xml b/docs-xml/manpages/idmap_ad.8.xml
+index 2ae490b..56378c1 100644
+--- a/docs-xml/manpages/idmap_ad.8.xml
++++ b/docs-xml/manpages/idmap_ad.8.xml
+@@ -31,7 +31,7 @@
+ 
+ 	<para>
+ 	Currently, the <parameter>ad</parameter> backend
+-	does not work as the the default idmap backend, but one has
++	does not work as the default idmap backend, but one has
+ 	to configure it separately for each domain for which one wants
+ 	to use it, using disjoint ranges. One usually needs to configure
+ 	a writeable default idmap range, using for example the
+-- 
+1.8.3.1
+
+
+From f17f61a4c0d5c13a273eae0b72521e464b1d3d8f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:44:12 +0200
+Subject: [PATCH 02/83] docs: remove duplicate word "name" in nmblookup
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmblookup.1.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/nmblookup.1.xml b/docs-xml/manpages/nmblookup.1.xml
+index bb4bd96..12c707f 100644
+--- a/docs-xml/manpages/nmblookup.1.xml
++++ b/docs-xml/manpages/nmblookup.1.xml
+@@ -57,7 +57,7 @@
+ 		<varlistentry>
+ 		<term>-M</term>
+ 		<listitem><para>Searches for a master browser by looking 
+-		up the  NetBIOS name <replaceable>name</replaceable> with a 
++		up the NetBIOS <replaceable>name</replaceable> with a
+ 		type of <constant>0x1d</constant>. If <replaceable>
+ 		name</replaceable> is "-" then it does a lookup on the special name 
+ 		<constant>__MSBROWSE__</constant>. Please note that in order to 
+-- 
+1.8.3.1
+
+
+From 4112eb0529780113716c6032561504196be8235f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:45:21 +0200
+Subject: [PATCH 03/83] docs: remove duplicate word "name" in nmblookup4
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ libcli/nbt/man/nmblookup4.1.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libcli/nbt/man/nmblookup4.1.xml b/libcli/nbt/man/nmblookup4.1.xml
+index 198afec..b6fe48c 100644
+--- a/libcli/nbt/man/nmblookup4.1.xml
++++ b/libcli/nbt/man/nmblookup4.1.xml
+@@ -57,7 +57,7 @@
+ 		<varlistentry>
+ 		<term>-M</term>
+ 		<listitem><para>Searches for a master browser by looking
+-		up the  NetBIOS name <replaceable>name</replaceable> with a
++		up the NetBIOS <replaceable>name</replaceable> with a
+ 		type of <constant>0x1d</constant>. If <replaceable>
+ 		name</replaceable> is "-" then it does a lookup on the special name
+ 		<constant>__MSBROWSE__</constant>. Please note that in order to
+-- 
+1.8.3.1
+
+
+From e320d57ed6a4d732980656eb01a5f777357f9715 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:50:28 +0200
+Subject: [PATCH 04/83] docs: remove duplicate arguments listing in regdiff
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ source4/lib/registry/man/regdiff.1.xml | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/source4/lib/registry/man/regdiff.1.xml b/source4/lib/registry/man/regdiff.1.xml
+index 3fe965c..23aae34 100644
+--- a/source4/lib/registry/man/regdiff.1.xml
++++ b/source4/lib/registry/man/regdiff.1.xml
+@@ -21,11 +21,8 @@
+ 		<command>regdiff</command>
+ 		<arg choice="opt">--help</arg>
+ 		<arg choice="opt">--backend=BACKEND</arg>
+-		<arg choice="opt">--backend=BACKEND</arg>
+-		<arg choice="opt">--credentials=CREDENTIALS</arg>
+ 		<arg choice="opt">--credentials=CREDENTIALS</arg>
+ 		<arg choice="opt">location</arg>
+-		<arg choice="opt">location</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+-- 
+1.8.3.1
+
+
+From d33ca796071a2a6f8bf65d6eed2fe159a75de8c5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:55:03 +0200
+Subject: [PATCH 05/83] docs: remove duplicate word "the" in winbindd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/winbindd.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/winbindd.8.xml b/docs-xml/manpages/winbindd.8.xml
+index 5100493..1cb49ca 100644
+--- a/docs-xml/manpages/winbindd.8.xml
++++ b/docs-xml/manpages/winbindd.8.xml
+@@ -364,7 +364,7 @@ auth  required    /lib/security/pam_unix.so \
+ 	be the same.  The user and group ids will only be valid for the local
+ 	machine, unless a shared <smbconfoption name="idmap config * : backend"/> is configured.</para>
+ 
+-	<para>If the the Windows NT SID to UNIX user and group id mapping
++	<para>If the Windows NT SID to UNIX user and group id mapping
+ 	file is damaged or destroyed then the mappings will be lost. </para>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 6a0b75f901052234f35d4ba596754e7714af7e87 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:58:45 +0200
+Subject: [PATCH 06/83] docs: remove duplicate mention of "smbtorture" in
+ smbtorture manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ source4/torture/man/smbtorture.1.xml | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/source4/torture/man/smbtorture.1.xml b/source4/torture/man/smbtorture.1.xml
+index 9b70b9b..09e19ed 100644
+--- a/source4/torture/man/smbtorture.1.xml
++++ b/source4/torture/man/smbtorture.1.xml
+@@ -19,10 +19,6 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>smbtorture</command>
+-	</cmdsynopsis>
+-	
+-	<cmdsynopsis>
+-		<command>smbtorture</command>
+ 		<arg choice="req">//server/share</arg>
+ 		<arg choice="opt">-d debuglevel</arg>
+ 		<arg choice="opt">-U user%pass</arg>
+-- 
+1.8.3.1
+
+
+From e003650f5cf0b9581da00ad39b0784aab074119b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 17:59:22 +0200
+Subject: [PATCH 07/83] docs: remove duplicate mention of "ntdbtool" in
+ ntdbtool manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ lib/ntdb/man/ntdbtool.8.xml | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/lib/ntdb/man/ntdbtool.8.xml b/lib/ntdb/man/ntdbtool.8.xml
+index a23a48e..7e6530c 100644
+--- a/lib/ntdb/man/ntdbtool.8.xml
++++ b/lib/ntdb/man/ntdbtool.8.xml
+@@ -20,10 +20,6 @@
+ 
+ 	<cmdsynopsis>
+ 		<command>ntdbtool</command>
+-	</cmdsynopsis>
+-
+-	<cmdsynopsis>
+-		<command>ntdbtool</command>
+ 		<arg choice="plain">
+ 		<replaceable>NTDBFILE</replaceable>
+ 		</arg>
+-- 
+1.8.3.1
+
+
+From 56cff0b3f40b98c0d00323eb94a2204af6c48fed Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 18:00:02 +0200
+Subject: [PATCH 08/83] docs: remove duplicate mention of "smbta-util" in
+ smbta-util manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbta-util.8.xml | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/docs-xml/manpages/smbta-util.8.xml b/docs-xml/manpages/smbta-util.8.xml
+index ef38926..3925e87 100644
+--- a/docs-xml/manpages/smbta-util.8.xml
++++ b/docs-xml/manpages/smbta-util.8.xml
+@@ -20,10 +20,6 @@
+ 
+ 	<cmdsynopsis>
+ 		<command>smbta-util</command>
+-	</cmdsynopsis>
+-
+-	<cmdsynopsis>
+-		<command>smbta-util</command>
+ 		<arg rep="repeat" choice="opt">
+ 		<replaceable>COMMANDS</replaceable>
+ 		</arg>
+-- 
+1.8.3.1
+
+
+From a2a7991624fa273b01898a26c86f951b928525e6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 18:02:47 +0200
+Subject: [PATCH 09/83] docs: remove duplicate word "trust" from net manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index 2f04deb..aad5fb5 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -877,7 +877,7 @@ net rpc trust create \
+ <refsect3>
+ <title>RPC TRUST DELETE</title>
+ 
+-<para>Delete a trust trust object by calling lsaDeleteTrustedDomain.
++<para>Delete a trust object by calling lsaDeleteTrustedDomain.
+ The can be done on a single server or on two servers at once.</para>
+ 
+ <variablelist><title>Options:</title>
+-- 
+1.8.3.1
+
+
+From 93f32c777c1a36d9d4dc91b6aa1e9e14ee13fb91 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 14 Oct 2013 18:03:14 +0200
+Subject: [PATCH 10/83] docs: remove duplicate word "the" from net manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index aad5fb5..5fa042e 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -1737,7 +1737,7 @@ shares created by other users.
+ <para>Starting with version 3.2.0, a Samba server can be configured by data
+ stored in registry. This configuration data can be edited with the new "net
+ conf" commands. There is also the possibility to configure a remote Samba server
+-by enabling the RPC conf mode and specifying the the address of the remote server.
++by enabling the RPC conf mode and specifying the address of the remote server.
+ </para>
+ 
+ <para>
+-- 
+1.8.3.1
+
+
+From 05db55af943e50bd8f7b29f8210f32350239ea59 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 15 Oct 2013 15:11:33 +0200
+Subject: [PATCH 11/83] docs: mention more options in winbindd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/winbindd.8.xml | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/docs-xml/manpages/winbindd.8.xml b/docs-xml/manpages/winbindd.8.xml
+index 1cb49ca..f6aad3f 100644
+--- a/docs-xml/manpages/winbindd.8.xml
++++ b/docs-xml/manpages/winbindd.8.xml
+@@ -20,13 +20,13 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>winbindd</command>
+-		<arg choice="opt">-D</arg>
+-		<arg choice="opt">-F</arg>
+-		<arg choice="opt">-S</arg>
+-		<arg choice="opt">-i</arg>
++		<arg choice="opt">-D|--daemon</arg>
++		<arg choice="opt">-F|--foreground</arg>
++		<arg choice="opt">-S|--stdout</arg>
++		<arg choice="opt">-i|--interactive</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-s &lt;smb config file&gt;</arg>
+-		<arg choice="opt">-n</arg>
++		<arg choice="opt">-n|--no-caching</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -135,7 +135,7 @@ hosts:		files wins
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-D</term>
++		<term>-D|--daemon</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		the server to operate as a daemon. That is, it detaches
+ 		itself and runs in the background on the appropriate port.
+@@ -145,7 +145,7 @@ hosts:		files wins
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-F</term>
++		<term>-F|--foreground</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		the main <command>winbindd</command> process to not daemonize,
+ 		i.e. double-fork and disassociate with the terminal.
+@@ -160,7 +160,7 @@ hosts:		files wins
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-S</term>
++		<term>-S|--stdout</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		<command>winbindd</command> to log to standard output rather
+ 		than a file.</para></listitem>
+@@ -171,7 +171,7 @@ hosts:		files wins
+ 		&stdarg.help;
+ 
+ 		<varlistentry>
+-		<term>-i</term>
++		<term>-i|--interactive</term>
+ 		<listitem><para>Tells <command>winbindd</command> to not
+ 		become a daemon and detach from the current terminal. This
+ 		option is used by developers when interactive debugging
+@@ -182,7 +182,7 @@ hosts:		files wins
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-n</term>
++		<term>-n|--no-caching</term>
+ 		<listitem><para>Disable some caching. This means winbindd will
+ 		often have to wait for a response from the domain controller
+ 		before it can respond to a client and this thus makes things
+-- 
+1.8.3.1
+
+
+From b5fa1139a4e9ef7bd79ace6efe7bf06af595daa4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 15:19:59 +0100
+Subject: [PATCH 12/83] docs: mention --no-process-group in winbindd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/winbindd.8.xml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/docs-xml/manpages/winbindd.8.xml b/docs-xml/manpages/winbindd.8.xml
+index f6aad3f..fd644c3 100644
+--- a/docs-xml/manpages/winbindd.8.xml
++++ b/docs-xml/manpages/winbindd.8.xml
+@@ -27,6 +27,7 @@
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-s &lt;smb config file&gt;</arg>
+ 		<arg choice="opt">-n|--no-caching</arg>
++		<arg choice="opt">--no-process-group</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -194,6 +195,12 @@ hosts:		files wins
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>--no-process-group</term>
++		<listitem><para>Do not create a new process group for winbindd.
++		</para></listitem>
++		</varlistentry>
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 4f790b10d5a6737f1b5978fca27d78a0b27aa75d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:23:03 +0100
+Subject: [PATCH 13/83] docs: mention --dc-info in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index f970a5e..2df86ca 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -27,6 +27,7 @@
+ 		<arg choice="opt">--ccache-save</arg>
+ 		<arg choice="opt">--change-user-password</arg>
+ 		<arg choice="opt">-D domain</arg>
++		<arg choice="opt">--dc-info domain</arg>
+ 		<arg choice="opt">--domain domain</arg>
+ 		<arg choice="opt">--dsgetdcname domain</arg>
+ 		<arg choice="opt">-g</arg>
+@@ -142,6 +143,12 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--dc-info <replaceable>domain</replaceable></term>
++		<listitem><para>Displays information about the current domain controller for a domain.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>--domain <replaceable>name</replaceable></term>
+ 		<listitem><para>This parameter sets the domain on which any specified
+ 		operations will performed.  If special domain name '.' is used to represent
+-- 
+1.8.3.1
+
+
+From 824c468261a3d61732fea88a5d6cfb9aa5c7ed94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:23:20 +0100
+Subject: [PATCH 14/83] docs: mention --krb5ccname option in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index 2df86ca..4de3c81 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -40,6 +40,7 @@
+ 		<arg choice="opt">-i user</arg>
+ 		<arg choice="opt">-I ip</arg>
+ 		<arg choice="opt">-K user%password</arg>
++		<arg choice="opt">--krb5ccname cctype</arg>
+ 		<arg choice="opt">--lanman</arg>
+ 		<arg choice="opt">-m</arg>
+ 		<arg choice="opt">-n name</arg>
+@@ -246,6 +247,13 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--krb5ccname <replaceable>KRB5CCNAME</replaceable></term>
++		<listitem><para>Allows to request a sepcific kerberos credential
++				cache type used for authentication.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>--lanman</term>
+ 		<listitem><para>Use lanman cryptography for user authentication.
+ 		</para></listitem>
+-- 
+1.8.3.1
+
+
+From fa47e425132f6022cd41118e2c6ac34181adc4a6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:29:10 +0100
+Subject: [PATCH 15/83] docs: mention logoff options in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index 4de3c81..cb1812f 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -42,6 +42,9 @@
+ 		<arg choice="opt">-K user%password</arg>
+ 		<arg choice="opt">--krb5ccname cctype</arg>
+ 		<arg choice="opt">--lanman</arg>
++		<arg choice="opt">--logoff</arg>
++		<arg choice="opt">--logoff-uid uid</arg>
++		<arg choice="opt">--logoff-user username</arg>
+ 		<arg choice="opt">-m</arg>
+ 		<arg choice="opt">-n name</arg>
+ 		<arg choice="opt">-N netbios-name</arg>
+@@ -260,6 +263,24 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--logoff</term>
++		<listitem><para>Logoff a user.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--logoff-uid <replaceable>UID</replaceable></term>
++		<listitem><para>Define user uid used during logoff request.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--logoff-user <replaceable>USERNAME</replaceable></term>
++		<listitem><para>Define username used during logoff request.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-m|--trusted-domains</term>
+ 		<listitem><para>Produce a list of domains trusted by the
+ 		Windows NT server <citerefentry><refentrytitle>winbindd</refentrytitle>
+-- 
+1.8.3.1
+
+
+From 7c4c66853f4f0fa426d11d01bc4732186501d6ec Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:33:19 +0100
+Subject: [PATCH 16/83] docs: mention --lookup-sids in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index cb1812f..a3d4d5f 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -45,6 +45,7 @@
+ 		<arg choice="opt">--logoff</arg>
+ 		<arg choice="opt">--logoff-uid uid</arg>
+ 		<arg choice="opt">--logoff-user username</arg>
++		<arg choice="opt">--lookup-sids</arg>
+ 		<arg choice="opt">-m</arg>
+ 		<arg choice="opt">-n name</arg>
+ 		<arg choice="opt">-N netbios-name</arg>
+@@ -281,6 +282,13 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--lookup-sids <replaceable>SID1,SID2...</replaceable></term>
++		<listitem><para>Looks up SIDs. SIDs must be specified as ASCII strings in the traditional Microsoft
++				format. For example, S-1-5-21-1455342024-3071081365-2475485837-500.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-m|--trusted-domains</term>
+ 		<listitem><para>Produce a list of domains trusted by the
+ 		Windows NT server <citerefentry><refentrytitle>winbindd</refentrytitle>
+-- 
+1.8.3.1
+
+
+From 7d41f1c4d30eef9fa20a7741be1cb50e566b40cb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:36:21 +0100
+Subject: [PATCH 17/83] docs: mention --pam-logon in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index a3d4d5f..a091e94 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -54,6 +54,7 @@
+ 		<arg choice="opt">--own-domain</arg>
+ 		<arg choice="opt">-p</arg>
+ 		<arg choice="opt">-P|--ping-dc</arg>
++		<arg choice="opt">--pam-logon user%password</arg>
+ 		<arg choice="opt">-r user</arg>
+ 		<arg choice="opt">-R|--lookup-rids</arg>
+ 		<arg choice="opt">-s sid</arg>
+@@ -343,6 +344,13 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--pam-logon <replaceable>username%password</replaceable></term>
++		<listitem><para>Attempt to authenticate a user in the same way
++				pam_winbind would do.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-p|--ping</term>
+ 		<listitem><para>Check whether <citerefentry><refentrytitle>winbindd</refentrytitle>
+ 		<manvolnum>8</manvolnum></citerefentry> is still alive.
+-- 
+1.8.3.1
+
+
+From 27d49babb19759e0d3ef93a2290c049e1ba6aaa3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:40:56 +0100
+Subject: [PATCH 18/83] docs: mention --remove-gid-mapping/--remove-uid-mapping
+ in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index a091e94..31362ac 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -57,6 +57,8 @@
+ 		<arg choice="opt">--pam-logon user%password</arg>
+ 		<arg choice="opt">-r user</arg>
+ 		<arg choice="opt">-R|--lookup-rids</arg>
++		<arg choice="opt">--remove-gid-mapping gid,sid</arg>
++		<arg choice="opt">--remove-uid-mapping uid,sid</arg>
+ 		<arg choice="opt">-s sid</arg>
+ 		<arg choice="opt">--separator</arg>
+ 		<arg choice="opt">--set-auth-user user%password</arg>
+@@ -383,6 +385,18 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--remove-gid-mapping <replaceable>GID,SID</replaceable></term>
++		<listitem><para>Removes an existing GID to SID mapping from the database.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--remove-uid-mapping <replaceable>UID,SID</replaceable></term>
++		<listitem><para>Removes an existing UID to SID mapping from the database.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-s|--sid-to-name <replaceable>sid</replaceable></term>
+ 		<listitem><para>Use <parameter>-s</parameter> to resolve
+ 		a SID to a name.  This is the inverse of the <parameter>-n
+-- 
+1.8.3.1
+
+
+From 80ab6eaa973df8874567306d1488a813801ab39c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 16:42:56 +0100
+Subject: [PATCH 19/83] docs: mention --set-gid-mapping/--set-uid-mapping in
+ wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index 31362ac..3dbcfc1 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -62,6 +62,8 @@
+ 		<arg choice="opt">-s sid</arg>
+ 		<arg choice="opt">--separator</arg>
+ 		<arg choice="opt">--set-auth-user user%password</arg>
++		<arg choice="opt">--set-gid-mapping gid,sid</arg>
++		<arg choice="opt">--set-uid-mapping uid,sid</arg>
+ 		<arg choice="opt">-S sid</arg>
+ 		<arg choice="opt">--sid-aliases sid</arg>
+ 		<arg choice="opt">--sid-to-fullname sid</arg>
+@@ -423,6 +425,18 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--set-gid-mapping <replaceable>GID,SID</replaceable></term>
++		<listitem><para>Create a GID to SID mapping in the database.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--set-uid-mapping <replaceable>UID,SID</replaceable></term>
++		<listitem><para>Create a UID to SID mapping in the database.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-S|--sid-to-uid <replaceable>sid</replaceable></term>
+ 		<listitem><para>Convert a SID to a UNIX user id.  If the SID
+ 		does not correspond to a UNIX user mapped by <citerefentry>
+-- 
+1.8.3.1
+
+
+From 87e6b5b7fb22c8cf26ae00a315b3e73987f49d55 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:13:38 +0100
+Subject: [PATCH 20/83] docs: mention --sequence in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index 3dbcfc1..1a871c2 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -61,6 +61,7 @@
+ 		<arg choice="opt">--remove-uid-mapping uid,sid</arg>
+ 		<arg choice="opt">-s sid</arg>
+ 		<arg choice="opt">--separator</arg>
++		<arg choice="opt">--sequence</arg>
+ 		<arg choice="opt">--set-auth-user user%password</arg>
+ 		<arg choice="opt">--set-gid-mapping gid,sid</arg>
+ 		<arg choice="opt">--set-uid-mapping uid,sid</arg>
+@@ -414,6 +415,13 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--sequence</term>
++		<listitem><para>This command has been deprecated.  Please use
++				the --online-status option instead.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>--set-auth-user <replaceable>username%password</replaceable></term>
+ 		<listitem><para>Store username and password used by <citerefentry>
+                 <refentrytitle>winbindd</refentrytitle><manvolnum>8</manvolnum>
+-- 
+1.8.3.1
+
+
+From c55315a3a26ced194e553b5aa8e97f3a41a308ca Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:18:40 +0100
+Subject: [PATCH 21/83] docs: mention --sids-to-unix-ids in wbinfo manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/wbinfo.1.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/docs-xml/manpages/wbinfo.1.xml b/docs-xml/manpages/wbinfo.1.xml
+index 1a871c2..9907dc6 100644
+--- a/docs-xml/manpages/wbinfo.1.xml
++++ b/docs-xml/manpages/wbinfo.1.xml
+@@ -68,6 +68,7 @@
+ 		<arg choice="opt">-S sid</arg>
+ 		<arg choice="opt">--sid-aliases sid</arg>
+ 		<arg choice="opt">--sid-to-fullname sid</arg>
++		<arg choice="opt">--sids-to-unix-ids sidlist</arg>
+ 		<arg choice="opt">-t</arg>
+ 		<arg choice="opt">-u</arg>
+ 		<arg choice="opt">--uid-info uid</arg>
+@@ -466,6 +467,14 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--sids-to-unix-ids <replaceable>sid1,sid2,sid3...</replaceable></term>
++		<listitem><para>Resolve SIDs to Unix IDs.
++		SIDs must be specified as ASCII strings
++		in the traditional Microsoft format. For example,
++		S-1-5-21-1455342024-3071081365-2475485837-500. </para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-t|--check-secret</term>
+ 		<listitem><para>Verify that the workstation trust account
+ 		created when the Samba server is added to the Windows NT
+-- 
+1.8.3.1
+
+
+From dac78176f3e28a1cbc513bb77a3454570f7de4e1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:23:23 +0100
+Subject: [PATCH 22/83] docs: remove unsupported options from nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index f1ab3e3..7aabfa6 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -23,10 +23,7 @@
+ 		<arg choice="opt">-D</arg>
+ 		<arg choice="opt">-F</arg>
+ 		<arg choice="opt">-S</arg>
+-		<arg choice="opt">-a</arg>
+ 		<arg choice="opt">-i</arg>
+-		<arg choice="opt">-o</arg>
+-		<arg choice="opt">-h</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-H &lt;lmhosts file&gt;</arg>
+-- 
+1.8.3.1
+
+
+From 77eae60bd9a6b7e1d5248b5b0984d38a54de9c3e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:25:04 +0100
+Subject: [PATCH 23/83] docs: mention --daemon in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 7aabfa6..cc5f83d 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -20,7 +20,7 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>nmbd</command>
+-		<arg choice="opt">-D</arg>
++		<arg choice="opt">-D|--daemon</arg>
+ 		<arg choice="opt">-F</arg>
+ 		<arg choice="opt">-S</arg>
+ 		<arg choice="opt">-i</arg>
+@@ -78,7 +78,7 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-D</term>
++		<term>-D|--daemon</term>
+ 		<listitem><para>If specified, this parameter causes 
+ 		<command>nmbd</command> to operate as a daemon. That is, 
+ 		it detaches itself and runs in the background, fielding 
+-- 
+1.8.3.1
+
+
+From 28758deda94f28bd0bd188f8277807b8d2ccf829 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:25:52 +0100
+Subject: [PATCH 24/83] docs: mention --foreground in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index cc5f83d..9f607ab 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -21,7 +21,7 @@
+ 	<cmdsynopsis>
+ 		<command>nmbd</command>
+ 		<arg choice="opt">-D|--daemon</arg>
+-		<arg choice="opt">-F</arg>
++		<arg choice="opt">-F|--foreground</arg>
+ 		<arg choice="opt">-S</arg>
+ 		<arg choice="opt">-i</arg>
+ 		<arg choice="opt">-V</arg>
+@@ -90,7 +90,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-F</term>
++		<term>-F|--foreground</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		the main <command>nmbd</command> process to not daemonize,
+ 		i.e. double-fork and disassociate with the terminal.
+-- 
+1.8.3.1
+
+
+From fd8d8b95f8b5b21b4e46836dc6becef480737dc2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:27:28 +0100
+Subject: [PATCH 25/83] docs: mention --hosts in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 9f607ab..283ebc2 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -26,7 +26,7 @@
+ 		<arg choice="opt">-i</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+-		<arg choice="opt">-H &lt;lmhosts file&gt;</arg>
++		<arg choice="opt">-H|--hosts &lt;lmhosts file&gt;</arg>
+ 		<arg choice="opt">-l &lt;log directory&gt;</arg>
+ 		<arg choice="opt">-p &lt;port number&gt;</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
+@@ -125,7 +125,7 @@
+ 		&stdarg.help;
+ 		
+ 		<varlistentry>
+-		<term>-H &lt;filename&gt;</term>
++		<term>-H|--hosts &lt;filename&gt;</term>
+ 		<listitem><para>NetBIOS lmhosts file.  The lmhosts 
+ 		file is a list of NetBIOS names to IP addresses that 
+ 		is loaded by the nmbd server and used via the name 
+-- 
+1.8.3.1
+
+
+From ea99d8a256df7faaedc5b8903fe183f4dcbde296 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:28:15 +0100
+Subject: [PATCH 26/83] docs: mention --interactive in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 283ebc2..62f3380 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -23,7 +23,7 @@
+ 		<arg choice="opt">-D|--daemon</arg>
+ 		<arg choice="opt">-F|--foreground</arg>
+ 		<arg choice="opt">-S</arg>
+-		<arg choice="opt">-i</arg>
++		<arg choice="opt">-i|--interactive</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-H|--hosts &lt;lmhosts file&gt;</arg>
+@@ -112,7 +112,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-i</term>
++		<term>-i|--interactive</term>
+ 		<listitem><para>If this parameter is specified it causes the
+ 		server to run "interactively", not as a daemon, even if the
+ 		server is executed on the command line of a shell. Setting this
+-- 
+1.8.3.1
+
+
+From a624426d86cf2da69ba2e03506b5f252d32adb11 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:29:37 +0100
+Subject: [PATCH 27/83] docs: mention --log-stdout in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 62f3380..715796d 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -22,7 +22,7 @@
+ 		<command>nmbd</command>
+ 		<arg choice="opt">-D|--daemon</arg>
+ 		<arg choice="opt">-F|--foreground</arg>
+-		<arg choice="opt">-S</arg>
++		<arg choice="opt">-S|--log-stdout</arg>
+ 		<arg choice="opt">-i|--interactive</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+@@ -105,7 +105,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-S</term>
++		<term>-S|--log-stdout</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		<command>nmbd</command> to log to standard output rather
+ 		than a file.</para></listitem>
+-- 
+1.8.3.1
+
+
+From 548d9daeffc83191ea1e6ea51ce63aacffe98c41 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:31:10 +0100
+Subject: [PATCH 28/83] docs: mention --no-process-group in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 715796d..8540a09 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -30,6 +30,7 @@
+ 		<arg choice="opt">-l &lt;log directory&gt;</arg>
+ 		<arg choice="opt">-p &lt;port number&gt;</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
++		<arg choice="opt">--no-process-group</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -157,6 +158,12 @@
+ 		won't need help!</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>--no-process-group</term>
++		<listitem><para>Do not create a new process group for nmbd.
++		</para></listitem>
++		</varlistentry>
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From d6a07717a7f2febdd4591fc0c3c1fe8b719963e9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:31:50 +0100
+Subject: [PATCH 29/83] docs: mention --port in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index 8540a09..b7ead70 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -28,7 +28,7 @@
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-H|--hosts &lt;lmhosts file&gt;</arg>
+ 		<arg choice="opt">-l &lt;log directory&gt;</arg>
+-		<arg choice="opt">-p &lt;port number&gt;</arg>
++		<arg choice="opt">-p|--port &lt;port number&gt;</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
+ 		<arg choice="opt">--no-process-group</arg>
+ 	</cmdsynopsis>
+@@ -150,7 +150,7 @@
+ 		&popt.common.samba;
+ 		
+ 		<varlistentry>
+-		<term>-p &lt;UDP port number&gt;</term>
++		<term>-p|--port &lt;UDP port number&gt;</term>
+ 		<listitem><para>UDP port number is a positive integer value.
+ 		This option changes the default UDP port number (normally 137)
+ 		that <command>nmbd</command> responds to name queries on. Don't
+-- 
+1.8.3.1
+
+
+From 792ff0029c790fe8b225134b19d320e8392c5895 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:37:05 +0100
+Subject: [PATCH 30/83] docs: remove unsupported options from smbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbd.8.xml | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/docs-xml/manpages/smbd.8.xml b/docs-xml/manpages/smbd.8.xml
+index 0d0c387..cc6e400 100644
+--- a/docs-xml/manpages/smbd.8.xml
++++ b/docs-xml/manpages/smbd.8.xml
+@@ -23,14 +23,12 @@
+ 		<arg choice="opt">-F</arg>
+ 		<arg choice="opt">-S</arg>
+ 		<arg choice="opt">-i</arg>
+-		<arg choice="opt">-h</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">-b</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-l &lt;log directory&gt;</arg>
+ 		<arg choice="opt">-p &lt;port number(s)&gt;</arg>
+ 		<arg choice="opt">-P &lt;profiling level&gt;</arg>
+-		<arg choice="opt">-O &lt;socket option&gt;</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+-- 
+1.8.3.1
+
+
+From ad46b6689d999651732894968e5e49d045591203 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Thu, 14 Nov 2013 17:49:58 +0100
+Subject: [PATCH 31/83] docs: mention many more options in smbd options.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbd.8.xml | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/docs-xml/manpages/smbd.8.xml b/docs-xml/manpages/smbd.8.xml
+index cc6e400..d73f1db 100644
+--- a/docs-xml/manpages/smbd.8.xml
++++ b/docs-xml/manpages/smbd.8.xml
+@@ -19,17 +19,18 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>smbd</command>
+-		<arg choice="opt">-D</arg>
+-		<arg choice="opt">-F</arg>
+-		<arg choice="opt">-S</arg>
+-		<arg choice="opt">-i</arg>
++		<arg choice="opt">-D|--daemon</arg>
++		<arg choice="opt">-F|--foreground</arg>
++		<arg choice="opt">-S|--log-stdout</arg>
++		<arg choice="opt">-i|--interactive</arg>
+ 		<arg choice="opt">-V</arg>
+-		<arg choice="opt">-b</arg>
++		<arg choice="opt">-b|--build-options</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+-		<arg choice="opt">-l &lt;log directory&gt;</arg>
++		<arg choice="opt">-l|--log-basename &lt;log directory&gt;</arg>
+ 		<arg choice="opt">-p &lt;port number(s)&gt;</arg>
+ 		<arg choice="opt">-P &lt;profiling level&gt;</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
++		<arg choice="opt">--no-process-group</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -79,7 +80,7 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-D</term>
++		<term>-D|--daemon</term>
+ 		<listitem><para>If specified, this parameter causes 
+ 		the server to operate as a daemon. That is, it detaches 
+ 		itself and runs in the background, fielding requests 
+@@ -92,7 +93,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-F</term>
++		<term>-F|--foreground</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		the main <command>smbd</command> process to not daemonize,
+ 		i.e. double-fork and disassociate with the terminal.
+@@ -107,14 +108,14 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-S</term>
++		<term>-S|--log-stdout</term>
+ 		<listitem><para>If specified, this parameter causes
+ 		<command>smbd</command> to log to standard output rather
+ 		than a file.</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-i</term>
++		<term>-i|--interactive</term>
+ 		<listitem><para>If this parameter is specified it causes the
+ 		server to run "interactively", not as a daemon, even if the
+ 		server is executed on the command line of a shell. Setting this
+@@ -130,7 +131,13 @@
+ 		&stdarg.help;
+ 
+ 		<varlistentry>
+-		<term>-b</term>
++		<term>--no-process-group</term>
++		<listitem><para>Do not create a new process group for smbd.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-b|--build-options</term>
+ 		<listitem><para>Prints information about how 
+ 		Samba was built.</para></listitem>
+ 		</varlistentry>
+-- 
+1.8.3.1
+
+
+From 7c473ac293a44896181d9d2619b922815433c77d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 12:07:48 +0100
+Subject: [PATCH 32/83] docs: mention --numeric in smbstatus manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbstatus.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/smbstatus.1.xml b/docs-xml/manpages/smbstatus.1.xml
+index b0d07d2..126d0b2 100644
+--- a/docs-xml/manpages/smbstatus.1.xml
++++ b/docs-xml/manpages/smbstatus.1.xml
+@@ -31,6 +31,7 @@
+ 		<arg choice="opt">-f</arg>
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
+ 		<arg choice="opt">-u &lt;username&gt;</arg>
++		<arg choice="opt">-n|--numeric</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -121,6 +122,13 @@
+ 		</listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>-n|--numeric</term>
++		<listitem><para>causes smbstatus to display numeric UIDs and GIDs instead of
++				resolving them to names.</para>
++		</listitem>
++		</varlistentry>
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 5f606e7e9ccd11949ae78a0a44f47be578116f89 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 12:11:21 +0100
+Subject: [PATCH 33/83] docs: mention -R|--profile-rates in smbstatus manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbstatus.1.xml | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/smbstatus.1.xml b/docs-xml/manpages/smbstatus.1.xml
+index 126d0b2..d4213b6 100644
+--- a/docs-xml/manpages/smbstatus.1.xml
++++ b/docs-xml/manpages/smbstatus.1.xml
+@@ -32,6 +32,7 @@
+ 		<arg choice="opt">-s &lt;configuration file&gt;</arg>
+ 		<arg choice="opt">-u &lt;username&gt;</arg>
+ 		<arg choice="opt">-n|--numeric</arg>
++		<arg choice="opt">-R|--profile-rates</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -51,12 +52,19 @@
+ 	<variablelist>
+ 		<varlistentry>
+ 		<term>-P|--profile</term>
+-		<listitem><para>If samba has been compiled with the 
+-		profiling option, print only the contents of the profiling 
++		<listitem><para>If samba has been compiled with the
++		profiling option, print only the contents of the profiling
+ 		shared memory area.</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>-R|--profile-rates</term>
++		<listitem><para>If samba has been compiled with the
++		profiling option, print the contents of the profiling
++		shared memory area and the call rates.</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>-b|--brief</term>
+ 		<listitem><para>gives brief output.</para></listitem>
+ 		</varlistentry>
+-- 
+1.8.3.1
+
+
+From 9dcbc77f5a79d148a7346c361ad2790ab8a40555 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 12:57:06 +0100
+Subject: [PATCH 34/83] docs: mention -S|--setsddl in sharesec manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/sharesec.1.xml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/docs-xml/manpages/sharesec.1.xml b/docs-xml/manpages/sharesec.1.xml
+index e83e6b3..8f29cba 100644
+--- a/docs-xml/manpages/sharesec.1.xml
++++ b/docs-xml/manpages/sharesec.1.xml
+@@ -35,6 +35,7 @@
+ 		<arg choice="opt">-V, --version</arg>
+ 		<arg choice="opt">-?, --help</arg>
+ 		<arg choice="opt">--usage</arg>
++		<arg choice="opt">-S, --setsddl=STRING</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -113,6 +114,13 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>-S|--setsddl=STRING</term>
++		<listitem><para>
++		Set security descriptor by providing ACL in SDDL format.
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.help;
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+-- 
+1.8.3.1
+
+
+From d692389ea57724bd71caadb62e0231993188d34f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 12:59:49 +0100
+Subject: [PATCH 35/83] docs: mention -V|--viewsddl in sharesec manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/sharesec.1.xml | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/sharesec.1.xml b/docs-xml/manpages/sharesec.1.xml
+index 8f29cba..f73fba2 100644
+--- a/docs-xml/manpages/sharesec.1.xml
++++ b/docs-xml/manpages/sharesec.1.xml
+@@ -32,10 +32,11 @@
+ 		<arg choice="opt">-d, --debuglevel=DEBUGLEVEL</arg>
+ 		<arg choice="opt">-s, --configfile=CONFIGFILE</arg>
+ 		<arg choice="opt">-l, --log-basename=LOGFILEBASE</arg>
+-		<arg choice="opt">-V, --version</arg>
++		<arg choice="opt">--version</arg>
+ 		<arg choice="opt">-?, --help</arg>
+ 		<arg choice="opt">--usage</arg>
+ 		<arg choice="opt">-S, --setsddl=STRING</arg>
++		<arg choice="opt">-V, --viewsddl</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -121,6 +122,13 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>-V|--viewsddl</term>
++		<listitem><para>
++		List a share acl in SDDL format.
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.help;
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+-- 
+1.8.3.1
+
+
+From ffe94e363375aa47cd72d715309f6568067482fe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 13:03:20 +0100
+Subject: [PATCH 36/83] docs: mention -p in dbwrap-tool manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/dbwrap_tool.1.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/dbwrap_tool.1.xml b/docs-xml/manpages/dbwrap_tool.1.xml
+index 07d42be..b8280ac 100644
+--- a/docs-xml/manpages/dbwrap_tool.1.xml
++++ b/docs-xml/manpages/dbwrap_tool.1.xml
+@@ -19,7 +19,7 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>dbwrap_tool</command>
+-		<arg choice="opt">--persistent</arg>
++		<arg choice="opt">-p|--persistent</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-s &lt;config file&gt;</arg>
+ 		<arg choice="opt">-l &lt;log file base&gt;</arg>
+@@ -70,7 +70,7 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-			<term>--persistent</term>
++			<term>-p|--persistent</term>
+ 			<listitem><para>Open the database as a persistent database.
+ 			If this option is not specified, the database is opened as
+ 			non-persistent.
+-- 
+1.8.3.1
+
+
+From 22fcc536a568283b0d2c8b1772399fef7bc63406 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 15:15:41 +0100
+Subject: [PATCH 37/83] docs: bring samba entity popt.common.credentials in
+ line with popt_common_credentials.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This adds documentation of the following parameters to all manpages of binaries that
+actually use popt_common_credentials:
+
+-S|--signing
+-e|--encrypt
+-P|--machinepass
+--pw-nt-hash
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/build/DTD/samba.entities | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/docs-xml/build/DTD/samba.entities b/docs-xml/build/DTD/samba.entities
+index c9c6744..8ddae70 100644
+--- a/docs-xml/build/DTD/samba.entities
++++ b/docs-xml/build/DTD/samba.entities
+@@ -464,6 +464,37 @@ Try to use the credentials cached by winbind.
+ </varlistentry>
+ '>
+ 
++<!ENTITY stdarg.signing '
++<varlistentry>
++<term>-S|--signing on|off|required</term>
++<listitem><para>Set the client signing state.
++</para></listitem>
++</varlistentry>
++'>
++
++<!ENTITY stdarg.machinepass '
++<varlistentry>
++<term>-P|--machine-pass</term>
++<listitem><para>Use stored machine account password.
++</para></listitem>
++</varlistentry>
++'>
++
++<!ENTITY stdarg.encrypt '
++<varlistentry>
++<term>-e|--encrypt</term>
++<listitem><para>Encrypt SMB transport (UNIX extended servers only).
++</para></listitem>
++</varlistentry>
++'>
++
++<!ENTITY stdarg.pwnthash '
++<varlistentry>
++<term>--pw-nt-hash</term>
++<listitem><para>The supplied password is the NT hash.
++</para></listitem>
++</varlistentry>
++'>
+ 
+ <!ENTITY stdarg.help '
+ <varlistentry>
+@@ -478,6 +509,10 @@ Try to use the credentials cached by winbind.
+ &stdarg.useccache;
+ &stdarg.authfile;
+ &stdarg.username;
++&stdarg.signing;
++&stdarg.machinepass;
++&stdarg.encrypt;
++&stdarg.pwnthash;
+ '>
+ 
+ <!-- Entities for the various programs -->
+-- 
+1.8.3.1
+
+
+From 7173604e9e20ee4826622f8f1dd3e3194ee3588f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 16:06:36 +0100
+Subject: [PATCH 38/83] docs: remove now duplicate mention for 4 credential
+ options in samba-regedit manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/samba-regedit.8.xml | 18 ------------------
+ 1 file changed, 18 deletions(-)
+
+diff --git a/docs-xml/manpages/samba-regedit.8.xml b/docs-xml/manpages/samba-regedit.8.xml
+index e7ec761..c40b2ec 100644
+--- a/docs-xml/manpages/samba-regedit.8.xml
++++ b/docs-xml/manpages/samba-regedit.8.xml
+@@ -70,25 +70,7 @@
+ 		<listitem><para>Set smb.conf option from command line.</para></listitem>
+ 		</varlistentry>
+ 		&popt.common.connection;
+-		<varlistentry>
+-		<term>-S|--signing</term>
+-		<listitem><para>Set the client signing state.</para></listitem>
+-		</varlistentry>
+-		<varlistentry>
+-		<term>-P|--machine-pass</term>
+-		<listitem><para>Use stored machine account password.</para></listitem>
+-		</varlistentry>
+ 		&popt.common.credentials;
+-		<varlistentry>
+-		<term>-e|--encrypt</term>
+-		<listitem><para>Encrypt SMB transport (UNIX extended servers only).</para>
+-		</listitem>
+-		</varlistentry>
+-		<varlistentry>
+-		<term>--pw-nt-hash</term>
+-		<listitem><para>The supplied password is the NT hash.</para>
+-		</listitem>
+-		</varlistentry>
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 8a4d846f1dca6ecbc7d9411f3e26d79a8622e5c4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 16:07:41 +0100
+Subject: [PATCH 39/83] docs: add missing &popt.common.samba entity to
+ smbcontrol manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcontrol.1.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/docs-xml/manpages/smbcontrol.1.xml b/docs-xml/manpages/smbcontrol.1.xml
+index e2c7939..be8dd0f 100644
+--- a/docs-xml/manpages/smbcontrol.1.xml
++++ b/docs-xml/manpages/smbcontrol.1.xml
+@@ -51,6 +51,7 @@
+ 	<variablelist>
+ 		&stdarg.help;
+ 		&stdarg.configfile;
++		&popt.common.samba;
+ 		<varlistentry>
+ 		<term>-i</term>
+ 		<listitem><para>Run interactively. Individual commands 
+-- 
+1.8.3.1
+
+
+From 23516cfbdde6d38fc710fd3a47fdc155e657dc47 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 16:08:10 +0100
+Subject: [PATCH 40/83] docs: add missing &popt.common.connection entity to
+ smbcacls manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index 7770fa2..e504dd7 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -178,6 +178,7 @@
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
++		&popt.common.connection;
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 743e9a847e1014e2722c650f94d99fa277d7fa9a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 16:40:36 +0100
+Subject: [PATCH 41/83] docs: remove more duplicate options from samba-regedit
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/samba-regedit.8.xml | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/docs-xml/manpages/samba-regedit.8.xml b/docs-xml/manpages/samba-regedit.8.xml
+index c40b2ec..acf8c53 100644
+--- a/docs-xml/manpages/samba-regedit.8.xml
++++ b/docs-xml/manpages/samba-regedit.8.xml
+@@ -56,19 +56,12 @@
+ 	<title>OPTIONS</title>
+ 	<variablelist>
+ 		&stdarg.help;
++		&stdarg.client.debug;
+ 		<varlistentry>
+ 		<term>--usage</term>
+ 		<listitem><para>Display brief usage message.</para></listitem>
+ 		</varlistentry>
+-		<varlistentry>
+-		<term>-d|--debuglevel=&lt;debuglevel&gt;</term>
+-		<listitem><para>Set debug level.</para></listitem>
+-		</varlistentry>
+ 		&popt.common.samba;
+-		<varlistentry>
+-		<term>--option=&lt;parameter&gt;=&lt;value&gt;</term>
+-		<listitem><para>Set smb.conf option from command line.</para></listitem>
+-		</varlistentry>
+ 		&popt.common.connection;
+ 		&popt.common.credentials;
+ 	</variablelist>
+-- 
+1.8.3.1
+
+
+From deacd68cce662d0780eaa255fd51fc4f5f5ee629 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Fri, 15 Nov 2013 16:57:52 +0100
+Subject: [PATCH 42/83] docs: add new popt.autohelp entity.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/build/DTD/samba.entities | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/docs-xml/build/DTD/samba.entities b/docs-xml/build/DTD/samba.entities
+index 8ddae70..cb683d1 100644
+--- a/docs-xml/build/DTD/samba.entities
++++ b/docs-xml/build/DTD/samba.entities
+@@ -496,13 +496,6 @@ Try to use the credentials cached by winbind.
+ </varlistentry>
+ '>
+ 
+-<!ENTITY stdarg.help '
+-<varlistentry>
+-<term>-?|--help</term>
+-<listitem><para>Print a summary of command line options.
+-</para></listitem>
+-</varlistentry>'>
+-
+ <!ENTITY popt.common.credentials '
+ &stdarg.nopass;
+ &stdarg.kerberos;
+@@ -515,6 +508,27 @@ Try to use the credentials cached by winbind.
+ &stdarg.pwnthash;
+ '>
+ 
++<!ENTITY stdarg.help '
++<varlistentry>
++<term>-?|--help</term>
++<listitem><para>Print a summary of command line options.
++</para></listitem>
++</varlistentry>
++'>
++
++<!ENTITY stdarg.usage '
++<varlistentry>
++<term>--usage</term>
++<listitem><para>Display brief usage message.
++</para></listitem>
++</varlistentry>
++'>
++
++<!ENTITY popt.autohelp '
++&stdarg.help;
++&stdarg.usage;
++'>
++
+ <!-- Entities for the various programs -->
+ <!ENTITY OL '<application>OpenLDAP</application>'>
+ <!ENTITY smbd '<application>smbd</application>'>
+-- 
+1.8.3.1
+
+
+From c71fd4a9f49bf5cf2cef7874789e95b0603bbaa4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 11:40:35 +0100
+Subject: [PATCH 43/83] docs: mention --change-sid|--new-sid in profiles
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/profiles.1.xml | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/profiles.1.xml b/docs-xml/manpages/profiles.1.xml
+index 311c8ff..83358a8 100644
+--- a/docs-xml/manpages/profiles.1.xml
++++ b/docs-xml/manpages/profiles.1.xml
+@@ -21,8 +21,8 @@
+ 	<cmdsynopsis>
+ 		<command>profiles</command>
+ 		<arg choice="opt">-v</arg>
+-		<arg choice="opt">-c SID</arg>
+-		<arg choice="opt">-n SID</arg>
++		<arg choice="opt">-c|--change-sid SID</arg>
++		<arg choice="opt">-n|--new-sid SID</arg>
+ 		<arg choice="req">file</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+@@ -58,6 +58,7 @@
+ 
+ 		<varlistentry>
+ 		<term>-c SID1 -n SID2</term>
++		<term>--change-sid SID1 --new-sid SID2</term>
+ 		<listitem><para>Change all occurrences of SID1 in <filename>file</filename> by SID2.
+ 		</para></listitem>
+ 		</varlistentry>
+-- 
+1.8.3.1
+
+
+From ca6776d341a5e98b30a9c544c91e89ad062291b3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 11:41:00 +0100
+Subject: [PATCH 44/83] docs: use popt.samba.common entity in profiles manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/profiles.1.xml | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/profiles.1.xml b/docs-xml/manpages/profiles.1.xml
+index 83358a8..c448eb5 100644
+--- a/docs-xml/manpages/profiles.1.xml
++++ b/docs-xml/manpages/profiles.1.xml
+@@ -63,8 +63,9 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.help;
+-		
++		&popt.common.samba.client;
++		&popt.autohelp;
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 1e4fb44c97eddb28aad903ddbfe0f05229f5802e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 11:44:28 +0100
+Subject: [PATCH 45/83] docs: use popt.autohelp in smbtree manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbtree.1.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbtree.1.xml b/docs-xml/manpages/smbtree.1.xml
+index b99c4b1..5e9b639 100644
+--- a/docs-xml/manpages/smbtree.1.xml
++++ b/docs-xml/manpages/smbtree.1.xml
+@@ -70,7 +70,7 @@
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+-		&stdarg.help;
++		&popt.autohelp;
+ 		
+ 	</variablelist>
+ </refsect1>
+-- 
+1.8.3.1
+
+
+From def43ad250168790fe3db868c0f688ff04f0fefa Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 11:51:55 +0100
+Subject: [PATCH 46/83] docs: mention --update and --encrypt in smbget manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbget.1.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/docs-xml/manpages/smbget.1.xml b/docs-xml/manpages/smbget.1.xml
+index b805b4c..a277712 100644
+--- a/docs-xml/manpages/smbget.1.xml
++++ b/docs-xml/manpages/smbget.1.xml
+@@ -35,6 +35,7 @@
+ 		<arg choice="opt">-v, --verbose</arg>
+ 		<arg choice="opt">-b, --blocksize</arg>
+ 		<arg choice="opt">-O, --stdout</arg>
++		<arg choice="opt">-U, --update</arg>
+ 		<arg choice="opt">-?, --help</arg>
+ 		<arg choice="opt">--usage</arg>
+ 		<arg choice="req">smb://host/share/path/to/file</arg>
+@@ -150,6 +151,14 @@
+ 		<term>--usage</term>
+ 		<listitem><para>Display brief usage message</para></listitem>
+ 	</varlistentry>
++
++	<varlistentry>
++		<term>-U, --update</term>
++		<listitem><para>Download only when remote file is newer than local file or local file is missing.</para></listitem>
++	</varlistentry>
++
++	&stdarg.encrypt;
++
+ </refsect1>
+ 
+ <refsect1>
+-- 
+1.8.3.1
+
+
+From 51fa7800d3b9f84b962d396270391a8cfd4d5a84 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 11:59:54 +0100
+Subject: [PATCH 47/83] docs: mention more long option names in smbcquotas
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcquotas.1.xml | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
+
+diff --git a/docs-xml/manpages/smbcquotas.1.xml b/docs-xml/manpages/smbcquotas.1.xml
+index 23328b4..8c76939 100644
+--- a/docs-xml/manpages/smbcquotas.1.xml
++++ b/docs-xml/manpages/smbcquotas.1.xml
+@@ -20,13 +20,13 @@
+ 	<cmdsynopsis>
+ 		<command>smbcquotas</command>
+ 		<arg choice="req">//server/share</arg>
+-		<arg choice="opt">-u user</arg>
+-		<arg choice="opt">-L</arg>
+-		<arg choice="opt">-F</arg>
+-		<arg choice="opt">-S QUOTA_SET_COMMAND</arg>
+-		<arg choice="opt">-n</arg>
+-		<arg choice="opt">-t</arg>
+-		<arg choice="opt">-v</arg>
++		<arg choice="opt">-u|--user user</arg>
++		<arg choice="opt">-L|--list</arg>
++		<arg choice="opt">-F|--fs</arg>
++		<arg choice="opt">-S|--set QUOTA_SET_COMMAND</arg>
++		<arg choice="opt">-n|--numeric</arg>
++		<arg choice="opt">-t|--test-args</arg>
++		<arg choice="opt">-v|--verbose</arg>
+ 
+ 		<arg choice="opt">-d debuglevel</arg>
+ 		<arg choice="opt">-s configfile</arg>
+@@ -60,7 +60,7 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-u user</term>
++		<term>-u|--user user</term>
+ 		<listitem><para> Specifies the user of whom the quotas are get or set.
+ 		By default the current user's username will be used.</para></listitem>
+ 		</varlistentry>
+@@ -68,51 +68,53 @@
+ 		
+ 		
+ 		<varlistentry>
+-		<term>-L</term>
++		<term>-L|--list</term>
+ 		<listitem><para>Lists all quota records of the share.</para></listitem>
+ 		</varlistentry>
+ 
+ 		
+ 		
+ 		<varlistentry>
+-		<term>-F</term>
++		<term>-F|--fs</term>
+ 		<listitem><para>Show the share quota status and default limits.</para></listitem>
+ 		</varlistentry>
+ 		
+ 		
+ 		
+ 		<varlistentry>
+-		<term>-S QUOTA_SET_COMMAND</term>
++		<term>-S|--set QUOTA_SET_COMMAND</term>
+ 		<listitem><para>This command sets/modifies quotas for a user or on the share,
+ 		depending on the QUOTA_SET_COMMAND parameter which is described later.</para></listitem>
+ 		</varlistentry>
+ 
+ 		
+ 		<varlistentry>
+-		<term>-n</term>
++		<term>-n|--numeric</term>
+ 		<listitem><para>This option displays all QUOTA information in numeric 
+ 		format.  The default is to convert SIDs to names and QUOTA limits 
+ 		to a readable string format.</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-t</term>
++		<term>-t|--test-args</term>
+ 		<listitem><para>
+ 		Don't actually do anything, only validate the correctness of the arguments.
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-v</term>
++		<term>-v|--verbose</term>
+ 		<listitem><para>
+ 		Be verbose.
+ 		</para></listitem>
+ 		</varlistentry>
+ 				
+-		&stdarg.help;
++
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
++		&popt.autohelp;
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 0a7eff9cd77516368a1b1b7578bed64c3768b0da Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:10:29 +0100
+Subject: [PATCH 48/83] docs: mention -B|--browse to smbclient manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbclient.1.xml | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbclient.1.xml b/docs-xml/manpages/smbclient.1.xml
+index b9e55e9..d5a7068 100644
+--- a/docs-xml/manpages/smbclient.1.xml
++++ b/docs-xml/manpages/smbclient.1.xml
+@@ -343,7 +343,13 @@
+ 		cannot be negotiated.
+ 		</para></listitem>
+ 		</varlistentry>
+-		
++
++		<varlistentry>
++		<term>-B|--browse</term>
++		<listitem><para>Browse SMB servers using DNS.</para>
++		</listitem>
++		</varlistentry>
++
+ 		&stdarg.client.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+-- 
+1.8.3.1
+
+
+From 5cab201a16663e9d91e4501124d6aeeaaa71e189 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:12:23 +0100
+Subject: [PATCH 49/83] docs: better document -e|--encrypt option globally.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This is taken from smbclient manpage.
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/build/DTD/samba.entities | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/docs-xml/build/DTD/samba.entities b/docs-xml/build/DTD/samba.entities
+index cb683d1..1e852ec 100644
+--- a/docs-xml/build/DTD/samba.entities
++++ b/docs-xml/build/DTD/samba.entities
+@@ -483,7 +483,14 @@ Try to use the credentials cached by winbind.
+ <!ENTITY stdarg.encrypt '
+ <varlistentry>
+ <term>-e|--encrypt</term>
+-<listitem><para>Encrypt SMB transport (UNIX extended servers only).
++<listitem><para>
++This command line parameter requires the remote
++server support the UNIX extensions or that the SMB3 protocol has been selected.
++Requests that the connection be encrypted. Negotiates SMB encryption using either
++SMB3 or POSIX extensions via GSSAPI. Uses the given credentials for
++the encryption negotiation (either kerberos or NTLMv1/v2 if given
++domain/username/password triple. Fails the connection if encryption
++cannot be negotiated.
+ </para></listitem>
+ </varlistentry>
+ '>
+-- 
+1.8.3.1
+
+
+From a2899b157f6096fd48e0c9a16a8cb7c848736ea4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:16:00 +0100
+Subject: [PATCH 50/83] docs: use popt.autohelp and remove duplicate -e option
+ from smbclient manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbclient.1.xml | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/docs-xml/manpages/smbclient.1.xml b/docs-xml/manpages/smbclient.1.xml
+index d5a7068..b4f7896 100644
+--- a/docs-xml/manpages/smbclient.1.xml
++++ b/docs-xml/manpages/smbclient.1.xml
+@@ -276,8 +276,6 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.help;
+-
+ 		<varlistentry>
+ 		<term>-I|--ip-address IP-address</term>
+ 		<listitem><para><replaceable>IP address</replaceable> is the address of the server to connect to.
+@@ -332,19 +330,6 @@
+ 		</varlistentry>
+ 		
+ 		<varlistentry>
+-		<term>-e|--encrypt</term>
+-		<listitem><para>
+-		This command line parameter requires the remote
+-		server support the UNIX extensions or that the SMB3 protocol has been selected.
+-		Requests that the connection be encrypted. Negotiates SMB encryption using either
+-		SMB3 or POSIX extensions via GSSAPI. Uses the given credentials for
+-		the encryption negotiation (either kerberos or NTLMv1/v2 if given
+-		domain/username/password triple. Fails the connection if encryption
+-		cannot be negotiated.
+-		</para></listitem>
+-		</varlistentry>
+-
+-		<varlistentry>
+ 		<term>-B|--browse</term>
+ 		<listitem><para>Browse SMB servers using DNS.</para>
+ 		</listitem>
+@@ -354,6 +339,7 @@
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+ 		&popt.common.connection;
++		&popt.autohelp;
+ 		
+ 		<varlistentry>
+ 		<term>-t|--timeout &lt;timeout-seconds&gt;</term>
+-- 
+1.8.3.1
+
+
+From 26da51a94ea329aa78e2d69fc8190954e61e0b26 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:17:36 +0100
+Subject: [PATCH 51/83] docs: remove unsupported -h option from smbcacls
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index e504dd7..71e3f50 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -31,7 +31,6 @@
+ 		<arg choice="opt">--numeric</arg>
+ 		<arg choice="opt">-t</arg>
+ 		<arg choice="opt">-U username</arg>
+-		<arg choice="opt">-h</arg>
+ 		<arg choice="opt">-d</arg>
+ 		<arg choice="opt">-e</arg>
+ 		<arg choice="opt">-m|--max-protocol LEVEL</arg>
+-- 
+1.8.3.1
+
+
+From 559073e711cad5f895707385cc355440e21513d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:18:34 +0100
+Subject: [PATCH 52/83] docs: use popt.autohelp entity in smbcacls manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index 71e3f50..3c00363 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -173,11 +173,11 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 				
+-		&stdarg.help;
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+ 		&popt.common.connection;
++		&popt.autohelp;
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 019deb1e1acedb6ec522baad85592c17f2f78268 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:21:24 +0100
+Subject: [PATCH 53/83] docs: remove duplicate -e option from smbcacls manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index 3c00363..0b8fe94 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -141,18 +141,6 @@
+ 		</varlistentry>
+ 		
+ 		<varlistentry>
+-		<term>-e</term>
+-		<listitem><para>This command line parameter requires the remote
+-		server support the UNIX extensions or that the SMB3 protocol has been selected.
+-		Requests that the connection be encrypted. Negotiates SMB encryption using either
+-		SMB3 or POSIX extensions via GSSAPI. Uses the given credentials for
+-		the encryption negotiation (either kerberos or NTLMv1/v2 if given
+-		domain/username/password triple. Fails the connection if encryption
+-		cannot be negotiated.
+-		</para></listitem>
+-		</varlistentry>
+-
+-		<varlistentry>
+ 		<term>-m|--max-protocol PROTOCOL_NAME</term>
+ 		<listitem><para>This allows the user to select the
+ 		highest SMB protocol level that smbcacls will use to
+-- 
+1.8.3.1
+
+
+From c7a4feaaf1236dce8de546b5019058efba047e31 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:25:12 +0100
+Subject: [PATCH 54/83] docs: mention --query-security-info|--set-security-info
+ in smbcacls manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index 0b8fe94..33b8dbd 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -34,6 +34,8 @@
+ 		<arg choice="opt">-d</arg>
+ 		<arg choice="opt">-e</arg>
+ 		<arg choice="opt">-m|--max-protocol LEVEL</arg>
++		<arg choice="opt">--query-security-info FLAGS</arg>
++		<arg choice="opt">--set-security-info FLAGS</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -160,7 +162,19 @@
+ 		the arguments.
+ 		</para></listitem>
+ 		</varlistentry>
+-				
++
++		<varlistentry>
++		<term>--query-security-info FLAGS</term>
++		<listitem><para>The security-info flags for queries.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--set-security-info FLAGS</term>
++		<listitem><para>The security-info flags for queries.
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+-- 
+1.8.3.1
+
+
+From 94b26e6d7b22396ad220ddd1ed359376fc151458 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:35:16 +0100
+Subject: [PATCH 55/83] docs: mention --sddl and --domain-sid in smbcacls
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcacls.1.xml | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/docs-xml/manpages/smbcacls.1.xml b/docs-xml/manpages/smbcacls.1.xml
+index 33b8dbd..1f7aaf2 100644
+--- a/docs-xml/manpages/smbcacls.1.xml
++++ b/docs-xml/manpages/smbcacls.1.xml
+@@ -36,6 +36,8 @@
+ 		<arg choice="opt">-m|--max-protocol LEVEL</arg>
+ 		<arg choice="opt">--query-security-info FLAGS</arg>
+ 		<arg choice="opt">--set-security-info FLAGS</arg>
++		<arg choice="opt">--sddl</arg>
++		<arg choice="opt">--domain-sid SID</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -175,6 +177,18 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>--sddl</term>
++		<listitem><para>Output and input acls in sddl format.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--domain-sid SID</term>
++		<listitem><para>SID used for sddl processing.
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 		&popt.common.credentials;
+-- 
+1.8.3.1
+
+
+From fb051ee29a55c6d72739bc895f05add50f2054d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:39:00 +0100
+Subject: [PATCH 56/83] docs: remove unsupported -h option and use
+ popt.autohelp entity in rpcclient manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/rpcclient.1.xml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/docs-xml/manpages/rpcclient.1.xml b/docs-xml/manpages/rpcclient.1.xml
+index 7193a90..76bcbc2 100644
+--- a/docs-xml/manpages/rpcclient.1.xml
++++ b/docs-xml/manpages/rpcclient.1.xml
+@@ -23,7 +23,6 @@
+ 		<arg choice="opt">-A authfile</arg>
+ 		<arg choice="opt">-c &lt;command string&gt;</arg>
+ 		<arg choice="opt">-d debuglevel</arg>
+-		<arg choice="opt">-h</arg>
+ 		<arg choice="opt">-l logdir</arg>
+ 		<arg choice="opt">-N</arg>
+ 		<arg choice="opt">-s &lt;smb config file&gt;</arg>
+@@ -98,7 +97,7 @@
+ 		&popt.common.samba;
+ 		&popt.common.credentials;		
+ 		&popt.common.connection;
+-		&stdarg.help;
++		&popt.autohelp;
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From db62a5841a4892dc2d45ff027cac346c0e67c5aa Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:51:42 +0100
+Subject: [PATCH 57/83] docs: document all long option names in nmblookup
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmblookup.1.xml | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
+
+diff --git a/docs-xml/manpages/nmblookup.1.xml b/docs-xml/manpages/nmblookup.1.xml
+index 12c707f..b110b28 100644
+--- a/docs-xml/manpages/nmblookup.1.xml
++++ b/docs-xml/manpages/nmblookup.1.xml
+@@ -20,19 +20,18 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>nmblookup</command>
+-		<arg choice="opt">-M</arg>
+-		<arg choice="opt">-R</arg>
+-		<arg choice="opt">-S</arg>
+-		<arg choice="opt">-r</arg>
+-		<arg choice="opt">-A</arg>
+-		<arg choice="opt">-h</arg>
+-		<arg choice="opt">-B &lt;broadcast address&gt;</arg>
+-		<arg choice="opt">-U &lt;unicast address&gt;</arg>
++		<arg choice="opt">-M|--master-browser</arg>
++		<arg choice="opt">-R|--recursion</arg>
++		<arg choice="opt">-S|--status</arg>
++		<arg choice="opt">-r|--root-port</arg>
++		<arg choice="opt">-A|--lookup-by-ip</arg>
++		<arg choice="opt">-B|--broadcast &lt;broadcast address&gt;</arg>
++		<arg choice="opt">-U|--unicast &lt;unicast address&gt;</arg>
+ 		<arg choice="opt">-d &lt;debug level&gt;</arg>
+ 		<arg choice="opt">-s &lt;smb config file&gt;</arg>
+ 		<arg choice="opt">-i &lt;NetBIOS scope&gt;</arg>
+-		<arg choice="opt">-T</arg>
+-		<arg choice="opt">-f</arg>
++		<arg choice="opt">-T|--translate</arg>
++		<arg choice="opt">-f|--flags</arg>
+ 		<arg choice="req">name</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+@@ -55,8 +54,8 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-M</term>
+-		<listitem><para>Searches for a master browser by looking 
++		<term>-M|--master-browser</term>
++		<listitem><para>Searches for a master browser by looking
+ 		up the NetBIOS <replaceable>name</replaceable> with a
+ 		type of <constant>0x1d</constant>. If <replaceable>
+ 		name</replaceable> is "-" then it does a lookup on the special name 
+@@ -67,7 +66,7 @@
+ 		</varlistentry>
+ 		
+ 		<varlistentry>
+-		<term>-R</term>
++		<term>-R|--recursion</term>
+ 		<listitem><para>Set the recursion desired bit in the packet 
+ 		to do a recursive lookup. This is used when sending a name 
+ 		query to a machine running a WINS server and the user wishes 
+@@ -78,7 +77,7 @@
+ 		</varlistentry>
+ 		
+ 		<varlistentry>
+-		<term>-S</term>
++		<term>-S|--status</term>
+ 		<listitem><para>Once the name query has returned an IP 
+ 		address then do a node status query as well. A node status 
+ 		query returns the NetBIOS names registered by a host.
+@@ -87,7 +86,7 @@
+ 
+ 
+ 		<varlistentry>
+-		<term>-r</term> 
++		<term>-r|--root-port</term>
+ 		<listitem><para>Try and bind to UDP port 137 to send and receive UDP
+ 		datagrams. The reason for this option is a bug in Windows 95 
+ 		where it ignores the source port of the requesting packet 
+@@ -100,7 +99,7 @@
+ 
+ 
+ 		<varlistentry>
+-		<term>-A</term>
++		<term>-A|--lookup-by-ip</term>
+ 		<listitem><para>Interpret <replaceable>name</replaceable> as 
+ 		an IP Address and do a node status query on this address.</para>
+ 		</listitem>
+@@ -109,10 +108,10 @@
+ 
+ 
+ 		&popt.common.connection;
+-		&stdarg.help;
++		&popt.autohelp;
+ 
+ 		<varlistentry>
+-		<term>-B &lt;broadcast address&gt;</term> 
++		<term>-B|--broadcast &lt;broadcast address&gt;</term>
+ 		<listitem><para>Send the query to the given broadcast address. Without 
+ 		this option the default behavior of nmblookup is to send the 
+ 		query to the broadcast address of the network interfaces as 
+@@ -126,7 +125,7 @@
+ 
+ 
+ 		<varlistentry>
+-		<term>-U &lt;unicast address&gt;</term>
++		<term>-U|--unicast &lt;unicast address&gt;</term>
+ 		<listitem><para>Do a unicast query to the specified address or 
+ 		host <replaceable>unicast address</replaceable>. This option 
+ 		(along with the <parameter>-R</parameter> option) is needed to 
+@@ -137,7 +136,7 @@
+ 		&popt.common.samba;
+ 
+ 		<varlistentry>
+-		<term>-T</term> 
++		<term>-T|--translate</term>
+ 		<listitem><para>This causes any IP addresses found in the 
+ 		lookup to be looked up via a reverse DNS lookup into a 
+ 		DNS name, and printed out before each</para>
+@@ -148,7 +147,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-f</term>
++		<term>-f|--flags</term>
+ 		<listitem><para>
+ 		Show which flags apply to the name that has been looked up. Possible 
+ 		answers are zero or more of: Response, Authoritative, 
+-- 
+1.8.3.1
+
+
+From f9cdbfb27325d4e84d866fdee2a7bc729c25e24e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 12:55:02 +0100
+Subject: [PATCH 58/83] docs: use popt.autohelp entity in dbwrap-tools manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/dbwrap_tool.1.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/dbwrap_tool.1.xml b/docs-xml/manpages/dbwrap_tool.1.xml
+index b8280ac..8e979f6 100644
+--- a/docs-xml/manpages/dbwrap_tool.1.xml
++++ b/docs-xml/manpages/dbwrap_tool.1.xml
+@@ -77,7 +77,7 @@
+ 			</para></listitem>
+ 		</varlistentry>
+ 		&popt.common.samba.client;
+-		&stdarg.help;
++		&popt.autohelp;
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 0674ef7c5b3551564894ee7b8810ee3c18857922 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 13:45:38 +0100
+Subject: [PATCH 59/83] docs: fix testparm manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/testparm.1.xml | 38 +++++++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 15 deletions(-)
+
+diff --git a/docs-xml/manpages/testparm.1.xml b/docs-xml/manpages/testparm.1.xml
+index b258c20..ce69dc7 100644
+--- a/docs-xml/manpages/testparm.1.xml
++++ b/docs-xml/manpages/testparm.1.xml
+@@ -20,10 +20,9 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>testparm</command>
+-		<arg choice="opt">-s</arg>
+-		<arg choice="opt">-h</arg>
+-		<arg choice="opt">-v</arg>
+-		<arg choice="opt">-t &lt;encoding&gt;</arg>
++		<arg choice="opt">-s|--suppress-prompt</arg>
++		<arg choice="opt">--help</arg>
++		<arg choice="opt">-v|--verbose</arg>
+ 		<arg choice="req">config filename</arg>
+ 		<arg choice="opt">hostname hostIP</arg>
+ 	</cmdsynopsis>
+@@ -63,17 +62,19 @@
+ 
+ 	<variablelist>
+ 		<varlistentry>
+-		<term>-s</term>
++		<term>-s|--suppress-prompt</term>
+ 		<listitem><para>Without this option, <command>testparm</command> 
+ 		will prompt for a carriage return after printing the service 
+ 		names and before dumping the service definitions.</para></listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.help;
+ 		&stdarg.version;
+-		
++		&stdarg.option;
++		&popt.autohelp;
++		&stdarg.client.debug;
++
+ 		<varlistentry>
+-		<term>-v</term>
++		<term>-v|--verbose</term>
+ 		<listitem><para>If this option is specified, testparm 
+ 		will also output all options that were not used in <citerefentry>
+ 		<refentrytitle>smb.conf</refentrytitle><manvolnum>5</manvolnum>
+@@ -81,13 +82,6 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-t encoding</term>
+-		<listitem><para>
+-		Output data in specified encoding.
+-		</para></listitem>
+-		</varlistentry>
+-
+-		<varlistentry>
+ 		<term>--parameter-name parametername</term>
+ 		<listitem><para>
+ 		Dumps the named parameter.  If no section-name is set the view
+@@ -107,6 +101,20 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
++		<term>--show-all-parameters</term>
++		<listitem><para>
++				Show the parameters, type, possible values.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-l|--skip-logic-checks</term>
++		<listitem><para>
++				Skip the global checks.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
+ 		<term>configfilename</term>
+ 		<listitem><para>This is the name of the configuration file 
+ 		to check. If this parameter is not present then the 
+-- 
+1.8.3.1
+
+
+From a0d8cb8f536620a6dbf1fab0093c715c9efaba65 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 13:46:06 +0100
+Subject: [PATCH 60/83] docs: use &popt.autohelp entity in pdbedit manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/pdbedit.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/pdbedit.8.xml b/docs-xml/manpages/pdbedit.8.xml
+index 5bb12c4..c59a1cf6 100644
+--- a/docs-xml/manpages/pdbedit.8.xml
++++ b/docs-xml/manpages/pdbedit.8.xml
+@@ -503,7 +503,7 @@ account policy value for bad lockout attempt is now 3
+ 		</listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.help;
++		&popt.autohelp;
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+ 
+-- 
+1.8.3.1
+
+
+From 91d25302b92e01fdba3fa4bc22fea9a8381ae19e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 13:52:59 +0100
+Subject: [PATCH 61/83] docs: fix smbcontrol manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbcontrol.1.xml | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/docs-xml/manpages/smbcontrol.1.xml b/docs-xml/manpages/smbcontrol.1.xml
+index be8dd0f..234e02d 100644
+--- a/docs-xml/manpages/smbcontrol.1.xml
++++ b/docs-xml/manpages/smbcontrol.1.xml
+@@ -19,8 +19,8 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>smbcontrol</command>
+-		<arg>-i</arg>
+ 		<arg>-s</arg>
++		<arg>-t|--timeout</arg>
+ 	</cmdsynopsis>
+ 	
+ 	<cmdsynopsis>
+@@ -49,15 +49,14 @@
+ 	<title>OPTIONS</title>
+ 
+ 	<variablelist>
+-		&stdarg.help;
++		&popt.autohelp;
+ 		&stdarg.configfile;
+-		&popt.common.samba;
++		&popt.common.samba.client;
+ 		<varlistentry>
+-		<term>-i</term>
+-		<listitem><para>Run interactively. Individual commands 
+-		of the form destination message-type parameters can be entered 
+-		on STDIN. An empty command line or a "q" will quit the 
+-		program.</para></listitem>
++		<term>-t|--timeout</term>
++		<listitem><para>
++				Set timeout to seconds.
++		</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-- 
+1.8.3.1
+
+
+From 177c2c9c0ffe1ee434afc9d22d4bba12ae55d312 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 14:45:51 +0100
+Subject: [PATCH 62/83] docs: fix ntlm_auth manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/ntlm_auth.1.xml | 42 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 35 insertions(+), 7 deletions(-)
+
+diff --git a/docs-xml/manpages/ntlm_auth.1.xml b/docs-xml/manpages/ntlm_auth.1.xml
+index 4ada951..4ce57a2 100644
+--- a/docs-xml/manpages/ntlm_auth.1.xml
++++ b/docs-xml/manpages/ntlm_auth.1.xml
+@@ -19,9 +19,6 @@
+ <refsynopsisdiv>
+ 	<cmdsynopsis>
+ 		<command>ntlm_auth</command>
+-		<arg choice="opt">-d debuglevel</arg>
+-		<arg choice="opt">-l logdir</arg>
+-		<arg choice="opt">-s &lt;smb config file&gt;</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -363,10 +360,41 @@
+ 	    </listitem>
+ 	</varlistentry>
+ 
+-	  &stdarg.server.debug;
+-	  &popt.common.samba;
+-	  &stdarg.help;
+-	
++	<varlistentry>
++	<term>--pam-winbind-conf=FILENAME</term>
++	<listitem><para>Define the path to the pam_winbind.conf file.</para></listitem>
++	</varlistentry>
++
++	<varlistentry>
++	<term>--target-hostname=HOSTNAME</term>
++	<listitem><para>Define the target hostname.</para></listitem>
++	</varlistentry>
++
++	<varlistentry>
++	<term>--target-service=SERVICE</term>
++	<listitem><para>Define the target service.</para></listitem>
++	</varlistentry>
++
++	<varlistentry>
++	<term>--use-cached-creds</term>
++	<listitem><para>Whether to use credentials cached by winbindd.</para></listitem>
++	</varlistentry>
++
++	<varlistentry>
++	<term>--configfile=&lt;configuration file&gt;</term>
++	<listitem><para>The file specified contains the
++	configuration details required by the server.  The
++	information in this file includes server-specific
++	information such as what printcap file to use, as well
++	as descriptions of all the services that the server is
++	to provide. See &smb.conf; for more information.
++	The default configuration file name is determined at
++	compile time.</para></listitem>
++	</varlistentry>
++
++	&stdarg.version;
++	&popt.autohelp;
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From b04375e725edfd419fa65c96d524b9fb351d5efc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 15:52:35 +0100
+Subject: [PATCH 63/83] docs: use popt.autohelp entity in nmbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/nmbd.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/nmbd.8.xml b/docs-xml/manpages/nmbd.8.xml
+index b7ead70..d83fb8f 100644
+--- a/docs-xml/manpages/nmbd.8.xml
++++ b/docs-xml/manpages/nmbd.8.xml
+@@ -123,7 +123,7 @@
+ 		given. </para></listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.help;
++		&popt.autohelp;
+ 		
+ 		<varlistentry>
+ 		<term>-H|--hosts &lt;filename&gt;</term>
+-- 
+1.8.3.1
+
+
+From 25eace39266edcac85c7d65a68dfbb632453b6f6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 15:53:08 +0100
+Subject: [PATCH 64/83] docs: use popt.autohelp entity in winbindd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/winbindd.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/winbindd.8.xml b/docs-xml/manpages/winbindd.8.xml
+index fd644c3..c16c998 100644
+--- a/docs-xml/manpages/winbindd.8.xml
++++ b/docs-xml/manpages/winbindd.8.xml
+@@ -169,7 +169,7 @@ hosts:		files wins
+ 
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+-		&stdarg.help;
++		&popt.autohelp;
+ 
+ 		<varlistentry>
+ 		<term>-i|--interactive</term>
+-- 
+1.8.3.1
+
+
+From b649d631793bdd83ff1f3935a45f1617c1a4c3e8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 15:53:29 +0100
+Subject: [PATCH 65/83] docs: use popt.autohelp entity in smbd manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/smbd.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/smbd.8.xml b/docs-xml/manpages/smbd.8.xml
+index d73f1db..00e65b3 100644
+--- a/docs-xml/manpages/smbd.8.xml
++++ b/docs-xml/manpages/smbd.8.xml
+@@ -128,7 +128,7 @@
+ 		
+ 		&stdarg.server.debug;
+ 		&popt.common.samba;
+-		&stdarg.help;
++		&popt.autohelp;
+ 
+ 		<varlistentry>
+ 		<term>--no-process-group</term>
+-- 
+1.8.3.1
+
+
+From 0815f114fbe99144061dc1c8c326fb0ee71f4a76 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 15:53:49 +0100
+Subject: [PATCH 66/83] docs: use popt.autohelp entity in samba.8 manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/samba.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/samba.8.xml b/docs-xml/manpages/samba.8.xml
+index 2b53944..da426bb 100644
+--- a/docs-xml/manpages/samba.8.xml
++++ b/docs-xml/manpages/samba.8.xml
+@@ -148,7 +148,7 @@
+ 		</varlistentry>
+ 
+ 		&popt.common.samba.server;
+-		&stdarg.help;
++		&popt.autohelp;
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 0b24a4236c2b865a0cf318fcabb3ce64b93d9409 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 16:00:39 +0100
+Subject: [PATCH 67/83] docs: mention more options in net manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 86 +++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 68 insertions(+), 18 deletions(-)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index 5fa042e..ccc993b 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -22,20 +22,25 @@
+ 	<cmdsynopsis>
+ 		<command>net</command>
+ 		<arg choice="req">&lt;ads|rap|rpc&gt;</arg>
+-		<arg choice="opt">-h</arg>
+-		<arg choice="opt">-w workgroup</arg>
+-		<arg choice="opt">-W myworkgroup</arg>
+-		<arg choice="opt">-U user</arg>
+-		<arg choice="opt">-I ip-address</arg>
+-		<arg choice="opt">-p port</arg>
++		<arg choice="opt">-h|--help</arg>
++		<arg choice="opt">-w|--workgroup workgroup</arg>
++		<arg choice="opt">-W|--myworkgroup myworkgroup</arg>
++		<arg choice="opt">-U|--user user</arg>
++		<arg choice="opt">-I|--ipaddress ip-address</arg>
++		<arg choice="opt">-p|--port port</arg>
+ 		<arg choice="opt">-n myname</arg>
+ 		<arg choice="opt">-s conffile</arg>
+-		<arg choice="opt">-S server</arg>
+-		<arg choice="opt">-l</arg>
+-		<arg choice="opt">-P</arg>
++		<arg choice="opt">-S|--server server</arg>
++		<arg choice="opt">-l|--long</arg>
++		<arg choice="opt">-v|--verbose</arg>
++		<arg choice="opt">-f|--force</arg>
++		<arg choice="opt">-P|--machine-pass</arg>
+ 		<arg choice="opt">-d debuglevel</arg>
+ 		<arg choice="opt">-V</arg>
+ 		<arg choice="opt">--request-timeout seconds</arg>
++		<arg choice="opt">-t|--timeout seconds</arg>
++		<arg choice="opt">-i|--stdin</arg>
++		<arg choice="opt">--tallocreport</arg>
+ 	</cmdsynopsis>
+ </refsynopsisdiv>
+ 
+@@ -64,7 +69,7 @@
+ 		&stdarg.kerberos;
+ 		
+ 		<varlistentry>
+-		<term>-w target-workgroup</term>
++		<term>-w|--workgroup target-workgroup</term>
+ 		<listitem><para>
+ 		Sets target workgroup or domain. You have to specify 
+ 		either this option or the IP address or the name of a server.
+@@ -72,21 +77,21 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-W workgroup</term>
++		<term>-W|--myworkgroup workgroup</term>
+ 		<listitem><para>
+ 		Sets client workgroup or domain
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-U user</term>
++		<term>-U|--user user</term>
+ 		<listitem><para>
+ 		User name to use
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-I ip-address</term>
++		<term>-I|--ipaddress ip-address</term>
+ 		<listitem><para>
+ 		IP address of target server to use. You have to
+ 		specify either this option or a target workgroup or
+@@ -95,7 +100,7 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-p port</term>
++		<term>-p|--port port</term>
+ 		<listitem><para>
+ 		Port on the target server to connect to (usually 139 or 445). 
+ 		Defaults to trying 445 first, then 139.
+@@ -106,7 +111,7 @@
+ 		&stdarg.configfile;
+ 
+ 		<varlistentry>
+-		<term>-S server</term>
++		<term>-S|--server server</term>
+ 		<listitem><para>
+ 		Name of target server. You should specify either 
+ 		this option or a target workgroup or a target IP address.
+@@ -114,14 +119,28 @@
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-l</term>
++		<term>-l|--long</term>
+ 		<listitem><para>
+ 		When listing data, give more information on each item.
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+ 		<varlistentry>
+-		<term>-P</term>
++		<term>-v|--verbose</term>
++		<listitem><para>
++		When listing data, give more verbose information on each item.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-f|--force</term>
++		<listitem><para>
++				Enforcing a net command.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-P|--machine-pass</term>
+ 		<listitem><para>
+ 		Make queries to the external server using the machine account of the local server.
+ 		</para></listitem>
+@@ -135,7 +154,38 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
+-		&stdarg.server.debug;
++		<varlistentry>
++		<term>-t|--timeout 30</term>
++		<listitem><para>
++				Set timeout for client operations to 30 seconds.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--use-ccache</term>
++		<listitem><para>
++		Try to use the credentials cached by winbind.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-i|--stdin</term>
++		<listitem><para>
++				Take input for net commands from standard input.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--tallocreport</term>
++		<listitem><para>
++				Generate a talloc report while processing a net
++				command.
++		</para></listitem>
++		</varlistentry>
++
++		&stdarg.encrypt;
++		&popt.common.samba.client;
++
+ 	</variablelist>
+ </refsect1>
+ 
+-- 
+1.8.3.1
+
+
+From 7c8dcc5e0f61577becf1954b6abfb72e4689eab2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 16:08:19 +0100
+Subject: [PATCH 68/83] docs: add net rpc vampire specific options in net
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index ccc993b..c9802f8 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -183,6 +183,32 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net rpc vampire -->
++
++		<varlistentry>
++		<term>--force-full-repl</term>
++		<listitem><para>
++				When calling "net rpc vampire keytab" this option
++				enforces a full re-creation of the generated keytab file.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--single-obj-repl</term>
++		<listitem><para>
++				When calling "net rpc vampire keytab" this option
++				allows to replicate just a single object to the generated keytab file.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--clean-old-entries</term>
++		<listitem><para>
++				When calling "net rpc vampire keytab" this option
++				allows to cleanup old entries from the generated keytab file.
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From f1e03c2bc1bb34d1918b232035c25cc9e0e6811d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 16:17:32 +0100
+Subject: [PATCH 69/83] docs: add net idmap specific options in net manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index c9802f8..5cc623f9 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -209,6 +209,32 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net idmap -->
++
++		<varlistentry>
++		<term>--db</term>
++		<listitem><para>Define dbfile for "net idmap" commands.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--lock</term>
++		<listitem><para>Activates locking of the dbfile for "net idmap check" command.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-a|--auto</term>
++		<listitem><para>Activates noninteractive mode in "net idmap check".
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--repair</term>
++		<listitem><para>Activates repair mode in "net idmap check".
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From e73493c64af9f76fa41b56c154ea973619e97cb0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 16:22:52 +0100
+Subject: [PATCH 70/83] docs: add net rpc share migrate specific options in net
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index 5cc623f9..6fba00b 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -235,6 +235,38 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net rpc share migrate -->
++
++		<varlistentry>
++		<term>--acls</term>
++		<listitem><para>Includes ACLs to be copied in "net rpc share migrate".
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--attrs</term>
++		<listitem><para>Includes file attributes to be copied in "net rpc share migrate".
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--timestamps</term>
++		<listitem><para>Includes timestamps to be copied in "net rpc share migrate".
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-X|--exclude DIRECTORY</term>
++		<listitem><para>Allows to exclude directories when copying with "net rpc share migrate".
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--destination SERVERNAME</term>
++		<listitem><para>Defines the target servername of migration process (defaults to localhost).
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From cb90d1eb8f1ea0fd23f7af4aa1a21447d4772a1e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 16:28:10 +0100
+Subject: [PATCH 71/83] docs: add net groupmap set specific options in net
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index 6fba00b..fd13f43 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -267,6 +267,36 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net groupmap set -->
++
++		<varlistentry>
++		<term>-L|--local</term>
++		<listitem><para>Sets the type of group mapping to local
++				(used in "net groupmap set").
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-D|--domain</term>
++		<listitem><para>Sets the type of group mapping to domain
++				(used in "net groupmap set").
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-N|--ntname NTNAME</term>
++		<listitem><para>Sets the ntname of a group mapping
++				(used in "net groupmap set").
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-R|--rid RID</term>
++		<listitem><para>Sets the rid of a group mapping
++				(used in "net groupmap set").
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From 57269672d1b52c5a1318619f5b6ccdfb757c161f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 17:11:31 +0100
+Subject: [PATCH 72/83] docs: add net rpc registry check specific options in
+ net manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index fd13f43..4d43625 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -297,6 +297,29 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net registry check -->
++
++		<varlistentry>
++		<term>--reg-version REG_VERSION</term>
++		<listitem><para>Assume database version {n|1,2,3}
++				(used in "net registry check").
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-o|--output FILENAME</term>
++		<listitem><para>Output database file
++				(used in "net registry check").
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>--wipe</term>
++		<listitem><para>Createa a new database from scratch
++				(used in "net registry check").
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From 49ab592097a235d31355bf4e58d2957ee56c5a3c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 17:15:57 +0100
+Subject: [PATCH 73/83] docs: add net registry import specific options in net
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/net.8.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index 4d43625..ce976b4 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -320,6 +320,15 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<!-- Options for net registry import -->
++
++		<varlistentry>
++		<term>--precheck PRECHECK_DB_FILENAME</term>
++		<listitem><para>Defines filename for database prechecking
++				(used in "net registry import").
++		</para></listitem>
++		</varlistentry>
++
+ 		&stdarg.encrypt;
+ 		&popt.common.samba.client;
+ 
+-- 
+1.8.3.1
+
+
+From 19d1a7abcf5ceaf2577952b90ca77eb776bc95d2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 18 Nov 2013 17:26:28 +0100
+Subject: [PATCH 74/83] docs: document remaining undocumented options in net
+ manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+
+Autobuild-User(master): Andreas Schneider <asn@cryptomilk.org>
+Autobuild-Date(master): Tue Nov 19 12:05:56 CET 2013 on sn-devel-104
+---
+ docs-xml/manpages/net.8.xml | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+
+diff --git a/docs-xml/manpages/net.8.xml b/docs-xml/manpages/net.8.xml
+index ce976b4..49cab42 100644
+--- a/docs-xml/manpages/net.8.xml
++++ b/docs-xml/manpages/net.8.xml
+@@ -183,6 +183,48 @@
+ 		</para></listitem>
+ 		</varlistentry>
+ 
++		<varlistentry>
++		<term>-T|--test</term>
++		<listitem><para>Only test command sequence, dry-run.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-F|--flags FLAGS</term>
++		<listitem><para>Pass down integer flags to a net subcommand.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-C|--comment COMMENT</term>
++		<listitem><para>Pass down a comment string to a net subcommand.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-n|--myname MYNAME</term>
++		<listitem><para>Use MYNAME as a requester name for a net subcommand.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-c|--container CONTAINER</term>
++		<listitem><para>Use a specific AD container for net ads operations.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-M|--maxusers MAXUSERS</term>
++		<listitem><para>Fill in the maxusers field in net rpc share operations.
++		</para></listitem>
++		</varlistentry>
++
++		<varlistentry>
++		<term>-r|--reboot</term>
++		<listitem><para>Reboot a remote machine after a command has been successfully executed (e.g. in remote join operations).
++		</para></listitem>
++		</varlistentry>
++
+ 		<!-- Options for net rpc vampire -->
+ 
+ 		<varlistentry>
+-- 
+1.8.3.1
+
+
+From 7a587e715ae413ce0f44be4c6f63a9e30fe697e5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:14:45 +0100
+Subject: [PATCH 75/83] docs: remove duplicate "a" from vfs_cacheprime manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/manpages/vfs_cacheprime.8.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/manpages/vfs_cacheprime.8.xml b/docs-xml/manpages/vfs_cacheprime.8.xml
+index b490ba6..b92a6c1 100644
+--- a/docs-xml/manpages/vfs_cacheprime.8.xml
++++ b/docs-xml/manpages/vfs_cacheprime.8.xml
+@@ -84,7 +84,7 @@
+ 
+ <refsect1>
+ 	<title>CAVEATS</title>
+-	<para><command>cacheprime</command> is not a a substitute for
++	<para><command>cacheprime</command> is not a substitute for
+ 	a general-purpose readahead mechanism. It is intended for use
+ 	only in very specific environments where disk operations must
+ 	be aligned and sized to known values (as much as that is possible).
+-- 
+1.8.3.1
+
+
+From b55b56351d71bb4a4517d857959c7c9d9d2b768c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:17:19 +0100
+Subject: [PATCH 76/83] docs: remove duplicate "the" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/misc/directorynamecachesize.xml | 2 +-
+ docs-xml/smbdotconf/protocol/ntaclsupport.xml       | 2 +-
+ docs-xml/smbdotconf/winbind/idmapconfig.xml         | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/docs-xml/smbdotconf/misc/directorynamecachesize.xml b/docs-xml/smbdotconf/misc/directorynamecachesize.xml
+index 1064b7e..d02c4f5 100644
+--- a/docs-xml/smbdotconf/misc/directorynamecachesize.xml
++++ b/docs-xml/smbdotconf/misc/directorynamecachesize.xml
+@@ -5,7 +5,7 @@
+ 		 xmlns:samba="http://www.samba.org/samba/DTD/samba-doc">
+ <description>
+ 	<para>
+-	This parameter specifies the the size of the directory name cache.
++	This parameter specifies the size of the directory name cache.
+ 	It will be needed to turn this off for *BSD systems.
+ 	</para>
+ 
+diff --git a/docs-xml/smbdotconf/protocol/ntaclsupport.xml b/docs-xml/smbdotconf/protocol/ntaclsupport.xml
+index 1e9cedf..451d5d8 100644
+--- a/docs-xml/smbdotconf/protocol/ntaclsupport.xml
++++ b/docs-xml/smbdotconf/protocol/ntaclsupport.xml
+@@ -7,7 +7,7 @@
+     <para>This boolean parameter controls whether <citerefentry><refentrytitle>smbd</refentrytitle>                                       
+     <manvolnum>8</manvolnum></citerefentry> will attempt to map 
+     UNIX permissions into Windows NT access control lists.  The UNIX
+-    permissions considered are the the traditional UNIX owner and
++    permissions considered are the traditional UNIX owner and
+     group permissions, as well as POSIX ACLs set on any files or
+     directories.  This parameter was formally a global parameter in
+     releases prior to 2.2.2.</para>
+diff --git a/docs-xml/smbdotconf/winbind/idmapconfig.xml b/docs-xml/smbdotconf/winbind/idmapconfig.xml
+index 5d3605a..30925a2 100644
+--- a/docs-xml/smbdotconf/winbind/idmapconfig.xml
++++ b/docs-xml/smbdotconf/winbind/idmapconfig.xml
+@@ -17,7 +17,7 @@
+ 
+ 	<para>
+ 	The idmap configuration is hence divided into groups, one group
+-	for each domain to be configured, and one group with the the
++	for each domain to be configured, and one group with the
+ 	asterisk instead of a proper domain name, which specifies the
+ 	default configuration that is used to catch all domains that do
+ 	not have an explicit idmap configuration of their own.
+-- 
+1.8.3.1
+
+
+From 25577278211f82a353477c48ea1381cdd16b3b63 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:18:57 +0100
+Subject: [PATCH 77/83] docs: remove duplicate "to" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/misc/rpcserver.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/misc/rpcserver.xml b/docs-xml/smbdotconf/misc/rpcserver.xml
+index 4372eea..9a22939 100644
+--- a/docs-xml/smbdotconf/misc/rpcserver.xml
++++ b/docs-xml/smbdotconf/misc/rpcserver.xml
+@@ -59,7 +59,7 @@
+ 		Currently in Samba3 we support three daemons, spoolssd, epmd and
+ 		lsasd. These daemons can be enabled using the
+ 		<emphasis>rpc_daemon</emphasis> option. For spoolssd you have
+-		to to enable the daemon and proxy the named pipe with:
++		to enable the daemon and proxy the named pipe with:
+ 	</para>
+ 
+ 	<para>
+-- 
+1.8.3.1
+
+
+From ced12107e0af429af088cd63b86c8b8b21e83a1a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:20:12 +0100
+Subject: [PATCH 78/83] docs: remove duplicate "not" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/protocol/aclallowexecutealways.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/protocol/aclallowexecutealways.xml b/docs-xml/smbdotconf/protocol/aclallowexecutealways.xml
+index 49d2c48..0c9588e 100644
+--- a/docs-xml/smbdotconf/protocol/aclallowexecutealways.xml
++++ b/docs-xml/smbdotconf/protocol/aclallowexecutealways.xml
+@@ -17,7 +17,7 @@
+     If this parameter is set to "True", Samba does not check execute permissions on
+     "open for execution", thus re-establishing the behaviour of Samba 3.6.
+     This can be useful to smoothen upgrades from older Samba versions to 4.0 and newer.
+-    This setting is not not meant to be used as a permanent setting, but as a temporary relief:
++    This setting is not meant to be used as a permanent setting, but as a temporary relief:
+     It is recommended to fix the permissions in the ACLs and reset this parameter to the
+     default after a certain transition period.
+     </para>
+-- 
+1.8.3.1
+
+
+From 59a240513c7d48afb337b102466c539af3f880f3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:33:33 +0100
+Subject: [PATCH 79/83] docs: remove duplicate "or" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/misc/fakedirectorycreatetimes.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/misc/fakedirectorycreatetimes.xml b/docs-xml/smbdotconf/misc/fakedirectorycreatetimes.xml
+index 974b6f0..54e7b87 100644
+--- a/docs-xml/smbdotconf/misc/fakedirectorycreatetimes.xml
++++ b/docs-xml/smbdotconf/misc/fakedirectorycreatetimes.xml
+@@ -20,7 +20,7 @@
+ 	timestamp than the object files it contains.</para>
+ 
+ 	<para>However, Unix time semantics mean that the create time 
+-	reported by Samba will be updated whenever a file is created or 
++	reported by Samba will be updated whenever a file is created
+ 	or deleted in the directory.  NMAKE finds all object files in 
+ 	the object directory.  The timestamp of the last one built is then 
+ 	compared to the timestamp of the object directory.  If the 
+-- 
+1.8.3.1
+
+
+From 0cf92d476feabb870f67061d38d1027ebc59a852 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:34:05 +0100
+Subject: [PATCH 80/83] docs: remove duplicate "on" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/security/aclgroupcontrol.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/security/aclgroupcontrol.xml b/docs-xml/smbdotconf/security/aclgroupcontrol.xml
+index e62216a..279a57b 100644
+--- a/docs-xml/smbdotconf/security/aclgroupcontrol.xml
++++ b/docs-xml/smbdotconf/security/aclgroupcontrol.xml
+@@ -24,7 +24,7 @@
+ 
+ 	<para>
+ 	This parameter is best used with the <smbconfoption name="inherit owner"/> option and also
+-	on on a share containing directories with the UNIX <emphasis>setgid bit</emphasis> set
++	on a share containing directories with the UNIX <emphasis>setgid bit</emphasis> set
+ 	on them, which causes new files and directories created within it to inherit the group
+ 	ownership from the containing directory. 
+ 	</para>
+-- 
+1.8.3.1
+
+
+From 8d1ff1d73f43d0fd4c2290496389c006afb2de93 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:34:33 +0100
+Subject: [PATCH 81/83] docs: remove duplicate "must" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/security/smbencrypt.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/security/smbencrypt.xml b/docs-xml/smbdotconf/security/smbencrypt.xml
+index d556166..51079ae 100644
+--- a/docs-xml/smbdotconf/security/smbencrypt.xml
++++ b/docs-xml/smbdotconf/security/smbencrypt.xml
+@@ -21,7 +21,7 @@
+     and <emphasis>disabled</emphasis>. This may be set on a per-share
+     basis, but clients may chose to encrypt the entire session, not
+     just traffic to a specific share. If this is set to mandatory
+-    then all traffic to a share <emphasis>must</emphasis> must
++    then all traffic to a share <emphasis>must</emphasis>
+     be encrypted once the connection has been made to the share.
+     The server would return "access denied" to all non-encrypted
+     requests on such a share. Selecting encrypted traffic reduces
+-- 
+1.8.3.1
+
+
+From 344c59f99996d4e6a23c2cc914377536ea7e9eee Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:34:54 +0100
+Subject: [PATCH 82/83] docs: remove duplicate "line" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ docs-xml/smbdotconf/security/usernamemapscript.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/security/usernamemapscript.xml b/docs-xml/smbdotconf/security/usernamemapscript.xml
+index 6df134c..9e2e1a5 100644
+--- a/docs-xml/smbdotconf/security/usernamemapscript.xml
++++ b/docs-xml/smbdotconf/security/usernamemapscript.xml
+@@ -8,7 +8,7 @@
+ 	<smbconfoption name="username map"/> parameter.  This parameter 
+ 	specifies and external program or script that must accept a single 
+ 	command line option (the username transmitted in the authentication
+-	request) and return a line line on standard output (the name to which 
++	request) and return a line on standard output (the name to which
+ 	the account should mapped).  In this way, it is possible to store
+ 	username map tables in an LDAP or NIS directory services.
+ 	</para>
+-- 
+1.8.3.1
+
+
+From c0bdd8011cc14a03bbddb7ad894219c649a609d9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Tue, 19 Nov 2013 12:36:53 +0100
+Subject: [PATCH 83/83] docs: remove duplicate "used" from smb.conf manpage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+Signed-off-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+
+Autobuild-User(master): Andreas Schneider <asn@cryptomilk.org>
+Autobuild-Date(master): Tue Nov 19 14:40:40 CET 2013 on sn-devel-104
+---
+ docs-xml/smbdotconf/filename/manglingmethod.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs-xml/smbdotconf/filename/manglingmethod.xml b/docs-xml/smbdotconf/filename/manglingmethod.xml
+index f6e2eda..347dc56 100644
+--- a/docs-xml/smbdotconf/filename/manglingmethod.xml
++++ b/docs-xml/smbdotconf/filename/manglingmethod.xml
+@@ -6,7 +6,7 @@
+ <description>
+ 	<para> controls the algorithm used for the generating
+ 	the mangled names. Can take two different values, &quot;hash&quot; and
+-	&quot;hash2&quot;. &quot;hash&quot; is the algorithm that was used
++	&quot;hash2&quot;. &quot;hash&quot; is the algorithm that was
+ 	used in Samba for many years and was the default in Samba 2.2.x &quot;hash2&quot; is
+         now the default and is newer and considered a better algorithm (generates less collisions) in
+         the names. Many Win32 applications store the mangled names and so
+-- 
+1.8.3.1
+
