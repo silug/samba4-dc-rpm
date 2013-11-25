@@ -1543,7 +1543,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
-* Mon Nov 25 2013 - Andreas Schneider <asn@redhat.com>
+* Mon Nov 25 2013 - Andreas Schneider <asn@redhat.com> - 4.1.2-1
 - Update to Samba 4.1.2.
 
 * Mon Nov 18 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.1-3
