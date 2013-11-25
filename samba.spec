@@ -1,9 +1,9 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.1.1
+%define samba_version 4.1.2
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -85,10 +85,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0: samba-4.1.1-Fix-memset-in-ntdb.patch
-Patch1: samba-4.1.0-upn.patch
-Patch2: samba-4.1.2-fix_strict_aliasing.patch
-Patch3: samba-4.1.2-doc.patch
+Patch0: samba-4.1.0-upn.patch
+Patch1: samba-4.1.2-doc.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -491,10 +489,8 @@ module necessary to communicate to the Winbind Daemon
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.1.1-Fix-memset-in-ntdb.patch
-%patch1 -p1 -b .samba-4.1.0-upn.patch
-%patch2 -p1 -b .samba-4.1.2-fix_strict_aliasing.patch
-%patch3 -p1 -b .samba-4.1.2-doc.patch
+%patch0 -p1 -b .samba-4.1.0-upn.patch
+%patch1 -p1 -b .samba-4.1.2-doc.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -553,6 +549,7 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --with-shared-modules=%{_samba4_modules} \
         --bundled-libraries=%{_samba4_libraries} \
         --with-pam \
+        --without-fam \
 %if (! %with_libsmbclient) || (! %with_libwbclient)
         --private-libraries=%{_samba4_private_libraries} \
 %endif
@@ -1546,6 +1543,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Nov 25 2013 - Andreas Schneider <asn@redhat.com>
+- Update to Samba 4.1.2.
+
 * Mon Nov 18 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.1-3
 - resolves: #948509 - Fix manpage correctness.
 
