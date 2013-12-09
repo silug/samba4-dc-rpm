@@ -3,7 +3,7 @@
 
 %define main_release 1
 
-%define samba_version 4.1.2
+%define samba_version 4.1.3
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -1543,6 +1543,11 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Dec 09 2013 - Andreas Schneider <asn@redhat.com> - 4.1.3-1
+- Update to Samba 4.1.3.
+- resolves: #1039454 - CVE-2013-4408.
+- resolves: #1039500 - CVE-2012-6150.
+
 * Mon Nov 25 2013 - Andreas Schneider <asn@redhat.com> - 4.1.2-1
 - Update to Samba 4.1.2.
 
