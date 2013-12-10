@@ -1,0 +1,37 @@
+From 967f9bd1f8a147c4b89ada3b6c7e1ce064c511bc Mon Sep 17 00:00:00 2001
+From: Jan Brummer <jan.brummer@tabos.org>
+Date: Mon, 9 Dec 2013 15:22:29 +0100
+Subject: [PATCH] s3-winbindd: Fix DEBUG statement in winbind_msg_offline().
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Guenther
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=10285
+
+Reviewed-by: Günther Deschner <gd@samba.org>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+
+Autobuild-User(master): Günther Deschner <gd@samba.org>
+Autobuild-Date(master): Mon Dec  9 17:28:37 CET 2013 on sn-devel-104
+---
+ source3/winbindd/winbindd_dual.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/winbindd/winbindd_dual.c b/source3/winbindd/winbindd_dual.c
+index 972924c..64af571 100644
+--- a/source3/winbindd/winbindd_dual.c
++++ b/source3/winbindd/winbindd_dual.c
+@@ -626,7 +626,7 @@ void winbind_msg_offline(struct messaging_context *msg_ctx,
+ 		   we only set it online / offline for that domain. */
+ 
+ 		DEBUG(10,("winbind_msg_offline: sending message to pid %u for domain %s.\n",
+-			(unsigned int)child->pid, domain->name ));
++			(unsigned int)child->pid, child->domain->name ));
+ 
+ 		messaging_send_buf(msg_ctx, pid_to_procid(child->pid),
+ 				   MSG_WINBIND_OFFLINE,
+-- 
+1.8.3.1
+

@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.1.3
 %define talloc_version 2.0.8
@@ -87,6 +87,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.1.0-upn.patch
 Patch1: samba-4.1.2-doc.patch
+Patch2: samba-4.1.3-winbind_debug.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -491,6 +492,7 @@ module necessary to communicate to the Winbind Daemon
 
 %patch0 -p1 -b .samba-4.1.0-upn.patch
 %patch1 -p1 -b .samba-4.1.2-doc.patch
+%patch2 -p1 -b .samba-4.1.3-winbind_debug.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1543,6 +1545,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Dec 10 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.3-2
+- resolves: #1019469 - Fix winbind debug message NULL pointer derreference.
+
 * Mon Dec 09 2013 - Andreas Schneider <asn@redhat.com> - 4.1.3-1
 - Update to Samba 4.1.3.
 - resolves: #1039454 - CVE-2013-4408.
