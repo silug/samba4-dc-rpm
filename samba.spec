@@ -1545,7 +1545,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
-* Wed Dec 10 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.3-2
+* Tue Dec 10 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.3-2
 - resolves: #1019469 - Fix winbind debug message NULL pointer derreference.
 
 * Mon Dec 09 2013 - Andreas Schneider <asn@redhat.com> - 4.1.3-1
