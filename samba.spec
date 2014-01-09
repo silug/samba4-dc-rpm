@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.1.3
 %define talloc_version 2.0.8
@@ -140,7 +140,6 @@ BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
-BuildRequires: libbsd-devel
 %if %{with_vfs_glusterfs}
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
@@ -1545,6 +1544,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Jan 08 2014 - Andreas Schneider <asn@redhat.com> - 4.1.3-3
+- resolves: #1042845 - Do not build with libbsd.
+
 * Tue Dec 10 2013 - Guenther Deschner <gdeschner@redhat.com> - 4.1.3-2
 - resolves: #1019469 - Fix winbind debug message NULL pointer derreference.
 
