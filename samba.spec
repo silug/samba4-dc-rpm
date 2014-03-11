@@ -85,6 +85,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
+Patch0: samba-4.1.7-fix_pidl_install.patch
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -140,6 +142,9 @@ BuildRequires: zlib-devel >= 1.2.3
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
 %endif
+
+# pidl requirements
+BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
 %global libtalloc_version 2.0.7
@@ -364,12 +369,13 @@ Summary: Perl IDL compiler
 Group: Development/Tools
 Requires: perl(Parse::Yapp)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+BuildArch: noarch
 
 Provides: samba4-pidl = %{samba_depver}
 Obsoletes: samba4-pidl < %{samba_depver}
 
 %description pidl
-The samba4-pidl package contains the Perl IDL compiler used by Samba
+The %{name}-pidl package contains the Perl IDL compiler used by Samba
 and Wireshark to parse IDL and similar protocols
 
 ### TEST
@@ -485,6 +491,8 @@ module necessary to communicate to the Winbind Daemon
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
+%patch0 -p1 -b .samba-4.1.7-fix_pidl_install.patch
+
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -537,6 +545,7 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --with-pammodulesdir=%{_libdir}/security \
         --with-lockdir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
+        --with-perl-vendorlib=%{perl_vendorlib} \
         --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
@@ -571,10 +580,6 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
 
 make %{?_smp_mflags}
 
-# Build PIDL for installation into vendor directories before
-# 'make proto' gets to it.
-(cd pidl && %{__perl} Makefile.PL INSTALLDIRS=vendor )
-
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
@@ -592,13 +597,6 @@ install -d -m 0755 %{buildroot}/var/run/samba
 install -d -m 0755 %{buildroot}/var/run/winbindd
 install -d -m 0755 %{buildroot}/%{_libdir}/samba
 install -d -m 0755 %{buildroot}/%{_libdir}/pkgconfig
-
-# Undo the PIDL install, we want to try again with the right options.
-rm -rf %{buildroot}/%{_libdir}/perl5
-rm -rf %{buildroot}/%{_datadir}/perl5
-
-# Install PIDL.
-( cd pidl && make install PERL_INSTALL_ROOT=%{buildroot} )
 
 # Install other stuff
 install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
@@ -647,17 +645,9 @@ install -m 0755 packaging/NetworkManager/30-winbind-systemd \
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
 touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
-# Clean out crap left behind by the PIDL install.
-find %{buildroot} -type f -name .packlist -exec rm -f {} \;
-rm -f %{buildroot}%{perl_vendorlib}/wscript_build
-rm -rf %{buildroot}%{perl_vendorlib}/Parse/Yapp
-
 # This makes the right links, as rpmlint requires that
 # the ldconfig-created links be recorded in the RPM.
 /sbin/ldconfig -N -n %{buildroot}%{_libdir}
-
-# Fix up permission on perl install.
-%{_fixperms} %{buildroot}%{perl_vendorlib}
 
 %if %{with testsuite}
 %check
@@ -1449,10 +1439,41 @@ rm -rf %{buildroot}
 ### PIDL
 %files pidl
 %defattr(-,root,root,-)
-%{perl_vendorlib}/Parse/Pidl*
+%attr(755,root,root) %{_bindir}/pidl
+%dir %{perl_vendorlib}/Parse
+%{perl_vendorlib}/Parse/Pidl.pm
+%dir %{perl_vendorlib}/Parse/Pidl
+%{perl_vendorlib}/Parse/Pidl/CUtil.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4.pm
+%{perl_vendorlib}/Parse/Pidl/Expr.pm
+%{perl_vendorlib}/Parse/Pidl/ODL.pm
+%{perl_vendorlib}/Parse/Pidl/Typelist.pm
+%{perl_vendorlib}/Parse/Pidl/IDL.pm
+%{perl_vendorlib}/Parse/Pidl/Compat.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Wireshark
+%{perl_vendorlib}/Parse/Pidl/Wireshark/Conformance.pm
+%{perl_vendorlib}/Parse/Pidl/Wireshark/NDR.pm
+%{perl_vendorlib}/Parse/Pidl/Dump.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba3
+%{perl_vendorlib}/Parse/Pidl/Samba3/ServerNDR.pm
+%{perl_vendorlib}/Parse/Pidl/Samba3/ClientNDR.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4
+%{perl_vendorlib}/Parse/Pidl/Samba4/Header.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4/COM
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Header.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Proxy.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Stub.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/Python.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/Template.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4/NDR
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Server.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Client.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Parser.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/TDR.pm
+%{perl_vendorlib}/Parse/Pidl/NDR.pm
+%{perl_vendorlib}/Parse/Pidl/Util.pm
 %{_mandir}/man1/pidl*
 %{_mandir}/man3/Parse::Pidl*
-%attr(755,root,root) %{_bindir}/pidl
 
 ### PYTHON
 %files python
@@ -1536,6 +1557,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Tue Mar 11 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-1
+- Fix installation of pidl.
+
 * Fri Feb 21 2014 - Andreas Schneider <asn@redhat.com> - 4.1.5-1
 - Update to Samba 4.1.5.
 
