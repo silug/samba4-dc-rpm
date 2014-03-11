@@ -3,7 +3,7 @@
 
 %define main_release 1
 
-%define samba_version 4.1.5
+%define samba_version 4.1.6
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -1558,6 +1558,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Tue Mar 11 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-1
+- Fix CVE-2013-4496 and CVE-2013-6442.
 - Fix installation of pidl.
 
 * Fri Feb 21 2014 - Andreas Schneider <asn@redhat.com> - 4.1.5-1
