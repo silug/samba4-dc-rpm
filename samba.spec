@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.1.6
 %define talloc_version 2.0.8
@@ -384,11 +384,14 @@ Summary: Testing tools for Samba servers and clients
 Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-winbind = %{samba_depver}
+
+Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-test-libs = %{samba_depver}
 %if %with_dc
 Requires: %{name}-dc-libs = %{samba_depver}
 %endif
 Requires: %{name}-libs = %{samba_depver}
-Requires: %{name}-winbind = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
 %endif
@@ -400,14 +403,23 @@ Provides: samba4-test = %{samba_depver}
 Obsoletes: samba4-test < %{samba_depver}
 
 %description test
-samba4-test provides testing tools for both the server and client
+%{name}-test provides testing tools for both the server and client
 packages of Samba.
+
+### TEST-LIBS
+%package test-libs
+Summary: Libraries need by teh testing tools for Samba servers and clients
+Group: Applications/System
+Requires: %{name}-libs = %{samba_depver}
+
+%description test-libs
+%{name}-test-libs provides libraries required by the testing tools.
 
 ### TEST-DEVEL
 %package test-devel
 Summary: Testing devel files for Samba servers and clients
 Group: Applications/System
-Requires: %{name}-test = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
 
 %description test-devel
 samba-test-devel provides testing devel files for both the server and client
@@ -1488,13 +1500,6 @@ rm -rf %{buildroot}
 %{_bindir}/masktest
 %{_bindir}/ndrdump
 %{_bindir}/smbtorture
-%{_libdir}/libtorture.so.*
-%{_libdir}/samba/libsubunit.so
-%if %with_dc
-%{_libdir}/samba/libdlz_bind9_for_torture.so
-%else
-%{_libdir}/samba/libdsdb-module.so
-%endif
 %{_mandir}/man1/gentest.1*
 %{_mandir}/man1/locktest.1*
 %{_mandir}/man1/masktest.1*
@@ -1507,6 +1512,17 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnss_wrapper.so
 %{_libdir}/samba/libsocket_wrapper.so
 %{_libdir}/samba/libuid_wrapper.so
+%endif
+
+### TEST-LIBS
+%files test-libs
+%defattr(-,root,root)
+%{_libdir}/libtorture.so.*
+%{_libdir}/samba/libsubunit.so
+%if %with_dc
+%{_libdir}/samba/libdlz_bind9_for_torture.so
+%else
+%{_libdir}/samba/libdsdb-module.so
 %endif
 
 ### TEST-DEVEL
@@ -1557,6 +1573,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Tue Mar 18 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-2
+- Created a samba-test-libs package.
+
 * Tue Mar 11 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-1
 - Fix CVE-2013-4496 and CVE-2013-6442.
 - Fix installation of pidl.
