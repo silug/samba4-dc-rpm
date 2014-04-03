@@ -1,7 +1,7 @@
 # Set --with testsuite or %bcond_without to run the Samba torture testsuite.
 %bcond_with testsuite
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.1.6
 %define talloc_version 2.0.8
@@ -86,6 +86,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.1.7-fix_pidl_install.patch
+Patch1: samba-4.1.7-Make_daemons_systemd_aware.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -136,6 +137,7 @@ BuildRequires: python-devel
 BuildRequires: python-tevent
 BuildRequires: quota-devel
 BuildRequires: readline-devel
+BuildRequires: systemd-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
 %if %{with_vfs_glusterfs}
@@ -504,6 +506,7 @@ module necessary to communicate to the Winbind Daemon
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p1 -b .samba-4.1.7-fix_pidl_install.patch
+%patch1 -p1 -b .samba-4.1.7-Make_daemons_systemd_aware.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -587,8 +590,9 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --enable-selftest \
 %endif
 %if ! %with_pam_smbpass
-        --without-pam_smbpass
+        --without-pam_smbpass \
 %endif
+        --with-systemd
 
 make %{?_smp_mflags}
 
@@ -644,7 +648,7 @@ install -m 0644 %{SOURCE200} packaging/README.dc-libs
 
 install -d -m 0755 %{buildroot}%{_unitdir}
 for i in nmb smb winbind ; do
-    cat packaging/systemd/$i.service | sed -e 's@Type=forking@Type=forking\nEnvironment=KRB5CCNAME=/run/samba/krb5cc_samba@g' >tmp$i.service
+    cat packaging/systemd/$i.service | sed -e 's@\[Service\]@[Service]\nEnvironment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba@g' >tmp$i.service
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
 
@@ -1573,6 +1577,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Thu Apr 03 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-3
+- Add systemd integration to the service daemons.
+
 * Tue Mar 18 2014 - Andreas Schneider <asn@redhat.com> - 4.1.6-2
 - Created a samba-test-libs package.
 
