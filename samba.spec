@@ -3,7 +3,7 @@
 
 %define main_release 3
 
-%define samba_version 4.1.6
+%define samba_version 4.1.8
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -54,7 +54,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -84,9 +84,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.1.7-fix_pidl_install.patch
-Patch1: samba-4.1.7-Make_daemons_systemd_aware.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -506,9 +503,6 @@ module necessary to communicate to the Winbind Daemon
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.1.7-fix_pidl_install.patch
-%patch1 -p1 -b .samba-4.1.7-Make_daemons_systemd_aware.patch
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -561,7 +555,7 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --with-pammodulesdir=%{_libdir}/security \
         --with-lockdir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
-        --with-perl-vendorlib=%{perl_vendorlib} \
+        --with-perl-lib-install-dir=%{perl_vendorlib} \
         --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
@@ -1578,6 +1572,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Jun 11 2014 - Guenther Deschner <gdeschner@redhat.com> - 4.1.8-3
+- Update to Samba 4.1.8.
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:4.1.6-3.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
