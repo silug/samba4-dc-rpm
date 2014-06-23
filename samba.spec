@@ -3,7 +3,7 @@
 
 %define main_release 3
 
-%define samba_version 4.1.8
+%define samba_version 4.1.9
 %define talloc_version 2.0.8
 %define ntdb_version 0.9
 %define tdb_version 1.2.12
@@ -1572,8 +1572,13 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Jun 23 2014 - Guenther Deschner <gdeschner@redhat.com> - 4.1.9-3
+- Update to Samba 4.1.9.
+- resolves: #1112251 - Fix CVE-2014-0244 and CVE-2014-3493.
+
 * Wed Jun 11 2014 - Guenther Deschner <gdeschner@redhat.com> - 4.1.8-3
 - Update to Samba 4.1.8.
+- resolves: #1102528 - CVE-2014-0178.
 
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:4.1.6-3.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
