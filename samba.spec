@@ -54,7 +54,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1571,6 +1571,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:4.1.11-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Fri Aug 1 2014 - Jared Smith <jsmith@fedoraproject.org> - 4.1.11-1
 - Update to upstream Samba 4.1.11 release
 - resolves: #1126015 - Fix CVE-2014-3560
