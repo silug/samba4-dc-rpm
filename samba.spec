@@ -54,7 +54,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}.2
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1571,6 +1571,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Aug 20 2014 Kalev Lember <kalevlember@gmail.com> - 2:4.1.11-1.2
+- Rebuilt for rpm dependency generator failure (#1131892)
+
 * Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:4.1.11-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
