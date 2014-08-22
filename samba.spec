@@ -1,5 +1,10 @@
-# Set --with testsuite or %bcond_without to run the Samba torture testsuite.
+# rpmbuild --rebuild --with testsuite --without clustering samba.src.rpm
+#
+# The testsuite is disabled by default. Set --with testsuite or %bcond_without
+# to run the Samba torture testsuite.
 %bcond_with testsuite
+# ctdb is enabled by default, you can disable it with: --without clustering
+%bcond_without clustering
 
 %define main_release 1
 
@@ -47,7 +52,11 @@
 %global with_dc 1
 %endif
 
+%global with_clustering_support 0
+
+%if %{with clustering}
 %global with_clustering_support 1
+%endif
 
 %{!?python_libdir: %define python_libdir %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1,1)")}
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
