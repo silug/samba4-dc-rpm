@@ -63,7 +63,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.2
+Release:        %{samba_release}.3
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1580,6 +1580,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Aug 27 2014 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.1.11-1.3
+- Perl 5.20 rebuild
+
 * Wed Aug 20 2014 Kalev Lember <kalevlember@gmail.com> - 2:4.1.11-1.2
 - Rebuilt for rpm dependency generator failure (#1131892)
 
