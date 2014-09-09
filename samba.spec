@@ -63,7 +63,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.3
+Release:        %{samba_release}.4
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1581,6 +1581,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Tue Sep 09 2014 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.1.11-1.4
+- Perl 5.20 mass
+
 * Wed Aug 27 2014 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.1.11-1.3
 - Perl 5.20 rebuild
 
