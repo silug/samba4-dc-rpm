@@ -6,16 +6,16 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 1
 
-%define samba_version 4.1.12
-%define talloc_version 2.0.8
-%define ntdb_version 0.9
-%define tdb_version 1.2.12
-%define tevent_version 0.9.18
-%define ldb_version 1.1.16
+%define samba_version 4.2.0
+%define talloc_version 2.1.1
+%define ntdb_version 1.0
+%define tdb_version 1.3.1
+%define tevent_version 0.9.22
+%define ldb_version 1.1.17
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -94,8 +94,6 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0:    samba-4.1.13-fix_winbind_segfault.patch
-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -127,7 +125,6 @@ BuildRequires: cups-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
-BuildRequires: iniparser-devel
 BuildRequires: krb5-devel >= 1.10
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
@@ -515,8 +512,6 @@ module necessary to communicate to the Winbind Daemon
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.1.13-fix_winbind_segfault.patch
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -569,7 +564,6 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --with-pammodulesdir=%{_libdir}/security \
         --with-lockdir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
-        --with-perl-lib-install-dir=%{perl_vendorlib} \
         --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
@@ -776,6 +770,7 @@ rm -rf %{buildroot}
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
+%{_libdir}/samba/libsamba-cluster-support.so
 %dir %{_libdir}/samba/auth
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/auth/unix.so
@@ -799,6 +794,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/extd_audit.so
 %{_libdir}/samba/vfs/fake_perms.so
 %{_libdir}/samba/vfs/fileid.so
+%{_libdir}/samba/vfs/fruit.so
 %{_libdir}/samba/vfs/full_audit.so
 %{_libdir}/samba/vfs/linux_xfs_sgid.so
 %{_libdir}/samba/vfs/media_harmony.so
@@ -815,6 +811,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/streams_xattr.so
 %{_libdir}/samba/vfs/syncops.so
 %{_libdir}/samba/vfs/time_audit.so
+%{_libdir}/samba/vfs/worm.so
 %{_libdir}/samba/vfs/xattr_tdb.so
 
 %{_unitdir}/nmb.service
@@ -844,6 +841,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_extd_audit.8*
 %{_mandir}/man8/vfs_fake_perms.8*
 %{_mandir}/man8/vfs_fileid.8*
+%{_mandir}/man8/vfs_fruit.8*
 %{_mandir}/man8/vfs_full_audit.8*
 %{_mandir}/man8/vfs_gpfs.8*
 %{_mandir}/man8/vfs_linux_xfs_sgid.8*
@@ -859,11 +857,13 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_shadow_copy.8*
 %{_mandir}/man8/vfs_shadow_copy2.8*
 %{_mandir}/man8/vfs_smb_traffic_analyzer.8*
+%{_mandir}/man8/vfs_snapper.8*
 %{_mandir}/man8/vfs_streams_depot.8*
 %{_mandir}/man8/vfs_streams_xattr.8*
 %{_mandir}/man8/vfs_syncops.8*
 %{_mandir}/man8/vfs_time_audit.8*
 %{_mandir}/man8/vfs_tsmsm.8*
+%{_mandir}/man8/vfs_worm.8*
 %{_mandir}/man8/vfs_xattr_tdb.8*
 
 ### CLIENT
@@ -872,7 +872,6 @@ rm -rf %{buildroot}
 %{_bindir}/cifsdd
 %{_bindir}/dbwrap_tool
 %{_bindir}/nmblookup
-%{_bindir}/nmblookup4
 %{_bindir}/oLschema2ldif
 %{_bindir}/regdiff
 %{_bindir}/regpatch
@@ -883,7 +882,6 @@ rm -rf %{buildroot}
 %{_bindir}/sharesec
 %{_bindir}/smbcacls
 %{_bindir}/smbclient
-%{_bindir}/smbclient4
 %{_bindir}/smbcquotas
 %{_bindir}/smbget
 #%{_bindir}/smbiconv
@@ -902,7 +900,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/regtree.1*
 %exclude %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/log2pcap.1*
-%{_mandir}/man1/nmblookup4.1*
 %{_mandir}/man1/rpcclient.1*
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man1/smbcacls.1*
@@ -919,6 +916,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/ntdbtool.8*
 %{_mandir}/man8/samba-regedit.8*
 %{_mandir}/man8/smbpasswd.8*
+%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbta-util.8*
 
@@ -948,7 +946,16 @@ rm -rf %{buildroot}
 %{_bindir}/ldbmodify
 %{_bindir}/ldbrename
 %{_bindir}/ldbsearch
-%{_libdir}/samba/ldb/
+%{_libdir}/samba/libldb-cmdline.so
+%dir %{_libdir}/samba/ldb
+%{_libdir}/samba/ldb/asq.so
+%{_libdir}/samba/ldb/paged_results.so
+%{_libdir}/samba/ldb/paged_searches.so
+%{_libdir}/samba/ldb/rdn_name.so
+%{_libdir}/samba/ldb/sample.so
+%{_libdir}/samba/ldb/server_sort.so
+%{_libdir}/samba/ldb/skel.so
+%{_libdir}/samba/ldb/tdb.so
 %{_mandir}/man1/ldbadd.1.gz
 %{_mandir}/man1/ldbdel.1.gz
 %{_mandir}/man1/ldbedit.1.gz
@@ -984,7 +991,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/testparm.1*
 %{_mandir}/man5/lmhosts.5*
 %{_mandir}/man5/smb.conf.5*
-%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/pdbedit.8*
@@ -1103,6 +1109,7 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/charset.h
 %{_includedir}/samba-4.0/core/doserr.h
 %{_includedir}/samba-4.0/core/error.h
+%{_includedir}/samba-4.0/core/hresult.h
 %{_includedir}/samba-4.0/core/ntstatus.h
 %{_includedir}/samba-4.0/core/werror.h
 %{_includedir}/samba-4.0/credentials.h
@@ -1150,6 +1157,8 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/lookup_sid.h
 %{_includedir}/samba-4.0/machine_sid.h
 %{_includedir}/samba-4.0/ndr.h
+%dir %{_includedir}/samba-4.0/ndr
+%{_includedir}/samba-4.0/ndr/ndr_dcerpc.h
 %{_includedir}/samba-4.0/ndr/ndr_drsblobs.h
 %{_includedir}/samba-4.0/ndr/ndr_drsuapi.h
 %{_includedir}/samba-4.0/ndr/ndr_svcctl.h
@@ -1169,6 +1178,7 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/smb2_constants.h
 %{_includedir}/samba-4.0/smb2_create_blob.h
 %{_includedir}/samba-4.0/smb2_lease.h
+%{_includedir}/samba-4.0/smb2_lease_struct.h
 %{_includedir}/samba-4.0/smb2_signing.h
 %{_includedir}/samba-4.0/smb_cli.h
 %{_includedir}/samba-4.0/smb_cliraw.h
@@ -1190,11 +1200,15 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/tdr.h
 %{_includedir}/samba-4.0/tsocket.h
 %{_includedir}/samba-4.0/tsocket_internal.h
+%{_includedir}/samba-4.0/tstream_smbXcli_np.h
 %{_includedir}/samba-4.0/samba_util.h
+%dir %{_includedir}/samba-4.0/util
 %{_includedir}/samba-4.0/util/attr.h
 %{_includedir}/samba-4.0/util/byteorder.h
 %{_includedir}/samba-4.0/util/data_blob.h
 %{_includedir}/samba-4.0/util/debug.h
+%{_includedir}/samba-4.0/util/idtree.h
+%{_includedir}/samba-4.0/util/idtree_random.h
 %{_includedir}/samba-4.0/util/memory.h
 %{_includedir}/samba-4.0/util/safe_string.h
 %{_includedir}/samba-4.0/util/string_wrappers.h
@@ -1325,6 +1339,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libflag_mapping.so
 %{_libdir}/samba/libgpo.so
 %{_libdir}/samba/libgse.so
+%{_libdir}/samba/libhttp.so
 %{_libdir}/samba/libinterfaces.so
 %{_libdir}/samba/libkrb5samba.so
 %{_libdir}/samba/libldbsamba.so
@@ -1341,6 +1356,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnpa_tstream.so
 %{_libdir}/samba/libprinting_migrate.so
 %{_libdir}/samba/libreplace.so
+%{_libdir}/samba/libsamba-debug.so
 %{_libdir}/samba/libsamba-modules.so
 %{_libdir}/samba/libsamba-net.so
 %{_libdir}/samba/libsamba-security.so
@@ -1357,6 +1373,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libsmbldaphelper.so
 %{_libdir}/samba/libsmbpasswdparser.so
 %{_libdir}/samba/libsmbregistry.so
+%{_libdir}/samba/libsocket-blocking.so
 %{_libdir}/samba/libtdb-wrap.so
 %{_libdir}/samba/libtdb_compat.so
 %{_libdir}/samba/libtrusts_util.so
@@ -1413,7 +1430,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libtdb.so.%{tdb_version}
 %endif
 %if %{with_internal_ntdb}
-%{_libdir}/samba/libntdb.so.0
+%{_libdir}/samba/libntdb.so.1
 %{_libdir}/samba/libntdb.so.%{ntdb_version}
 %endif
 
@@ -1587,6 +1604,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/pam_winbind.8*
 
 %changelog
+* Wed Nov 12 2014 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.1.rc2
+- Update to Samba 4.2.0rc2.
+
 * Tue Oct 07 2014 - Andreas Schneider <asn@redhat.com> - 4.1.12-5
 - resolves: #1033595 - Fix segfault in winbind.
 
