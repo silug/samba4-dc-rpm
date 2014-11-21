@@ -152,6 +152,11 @@ BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
 %endif
 
+# cwrap
+BuildRequires: socket_wrapper
+BuildRequires: nss_wrapper
+BuildRequires: uid_wrapper
+
 # pidl requirements
 BuildRequires: perl(Parse::Yapp)
 
@@ -1610,6 +1615,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Nov 21 2014 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.2.rc2
 - Use alternatives for libwbclient.
+- Add cwrap to BuildRequires.
 
 * Wed Nov 12 2014 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.1.rc2
 - Update to Samba 4.2.0rc2.
