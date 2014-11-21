@@ -44,7 +44,7 @@
 %endif
 
 %global libwbc_alternatives_suffix %nil
-%if %{__isa_bits} == 64
+%if 0%{?__isa_bits} == 64
 %global libwbc_alternatives_suffix -64
 %endif
 
