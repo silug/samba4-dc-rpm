@@ -724,7 +724,16 @@ fi
                                 libwbclient.so%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so 10
 
 %preun -n libwbclient-devel
-%{_sbindir}/update-alternatives --remove libwbclient.so%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so
+# alternatives checks if the file which should be removed is a link or not, but
+# not if it points to the /etc/alternatives directory or to some other place.
+# When downgrading to a version where alternatives is not used and
+# libwbclient.so is a link and not a file it will be removed. The following
+# check removes the alternatives files manually if that is the case.
+if [ "`readlink %{_libdir}/libwbclient.so`" == "libwbclient.so.0.11" ]; then
+    /bin/rm -f /etc/alternatives/libwbclient.so%{libwbc_alternatives_suffix} /var/lib/alternatives/libwbclient.so%{libwbc_alternatives_suffix} 2> /dev/null
+else
+    %{_sbindir}/update-alternatives --remove libwbclient.so%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so
+fi
 
 %endif # with_libwbclient
 
