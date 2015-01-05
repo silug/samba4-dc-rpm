@@ -6,16 +6,16 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 1
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
 %define ntdb_version 1.0
-%define tdb_version 1.3.1
+%define tdb_version 1.3.3
 %define tevent_version 0.9.22
 %define ldb_version 1.1.17
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -34,6 +34,9 @@
 %global with_internal_ldb 0
 
 %global with_profiling 1
+
+%global with_vfs_cephfs 1
+
 %global with_vfs_glusterfs 1
 %if 0%{?rhel}
 %global with_vfs_glusterfs 0
@@ -108,6 +111,9 @@ Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
@@ -120,9 +126,6 @@ Obsoletes: samba-domainjoin-gui
 Obsoletes: samba-swat
 Obsoletes: samba4-swat
 
-%if %with_clustering_support
-BuildRequires: ctdb-devel
-%endif
 BuildRequires: cups-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
@@ -151,6 +154,9 @@ BuildRequires: zlib-devel >= 1.2.3
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
 %endif
+%if %{with_vfs_cephfs}
+BuildRequires: libcephfs1-devel
+%endif
 
 # cwrap
 BuildRequires: socket_wrapper
@@ -161,28 +167,28 @@ BuildRequires: uid_wrapper
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.0.7
+%global libtalloc_version 2.1.1
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.17
+%global libtevent_version 0.9.22
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.11
+%global libldb_version 1.1.17
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.2.10
+%global libtdb_version 1.3.3
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -226,6 +232,9 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Files used by both Samba servers and clients
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 Requires(post): systemd
 
 Provides: samba4-common = %{samba_depver}
@@ -282,6 +291,19 @@ The samba4-devel package contains the header files for the libraries
 needed to develop programs that link against the SMB, RPC and other
 libraries in the Samba suite.
 
+### CEPH
+%if %{with_vfs_cephfs}
+%package vfs-cephfs
+Summary: Samba VFS module for Ceph distributed storage system
+Group: Applications/System
+Requires: libchephfs1
+Requires: %{name} = %{epoch}:%{samba_version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{samba_version}-%{release}
+
+%description vfs-cephfs
+Samba VFS module for Ceph distributed storage system integration.
+%endif
+
 ### GLUSTER
 %if %{with_vfs_glusterfs}
 %package vfs-glusterfs
@@ -304,6 +326,9 @@ Samba VFS module for GlusterFS integration.
 Summary: Samba libraries
 Group: Applications/System
 Requires: krb5-libs >= 1.10
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4-libs = %{samba_depver}
 Obsoletes: samba4-libs < %{samba_depver}
@@ -404,6 +429,9 @@ Requires: %{name}-libs = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
 %endif
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4-test = %{samba_depver}
 Obsoletes: samba4-test < %{samba_depver}
@@ -455,6 +483,9 @@ Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 Provides: samba4-winbind-clients = %{samba_depver}
 Obsoletes: samba4-winbind-clients < %{samba_depver}
@@ -467,7 +498,10 @@ tool.
 %package winbind-krb5-locator
 Summary: Samba winbind krb5 locator
 Group: Applications/System
-%if ! %with_libwbclient
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+Requires: %{name}-winbind = %{samba_depver}
+%else
 Requires: %{name}-libs = %{samba_depver}
 %endif
 
@@ -492,11 +526,69 @@ the local kerberos library to use the same KDC as samba and winbind use
 Summary: Samba winbind modules
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 Requires: pam
 
 %description winbind-modules
 The samba-winbind-modules package provides the NSS library and a PAM
 module necessary to communicate to the Winbind Daemon
+
+### CTDB
+%if %with_clustering_support
+%package -n ctdb
+Summary: A Clustered Database based on Samba's Trivial Database (TDB)
+Group: System Environment/Daemons
+
+Requires: coreutils
+Requires: fileutils
+Requires: psmisc
+Requires: sed
+Requires: tdb-tools
+
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
+
+%description -n ctdb
+CTDB is a cluster implementation of the TDB database used by Samba and other
+projects to store temporary data. If an application is already using TDB for
+temporary data it is very easy to convert that application to be cluster aware
+and use CTDB instead.
+
+### CTDB-DEVEL
+%package -n ctdb-devel
+Summary: CTDB clustered database development package
+Group: Development/Libraries
+
+Requires: ctdb = %{version}-%{release}
+Provides: ctdb-static = %{version}-%{release}
+
+%description -n ctdb-devel
+Libraries, include files, etc you can use to develop CTDB applications.
+CTDB is a cluster implementation of the TDB database used by Samba and other
+projects to store temporary data. If an application is already using TDB for
+temporary data it is very easy to convert that application to be cluster aware
+and use CTDB instead.
+
+### CTDB-TEST
+%package -n ctdb-tests
+Summary: CTDB clustered database test suite
+Group: Development/Tools
+
+Requires: ctdb = %{version}
+Requires: nc
+
+%description -n ctdb-tests
+Test suite for CTDB.
+CTDB is a cluster implementation of the TDB database used by Samba and other
+projects to store temporary data. If an application is already using TDB for
+temporary data it is very easy to convert that application to be cluster aware
+and use CTDB instead.
+%endif # with_clustering_support
+
+
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
@@ -535,7 +627,7 @@ module necessary to communicate to the Winbind Daemon
 %global _libwbclient %nil
 
 %if ! %with_libsmbclient
-%global _libsmbclient smbclient,smbsharemodes,
+%global _libsmbclient smbclient,
 %endif
 
 %if ! %with_libwbclient
@@ -573,7 +665,6 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
 %endif
 %if %with_clustering_support
         --with-cluster-support \
-        --enable-old-ctdb \
 %endif
 %if %with_profiling
         --with-profiling-data \
@@ -590,7 +681,7 @@ make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
-make install DESTDIR=%{buildroot}
+make %{?_smp_mflags} install DESTDIR=%{buildroot}
 
 install -d -m 0755 %{buildroot}/usr/{sbin,bin}
 install -d -m 0755 %{buildroot}%{_libdir}/security
@@ -632,9 +723,15 @@ install -d -m 0755 %{buildroot}%{_prefix}/lib/tmpfiles.d/
 install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
 # create /run/samba too.
 echo "d /run/samba  755 root root" >> %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
+%if %with_clustering_support
+echo "d /run/ctdb 755 root root" >> %{buildroot}%{_tmpfilesdir}/ctdb.conf
+%endif
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
+%if %with_clustering_support
+install -m 0644 ctdb/config/ctdb.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/ctdb
+%endif
 
 install -m 0644 %{SOURCE201} packaging/README.downgrade
 
@@ -648,6 +745,9 @@ for i in nmb smb winbind ; do
     cat packaging/systemd/$i.service | sed -e 's@\[Service\]@[Service]\nEnvironment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba@g' >tmp$i.service
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
+%if %with_clustering_support
+install -m 0755 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
+%endif
 
 # NetworkManager online/offline script
 install -d -m 0755 %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/
@@ -774,6 +874,19 @@ fi
 
 %postun winbind-modules -p /sbin/ldconfig
 
+%if %with_clustering_support
+%post -n ctdb
+/usr/bin/systemd-tmpfiles --create %{_prefix}/lib/tmpfiles.d/ctdb.conf
+%systemd_post ctdb.service
+
+%preun -n ctdb
+%systemd_preun ctdb.service
+
+%postun -n ctdb
+%systemd_postun_with_restart ctdb.service
+%endif
+
+
 %clean
 rm -rf %{buildroot}
 
@@ -788,7 +901,6 @@ rm -rf %{buildroot}
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
-%{_libdir}/samba/libsamba-cluster-support.so
 %dir %{_libdir}/samba/auth
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/auth/unix.so
@@ -903,7 +1015,6 @@ rm -rf %{buildroot}
 %{_bindir}/smbcquotas
 %{_bindir}/smbget
 #%{_bindir}/smbiconv
-%{_bindir}/smbpasswd
 %{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbta-util
@@ -933,8 +1044,6 @@ rm -rf %{buildroot}
 %{_mandir}/man8/ntdbrestore.8*
 %{_mandir}/man8/ntdbtool.8*
 %{_mandir}/man8/samba-regedit.8*
-%{_mandir}/man8/smbpasswd.8*
-%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbta-util.8*
 
@@ -991,6 +1100,7 @@ rm -rf %{buildroot}
 %{_bindir}/pdbedit
 %{_bindir}/profiles
 %{_bindir}/smbcontrol
+%{_bindir}/smbpasswd
 %{_bindir}/testparm
 %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/logrotate.d/
@@ -1009,9 +1119,11 @@ rm -rf %{buildroot}
 %{_mandir}/man1/testparm.1*
 %{_mandir}/man5/lmhosts.5*
 %{_mandir}/man5/smb.conf.5*
+%{_mandir}/man5/smbpasswd.5*
 %{_mandir}/man7/samba.7*
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/pdbedit.8*
+%{_mandir}/man8/smbpasswd.8*
 
 # common libraries
 %{_libdir}/samba/libpopt_samba3.so
@@ -1222,14 +1334,18 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/samba_util.h
 %dir %{_includedir}/samba-4.0/util
 %{_includedir}/samba-4.0/util/attr.h
+%{_includedir}/samba-4.0/util/blocking.h
 %{_includedir}/samba-4.0/util/byteorder.h
 %{_includedir}/samba-4.0/util/data_blob.h
 %{_includedir}/samba-4.0/util/debug.h
+%{_includedir}/samba-4.0/util/fault.h
 %{_includedir}/samba-4.0/util/idtree.h
 %{_includedir}/samba-4.0/util/idtree_random.h
 %{_includedir}/samba-4.0/util/memory.h
 %{_includedir}/samba-4.0/util/safe_string.h
+%{_includedir}/samba-4.0/util/signal.h
 %{_includedir}/samba-4.0/util/string_wrappers.h
+%{_includedir}/samba-4.0/util/substitute.h
 %{_includedir}/samba-4.0/util/talloc_stack.h
 %{_includedir}/samba-4.0/util/tevent_ntstatus.h
 %{_includedir}/samba-4.0/util/tevent_unix.h
@@ -1272,7 +1388,7 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/samba-util.pc
 %{_libdir}/pkgconfig/samdb.pc
 %{_libdir}/pkgconfig/smbclient-raw.pc
-%{_libdir}/libpdb.so
+%{_libdir}/libsamba-passdb.so
 %{_libdir}/libsmbldap.so
 
 %if %with_dc
@@ -1287,12 +1403,17 @@ rm -rf %{buildroot}
 
 %if ! %with_libsmbclient
 %{_includedir}/samba-4.0/libsmbclient.h
-%{_includedir}/samba-4.0/smb_share_modes.h
 %endif # ! with_libsmbclient
 
 %if ! %with_libwbclient
 %{_includedir}/samba-4.0/wbclient.h
 %endif # ! with_libwbclient
+
+### VFS-CEPHFS
+%if %{with_vfs_cephfs}
+%files vfs-cephfs
+%{_libdir}/samba/vfs/ceph.so
+%endif
 
 ### VFS-GLUSTERFS
 %if %{with_vfs_glusterfs}
@@ -1322,7 +1443,7 @@ rm -rf %{buildroot}
 %{_libdir}/libsmbclient-raw.so.*
 %{_libdir}/libsmbconf.so.*
 %{_libdir}/libtevent-util.so.*
-%{_libdir}/libpdb.so.*
+%{_libdir}/libsamba-passdb.so.*
 %{_libdir}/libsmbldap.so.*
 
 # libraries needed by the public libraries
@@ -1384,6 +1505,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libsecrets3.so
 %{_libdir}/samba/libserver-role.so
 %{_libdir}/samba/libshares.so
+%{_libdir}/samba/libsamba-cluster-support.so
 %{_libdir}/samba/libsamba3-util.so
 %{_libdir}/samba/libsmbd_base.so
 %{_libdir}/samba/libsmbd_conn.so
@@ -1454,7 +1576,6 @@ rm -rf %{buildroot}
 
 %if ! %with_libsmbclient
 %{_libdir}/samba/libsmbclient.so.*
-%{_libdir}/samba/libsmbsharemodes.so.*
 %{_mandir}/man7/libsmbclient.7*
 %endif # ! with_libsmbclient
 
@@ -1468,17 +1589,13 @@ rm -rf %{buildroot}
 %files -n libsmbclient
 %defattr(-,root,root)
 %{_libdir}/libsmbclient.so.*
-%{_libdir}/libsmbsharemodes.so.*
 
 ### LIBSMBCLIENT-DEVEL
 %files -n libsmbclient-devel
 %defattr(-,root,root)
 %{_includedir}/samba-4.0/libsmbclient.h
-%{_includedir}/samba-4.0/smb_share_modes.h
 %{_libdir}/libsmbclient.so
-%{_libdir}/libsmbsharemodes.so
 %{_libdir}/pkgconfig/smbclient.pc
-%{_libdir}/pkgconfig/smbsharemodes.pc
 %{_mandir}/man7/libsmbclient.7*
 %endif # with_libsmbclient
 
@@ -1621,7 +1738,112 @@ rm -rf %{buildroot}
 %{_mandir}/man5/pam_winbind.conf.5*
 %{_mandir}/man8/pam_winbind.8*
 
+%if %with_clustering_support
+%files -n ctdb
+%defattr(-,root,root)
+%doc ctdb/README
+%config(noreplace) %{_sysconfdir}/sysconfig/ctdb
+%config(noreplace) %{_sysconfdir}/ctdb/notify.sh
+%config(noreplace) %{_sysconfdir}/ctdb/debug-hung-script.sh
+%config(noreplace) %{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
+%config(noreplace) %{_sysconfdir}/ctdb/gcore_trace.sh
+%config(noreplace) %{_sysconfdir}/ctdb/functions
+%config(noreplace) %{_sysconfdir}/ctdb/debug_locks.sh
+%dir %{_localstatedir}/lib/ctdb/
+%{_tmpfilesdir}/%{name}.conf
+
+%{_unitdir}/ctdb.service
+
+%dir %{_sysconfdir}/ctdb
+%{_sysconfdir}/ctdb/statd-callout
+%dir %{_sysconfdir}/ctdb/nfs-rpc-checks.d
+%{_sysconfdir}/ctdb/nfs-rpc-checks.d/10.statd.check
+%{_sysconfdir}/ctdb/nfs-rpc-checks.d/20.nfsd.check
+%{_sysconfdir}/ctdb/nfs-rpc-checks.d/30.lockd.check
+%{_sysconfdir}/ctdb/nfs-rpc-checks.d/40.mountd.check
+%{_sysconfdir}/ctdb/nfs-rpc-checks.d/50.rquotad.check
+%{_sysconfdir}/sudoers.d/ctdb
+%{_sysconfdir}/ctdb/events.d/
+%dir %{_sysconfdir}/ctdb/notify.d
+%{_sysconfdir}/ctdb/notify.d/README
+%{_prefix}/lib/tmpfiles.d/ctdb.conf
+%{_sbindir}/ctdbd
+%{_sbindir}/ctdbd_wrapper
+%{_bindir}/ctdb
+%{_bindir}/smnotify
+%{_bindir}/ping_pong
+%{_bindir}/ltdbtool
+%{_bindir}/ctdb_diagnostics
+%{_bindir}/onnode
+%{_bindir}/ctdb_lock_helper
+%{_bindir}/ctdb_event_helper
+
+%{_mandir}/man1/ctdb.1.gz
+%{_mandir}/man1/ctdbd.1.gz
+%{_mandir}/man1/onnode.1.gz
+%{_mandir}/man1/ltdbtool.1.gz
+%{_mandir}/man1/ping_pong.1.gz
+%{_mandir}/man1/ctdbd_wrapper.1.gz
+%{_mandir}/man5/ctdbd.conf.5.gz
+%{_mandir}/man7/ctdb.7.gz
+%{_mandir}/man7/ctdb-tunables.7.gz
+%{_mandir}/man7/ctdb-statistics.7.gz
+
+%files -n ctdb-devel
+%defattr(-,root,root)
+%{_includedir}/samba-4.0/ctdb.h
+%{_includedir}/samba-4.0/ctdb_client.h
+%{_includedir}/samba-4.0/ctdb_protocol.h
+%{_includedir}/samba-4.0/ctdb_private.h
+%{_includedir}/samba-4.0/ctdb_typesafe_cb.h
+%{_includedir}/samba-4.0/ctdb_version.h
+%{_libdir}/pkgconfig/ctdb.pc
+
+%files -n ctdb-tests
+%defattr(-,root,root)
+%dir %{_libdir}/ctdb-tests
+%{_libdir}/ctdb-tests/ctdb_bench
+%{_libdir}/ctdb-tests/ctdb_fetch
+%{_libdir}/ctdb-tests/ctdb_fetch_one
+%{_libdir}/ctdb-tests/ctdb_fetch_readonly_loop
+%{_libdir}/ctdb-tests/ctdb_fetch_readonly_once
+%{_libdir}/ctdb-tests/ctdb_functest
+%{_libdir}/ctdb-tests/ctdb_lock_tdb
+%{_libdir}/ctdb-tests/ctdb_persistent
+%{_libdir}/ctdb-tests/ctdb_porting_tests
+%{_libdir}/ctdb-tests/ctdb_randrec
+%{_libdir}/ctdb-tests/ctdb_store
+%{_libdir}/ctdb-tests/ctdb_stubtest
+%{_libdir}/ctdb-tests/ctdb_takeover_tests
+%{_libdir}/ctdb-tests/ctdb_trackingdb_test
+%{_libdir}/ctdb-tests/ctdb_transaction
+%{_libdir}/ctdb-tests/ctdb_traverse
+%{_libdir}/ctdb-tests/ctdb_update_record
+%{_libdir}/ctdb-tests/ctdb_update_record_persistent
+%{_libdir}/ctdb-tests/rb_test
+%{_bindir}/ctdb_run_tests
+%{_bindir}/ctdb_run_cluster_tests
+%dir %{_datadir}/ctdb-tests
+%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/events.d
+%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/functions
+%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-rpc-checks.d
+%{_datadir}/ctdb-tests/scripts/common.sh
+%{_datadir}/ctdb-tests/scripts/integration.bash
+%{_datadir}/ctdb-tests/scripts/test_wrap
+%{_datadir}/ctdb-tests/scripts/unit.sh
+%doc ctdb/tests/README
+%endif # with_clustering_support
+
 %changelog
+* Mon Jan 05 2015 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.1.rc3
+- Update to Samba 4.2.0rc3
+  + Samba provides ctdb packages now.
+
+* Tue Dec 16 2014 Andreas Schneider <asn@redhat.com> - 4.2.0-0.3.rc2
+- resolves: #1174412 - Build VFS Ceph module.
+- resolves: #1169067 - Move libsamba-cluster-support.so to samba-libs package.
+- resolves: #1016122 - Move smbpasswd to samba-common package.
+
 * Fri Nov 21 2014 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.2.rc2
 - Use alternatives for libwbclient.
 - Add cwrap to BuildRequires.
