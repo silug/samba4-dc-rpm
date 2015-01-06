@@ -311,8 +311,8 @@ Summary: Samba VFS module for GlusterFS
 Group: Applications/System
 Requires: glusterfs-api >= 3.4.0.16
 Requires: glusterfs >= 3.4.0.16
-Requires: %{name} = %{epoch}:%{samba_version}-%{release}
-Requires: %{name}-libs = %{epoch}:%{samba_version}-%{release}
+Requires: %{name} = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
 
 Obsoletes: samba-glusterfs
 Provides: samba-glusterfs
