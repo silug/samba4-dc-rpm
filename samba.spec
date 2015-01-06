@@ -296,7 +296,7 @@ libraries in the Samba suite.
 %package vfs-cephfs
 Summary: Samba VFS module for Ceph distributed storage system
 Group: Applications/System
-Requires: libchephfs1
+Requires: libcephfs1
 Requires: %{name} = %{epoch}:%{samba_version}-%{release}
 Requires: %{name}-libs = %{epoch}:%{samba_version}-%{release}
 
@@ -562,8 +562,8 @@ and use CTDB instead.
 Summary: CTDB clustered database development package
 Group: Development/Libraries
 
-Requires: ctdb = %{version}-%{release}
-Provides: ctdb-static = %{version}-%{release}
+Requires: ctdb = %{samba_depver}
+Provides: ctdb-static = %{samba_depver}
 
 %description -n ctdb-devel
 Libraries, include files, etc you can use to develop CTDB applications.
@@ -577,7 +577,7 @@ and use CTDB instead.
 Summary: CTDB clustered database test suite
 Group: Development/Tools
 
-Requires: ctdb = %{version}
+Requires: ctdb = %{samba_depver}
 Requires: nc
 
 %description -n ctdb-tests
