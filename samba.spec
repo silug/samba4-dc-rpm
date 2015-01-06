@@ -1834,6 +1834,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Jan 06 2015 Michael Adam <madam@redhat.com> - 4.2.0-0.2.rc3
+- Improve dependencies of vfs-glusterfs and vfs-cephfs.
+- Remove unused python_libdir.
+
 * Tue Jan 06 2015 - Guenther Deschner <gdeschner@redhat.com> - 4.2.0-0.2.rc3
 - Fix ctdb and libcephfs dependencies.
 
