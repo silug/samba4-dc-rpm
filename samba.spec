@@ -297,8 +297,8 @@ libraries in the Samba suite.
 Summary: Samba VFS module for Ceph distributed storage system
 Group: Applications/System
 Requires: libcephfs1
-Requires: %{name} = %{epoch}:%{samba_version}-%{release}
-Requires: %{name}-libs = %{epoch}:%{samba_version}-%{release}
+Requires: %{name} = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
 
 %description vfs-cephfs
 Samba VFS module for Ceph distributed storage system integration.
