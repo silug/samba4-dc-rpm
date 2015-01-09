@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -203,6 +203,10 @@ BuildRequires: ldb-tools
 %filter_requires_in %{_docdir}
 %filter_setup
 }
+
+
+### Patches
+Patch0001: samba-4.2.0rc3-fix_debug_macro.patch
 
 ### SAMBA
 %description
@@ -591,6 +595,7 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+%patch0001 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1834,6 +1839,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jan 09 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.0-0.4.rc3
+- Apply the DEBUG patch
+
 * Fri Jan 09 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-0.3.rc3
 - Fix issues with conflicting DEBUG macros.
 
