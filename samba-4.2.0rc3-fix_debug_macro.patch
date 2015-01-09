@@ -1,0 +1,70 @@
+From 3a2a35eade8739fc5a52526ea3d64a7a36254351 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 8 Jan 2015 10:24:36 +0100
+Subject: [PATCH] lib/util: Avoid collision which alread defined consumer DEBUG
+ macro.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=11033
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Martin Schwenke <martin@meltin.net>
+
+(cherry picked from commit 87c176563baea3458c5322f1e3dfae6cf074b4b4)
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ lib/util/debug.h | 6 +++---
+ lib/util/fault.h | 5 +++++
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/lib/util/debug.h b/lib/util/debug.h
+index 27c319b..fa07d40 100644
+--- a/lib/util/debug.h
++++ b/lib/util/debug.h
+@@ -20,8 +20,8 @@
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+-#ifndef _DEBUG_H
+-#define _DEBUG_H
++#ifndef _SAMBA_DEBUG_H
++#define _SAMBA_DEBUG_H
+ 
+ #include <stdbool.h>
+ #include <stddef.h>
+@@ -262,4 +262,4 @@ typedef void (*debug_callback_fn)(void *private_ptr, int level, const char *msg)
+  */
+ void debug_set_callback(void *private_ptr, debug_callback_fn fn);
+ 
+-#endif
++#endif /* _SAMBA_DEBUG_H */
+diff --git a/lib/util/fault.h b/lib/util/fault.h
+index 98a24a3..aa10a71 100644
+--- a/lib/util/fault.h
++++ b/lib/util/fault.h
+@@ -24,11 +24,15 @@
+ #include <sys/types.h>
+ 
+ #include "attr.h"
++
++#ifndef DEBUG
+ #include "debug.h"
++#endif /* DEBUG */
+ 
+ /**
+  * assert macros
+  */
++#ifdef _SAMBA_DEBUG_H
+ #define SMB_ASSERT(b) \
+ do { \
+ 	if (!(b)) { \
+@@ -37,6 +41,7 @@ do { \
+ 		smb_panic("assert failed: " #b); \
+ 	} \
+ } while(0)
++#endif /* _SAMBA_DEBUG_H */
+ 
+ extern const char *panic_action;
+ 
+-- 
+2.2.1
+
