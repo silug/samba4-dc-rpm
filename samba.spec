@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -1834,6 +1834,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jan 09 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-0.3.rc3
+- Fix issues with conflicting DEBUG macros.
+
 * Tue Jan 06 2015 Michael Adam <madam@redhat.com> - 4.2.0-0.2.rc3
 - Improve dependencies of vfs-glusterfs and vfs-cephfs.
 - Remove unused python_libdir.
