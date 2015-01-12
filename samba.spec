@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -546,9 +546,21 @@ Group: System Environment/Daemons
 
 Requires: coreutils
 Requires: fileutils
+# for ps and killall
 Requires: psmisc
 Requires: sed
 Requires: tdb-tools
+Requires: awk
+# for pkill and pidof:
+Requires: procps-ng
+# for netstat:
+Requires: net-tools
+Requires: ethtool
+# for ip:
+Requires: iproute
+Requires: iptables
+# for flock, getopt, kill:
+Requires: util-linux
 
 Requires(post): systemd-units
 Requires(preun): systemd-units
@@ -1839,6 +1851,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Jan 12 2015 Michael Adam <madam@redhat.com> - 4.2.0-0.5.rc3
+- Add dependencies for ctdb.
+
 * Fri Jan 09 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.0-0.4.rc3
 - Apply the DEBUG patch
 
