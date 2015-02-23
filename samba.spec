@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 6
+%define main_release 5
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -15,7 +15,7 @@
 %define tevent_version 0.9.22
 %define ldb_version 1.1.17
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -113,6 +113,8 @@ Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
+
+Requires: pam
 
 Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
@@ -727,6 +729,9 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
 install -d -m 0755 %{buildroot}%{_sysconfdir}/security
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 
+install -d -m 0755 %{buildroot}%{_sysconfdir}/pam.d
+install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
+
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
 # openLDAP database schema
@@ -965,6 +970,7 @@ rm -rf %{buildroot}
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %{_sysconfdir}/openldap/schema/samba.schema
+%{_sysconfdir}/pam.d/samba
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man8/eventlogadm.8*
 %{_mandir}/man8/smbd.8*
@@ -1168,6 +1174,7 @@ rm -rf %{buildroot}
 %{_libdir}/mit_samba.so
 %{_libdir}/samba/auth/samba4.so
 %{_libdir}/samba/bind9/dlz_bind9.so
+%{_libdir}/samba/bind9/dlz_bind9_10.so
 %{_libdir}/samba/libheimntlm-samba4.so.1
 %{_libdir}/samba/libheimntlm-samba4.so.1.0.1
 %{_libdir}/samba/libkdc-samba4.so.2
@@ -1435,6 +1442,7 @@ rm -rf %{buildroot}
 %if %{with_vfs_glusterfs}
 %files vfs-glusterfs
 %{_libdir}/samba/vfs/glusterfs.so
+%{_mandir}/man8/vfs_glusterfs.8*
 %endif
 
 ### LIBS
@@ -1851,6 +1859,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jan 16 2015 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.4.rc4
+- Update to Samba 4.2.0rc4
+- resolves: #1154600 - Install missing samba pam.d configuration file.
+
 * Mon Jan 12 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.0-0.6.rc3
 - Fix awk as a dependency (and require gawk)
 
