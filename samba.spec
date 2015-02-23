@@ -206,10 +206,6 @@ BuildRequires: ldb-tools
 %filter_setup
 }
 
-
-### Patches
-Patch0001: samba-4.2.0rc3-fix_debug_macro.patch
-
 ### SAMBA
 %description
 Samba is the standard Windows interoperability suite of programs for Linux and Unix.
@@ -609,7 +605,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-%patch0001 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
