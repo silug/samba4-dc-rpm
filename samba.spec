@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 6
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -15,7 +15,7 @@
 %define tevent_version 0.9.22
 %define ldb_version 1.1.17
 # This should be rc1 or nil
-%define pre_release rc4
+%define pre_release rc5
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -649,7 +649,6 @@ and use CTDB instead.
 
 %global _samba4_private_libraries %{_libsmbclient}%{_libwbclient}
 
-LDFLAGS="-Wl,-z,relro,-z,now" \
 %configure \
         --enable-fhs \
         --with-piddir=/run \
@@ -663,6 +662,8 @@ LDFLAGS="-Wl,-z,relro,-z,now" \
         --with-shared-modules=%{_samba4_modules} \
         --bundled-libraries=%{_samba4_libraries} \
         --with-pam \
+        --with-pie \
+        --with-relro \
         --without-fam \
 %if (! %with_libsmbclient) || (! %with_libwbclient)
         --private-libraries=%{_samba4_private_libraries} \
@@ -1854,6 +1855,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Mar 03 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-0.5.rc5
+- Update to Samba 4.2.0rc5
+
 * Fri Jan 16 2015 - Andreas Schneider <asn@redhat.com> - 4.2.0-0.4.rc4
 - Update to Samba 4.2.0rc4
 - resolves: #1154600 - Install missing samba pam.d configuration file.
