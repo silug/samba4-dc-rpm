@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -158,11 +158,9 @@ BuildRequires: glusterfs-devel >= 3.4.0.16
 %if %{with_vfs_cephfs}
 BuildRequires: libcephfs1-devel
 %endif
-
-# cwrap
-BuildRequires: socket_wrapper
-BuildRequires: nss_wrapper
-BuildRequires: uid_wrapper
+%if %{with_dc}
+BuildRequires: gnutls-devel
+%endif
 
 # pidl requirements
 BuildRequires: perl(Parse::Yapp)
@@ -657,7 +655,6 @@ and use CTDB instead.
         --with-pammodulesdir=%{_libdir}/security \
         --with-lockdir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
-        --disable-gnutls \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
         --bundled-libraries=%{_samba4_libraries} \
@@ -1175,8 +1172,9 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libheimntlm-samba4.so.1.0.1
 %{_libdir}/samba/libkdc-samba4.so.2
 %{_libdir}/samba/libkdc-samba4.so.2.0.0
-%{_libdir}/samba/libpac.so
-%{_libdir}/samba/gensec
+%{_libdir}/samba/libpac-samba4.so
+%dir %{_libdir}/samba/gensec
+%{_libdir}/samba/gensec/krb5.so
 %{_libdir}/samba/ldb/acl.so
 %{_libdir}/samba/ldb/aclread.so
 %{_libdir}/samba/ldb/anr.so
@@ -1235,16 +1233,35 @@ rm -rf %{buildroot}
 %files dc-libs
 %defattr(-,root,root)
 %if %with_dc
-%{_libdir}/samba/libprocess_model.so
-%{_libdir}/samba/libservice.so
-%{_libdir}/samba/process_model
-%{_libdir}/samba/service
+%{_libdir}/samba/libprocess-model-samba4.so
+%{_libdir}/samba/libservice-samba4.so
+%dir %{_libdir}/samba/process_model
+%{_libdir}/samba/process_model/onefork.so
+%{_libdir}/samba/process_model/prefork.so
+%{_libdir}/samba/process_model/standard.so
+%dir %{_libdir}/samba/service
+%{_libdir}/samba/service/cldap.so
+%{_libdir}/samba/service/dcerpc.so
+%{_libdir}/samba/service/dns.so
+%{_libdir}/samba/service/dns_update.so
+%{_libdir}/samba/service/drepl.so
+%{_libdir}/samba/service/kcc.so
+%{_libdir}/samba/service/kdc.so
+%{_libdir}/samba/service/ldap.so
+%{_libdir}/samba/service/nbtd.so
+%{_libdir}/samba/service/ntp_signd.so
+%{_libdir}/samba/service/s3fs.so
+%{_libdir}/samba/service/smb.so
+%{_libdir}/samba/service/web.so
+%{_libdir}/samba/service/winbind.so
+%{_libdir}/samba/service/winbindd.so
+%{_libdir}/samba/service/wrepl.so
 %{_libdir}/libdcerpc-server.so.*
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
-%{_libdir}/samba/libntvfs.so
-%{_libdir}/samba/libposix_eadb.so
+%{_libdir}/samba/libntvfs-samba4.so
+%{_libdir}/samba/libposix-eadb-samba4.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
 %else
 %doc packaging/README.dc-libs
@@ -1546,8 +1563,8 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libxattr-tdb-samba4.so
 
 %if %with_dc
-%{_libdir}/samba/libdb-glue.so
-%{_libdir}/samba/libHDB_SAMBA4.so
+%{_libdir}/samba/libdb-glue-samba4.so
+%{_libdir}/samba/libHDB-SAMBA4-samba4.so
 %{_libdir}/samba/libasn1-samba4.so.8
 %{_libdir}/samba/libasn1-samba4.so.8.0.0
 %{_libdir}/samba/libgssapi-samba4.so.2
@@ -1696,9 +1713,9 @@ rm -rf %{buildroot}
 
 %if %{with testsuite}
 # files to ignore in testsuite mode
-%{_libdir}/samba/libnss_wrapper.so
-%{_libdir}/samba/libsocket_wrapper.so
-%{_libdir}/samba/libuid_wrapper.so
+%{_libdir}/samba/libnss-wrapper.so
+%{_libdir}/samba/libsocket-wrapper.so
+%{_libdir}/samba/libuid-wrapper.so
 %endif
 
 ### TEST-LIBS
@@ -1707,7 +1724,7 @@ rm -rf %{buildroot}
 %{_libdir}/libtorture.so.*
 %{_libdir}/samba/libsubunit-samba4.so
 %if %with_dc
-%{_libdir}/samba/libdlz_bind9_for_torture.so
+%{_libdir}/samba/libdlz-bind9-for-torture-samba4.so
 %else
 %{_libdir}/samba/libdsdb-module-samba4.so
 %endif
@@ -1856,6 +1873,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Mar 10 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-2
+- Fix the AD build.
+
 * Thu Mar 05 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.0-1
 - Update to Samba 4.2.0
 
