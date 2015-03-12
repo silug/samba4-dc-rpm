@@ -213,7 +213,7 @@ Samba is the standard Windows interoperability suite of programs for Linux and U
 Summary: Samba client programs
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
-Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
 %endif
@@ -226,11 +226,20 @@ The samba4-client package provides some SMB/CIFS clients to complement
 the built-in SMB/CIFS filesystem in Linux. These clients allow access
 of SMB/CIFS shares and printing to SMB/CIFS printers.
 
+### CLIENT-LIBS
+%package client-libs
+Summary: Samba client libraries
+Group: Applications/System
+
+%description client-libs
+The samba-client-libs package contains internal libraries needed by the
+SMB/CIFS clients.
+
 ### COMMON
 %package common
 Summary: Files used by both Samba servers and clients
 Group: Applications/System
-Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
@@ -325,6 +334,7 @@ Samba VFS module for GlusterFS integration.
 Summary: Samba libraries
 Group: Applications/System
 Requires: krb5-libs >= 1.10
+Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
@@ -342,7 +352,7 @@ link against the SMB, RPC and other protocols provided by the Samba suite.
 Summary: The SMB client library
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
-Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libsmbclient
 The libsmbclient contains the SMB client library from the Samba suite.
@@ -362,7 +372,7 @@ develop programs that link against the SMB client library in the Samba suite.
 %package -n libwbclient
 Summary: The winbind client library
 Group: Applications/System
-Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libwbclient
 The libwbclient package contains the winbind client library from the Samba suite.
@@ -1106,6 +1116,131 @@ rm -rf %{buildroot}
 %{_mandir}/man1/ldbsearch.1.gz
 %endif
 
+### CLIENT-LIBS
+%files client-libs
+%defattr(-,root,root)
+%{_libdir}/libdcerpc-binding.so.*
+%{_libdir}/libgensec.so.*
+%{_libdir}/libndr.so.*
+%{_libdir}/libndr-krb5pac.so.*
+%{_libdir}/libndr-nbt.so.*
+%{_libdir}/libndr-standard.so.*
+%{_libdir}/libnetapi.so.*
+%{_libdir}/libsamba-credentials.so.*
+%{_libdir}/libsamba-passdb.so.*
+%{_libdir}/libsamba-util.so.*
+%{_libdir}/libsamba-hostconfig.so.*
+%{_libdir}/libsamdb.so.*
+%{_libdir}/libsmbconf.so.*
+%{_libdir}/libsmbclient-raw.so.*
+%{_libdir}/libsmbldap.so.*
+%{_libdir}/libtevent-util.so.*
+%{_libdir}/libregistry.so.*
+%{_libdir}/libdcerpc.so.*
+
+%dir %{_libdir}/samba
+%{_libdir}/samba/libCHARSET3-samba4.so
+%{_libdir}/samba/libaddns-samba4.so
+%{_libdir}/samba/libads-samba4.so
+%{_libdir}/samba/libasn1util-samba4.so
+%{_libdir}/samba/libauth-sam-reply-samba4.so
+%{_libdir}/samba/libauth-samba4.so
+%{_libdir}/samba/libauthkrb5-samba4.so
+%{_libdir}/samba/libccan-samba4.so
+%{_libdir}/samba/libcli-cldap-samba4.so
+%{_libdir}/samba/libcli-ldap-common-samba4.so
+%{_libdir}/samba/libcli-ldap-samba4.so
+%{_libdir}/samba/libcli-nbt-samba4.so
+%{_libdir}/samba/libcli-smb-common-samba4.so
+%{_libdir}/samba/libcli-spoolss-samba4.so
+%{_libdir}/samba/libcliauth-samba4.so
+%{_libdir}/samba/libcmdline-credentials-samba4.so
+%{_libdir}/samba/libdbwrap-samba4.so
+%{_libdir}/samba/libdcerpc-samba-samba4.so
+%{_libdir}/samba/liberrors-samba4.so
+%{_libdir}/samba/libevents-samba4.so
+%{_libdir}/samba/libflag-mapping-samba4.so
+%{_libdir}/samba/libgpo-samba4.so
+%{_libdir}/samba/libgse-samba4.so
+%{_libdir}/samba/libhttp-samba4.so
+%{_libdir}/samba/libinterfaces-samba4.so
+%{_libdir}/samba/libkrb5samba-samba4.so
+%{_libdir}/samba/libldbsamba-samba4.so
+%{_libdir}/samba/liblibcli-lsa3-samba4.so
+%{_libdir}/samba/liblibcli-netlogon3-samba4.so
+%{_libdir}/samba/liblibsmb-samba4.so
+%{_libdir}/samba/libmsrpc3-samba4.so
+%{_libdir}/samba/libndr-samba-samba4.so
+%{_libdir}/samba/libndr-samba4.so
+%{_libdir}/samba/libnet-keytab-samba4.so
+%{_libdir}/samba/libnetif-samba4.so
+%{_libdir}/samba/libnpa-tstream-samba4.so
+%{_libdir}/samba/libprinting-migrate-samba4.so
+%{_libdir}/samba/libreplace-samba4.so
+%{_libdir}/samba/libsamba-cluster-support-samba4.so
+%{_libdir}/samba/libsamba-debug-samba4.so
+%{_libdir}/samba/libsamba-modules-samba4.so
+%{_libdir}/samba/libsamba-security-samba4.so
+%{_libdir}/samba/libsamba-sockets-samba4.so
+%{_libdir}/samba/libsamba3-util-samba4.so
+%{_libdir}/samba/libsamdb-common-samba4.so
+%{_libdir}/samba/libsecrets3-samba4.so
+%{_libdir}/samba/libserver-role-samba4.so
+%{_libdir}/samba/libsmb-transport-samba4.so
+%{_libdir}/samba/libsmbd-base-samba4.so
+%{_libdir}/samba/libsmbd-conn-samba4.so
+%{_libdir}/samba/libsmbd-shim-samba4.so
+%{_libdir}/samba/libsmbldaphelper-samba4.so
+%{_libdir}/samba/libsmbregistry-samba4.so
+%{_libdir}/samba/libsocket-blocking-samba4.so
+%{_libdir}/samba/libtdb-wrap-samba4.so
+%{_libdir}/samba/libtrusts-util-samba4.so
+%{_libdir}/samba/libutil-cmdline-samba4.so
+%{_libdir}/samba/libutil-ntdb-samba4.so
+%{_libdir}/samba/libutil-reg-samba4.so
+%{_libdir}/samba/libutil-setid-samba4.so
+%{_libdir}/samba/libutil-tdb-samba4.so
+%{_libdir}/samba/libwinbind-client-samba4.so
+
+%if ! %with_libwbclient
+%{_libdir}/samba/libwbclient.so.*
+%{_libdir}/samba/libwinbind-client-samba4.so
+%endif # ! with_libwbclient
+
+%if ! %with_libsmbclient
+%{_libdir}/samba/libsmbclient.so.*
+%{_mandir}/man7/libsmbclient.7*
+%endif # ! with_libsmbclient
+
+%if %{with_internal_ntdb}
+%{_libdir}/samba/libntdb.so.1
+%{_libdir}/samba/libntdb.so.%{ntdb_version}
+%endif
+
+%if %{with_internal_talloc}
+%{_libdir}/samba/libtalloc.so.2
+%{_libdir}/samba/libtalloc.so.%{talloc_version}
+%{_libdir}/samba/libpytalloc-util.so.2
+%{_libdir}/samba/libpytalloc-util.so.%{talloc_version}
+%{_mandir}/man3/talloc.3.gz
+%endif
+
+%if %{with_internal_tevent}
+%{_libdir}/samba/libtevent.so.0
+%{_libdir}/samba/libtevent.so.%{tevent_version}
+%endif
+
+%if %{with_internal_tdb}
+%{_libdir}/samba/libtdb.so.1
+%{_libdir}/samba/libtdb.so.%{tdb_version}
+%endif
+
+%if %{with_internal_ldb}
+%{_libdir}/samba/libldb.so.1
+%{_libdir}/samba/libldb.so.%{ldb_version}
+%{_mandir}/man3/ldb.3.gz
+%endif
+
 ### COMMON
 %files common
 %defattr(-,root,root)
@@ -1463,103 +1598,22 @@ rm -rf %{buildroot}
 %files libs
 %defattr(-,root,root)
 %{_libdir}/libdcerpc-atsvc.so.*
-%{_libdir}/libdcerpc-binding.so.*
 %{_libdir}/libdcerpc-samr.so.*
-%{_libdir}/libdcerpc.so.*
-%{_libdir}/libgensec.so.*
-%{_libdir}/libndr-krb5pac.so.*
-%{_libdir}/libndr-nbt.so.*
-%{_libdir}/libndr-standard.so.*
-%{_libdir}/libndr.so.*
-%{_libdir}/libnetapi.so.*
-%{_libdir}/libregistry.so.*
-%{_libdir}/libsamba-credentials.so.*
-%{_libdir}/libsamba-hostconfig.so.*
 %{_libdir}/libsamba-policy.so.*
-%{_libdir}/libsamba-util.so.*
-%{_libdir}/libsamdb.so.*
-%{_libdir}/libsmbclient-raw.so.*
-%{_libdir}/libsmbconf.so.*
-%{_libdir}/libtevent-util.so.*
-%{_libdir}/libsamba-passdb.so.*
-%{_libdir}/libsmbldap.so.*
 
 # libraries needed by the public libraries
-%dir %{_libdir}/samba
-%{_libdir}/samba/libCHARSET3-samba4.so
 %{_libdir}/samba/libMESSAGING-samba4.so
 %{_libdir}/samba/libLIBWBCLIENT-OLD-samba4.so
-%{_libdir}/samba/libaddns-samba4.so
-%{_libdir}/samba/libads-samba4.so
-%{_libdir}/samba/libasn1util-samba4.so
-%{_libdir}/samba/libauth-samba4.so
 %{_libdir}/samba/libauth4-samba4.so
-%{_libdir}/samba/libauthkrb5-samba4.so
-%{_libdir}/samba/libccan-samba4.so
-%{_libdir}/samba/libcli-ldap-common-samba4.so
-%{_libdir}/samba/libcli-ldap-samba4.so
-%{_libdir}/samba/libcli-nbt-samba4.so
-%{_libdir}/samba/libcliauth-samba4.so
-%{_libdir}/samba/libcluster-samba4.so
-%{_libdir}/samba/libcmdline-credentials-samba4.so
-%{_libdir}/samba/libdbwrap-samba4.so
-%{_libdir}/samba/liberrors-samba4.so
-%{_libdir}/samba/libevents-samba4.so
-%{_libdir}/samba/libgpo-samba4.so
-%{_libdir}/samba/libgse-samba4.so
-%{_libdir}/samba/libhttp-samba4.so
-%{_libdir}/samba/libinterfaces-samba4.so
-%{_libdir}/samba/libkrb5samba-samba4.so
-%{_libdir}/samba/libldbsamba-samba4.so
-%{_libdir}/samba/liblibsmb-samba4.so
-%{_libdir}/samba/libmsrpc3-samba4.so
-%{_libdir}/samba/libnetif-samba4.so
-%{_libdir}/samba/libreplace-samba4.so
-%{_libdir}/samba/libsamba-debug-samba4.so
-%{_libdir}/samba/libsamba-modules-samba4.so
-%{_libdir}/samba/libsamba-net-samba4.so
-%{_libdir}/samba/libsamba-security-samba4.so
-%{_libdir}/samba/libsamba-sockets-samba4.so
-%{_libdir}/samba/libsamdb-common-samba4.so
-%{_libdir}/samba/libsecrets3-samba4.so
-%{_libdir}/samba/libserver-role-samba4.so
-%{_libdir}/samba/libshares-samba4.so
-%{_libdir}/samba/libsamba-cluster-support-samba4.so
-%{_libdir}/samba/libsamba3-util-samba4.so
-%{_libdir}/samba/libsmbldaphelper-samba4.so
-%{_libdir}/samba/libsmbpasswdparser-samba4.so
-%{_libdir}/samba/libsmbregistry-samba4.so
-%{_libdir}/samba/libsocket-blocking-samba4.so
-%{_libdir}/samba/libtdb-wrap-samba4.so
-%{_libdir}/samba/libauth-sam-reply-samba4.so
 %{_libdir}/samba/libauth-unix-token-samba4.so
-%{_libdir}/samba/libcli-cldap-samba4.so
-%{_libdir}/samba/libcli-smb-common-samba4.so
-%{_libdir}/samba/libcli-spoolss-samba4.so
-%{_libdir}/samba/libdcerpc-samba-samba4.so
+%{_libdir}/samba/libcluster-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
-%{_libdir}/samba/libflag-mapping-samba4.so
-%{_libdir}/samba/liblibcli-lsa3-samba4.so
-%{_libdir}/samba/liblibcli-netlogon3-samba4.so
-%{_libdir}/samba/libndr-samba-samba4.so
-%{_libdir}/samba/libndr-samba4.so
-%{_libdir}/samba/libnet-keytab-samba4.so
 %{_libdir}/samba/libnon-posix-acls-samba4.so
-%{_libdir}/samba/libnpa-tstream-samba4.so
-%{_libdir}/samba/libprinting-migrate-samba4.so
+%{_libdir}/samba/libsamba-net-samba4.so
 %{_libdir}/samba/libsamba-python-samba4.so
-%{_libdir}/samba/libsmb-transport-samba4.so
-%{_libdir}/samba/libsmbd-base-samba4.so
-%{_libdir}/samba/libsmbd-conn-samba4.so
-%{_libdir}/samba/libsmbd-shim-samba4.so
+%{_libdir}/samba/libshares-samba4.so
+%{_libdir}/samba/libsmbpasswdparser-samba4.so
 %{_libdir}/samba/libtdb-compat-samba4.so
-%{_libdir}/samba/libtrusts-util-samba4.so
-%{_libdir}/samba/libutil-cmdline-samba4.so
-%{_libdir}/samba/libutil-ntdb-samba4.so
-%{_libdir}/samba/libutil-reg-samba4.so
-%{_libdir}/samba/libutil-setid-samba4.so
-%{_libdir}/samba/libutil-tdb-samba4.so
-%{_libdir}/samba/libwinbind-client-samba4.so
 %{_libdir}/samba/libxattr-tdb-samba4.so
 
 %if %with_dc
@@ -1584,43 +1638,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libwind-samba4.so.0
 %{_libdir}/samba/libwind-samba4.so.0.0.0
 %endif
-
-%if %{with_internal_ldb}
-%{_libdir}/samba/libldb.so.1
-%{_libdir}/samba/libldb.so.%{ldb_version}
-%{_libdir}/samba/libpyldb-util.so.1
-%{_libdir}/samba/libpyldb-util.so.%{ldb_version}
-%{_mandir}/man3/ldb.3.gz
-%endif
-%if %{with_internal_talloc}
-%{_libdir}/samba/libtalloc.so.2
-%{_libdir}/samba/libtalloc.so.%{talloc_version}
-%{_libdir}/samba/libpytalloc-util.so.2
-%{_libdir}/samba/libpytalloc-util.so.%{talloc_version}
-%{_mandir}/man3/talloc.3.gz
-%endif
-%if %{with_internal_tevent}
-%{_libdir}/samba/libtevent.so.0
-%{_libdir}/samba/libtevent.so.%{tevent_version}
-%endif
-%if %{with_internal_tdb}
-%{_libdir}/samba/libtdb.so.1
-%{_libdir}/samba/libtdb.so.%{tdb_version}
-%endif
-%if %{with_internal_ntdb}
-%{_libdir}/samba/libntdb.so.1
-%{_libdir}/samba/libntdb.so.%{ntdb_version}
-%endif
-
-%if ! %with_libsmbclient
-%{_libdir}/samba/libsmbclient.so.*
-%{_mandir}/man7/libsmbclient.7*
-%endif # ! with_libsmbclient
-
-%if ! %with_libwbclient
-%{_libdir}/samba/libwbclient.so.*
-%{_libdir}/samba/libwinbind-client-samba4.so
-%endif # ! with_libwbclient
 
 ### LIBSMBCLIENT
 %if %with_libsmbclient
@@ -1875,6 +1892,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Mar 10 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-2
 - Fix the AD build.
+- Create samba-client-libs subpackage.
 
 * Thu Mar 05 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.0-1
 - Update to Samba 4.2.0
