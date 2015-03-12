@@ -239,6 +239,8 @@ SMB/CIFS clients.
 %package common
 Summary: Files used by both Samba servers and clients
 Group: Applications/System
+BuildArch: noarch
+
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -248,14 +250,29 @@ Requires(post): systemd
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
 
-# This is for upgrading from F17 to F18
-Obsoletes: samba-doc
-Obsoletes: samba-domainjoin-gui
-Obsoletes: samba-swat
-
 %description common
-samba4-common provides files necessary for both the server and client
+samba-common provides files necessary for both the server and client
 packages of Samba.
+
+### COMMON-LIBS
+%package common-libs
+Summary: Libraries used by both Samba servers and clients
+Group: Applications/System
+Requires: samba-common = %{samba_depver}
+
+%description common-libs
+The samba-common-libs package contains internal libraries needed by the
+SMB/CIFS clients.
+
+### COMMON-TOOLS
+%package common-tools
+Summary: Tools for Samba servers and clients
+Group: Applications/System
+Requires: samba-libs = %{samba_depver}
+
+%description common-tools
+The samba-common-tools package contains tools for Samba servers and
+SMB/CIFS clients.
 
 ### DC
 %package dc
@@ -275,7 +292,7 @@ The samba-dc package provides AD Domain Controller functionality
 %package dc-libs
 Summary: Samba AD Domain Controller Libraries
 Group: Applications/System
-Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
 Provides: samba4-dc-libs = %{samba_depver}
@@ -1244,14 +1261,7 @@ rm -rf %{buildroot}
 ### COMMON
 %files common
 %defattr(-,root,root)
-#%{_libdir}/samba/charset ???
 %{_prefix}/lib/tmpfiles.d/samba.conf
-%{_bindir}/net
-%{_bindir}/pdbedit
-%{_bindir}/profiles
-%{_bindir}/smbcontrol
-%{_bindir}/smbpasswd
-%{_bindir}/testparm
 %{_datadir}/samba/codepages
 %dir %{_sysconfdir}/logrotate.d/
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
@@ -1264,17 +1274,10 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
-%{_mandir}/man1/profiles.1*
-%{_mandir}/man1/smbcontrol.1*
-%{_mandir}/man1/testparm.1*
-%{_mandir}/man5/lmhosts.5*
-%{_mandir}/man5/smb.conf.5*
-%{_mandir}/man5/smbpasswd.5*
-%{_mandir}/man7/samba.7*
-%{_mandir}/man8/net.8*
-%{_mandir}/man8/pdbedit.8*
-%{_mandir}/man8/smbpasswd.8*
 
+### COMMON-libs
+%files common-libs
+%defattr(-,root,root)
 # common libraries
 %{_libdir}/samba/libpopt-samba3-samba4.so
 
@@ -1287,6 +1290,25 @@ rm -rf %{buildroot}
 %if %with_pam_smbpass
 %{_libdir}/security/pam_smbpass.so
 %endif
+
+%files common-tools
+%defattr(-,root,root)
+%{_bindir}/net
+%{_bindir}/pdbedit
+%{_bindir}/profiles
+%{_bindir}/smbcontrol
+%{_bindir}/smbpasswd
+%{_bindir}/testparm
+%{_mandir}/man1/profiles.1*
+%{_mandir}/man1/smbcontrol.1*
+%{_mandir}/man1/testparm.1*
+%{_mandir}/man5/lmhosts.5*
+%{_mandir}/man5/smb.conf.5*
+%{_mandir}/man5/smbpasswd.5*
+%{_mandir}/man7/samba.7*
+%{_mandir}/man8/net.8*
+%{_mandir}/man8/pdbedit.8*
+%{_mandir}/man8/smbpasswd.8*
 
 ### DC
 %files dc
