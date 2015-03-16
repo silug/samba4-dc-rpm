@@ -241,10 +241,6 @@ Summary: Files used by both Samba servers and clients
 Group: Applications/System
 BuildArch: noarch
 
-Requires: %{name}-client-libs = %{samba_depver}
-%if %with_libwbclient
-Requires: libwbclient = %{samba_depver}
-%endif
 Requires(post): systemd
 
 Provides: samba4-common = %{samba_depver}
@@ -259,6 +255,10 @@ packages of Samba.
 Summary: Libraries used by both Samba servers and clients
 Group: Applications/System
 Requires: samba-common = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 %description common-libs
 The samba-common-libs package contains internal libraries needed by the
@@ -1915,6 +1915,7 @@ rm -rf %{buildroot}
 * Tue Mar 10 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-2
 - Fix the AD build.
 - Create samba-client-libs subpackage.
+- Fix multiarch issues by splitting the samba-common package.
 
 * Thu Mar 05 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.0-1
 - Update to Samba 4.2.0
