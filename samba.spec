@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.2.0
 %define talloc_version 2.1.1
@@ -91,6 +91,8 @@ URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
+Patch0:         samba-4.2.1-fix_systemd_detection.patch
+
 # Red Hat specific replacement-files
 Source1: samba.log
 Source2: samba.xinetd
@@ -148,9 +150,11 @@ BuildRequires: python-devel
 BuildRequires: python-tevent
 BuildRequires: quota-devel
 BuildRequires: readline-devel
-BuildRequires: systemd-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
+
+BuildRequires: pkgconfig(systemd-daemon)
+
 %if %{with_vfs_glusterfs}
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
@@ -630,6 +634,8 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .samba-4.2.1-fix_systemd_detection.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1912,6 +1918,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Apr 08 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-3
+- resolves: #1207381 - Fix libsystemd detection.
+
 * Tue Mar 10 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-2
 - Fix the AD build.
 - Create samba-client-libs subpackage.
