@@ -153,7 +153,7 @@ BuildRequires: readline-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
 
-BuildRequires: pkgconfig(systemd-daemon)
+BuildRequires: systemd-devel
 
 %if %{with_vfs_glusterfs}
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
