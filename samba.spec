@@ -111,6 +111,7 @@ Requires(preun): systemd
 Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -153,7 +154,8 @@ BuildRequires: readline-devel
 BuildRequires: sed
 BuildRequires: zlib-devel >= 1.2.3
 
-BuildRequires: systemd-devel
+BuildRequires: pkgconfig(libsystemd-daemon)
+BuildRequires: pkgconfig(libsystemd)
 
 %if %{with_vfs_glusterfs}
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
@@ -216,7 +218,7 @@ Samba is the standard Windows interoperability suite of programs for Linux and U
 %package client
 Summary: Samba client programs
 Group: Applications/System
-Requires: %{name}-common = %{samba_depver}
+Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
@@ -234,6 +236,7 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 %package client-libs
 Summary: Samba client libraries
 Group: Applications/System
+Requires(pre): %{name}-common = %{samba_depver}
 
 %description client-libs
 The samba-client-libs package contains internal libraries needed by the
@@ -258,7 +261,7 @@ packages of Samba.
 %package common-libs
 Summary: Libraries used by both Samba servers and clients
 Group: Applications/System
-Requires: samba-common = %{samba_depver}
+Requires(pre): samba-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -372,7 +375,7 @@ link against the SMB, RPC and other protocols provided by the Samba suite.
 %package -n libsmbclient
 Summary: The SMB client library
 Group: Applications/System
-Requires: %{name}-common = %{samba_depver}
+Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libsmbclient
@@ -494,7 +497,8 @@ packages of Samba.
 %package winbind
 Summary: Samba winbind
 Group: Applications/System
-Requires: %{name}-common = %{samba_depver}
+Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind-modules = %{samba_depver}
 
