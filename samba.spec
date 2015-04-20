@@ -9,7 +9,7 @@
 %define main_release 1
 
 %define samba_version 4.2.1
-%define talloc_version 2.1.1
+%define talloc_version 2.1.2
 %define ntdb_version 1.0
 %define tdb_version 1.3.4
 %define tevent_version 0.9.24
@@ -172,7 +172,7 @@ BuildRequires: gnutls-devel
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.1.1
+%global libtalloc_version 2.1.2
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
@@ -988,6 +988,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/shadow_copy.so
 %{_libdir}/samba/vfs/shadow_copy2.so
 %{_libdir}/samba/vfs/smb_traffic_analyzer.so
+%{_libdir}/samba/vfs/snapper.so
 %{_libdir}/samba/vfs/streams_depot.so
 %{_libdir}/samba/vfs/streams_xattr.so
 %{_libdir}/samba/vfs/syncops.so
