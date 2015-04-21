@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.2.0
+%define samba_version 4.2.1
 %define talloc_version 2.1.1
 %define ntdb_version 1.0
 %define tdb_version 1.3.4
@@ -91,7 +91,7 @@ URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
-Patch0:         samba-4.2.1-fix_systemd_detection.patch
+Patch0:         samba-4.2.2-fix_debug_macro.patch
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -639,7 +639,7 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.2.1-fix_systemd_detection.patch
+%patch0 -p1 -b .samba-4.2.2-fix_debug_macro.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1922,6 +1922,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Apr 21 2015 Andreas Schneider <asn@redhat.com> - 4.2.1-1
+- Update to Samba 4.2.1
+- resolves: #1213373 - Fix DEBUG macro issues in public headers
+
 * Wed Apr 08 2015 Andreas Schneider <asn@redhat.com> - 4.2.0-3
 - resolves: #1207381 - Fix libsystemd detection.
 
