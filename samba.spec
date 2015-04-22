@@ -988,7 +988,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/shadow_copy.so
 %{_libdir}/samba/vfs/shadow_copy2.so
 %{_libdir}/samba/vfs/smb_traffic_analyzer.so
-%{_libdir}/samba/vfs/snapper.so
+#%{_libdir}/samba/vfs/snapper.so
 %{_libdir}/samba/vfs/streams_depot.so
 %{_libdir}/samba/vfs/streams_xattr.so
 %{_libdir}/samba/vfs/syncops.so
