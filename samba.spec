@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.2.1
 %define talloc_version 2.1.2
@@ -131,6 +131,7 @@ Obsoletes: samba-swat
 Obsoletes: samba4-swat
 
 BuildRequires: cups-devel
+BuildRequires: dbus-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
@@ -988,7 +989,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/shadow_copy.so
 %{_libdir}/samba/vfs/shadow_copy2.so
 %{_libdir}/samba/vfs/smb_traffic_analyzer.so
-#%{_libdir}/samba/vfs/snapper.so
+%{_libdir}/samba/vfs/snapper.so
 %{_libdir}/samba/vfs/streams_depot.so
 %{_libdir}/samba/vfs/streams_xattr.so
 %{_libdir}/samba/vfs/syncops.so
@@ -1923,6 +1924,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Apr 22 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.1-2
+- Add vfs snapper module.
+
 * Tue Apr 21 2015 Andreas Schneider <asn@redhat.com> - 4.2.1-1
 - Update to Samba 4.2.1
 - resolves: #1213373 - Fix DEBUG macro issues in public headers
