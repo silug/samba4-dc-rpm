@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.2.1
 %define talloc_version 2.1.2
@@ -93,6 +93,7 @@ URL:            http://www.samba.org/
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
 Patch0:         samba-4.2.2-fix_debug_macro.patch
+Patch1:         samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -642,6 +643,7 @@ and use CTDB instead.
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p1 -b .samba-4.2.2-fix_debug_macro.patch
+%patch1 -p1 -b .samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1930,6 +1932,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sat Apr 25 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-4
+- Fix systemd library detection (incomplete patch upstream)
+
 * Fri Apr 24 2015 Andreas Schneider <asn@redhat.com> - 4.2.1-3
 - resolves: #1214973 - Fix libwbclient alternatives link.
 

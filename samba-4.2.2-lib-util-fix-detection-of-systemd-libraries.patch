@@ -1,0 +1,236 @@
+From 9cad09f8df8e080189fe274a6032c8fa70f0c2aa Mon Sep 17 00:00:00 2001
+From: Christof Schmitt <cs@samba.org>
+Date: Fri, 20 Mar 2015 12:13:14 -0700
+Subject: [PATCH 1/2] build: Move systemd checks to lib/util
+
+Only lib/util uses the systemd library, so it makes sense to have the
+checks there. This also removes the need for the ctdb build script to
+specify an empty tag for the systemd library.
+
+Signed-off-by: Christof Schmitt <cs@samba.org>
+Reviewed-by: Amitay Isaacs <amitay@gmail.com>
+
+(cherry picked from commit 0509790ec3696e09f6d5e6db969e46e8fd975efb)
+---
+ ctdb/wscript               |  2 --
+ lib/util/wscript           |  8 ++++++++
+ lib/util/wscript_configure | 14 ++++++++++++++
+ wscript                    | 22 ----------------------
+ 4 files changed, 22 insertions(+), 24 deletions(-)
+
+diff --git a/ctdb/wscript b/ctdb/wscript
+index 3e2a992..6f5f469 100755
+--- a/ctdb/wscript
++++ b/ctdb/wscript
+@@ -212,8 +212,6 @@ def configure(conf):
+             conf.ADD_EXTRA_INCLUDES('#ctdb')
+         conf.ADD_EXTRA_INCLUDES('#lib #lib/replace')
+ 
+-        conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
+-
+         del(conf.env.defines['PYTHONDIR'])
+         del(conf.env.defines['PYTHONARCHDIR'])
+ 
+diff --git a/lib/util/wscript b/lib/util/wscript
+index d296e75..2371689 100644
+--- a/lib/util/wscript
++++ b/lib/util/wscript
+@@ -1,3 +1,11 @@
+ def set_options(opt):
+     ''' This is a bit strange, but disable is the flag, not enable. '''
+     opt.add_option('--disable-fault-handling', action='store_true', dest='disable_fault_handling', help=('disable the fault handlers'), default=False)
++
++    opt.add_option('--with-systemd',
++                   help=("Enable systemd integration"),
++                   action='store_true', dest='enable_systemd')
++
++    opt.add_option('--without-systemd',
++                   help=("Disable systemd integration"),
++                   action='store_false', dest='enable_systemd')
+diff --git a/lib/util/wscript_configure b/lib/util/wscript_configure
+index 1270ab3..1cfba3e 100644
+--- a/lib/util/wscript_configure
++++ b/lib/util/wscript_configure
+@@ -99,3 +99,17 @@ conf.CHECK_CODE('struct statvfs buf; buf.f_flags = 0',
+                 headers='sys/statvfs.h',
+                 local_include=False,
+                 execute=False)
++
++if Options.options.enable_systemd != False:
++    conf.CHECK_CFG(package='libsystemd-daemon', args='--cflags --libs',
++                   msg='Checking for libsystemd-daemon', uselib_store="SYSTEMD-DAEMON")
++    conf.CHECK_HEADERS('systemd/sd-daemon.h', lib='systemd-daemon')
++    conf.CHECK_LIB('systemd-daemon', shlib=True)
++
++if (conf.CONFIG_SET('HAVE_SYSTEMD_SD_DAEMON_H') and
++    conf.CONFIG_SET('HAVE_LIBSYSTEMD_DAEMON')):
++    conf.DEFINE('HAVE_SYSTEMD', '1')
++    conf.env['ENABLE_SYSTEMD'] = True
++else:
++    conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
++    conf.undefine('HAVE_SYSTEMD')
+diff --git a/wscript b/wscript
+index ad2e2a8..f4241f1 100644
+--- a/wscript
++++ b/wscript
+@@ -70,14 +70,6 @@ def set_options(opt):
+                   help=("Disable RELRO builds"),
+                   action="store_false", dest='enable_relro')
+ 
+-    opt.add_option('--with-systemd',
+-                   help=("Enable systemd integration"),
+-                   action='store_true', dest='enable_systemd')
+-
+-    opt.add_option('--without-systemd',
+-                   help=("Disable systemd integration"),
+-                   action='store_false', dest='enable_systemd')
+-
+     gr = opt.option_group('developer options')
+ 
+     opt.tool_options('python') # options for disabling pyc or pyo compilation
+@@ -214,20 +206,6 @@ def configure(conf):
+                          msg="Checking compiler for full RELRO support"):
+             conf.env['ENABLE_RELRO'] = True
+ 
+-    if Options.options.enable_systemd != False:
+-        conf.check_cfg(package='libsystemd-daemon', args='--cflags --libs',
+-                       msg='Checking for libsystemd-daemon', uselib_store="SYSTEMD-DAEMON")
+-        conf.CHECK_HEADERS('systemd/sd-daemon.h', lib='systemd-daemon')
+-        conf.CHECK_LIB('systemd-daemon', shlib=True)
+-
+-    if (conf.CONFIG_SET('HAVE_SYSTEMD_SD_DAEMON_H') and
+-        conf.CONFIG_SET('HAVE_LIBSYSTEMD_DAEMON')):
+-        conf.DEFINE('HAVE_SYSTEMD', '1')
+-        conf.env['ENABLE_SYSTEMD'] = True
+-    else:
+-        conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
+-        conf.undefine('HAVE_SYSTEMD')
+-
+     conf.SAMBA_CONFIG_H('include/config.h')
+ 
+ def etags(ctx):
+-- 
+2.3.5
+
+
+From 42e03b23cf8850cfb6df383a6b69627ffe1ce369 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Tue, 7 Apr 2015 16:30:30 +0200
+Subject: [PATCH 2/2] waf: Fix systemd detection
+
+https://bugzilla.samba.org/show_bug.cgi?id=11200
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Alexander Bokovoy <ab@samba.org>
+
+(cherry picked from commit 5ee27b4ead57c15db7168d80f6fdf821663c44fc)
+---
+ lib/util/become_daemon.c   | 12 ++++++------
+ lib/util/wscript_build     |  2 +-
+ lib/util/wscript_configure | 27 +++++++++++++++------------
+ 3 files changed, 22 insertions(+), 19 deletions(-)
+
+diff --git a/lib/util/become_daemon.c b/lib/util/become_daemon.c
+index 78bebfc..4622971 100644
+--- a/lib/util/become_daemon.c
++++ b/lib/util/become_daemon.c
+@@ -24,7 +24,7 @@
+ #include "includes.h"
+ #include "system/filesys.h"
+ #include "system/locale.h"
+-#if HAVE_SYSTEMD
++#if HAVE_LIBSYSTEMD_DAEMON
+ #include <systemd/sd-daemon.h>
+ #endif
+ #include "lib/util/close_low_fd.h"
+@@ -69,9 +69,9 @@ _PUBLIC_ void become_daemon(bool do_fork, bool no_process_group, bool log_stdout
+ 	if (do_fork) {
+ 		newpid = fork();
+ 		if (newpid) {
+-#if HAVE_SYSTEMD
++#if HAVE_LIBSYSTEMD_DAEMON
+ 			sd_notifyf(0, "READY=0\nSTATUS=Starting process...\nMAINPID=%lu", (unsigned long) newpid);
+-#endif /* HAVE_SYSTEMD */
++#endif /* HAVE_LIBSYSTEMD_DAEMON */
+ 			_exit(0);
+ 		}
+ 	}
+@@ -98,7 +98,7 @@ _PUBLIC_ void become_daemon(bool do_fork, bool no_process_group, bool log_stdout
+ 
+ _PUBLIC_ void exit_daemon(const char *msg, int error)
+ {
+-#ifdef HAVE_SYSTEMD
++#ifdef HAVE_LIBSYSTEMD_DAEMON
+ 	if (msg == NULL) {
+ 		msg = strerror(error);
+ 	}
+@@ -117,7 +117,7 @@ _PUBLIC_ void daemon_ready(const char *name)
+ 	if (name == NULL) {
+ 		name = "Samba";
+ 	}
+-#ifdef HAVE_SYSTEMD
++#ifdef HAVE_LIBSYSTEMD_DAEMON
+ 	sd_notifyf(0, "READY=1\nSTATUS=%s: ready to serve connections...", name);
+ #endif
+ 	DEBUG(0, ("STATUS=daemon '%s' finished starting up and ready to serve "
+@@ -129,7 +129,7 @@ _PUBLIC_ void daemon_status(const char *name, const char *msg)
+ 	if (name == NULL) {
+ 		name = "Samba";
+ 	}
+-#ifdef HAVE_SYSTEMD
++#ifdef HAVE_LIBSYSTEMD_DAEMON
+ 	sd_notifyf(0, "\nSTATUS=%s: %s", name, msg);
+ #endif
+ 	DEBUG(0, ("STATUS=daemon '%s' : %s", name, msg));
+diff --git a/lib/util/wscript_build b/lib/util/wscript_build
+index 5db7e35..cb9e8e5 100755
+--- a/lib/util/wscript_build
++++ b/lib/util/wscript_build
+@@ -54,7 +54,7 @@ if not bld.env.SAMBA_UTIL_CORE_ONLY:
+                     tevent_debug.c util_process.c memcache.c''',
+                   deps='samba-util-core DYNCONFIG close-low-fd tini tiniparser',
+ 
+-                  public_deps='talloc tevent execinfo pthread LIBCRYPTO charset util_setid systemd-daemon',
++                  public_deps='talloc tevent execinfo pthread LIBCRYPTO charset util_setid systemd systemd-daemon',
+                   public_headers='debug.h attr.h byteorder.h data_blob.h memory.h safe_string.h time.h talloc_stack.h xfile.h dlinklist.h samba_util.h string_wrappers.h idtree.h idtree_random.h blocking.h signal.h substitute.h fault.h',
+                   header_path= [ ('dlinklist.h samba_util.h', '.'), ('*', 'util') ],
+                   local_include=False,
+diff --git a/lib/util/wscript_configure b/lib/util/wscript_configure
+index 1cfba3e..8d8dc87 100644
+--- a/lib/util/wscript_configure
++++ b/lib/util/wscript_configure
+@@ -100,16 +100,19 @@ conf.CHECK_CODE('struct statvfs buf; buf.f_flags = 0',
+                 local_include=False,
+                 execute=False)
+ 
++#
++# systemd removed the libsystemd-daemon and libsystemd-journal libraries. In newer
++# versions it is only libsystemd. As waf pkg-config handling does not provide
++# targets which could be used as a dependency based on the package name we need
++# to look for them on our own. This enabled one of the library targets based on
++# which version we detect.
++#
++conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
++conf.SET_TARGET_TYPE('systemd-journal', 'EMPTY')
++conf.SET_TARGET_TYPE('systemd', 'EMPTY')
++
+ if Options.options.enable_systemd != False:
+-    conf.CHECK_CFG(package='libsystemd-daemon', args='--cflags --libs',
+-                   msg='Checking for libsystemd-daemon', uselib_store="SYSTEMD-DAEMON")
+-    conf.CHECK_HEADERS('systemd/sd-daemon.h', lib='systemd-daemon')
+-    conf.CHECK_LIB('systemd-daemon', shlib=True)
+-
+-if (conf.CONFIG_SET('HAVE_SYSTEMD_SD_DAEMON_H') and
+-    conf.CONFIG_SET('HAVE_LIBSYSTEMD_DAEMON')):
+-    conf.DEFINE('HAVE_SYSTEMD', '1')
+-    conf.env['ENABLE_SYSTEMD'] = True
+-else:
+-    conf.SET_TARGET_TYPE('systemd-daemon', 'EMPTY')
+-    conf.undefine('HAVE_SYSTEMD')
++    conf.check_cfg(package='libsystemd-daemon', args='--cflags --libs',
++                   msg='Checking for libsystemd-daemon')
++    if not conf.CHECK_LIB('systemd-daemon', shlib=True):
++        conf.CHECK_LIB('systemd', shlib=True)
+-- 
+2.3.5
+
