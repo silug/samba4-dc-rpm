@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.2.1
 %define talloc_version 2.1.2
@@ -222,6 +222,7 @@ Samba is the standard Windows interoperability suite of programs for Linux and U
 Summary: Samba client programs
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
@@ -1932,6 +1933,11 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Apr 27 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-5
+- Require samba-common-tools in samba package
+- Require samba-common-tools in samba-client package
+- resolves: #1215631 - /usr/bin/net moved to samba-common-tools but the package is not required by samba
+
 * Sat Apr 25 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-4
 - Fix systemd library detection (incomplete patch upstream)
 
