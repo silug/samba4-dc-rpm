@@ -96,6 +96,7 @@ Patch0:         samba-4.2.2-fix_debug_macro.patch
 Patch1:         samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 Patch2:         samba-4.2-fix-rpc-helper.patch
 Patch3:         samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
+Patch4:         samba-4.2-fix-gnutls-deprecation.patch
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -648,6 +649,7 @@ and use CTDB instead.
 %patch1 -p1 -b .samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 %patch2 -p1 -b .samba-4.2-fix-rpc-helper.patch
 %patch3 -p1 -b .samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
+%patch4 -p1 -b .samba-4.2-fix-gnutls-deprecation.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1938,6 +1940,7 @@ rm -rf %{buildroot}
 %changelog
 * Mon May 11 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-8
 - Fixes: #1219832: Samba 4.2 broke FreeIPA trusts to AD
+- Remove usage of deprecated API from gnutls
 
 * Thu Apr 30 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-7
 - Fix LSASD daemon
