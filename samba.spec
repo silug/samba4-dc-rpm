@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 7
+%define main_release 8
 
 %define samba_version 4.2.1
 %define talloc_version 2.1.2
@@ -95,6 +95,7 @@ Source0:        samba-%{version}%{pre_release}.tar.xz
 Patch0:         samba-4.2.2-fix_debug_macro.patch
 Patch1:         samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 Patch2:         samba-4.2-fix-rpc-helper.patch
+Patch3:         samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -646,6 +647,7 @@ and use CTDB instead.
 %patch0 -p1 -b .samba-4.2.2-fix_debug_macro.patch
 %patch1 -p1 -b .samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 %patch2 -p1 -b .samba-4.2-fix-rpc-helper.patch
+%patch3 -p1 -b .samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1934,6 +1936,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon May 11 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-8
+- Fixes: #1219832: Samba 4.2 broke FreeIPA trusts to AD
+
 * Thu Apr 30 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-7
 - Fix LSASD daemon
 - resolves: #1217346 - FreeIPA trusts to AD broken due to Samba 4.2 failure to run LSARPC pipe externally
