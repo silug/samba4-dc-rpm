@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 8
+%define main_release 0
 
-%define samba_version 4.2.1
+%define samba_version 4.2.2
 %define talloc_version 2.1.2
 %define ntdb_version 1.0
 %define tdb_version 1.3.4
@@ -92,8 +92,6 @@ URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
-Patch0:         samba-4.2.2-fix_debug_macro.patch
-Patch1:         samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 Patch2:         samba-4.2-fix-rpc-helper.patch
 Patch3:         samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
 Patch4:         samba-4.2-fix-gnutls-deprecation.patch
@@ -645,8 +643,6 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p1 -b .samba-4.2.2-fix_debug_macro.patch
-%patch1 -p1 -b .samba-4.2.2-lib-util-fix-detection-of-systemd-libraries.patch
 %patch2 -p1 -b .samba-4.2-fix-rpc-helper.patch
 %patch3 -p1 -b .samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
 %patch4 -p1 -b .samba-4.2-fix-gnutls-deprecation.patch
@@ -1930,6 +1926,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/events.d
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/functions
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-rpc-checks.d
+%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/statd-callout
 %{_datadir}/ctdb-tests/scripts/common.sh
 %{_datadir}/ctdb-tests/scripts/integration.bash
 %{_datadir}/ctdb-tests/scripts/test_wrap
@@ -1938,6 +1935,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu May 28 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.2-0
+- Update to Samba 4.2.2
+
 * Mon May 11 2015 Alexander Bokovoy <abokovoy@redhat.com> - 4.2.1-8
 - Fixes: #1219832: Samba 4.2 broke FreeIPA trusts to AD
 - Remove usage of deprecated API from gnutls
