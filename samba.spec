@@ -71,7 +71,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1935,6 +1935,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jun 04 2015 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.2.2-0.1
+- Perl 5.22 rebuild
+
 * Thu May 28 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.2-0
 - Update to Samba 4.2.2
 
