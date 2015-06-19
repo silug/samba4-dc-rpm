@@ -71,7 +71,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}.2
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1935,6 +1935,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jun 19 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:4.2.2-0.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Thu Jun 04 2015 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.2.2-0.1
 - Perl 5.22 rebuild
 
