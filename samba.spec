@@ -479,7 +479,7 @@ packages of Samba.
 
 ### TEST-LIBS
 %package test-libs
-Summary: Libraries need by teh testing tools for Samba servers and clients
+Summary: Libraries need by the testing tools for Samba servers and clients
 Group: Applications/System
 Requires: %{name}-libs = %{samba_depver}
 
