@@ -1307,6 +1307,7 @@ rm -rf %{buildroot}
 %attr(0700,root,root) %dir /var/log/samba/old
 %ghost %dir /var/run/samba
 %ghost %dir /var/run/winbindd
+%dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
 %attr(755,root,root) %dir %{_sysconfdir}/samba
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
@@ -1953,6 +1954,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Jun 19 2015 Andreas Schneider <asn@redhat.com> - 4.2.2-1
 - resolves: #1227911 - Enable tar support for smbclient
+- resolves: #1234908 - Own the /var/lib/samba directory
 - Enable hardened build
 
 * Fri Jun 19 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:4.2.2-0.2
