@@ -6,13 +6,13 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 0
 
-%define samba_version 4.2.2
+%define samba_version 4.2.3
 %define talloc_version 2.1.2
 %define ntdb_version 1.0
-%define tdb_version 1.3.4
-%define tevent_version 0.9.24
+%define tdb_version 1.3.6
+%define tevent_version 0.9.25
 %define ldb_version 1.1.20
 # This should be rc1 or nil
 %define pre_release %nil
@@ -99,9 +99,7 @@ URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
-Patch2:         samba-4.2-fix-rpc-helper.patch
 Patch3:         samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
-Patch4:         samba-4.2-fix-gnutls-deprecation.patch
 
 # Red Hat specific replacement-files
 Source1: samba.log
@@ -191,7 +189,7 @@ BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.22
+%global libtevent_version 0.9.25
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
@@ -205,7 +203,7 @@ BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.3.4
+%global libtdb_version 1.3.6
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -651,9 +649,7 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch2 -p1 -b .samba-4.2-fix-rpc-helper.patch
 %patch3 -p1 -b .samba-4.2-auth-credentials-if-credentials-have-principal-set-t.patch
-%patch4 -p1 -b .samba-4.2-fix-gnutls-deprecation.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1952,6 +1948,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Jul 14 2015 Guenther Deschner <gdeschner@redhat.com> - 4.2.3-0
+- resolves: #1088911 - Update to Samba 4.2.3
+
 * Fri Jun 19 2015 Andreas Schneider <asn@redhat.com> - 4.2.2-1
 - resolves: #1227911 - Enable tar support for smbclient
 - resolves: #1234908 - Own the /var/lib/samba directory
