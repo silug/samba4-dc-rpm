@@ -524,6 +524,7 @@ packages of Samba.
 Summary: Samba winbind
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
@@ -542,6 +543,7 @@ domains and to use Windows user and group accounts on Linux.
 Summary: Samba winbind clients
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
