@@ -119,7 +119,9 @@ Requires(preun): systemd
 Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -229,6 +231,7 @@ Samba is the standard Windows interoperability suite of programs for Linux and U
 Summary: Samba client programs
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
 Requires: libsmbclient = %{samba_depver}
@@ -247,6 +250,9 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Samba client libraries
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 %description client-libs
 The samba-client-libs package contains internal libraries needed by the
@@ -285,7 +291,12 @@ SMB/CIFS clients.
 %package common-tools
 Summary: Tools for Samba servers and clients
 Group: Applications/System
+Requires: samba-common-libs = %{samba_depver}
+Requires: samba-client-libs = %{samba_depver}
 Requires: samba-libs = %{samba_depver}
+%if %with_libwbclient
+Requires: libwbclient = %{samba_depver}
+%endif
 
 %description common-tools
 The samba-common-tools package contains tools for Samba servers and
@@ -324,6 +335,7 @@ link against the SMB, RPC and other protocols.
 Summary: Developer tools for Samba libraries
 Group: Development/Libraries
 Requires: %{name}-libs = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 
 Provides: samba4-devel = %{samba_depver}
 Obsoletes: samba4-devel < %{samba_depver}
@@ -354,6 +366,7 @@ Group: Applications/System
 Requires: glusterfs-api >= 3.4.0.16
 Requires: glusterfs >= 3.4.0.16
 Requires: %{name} = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
 Obsoletes: samba-glusterfs
@@ -427,6 +440,7 @@ The libwbclient-devel package provides developer tools for the wbclient library.
 Summary: Samba Python libraries
 Group: Applications/System
 Requires: %{name} = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: python-tevent
 Requires: python-tdb
@@ -463,6 +477,7 @@ Requires: %{name} = %{samba_depver}
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-test-libs = %{samba_depver}
 %if %with_dc
@@ -487,6 +502,7 @@ packages of Samba.
 %package test-libs
 Summary: Libraries need by the testing tools for Samba servers and clients
 Group: Applications/System
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
 %description test-libs
@@ -509,6 +525,7 @@ Summary: Samba winbind
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind-modules = %{samba_depver}
 
@@ -525,6 +542,7 @@ domains and to use Windows user and group accounts on Linux.
 Summary: Samba winbind clients
 Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %with_libwbclient
@@ -569,6 +587,7 @@ the local kerberos library to use the same KDC as samba and winbind use
 %package winbind-modules
 Summary: Samba winbind modules
 Group: Applications/System
+Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -584,6 +603,8 @@ module necessary to communicate to the Winbind Daemon
 %package -n ctdb
 Summary: A Clustered Database based on Samba's Trivial Database (TDB)
 Group: System Environment/Daemons
+
+Requires: %{name}-client-libs = %{samba_depver}
 
 Requires: coreutils
 Requires: fileutils
@@ -632,6 +653,8 @@ and use CTDB instead.
 %package -n ctdb-tests
 Summary: CTDB clustered database test suite
 Group: Development/Tools
+
+Requires: samba-client-libs = %{samba_depver}
 
 Requires: ctdb = %{samba_depver}
 Requires: nc
@@ -1251,7 +1274,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libutil-reg-samba4.so
 %{_libdir}/samba/libutil-setid-samba4.so
 %{_libdir}/samba/libutil-tdb-samba4.so
-%{_libdir}/samba/libwinbind-client-samba4.so
 
 %if ! %with_libwbclient
 %{_libdir}/samba/libwbclient.so.*
