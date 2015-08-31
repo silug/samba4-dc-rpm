@@ -1,0 +1,38 @@
+From 550eb499fddbf4846277cf51ea9c28f167c64ad0 Mon Sep 17 00:00:00 2001
+From: Stefan Metzmacher <metze@samba.org>
+Date: Thu, 27 Aug 2015 11:14:51 +0200
+Subject: [PATCH] ldb:wscript: make it possible to build samba with a system
+ ldb again
+
+This fixes a regression in commit fcf4a891945b22dc6eccdc71fd441f1a879f556a.
+
+If we check for 'ldb' later the 'pyldb-util' can't depend on the 'ldb' check.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=11458
+
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+---
+ lib/ldb/wscript | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/ldb/wscript b/lib/ldb/wscript
+index 0e81932..0996f51 100755
+--- a/lib/ldb/wscript
++++ b/lib/ldb/wscript
+@@ -56,11 +56,11 @@ def configure(conf):
+ 
+     if not conf.env.standalone_ldb:
+         if conf.CHECK_BUNDLED_SYSTEM_PKG('pyldb-util', minversion=VERSION,
+-                                     onlyif='talloc tdb tevent ldb',
++                                     onlyif='talloc tdb tevent',
+                                      implied_deps='replace talloc tdb tevent ldb'):
+             conf.define('USING_SYSTEM_PYLDB_UTIL', 1)
+             if conf.CHECK_BUNDLED_SYSTEM_PKG('ldb', minversion=VERSION,
+-                                         onlyif='talloc tdb tevent',
++                                         onlyif='talloc tdb tevent pyldb-util',
+                                          implied_deps='replace talloc tdb tevent'):
+                 conf.define('USING_SYSTEM_LDB', 1)
+ 
+-- 
+1.9.1
+
