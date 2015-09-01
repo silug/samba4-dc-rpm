@@ -14,7 +14,7 @@
 %define tevent_version 0.9.25
 %define ldb_version 1.1.21
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -97,9 +97,6 @@ URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
-Patch0:         samba-4.3.0-fix_mit_krb5_build.patch
-Patch1:         samba-4.3.0rc3-fix_system_ldb_build.patch
-
 # Red Hat specific replacement-files
 Source1: samba.log
 Source2: samba.xinetd
@@ -163,6 +160,7 @@ BuildRequires: python-tevent
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
+BuildRequires: xfsprogs-devel
 BuildRequires: zlib-devel >= 1.2.3
 
 BuildRequires: pkgconfig(libsystemd-daemon)
@@ -672,9 +670,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.3.0-fix_mit_krb5_build.patch
-%patch1 -p1 -b .samba-4.3.0rc3-fix_system_ldb_build.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1982,6 +1977,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Sep 01 2015 Andreas Schneider <asn@redhat.com> - 4.3.0-0.1rc4
+- Update to Samba 4.3.0rc4
+
 * Mon Aug 31 2015 Andreas Schneider <asn@redhat.com> - 4.3.0-0.1rc3
 - Update to Samba 4.3.0rc3
 
