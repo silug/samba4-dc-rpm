@@ -1,0 +1,140 @@
+From 669a6332872ef188781a0ea7bc50d992584a91fc Mon Sep 17 00:00:00 2001
+From: Stefan Metzmacher <metze@samba.org>
+Date: Wed, 16 Sep 2015 12:42:48 +0200
+Subject: [PATCH 1/3] s3:lib/messages: add missing allocation check for
+ priv_path
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=11515
+
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+(cherry picked from commit b0fa8316beefc7808b059f514448d41224d1c1fb)
+---
+ source3/lib/messages.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/source3/lib/messages.c b/source3/lib/messages.c
+index 78ff721..3527b3a 100644
+--- a/source3/lib/messages.c
++++ b/source3/lib/messages.c
+@@ -322,6 +322,10 @@ struct messaging_context *messaging_init(TALLOC_CTX *mem_ctx,
+ 	}
+ 
+ 	priv_path = private_path("sock");
++	if (priv_path == NULL) {
++		TALLOC_FREE(ctx);
++		return NULL;
++	}
+ 
+ 	ok = directory_create_or_exist_strict(priv_path, sec_initial_uid(),
+ 					      0700);
+-- 
+1.9.1
+
+
+From 0e31dbcb29cb08cd965945b5f275f44486459772 Mon Sep 17 00:00:00 2001
+From: Stefan Metzmacher <metze@samba.org>
+Date: Wed, 16 Sep 2015 12:44:43 +0200
+Subject: [PATCH 2/3] s3:lib/messages: use 'msg.lock' and 'msg.sock' for
+ messaging related subdirs
+
+In Samba 4.2, we used lock_path("msg") (with 0700) for the socket directory,
+while we use lock_path("msg") (with 0755) for the lock file directory.
+
+This generates a conflict that prevents samba, smbd, nmbd and winbindd
+from starting after an upgrade.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=11515
+
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+(cherry picked from commit 1aabd9298d59d4f57d321ecaee59e99d966089ff)
+---
+ source3/lib/messages.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/source3/lib/messages.c b/source3/lib/messages.c
+index 3527b3a..07d1c83 100644
+--- a/source3/lib/messages.c
++++ b/source3/lib/messages.c
+@@ -306,7 +306,7 @@ struct messaging_context *messaging_init(TALLOC_CTX *mem_ctx,
+ 
+ 	sec_init();
+ 
+-	lck_path = lock_path("msg");
++	lck_path = lock_path("msg.lock");
+ 	if (lck_path == NULL) {
+ 		TALLOC_FREE(ctx);
+ 		return NULL;
+@@ -321,7 +321,7 @@ struct messaging_context *messaging_init(TALLOC_CTX *mem_ctx,
+ 		return NULL;
+ 	}
+ 
+-	priv_path = private_path("sock");
++	priv_path = private_path("msg.sock");
+ 	if (priv_path == NULL) {
+ 		TALLOC_FREE(ctx);
+ 		return NULL;
+@@ -399,7 +399,7 @@ NTSTATUS messaging_reinit(struct messaging_context *msg_ctx)
+ 
+ 	msg_ctx->msg_dgm_ref = messaging_dgm_ref(
+ 		msg_ctx, msg_ctx->event_ctx, msg_ctx->id.unique_id,
+-		private_path("sock"), lock_path("msg"),
++		private_path("msg.sock"), lock_path("msg.lock"),
+ 		messaging_recv_cb, msg_ctx, &ret);
+ 
+ 	if (msg_ctx->msg_dgm_ref == NULL) {
+-- 
+1.9.1
+
+
+From c6adee5431b412bc490dc05e4c7ba128a87f86c4 Mon Sep 17 00:00:00 2001
+From: Stefan Metzmacher <metze@samba.org>
+Date: Wed, 16 Sep 2015 12:44:43 +0200
+Subject: [PATCH 3/3] s4:lib/messaging: use 'msg.lock' and 'msg.sock' for
+ messaging related subdirs
+
+In Samba 4.2, we used lock_path("msg") (with 0700) for the socket directory,
+while we use lock_path("msg") (with 0755) for the lock file directory.
+
+This generates a conflict that prevents samba, smbd, nmbd and winbindd
+from starting after an upgrade.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=11515
+
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+
+Autobuild-User(master): Stefan Metzmacher <metze@samba.org>
+Autobuild-Date(master): Thu Sep 17 09:04:59 CEST 2015 on sn-devel-104
+
+(cherry picked from commit 1d2a1a685ebdf479c511e01764e5148dbcbb37c9)
+---
+ source4/lib/messaging/messaging.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/source4/lib/messaging/messaging.c b/source4/lib/messaging/messaging.c
+index 6ce1ce7..d91d175 100644
+--- a/source4/lib/messaging/messaging.c
++++ b/source4/lib/messaging/messaging.c
+@@ -323,7 +323,7 @@ struct imessaging_context *imessaging_init(TALLOC_CTX *mem_ctx,
+ 
+ 	/* create the messaging directory if needed */
+ 
+-	msg->sock_dir = lpcfg_private_path(msg, lp_ctx, "sock");
++	msg->sock_dir = lpcfg_private_path(msg, lp_ctx, "msg.sock");
+ 	if (msg->sock_dir == NULL) {
+ 		goto fail;
+ 	}
+@@ -332,7 +332,7 @@ struct imessaging_context *imessaging_init(TALLOC_CTX *mem_ctx,
+ 		goto fail;
+ 	}
+ 
+-	msg->lock_dir = lpcfg_lock_path(msg, lp_ctx, "msg");
++	msg->lock_dir = lpcfg_lock_path(msg, lp_ctx, "msg.lock");
+ 	if (msg->lock_dir == NULL) {
+ 		goto fail;
+ 	}
+-- 
+1.9.1
+
