@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.3.0
 %define talloc_version 2.1.3
@@ -724,7 +724,8 @@ and use CTDB instead.
         --with-sockets-dir=/run/samba \
         --with-modulesdir=%{_libdir}/samba \
         --with-pammodulesdir=%{_libdir}/security \
-        --with-lockdir=/var/lib/samba \
+        --with-lockdir=/var/lib/samba/lock \
+        --with-statedir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
         --disable-rpath-install \
         --with-shared-modules=%{_samba4_modules} \
@@ -1981,6 +1982,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Oct 12 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.0-3
+- Use separate lockdir
+
 * Mon Oct 12 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.0-2
 - resolves: #1270568 - Samba fails to start after update to 4.3.0
 
