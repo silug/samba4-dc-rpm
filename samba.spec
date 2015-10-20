@@ -1320,6 +1320,10 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
+%{_mandir}/man5/lmhosts.5*
+%{_mandir}/man5/smb.conf.5*
+%{_mandir}/man5/smbpasswd.5*
+%{_mandir}/man7/samba.7*
 
 ### COMMON-libs
 %files common-libs
@@ -1348,10 +1352,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcontrol.1*
 %{_mandir}/man1/testparm.1*
-%{_mandir}/man5/lmhosts.5*
-%{_mandir}/man5/smb.conf.5*
-%{_mandir}/man5/smbpasswd.5*
-%{_mandir}/man7/samba.7*
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/smbpasswd.8*
