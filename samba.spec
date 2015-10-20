@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.3.0
+%define samba_version 4.3.1
 %define talloc_version 2.1.3
 %define tdb_version 1.3.7
 %define tevent_version 0.9.25
@@ -106,8 +106,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0:    samba-4.3.x-socket_perms.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -672,8 +670,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.3.x-socket_perms.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1982,6 +1978,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Oct 20 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.1-1
+- resolves: #1261230 - Update to Samba 4.3.1
+
 * Mon Oct 12 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.0-3
 - Use separate lockdir
 
