@@ -238,7 +238,7 @@ Provides: samba4-client = %{samba_depver}
 Obsoletes: samba4-client < %{samba_depver}
 
 %description client
-The samba4-client package provides some SMB/CIFS clients to complement
+The %{name}-client package provides some SMB/CIFS clients to complement
 the built-in SMB/CIFS filesystem in Linux. These clients allow access
 of SMB/CIFS shares and printing to SMB/CIFS printers.
 
@@ -324,7 +324,7 @@ Provides: samba4-dc-libs = %{samba_depver}
 Obsoletes: samba4-dc-libs < %{samba_depver}
 
 %description dc-libs
-The samba4-dc-libs package contains the libraries needed by the DC to
+The %{name}-dc-libs package contains the libraries needed by the DC to
 link against the SMB, RPC and other protocols.
 
 ### DEVEL
@@ -338,7 +338,7 @@ Provides: samba4-devel = %{samba_depver}
 Obsoletes: samba4-devel < %{samba_depver}
 
 %description devel
-The samba4-devel package contains the header files for the libraries
+The %{name}-devel package contains the header files for the libraries
 needed to develop programs that link against the SMB, RPC and other
 libraries in the Samba suite.
 
@@ -387,7 +387,7 @@ Provides: samba4-libs = %{samba_depver}
 Obsoletes: samba4-libs < %{samba_depver}
 
 %description libs
-The samba4-libs package contains the libraries needed by programs that
+The %{name}-libs package contains the libraries needed by programs that
 link against the SMB, RPC and other protocols provided by the Samba suite.
 
 ### LIBSMBCLIENT
@@ -448,7 +448,7 @@ Provides: samba4-python = %{samba_depver}
 Obsoletes: samba4-python < %{samba_depver}
 
 %description python
-The samba4-python package contains the Python libraries needed by programs
+The %{name}-python package contains the Python libraries needed by programs
 that use SMB, RPC and other Samba provided protocols in Python programs.
 
 ### PIDL
