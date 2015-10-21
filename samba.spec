@@ -262,6 +262,7 @@ Group: Applications/System
 BuildArch: noarch
 
 Requires(post): systemd
+Requires: samba-common-tools = %{samba_depver}
 
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
