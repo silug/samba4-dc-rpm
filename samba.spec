@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.3.1
 %define talloc_version 2.1.3
@@ -115,6 +115,7 @@ Requires(preun): systemd
 Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -228,6 +229,7 @@ Samba is the standard Windows interoperability suite of programs for Linux and U
 Summary: Samba client programs
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
@@ -247,6 +249,7 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Samba client libraries
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
@@ -276,6 +279,7 @@ packages of Samba.
 Summary: Libraries used by both Samba servers and clients
 Group: Applications/System
 Requires(pre): samba-common = %{samba_depver}
+Requires: samba-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -397,6 +401,7 @@ link against the SMB, RPC and other protocols provided by the Samba suite.
 Summary: The SMB client library
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libsmbclient
@@ -522,6 +527,7 @@ packages of Samba.
 Summary: Samba winbind
 Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -1979,6 +1985,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Oct 23 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.1-2
+- Fix dependencies to samba-common
+
 * Tue Oct 20 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.1-1
 - resolves: #1261230 - Update to Samba 4.3.1
 
