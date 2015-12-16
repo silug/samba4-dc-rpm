@@ -6,13 +6,13 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 0
 
-%define samba_version 4.3.2
+%define samba_version 4.3.3
 %define talloc_version 2.1.3
 %define tdb_version 1.3.7
 %define tevent_version 0.9.25
-%define ldb_version 1.1.21
+%define ldb_version 1.1.24
 # This should be rc1 or nil
 %define pre_release %nil
 
@@ -197,7 +197,7 @@ BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.21
+%global libldb_version 1.1.24
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
@@ -1982,6 +1982,17 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Dec 16 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.3-0
+- Update to Samba 4.3.3
+- resolves: #1292069
+- CVE-2015-3223 Remote DoS in Samba (AD) LDAP server
+- CVE-2015-5252 Insufficient symlink verification in smbd
+- CVE-2015-5296 Samba client requesting encryption vulnerable to
+                downgrade attack
+- CVE-2015-5299 Missing access control check in shadow copy code
+- CVE-2015-7540 DoS to AD-DC due to insufficient checking of asn1
+                memory allocation
+
 * Tue Dec 15 2015 Guenther Deschner <gdeschner@redhat.com> - 4.3.2-2
 - revert dependencies to samba-common and -tools
 
