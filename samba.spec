@@ -679,7 +679,7 @@ and use CTDB instead.
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
 %global _tdb_lib ,tdb,pytdb
-%global _ldb_lib ,ldb,pyldb,!pyldb-util
+%global _ldb_lib ,ldb,pyldb,pyldb-util
 
 %if ! %{with_internal_talloc}
 %global _talloc_lib ,!talloc,!pytalloc,!pytalloc-util
