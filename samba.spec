@@ -1938,16 +1938,20 @@ rm -rf %{buildroot}
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
 %dir %{_datadir}/ctdb-tests
+%dir %{_datadir}/ctdb-tests/eventscripts
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/events.d
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/functions
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-checks.d
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-linux-kernel-callout
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/statd-callout
+%dir %{_datadir}/ctdb-tests/onnode
 %{_datadir}/ctdb-tests/onnode/functions
+%dir %{_datadir}/ctdb-tests/scripts
 %{_datadir}/ctdb-tests/scripts/common.sh
 %{_datadir}/ctdb-tests/scripts/integration.bash
 %{_datadir}/ctdb-tests/scripts/test_wrap
 %{_datadir}/ctdb-tests/scripts/unit.sh
+%dir %{_datadir}/ctdb-tests/simple
 %{_datadir}/ctdb-tests/simple/functions
 %{_datadir}/ctdb-tests/simple/nodes
 %doc ctdb/tests/README
