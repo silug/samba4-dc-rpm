@@ -6,15 +6,15 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 0
 
-%define samba_version 4.3.4
-%define talloc_version 2.1.3
-%define tdb_version 1.3.7
-%define tevent_version 0.9.25
-%define ldb_version 1.1.24
+%define samba_version 4.4.0
+%define talloc_version 2.1.5
+%define tdb_version 1.3.8
+%define tevent_version 0.9.26
+%define ldb_version 1.1.25
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc1
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -29,7 +29,6 @@
 %global with_libsmbclient 1
 %global with_libwbclient 1
 
-%global with_pam_smbpass 0
 %global with_internal_talloc 0
 %global with_internal_tevent 0
 %global with_internal_tdb 0
@@ -107,7 +106,7 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch1: samba-4.3-s3-parm-clean-up-defaults-when-removing-global-param.patch
+Patch0: samba-4.4.0rc2-ctdb-pkgconfig.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -183,28 +182,28 @@ BuildRequires: gnutls-devel
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.1.3
+%global libtalloc_version 2.1.5
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.25
+%global libtevent_version 0.9.26
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.24
+%global libldb_version 1.1.25
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.3.7
+%global libtdb_version 1.3.8
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -238,6 +237,9 @@ Requires: libsmbclient = %{samba_depver}
 
 Provides: samba4-client = %{samba_depver}
 Obsoletes: samba4-client < %{samba_depver}
+
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
 
 %description client
 The %{name}-client package provides some SMB/CIFS clients to complement
@@ -375,6 +377,20 @@ Provides: samba-glusterfs
 Samba VFS module for GlusterFS integration.
 %endif
 
+### KRB5-PRINTING
+%package krb5-printing
+Summary: Samba CUPS backend for printing with Kerberos
+Group: Applications/System
+Requires(pre): %{name}-client
+
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
+
+%description krb5-printing
+If you need Kerberos for print jobs to a printer connection to cups via the SMB
+backend, then you need to install that package. It will allow cups to access
+the Kerberos credentials cache of the user issuing the print job.
+
 ### LIBS
 %package libs
 Summary: Samba libraries
@@ -503,20 +519,10 @@ Summary: Libraries need by the testing tools for Samba servers and clients
 Group: Applications/System
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+Obsoletes: %{name}-test-devel < %{samba_depver}
 
 %description test-libs
 %{name}-test-libs provides libraries required by the testing tools.
-
-### TEST-DEVEL
-%package test-devel
-Summary: Testing devel files for Samba servers and clients
-Group: Applications/System
-Requires: %{name}-libs = %{samba_depver}
-Requires: %{name}-test-libs = %{samba_depver}
-
-%description test-devel
-samba-test-devel provides testing devel files for both the server and client
-packages of Samba.
 
 ### WINBIND
 %package winbind
@@ -635,21 +641,6 @@ projects to store temporary data. If an application is already using TDB for
 temporary data it is very easy to convert that application to be cluster aware
 and use CTDB instead.
 
-### CTDB-DEVEL
-%package -n ctdb-devel
-Summary: CTDB clustered database development package
-Group: Development/Libraries
-
-Requires: ctdb = %{samba_depver}
-Provides: ctdb-static = %{samba_depver}
-
-%description -n ctdb-devel
-Libraries, include files, etc you can use to develop CTDB applications.
-CTDB is a cluster implementation of the TDB database used by Samba and other
-projects to store temporary data. If an application is already using TDB for
-temporary data it is very easy to convert that application to be cluster aware
-and use CTDB instead.
-
 ### CTDB-TEST
 %package -n ctdb-tests
 Summary: CTDB clustered database test suite
@@ -659,6 +650,7 @@ Requires: samba-client-libs = %{samba_depver}
 
 Requires: ctdb = %{samba_depver}
 Requires: nc
+Obsoletes: ctdb-devel < %{samba_depver}
 
 %description -n ctdb-tests
 Test suite for CTDB.
@@ -672,7 +664,8 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-%patch1 -p1
+
+%patch0 -p1 -b .samba-4.4.0rc2-ctdb-pkgconfig.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -754,9 +747,6 @@ and use CTDB instead.
 %if %{with testsuite}
         --enable-selftest \
 %endif
-%if ! %with_pam_smbpass
-        --without-pam_smbpass \
-%endif
         --with-systemd
 
 make %{?_smp_mflags}
@@ -788,6 +778,11 @@ then
     echo "Expected libwbclient version not found, please check if version has changed."
     exit -1
 fi
+
+
+# Move smbspool_krb5_wrapper
+install -d -m 0755 %{buildroot}%{_libexecdir}/samba
+mv %{buildroot}%{_bindir}/smbspool_krb5_wrapper %{buildroot}%{_libexecdir}/samba
 
 # Install other stuff
 install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
@@ -879,6 +874,20 @@ if [ -d /var/cache/samba ]; then
     ln -sf /var/cache/samba /var/lib/samba/
 fi
 
+
+### CLIENT
+%post client
+%{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
+	cups_backend_smb \
+	%{_bindir}/smbspool 10
+
+%postun client
+if [ $1 -eq 0 ] ; then
+	%{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool
+fi
+
+### COMMON
+
 %postun common -p /sbin/ldconfig
 
 %if %with_dc
@@ -887,6 +896,18 @@ fi
 %postun dc-libs -p /sbin/ldconfig
 %endif # with_dc
 
+### KRB5-PRINTING
+%post krb5-printing
+%{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
+	cups_backend_smb \
+	%{_libexecdir}/samba/smbspool_krb5_wrapper 50
+
+%postun krb5-printing
+if [ $1 -eq 0 ] ; then
+	%{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool_krb5_wrapper
+fi
+
+### LIBS
 %post libs -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
@@ -1000,7 +1021,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/acl_xattr.so
 %{_libdir}/samba/vfs/aio_fork.so
 %{_libdir}/samba/vfs/aio_linux.so
-%{_libdir}/samba/vfs/aio_posix.so
 %{_libdir}/samba/vfs/aio_pthread.so
 %{_libdir}/samba/vfs/audit.so
 %{_libdir}/samba/vfs/btrfs.so
@@ -1019,15 +1039,14 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/linux_xfs_sgid.so
 %{_libdir}/samba/vfs/media_harmony.so
 %{_libdir}/samba/vfs/netatalk.so
+%{_libdir}/samba/vfs/offline.so
 %{_libdir}/samba/vfs/preopen.so
 %{_libdir}/samba/vfs/readahead.so
 %{_libdir}/samba/vfs/readonly.so
 %{_libdir}/samba/vfs/recycle.so
-%{_libdir}/samba/vfs/scannedonly.so
 %{_libdir}/samba/vfs/shadow_copy.so
 %{_libdir}/samba/vfs/shadow_copy2.so
 %{_libdir}/samba/vfs/shell_snap.so
-%{_libdir}/samba/vfs/smb_traffic_analyzer.so
 %{_libdir}/samba/vfs/snapper.so
 %{_libdir}/samba/vfs/streams_depot.so
 %{_libdir}/samba/vfs/streams_xattr.so
@@ -1071,16 +1090,15 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_linux_xfs_sgid.8*
 %{_mandir}/man8/vfs_media_harmony.8*
 %{_mandir}/man8/vfs_netatalk.8*
+%{_mandir}/man8/vfs_offline.8*
 %{_mandir}/man8/vfs_prealloc.8*
 %{_mandir}/man8/vfs_preopen.8*
 %{_mandir}/man8/vfs_readahead.8*
 %{_mandir}/man8/vfs_readonly.8*
 %{_mandir}/man8/vfs_recycle.8*
-%{_mandir}/man8/vfs_scannedonly.8*
 %{_mandir}/man8/vfs_shadow_copy.8*
 %{_mandir}/man8/vfs_shadow_copy2.8*
 %{_mandir}/man8/vfs_shell_snap.8*
-%{_mandir}/man8/vfs_smb_traffic_analyzer.8*
 %{_mandir}/man8/vfs_snapper.8*
 %{_mandir}/man8/vfs_streams_depot.8*
 %{_mandir}/man8/vfs_streams_xattr.8*
@@ -1120,9 +1138,10 @@ rm -rf %{buildroot}
 #%{_bindir}/smbiconv
 %{_bindir}/smbprint
 %{_bindir}/smbspool
-%{_bindir}/smbta-util
 %{_bindir}/smbtar
 %{_bindir}/smbtree
+%dir %{_libexecdir}/samba
+%ghost %{_libexecdir}/samba/cups_backend_smb
 %{_mandir}/man1/dbwrap_tool.1*
 %{_mandir}/man1/nmblookup.1*
 %{_mandir}/man1/oLschema2ldif.1*
@@ -1143,7 +1162,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/smbtree.1*
 %{_mandir}/man8/samba-regedit.8*
 %{_mandir}/man8/smbspool.8*
-%{_mandir}/man8/smbta-util.8*
 
 %if %{with_internal_tdb}
 %{_bindir}/tdbbackup
@@ -1185,22 +1203,21 @@ rm -rf %{buildroot}
 %files client-libs
 %defattr(-,root,root)
 %{_libdir}/libdcerpc-binding.so.*
-%{_libdir}/libgensec.so.*
 %{_libdir}/libndr.so.*
 %{_libdir}/libndr-krb5pac.so.*
 %{_libdir}/libndr-nbt.so.*
 %{_libdir}/libndr-standard.so.*
 %{_libdir}/libnetapi.so.*
 %{_libdir}/libsamba-credentials.so.*
+%{_libdir}/libsamba-errors.so.*
 %{_libdir}/libsamba-passdb.so.*
 %{_libdir}/libsamba-util.so.*
 %{_libdir}/libsamba-hostconfig.so.*
 %{_libdir}/libsamdb.so.*
 %{_libdir}/libsmbconf.so.*
-%{_libdir}/libsmbclient-raw.so.*
 %{_libdir}/libsmbldap.so.*
+%{_libdir}/libtevent-unix-util.so.*
 %{_libdir}/libtevent-util.so.*
-%{_libdir}/libregistry.so.*
 %{_libdir}/libdcerpc.so.*
 
 %dir %{_libdir}/samba
@@ -1221,10 +1238,10 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcmdline-credentials-samba4.so
 %{_libdir}/samba/libdbwrap-samba4.so
 %{_libdir}/samba/libdcerpc-samba-samba4.so
-%{_libdir}/samba/liberrors-samba4.so
 %{_libdir}/samba/libevents-samba4.so
 %{_libdir}/samba/libflag-mapping-samba4.so
 %{_libdir}/samba/libgenrand-samba4.so
+%{_libdir}/samba/libgensec-samba4.so
 %{_libdir}/samba/libgpo-samba4.so
 %{_libdir}/samba/libgse-samba4.so
 %{_libdir}/samba/libhttp-samba4.so
@@ -1246,6 +1263,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnpa-tstream-samba4.so
 %{_libdir}/samba/libprinting-migrate-samba4.so
 %{_libdir}/samba/libreplace-samba4.so
+%{_libdir}/samba/libregistry-samba4.so
 %{_libdir}/samba/libsamba-cluster-support-samba4.so
 %{_libdir}/samba/libsamba-debug-samba4.so
 %{_libdir}/samba/libsamba-modules-samba4.so
@@ -1257,6 +1275,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libserver-id-db-samba4.so
 %{_libdir}/samba/libserver-role-samba4.so
 %{_libdir}/samba/libsmb-transport-samba4.so
+%{_libdir}/samba/libsmbclient-raw-samba4.so
 %{_libdir}/samba/libsmbd-base-samba4.so
 %{_libdir}/samba/libsmbd-conn-samba4.so
 %{_libdir}/samba/libsmbd-shim-samba4.so
@@ -1267,6 +1286,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libtalloc-report-samba4.so
 %{_libdir}/samba/libtdb-wrap-samba4.so
 %{_libdir}/samba/libtime-basic-samba4.so
+%{_libdir}/samba/libtorture-samba4.so
 %{_libdir}/samba/libtrusts-util-samba4.so
 %{_libdir}/samba/libutil-cmdline-samba4.so
 %{_libdir}/samba/libutil-reg-samba4.so
@@ -1339,10 +1359,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/pdb/smbpasswd.so
 %{_libdir}/samba/pdb/tdbsam.so
 %{_libdir}/samba/pdb/wbc_sam.so
-
-%if %with_pam_smbpass
-%{_libdir}/security/pam_smbpass.so
-%endif
 
 %files common-tools
 %defattr(-,root,root)
@@ -1482,15 +1498,12 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/core/werror.h
 %{_includedir}/samba-4.0/credentials.h
 %{_includedir}/samba-4.0/dcerpc.h
-%{_includedir}/samba-4.0/dlinklist.h
 %{_includedir}/samba-4.0/domain_credentials.h
 %{_includedir}/samba-4.0/gen_ndr/atsvc.h
 %{_includedir}/samba-4.0/gen_ndr/auth.h
 %{_includedir}/samba-4.0/gen_ndr/dcerpc.h
-%{_includedir}/samba-4.0/gen_ndr/epmapper.h
 %{_includedir}/samba-4.0/gen_ndr/krb5pac.h
 %{_includedir}/samba-4.0/gen_ndr/lsa.h
-%{_includedir}/samba-4.0/gen_ndr/mgmt.h
 %{_includedir}/samba-4.0/gen_ndr/misc.h
 %{_includedir}/samba-4.0/gen_ndr/nbt.h
 %{_includedir}/samba-4.0/gen_ndr/drsblobs.h
@@ -1498,13 +1511,8 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/gen_ndr/ndr_drsblobs.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_drsuapi.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_atsvc.h
-%{_includedir}/samba-4.0/gen_ndr/ndr_atsvc_c.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_dcerpc.h
-%{_includedir}/samba-4.0/gen_ndr/ndr_epmapper.h
-%{_includedir}/samba-4.0/gen_ndr/ndr_epmapper_c.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_krb5pac.h
-%{_includedir}/samba-4.0/gen_ndr/ndr_mgmt.h
-%{_includedir}/samba-4.0/gen_ndr/ndr_mgmt_c.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_misc.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_nbt.h
 %{_includedir}/samba-4.0/gen_ndr/ndr_samr.h
@@ -1516,11 +1524,6 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/gen_ndr/security.h
 %{_includedir}/samba-4.0/gen_ndr/server_id.h
 %{_includedir}/samba-4.0/gen_ndr/svcctl.h
-%{_includedir}/samba-4.0/gensec.h
-%{_includedir}/samba-4.0/ldap-util.h
-%{_includedir}/samba-4.0/ldap_errors.h
-%{_includedir}/samba-4.0/ldap_message.h
-%{_includedir}/samba-4.0/ldap_ndr.h
 %{_includedir}/samba-4.0/ldb_wrap.h
 %{_includedir}/samba-4.0/lookup_sid.h
 %{_includedir}/samba-4.0/machine_sid.h
@@ -1535,41 +1538,17 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/param.h
 %{_includedir}/samba-4.0/passdb.h
 %{_includedir}/samba-4.0/policy.h
-%{_includedir}/samba-4.0/read_smb.h
-%{_includedir}/samba-4.0/registry.h
-%{_includedir}/samba-4.0/roles.h
 %{_includedir}/samba-4.0/rpc_common.h
 %{_includedir}/samba-4.0/samba/session.h
 %{_includedir}/samba-4.0/samba/version.h
 %{_includedir}/samba-4.0/share.h
-%{_includedir}/samba-4.0/smb2.h
-%{_includedir}/samba-4.0/smb2_constants.h
-%{_includedir}/samba-4.0/smb2_create_blob.h
-%{_includedir}/samba-4.0/smb2_lease.h
 %{_includedir}/samba-4.0/smb2_lease_struct.h
-%{_includedir}/samba-4.0/smb2_signing.h
-%{_includedir}/samba-4.0/smb_cli.h
-%{_includedir}/samba-4.0/smb_cliraw.h
-%{_includedir}/samba-4.0/smb_common.h
-%{_includedir}/samba-4.0/smb_composite.h
 %{_includedir}/samba-4.0/smbconf.h
-%{_includedir}/samba-4.0/smb_constants.h
 %{_includedir}/samba-4.0/smb_ldap.h
 %{_includedir}/samba-4.0/smbldap.h
-%{_includedir}/samba-4.0/smb_raw.h
-%{_includedir}/samba-4.0/smb_raw_interfaces.h
-%{_includedir}/samba-4.0/smb_raw_signing.h
-%{_includedir}/samba-4.0/smb_raw_trans2.h
-%{_includedir}/samba-4.0/smb_request.h
-%{_includedir}/samba-4.0/smb_seal.h
-%{_includedir}/samba-4.0/smb_signing.h
-%{_includedir}/samba-4.0/smb_unix_ext.h
-%{_includedir}/samba-4.0/smb_util.h
 %{_includedir}/samba-4.0/tdr.h
 %{_includedir}/samba-4.0/tsocket.h
 %{_includedir}/samba-4.0/tsocket_internal.h
-%{_includedir}/samba-4.0/tstream_smbXcli_np.h
-%{_includedir}/samba-4.0/samba_util.h
 %dir %{_includedir}/samba-4.0/util
 %{_includedir}/samba-4.0/util/attr.h
 %{_includedir}/samba-4.0/util/blocking.h
@@ -1592,41 +1571,35 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/util/time.h
 %{_includedir}/samba-4.0/util/xfile.h
 %{_includedir}/samba-4.0/util_ldb.h
-%{_libdir}/libdcerpc-atsvc.so
 %{_libdir}/libdcerpc-binding.so
 %{_libdir}/libdcerpc-samr.so
 %{_libdir}/libdcerpc.so
-%{_libdir}/libgensec.so
 %{_libdir}/libndr-krb5pac.so
 %{_libdir}/libndr-nbt.so
 %{_libdir}/libndr-standard.so
 %{_libdir}/libndr.so
 %{_libdir}/libnetapi.so
-%{_libdir}/libregistry.so
 %{_libdir}/libsamba-credentials.so
+%{_libdir}/libsamba-errors.so
 %{_libdir}/libsamba-hostconfig.so
 %{_libdir}/libsamba-policy.so
 %{_libdir}/libsamba-util.so
 %{_libdir}/libsamdb.so
-%{_libdir}/libsmbclient-raw.so
 %{_libdir}/libsmbconf.so
+%{_libdir}/libtevent-unix-util.so
 %{_libdir}/libtevent-util.so
 %{_libdir}/pkgconfig/dcerpc.pc
-%{_libdir}/pkgconfig/dcerpc_atsvc.pc
 %{_libdir}/pkgconfig/dcerpc_samr.pc
-%{_libdir}/pkgconfig/gensec.pc
 %{_libdir}/pkgconfig/ndr.pc
 %{_libdir}/pkgconfig/ndr_krb5pac.pc
 %{_libdir}/pkgconfig/ndr_nbt.pc
 %{_libdir}/pkgconfig/ndr_standard.pc
 %{_libdir}/pkgconfig/netapi.pc
-%{_libdir}/pkgconfig/registry.pc
 %{_libdir}/pkgconfig/samba-credentials.pc
 %{_libdir}/pkgconfig/samba-hostconfig.pc
 %{_libdir}/pkgconfig/samba-policy.pc
 %{_libdir}/pkgconfig/samba-util.pc
 %{_libdir}/pkgconfig/samdb.pc
-%{_libdir}/pkgconfig/smbclient-raw.pc
 %{_libdir}/libsamba-passdb.so
 %{_libdir}/libsmbldap.so
 
@@ -1662,10 +1635,14 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_glusterfs.8*
 %endif
 
+### KRB5-PRINTING
+%files krb5-printing
+%defattr(-,root,root)
+%attr(0700,root,root) %{_libexecdir}/samba/smbspool_krb5_wrapper
+
 ### LIBS
 %files libs
 %defattr(-,root,root)
-%{_libdir}/libdcerpc-atsvc.so.*
 %{_libdir}/libdcerpc-samr.so.*
 %{_libdir}/libsamba-policy.so.*
 
@@ -1805,19 +1782,11 @@ rm -rf %{buildroot}
 ### TEST-LIBS
 %files test-libs
 %defattr(-,root,root)
-%{_libdir}/libtorture.so.*
 %if %with_dc
 %{_libdir}/samba/libdlz-bind9-for-torture-samba4.so
 %else
 %{_libdir}/samba/libdsdb-module-samba4.so
 %endif
-
-### TEST-DEVEL
-%files test-devel
-%defattr(-,root,root)
-%{_includedir}/samba-4.0/torture.h
-%{_libdir}/libtorture.so
-%{_libdir}/pkgconfig/torture.pc
 
 ### WINBIND
 %files winbind
@@ -1890,6 +1859,7 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/ctdb/events.d
 %{_sysconfdir}/ctdb/events.d/00.ctdb
 %{_sysconfdir}/ctdb/events.d/01.reclock
+%{_sysconfdir}/ctdb/events.d/05.system
 %{_sysconfdir}/ctdb/events.d/10.external
 %{_sysconfdir}/ctdb/events.d/10.interface
 %{_sysconfdir}/ctdb/events.d/11.natgw
@@ -1897,13 +1867,11 @@ rm -rf %{buildroot}
 %{_sysconfdir}/ctdb/events.d/13.per_ip_routing
 %{_sysconfdir}/ctdb/events.d/20.multipathd
 %{_sysconfdir}/ctdb/events.d/31.clamd
-%{_sysconfdir}/ctdb/events.d/40.fs_use
 %{_sysconfdir}/ctdb/events.d/40.vsftpd
 %{_sysconfdir}/ctdb/events.d/41.httpd
 %{_sysconfdir}/ctdb/events.d/49.winbind
 %{_sysconfdir}/ctdb/events.d/50.samba
 %{_sysconfdir}/ctdb/events.d/60.nfs
-%{_sysconfdir}/ctdb/events.d/62.cnfs
 %{_sysconfdir}/ctdb/events.d/70.iscsi
 %{_sysconfdir}/ctdb/events.d/91.lvs
 %{_sysconfdir}/ctdb/events.d/99.timeout
@@ -1914,6 +1882,8 @@ rm -rf %{buildroot}
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
+%{_bindir}/ctdb_natgw
+%{_bindir}/ctdb_recovery_helper
 %{_bindir}/smnotify
 %{_bindir}/ping_pong
 %{_bindir}/ltdbtool
@@ -1933,19 +1903,12 @@ rm -rf %{buildroot}
 %{_mandir}/man7/ctdb-tunables.7.gz
 %{_mandir}/man7/ctdb-statistics.7.gz
 
-%files -n ctdb-devel
-%defattr(-,root,root)
-%{_includedir}/samba-4.0/ctdb.h
-%{_includedir}/samba-4.0/ctdb_client.h
-%{_includedir}/samba-4.0/ctdb_protocol.h
-%{_includedir}/samba-4.0/ctdb_private.h
-%{_includedir}/samba-4.0/ctdb_typesafe_cb.h
-%{_includedir}/samba-4.0/ctdb_version.h
-%{_libdir}/pkgconfig/ctdb.pc
-
 %files -n ctdb-tests
 %defattr(-,root,root)
 %dir %{_libdir}/ctdb-tests
+%{_libdir}/ctdb-tests/comm_client_test
+%{_libdir}/ctdb-tests/comm_server_test
+%{_libdir}/ctdb-tests/comm_test
 %{_libdir}/ctdb-tests/ctdb_bench
 %{_libdir}/ctdb-tests/ctdb_fetch
 %{_libdir}/ctdb-tests/ctdb_fetch_one
@@ -1964,7 +1927,14 @@ rm -rf %{buildroot}
 %{_libdir}/ctdb-tests/ctdb_traverse
 %{_libdir}/ctdb-tests/ctdb_update_record
 %{_libdir}/ctdb-tests/ctdb_update_record_persistent
+%{_libdir}/ctdb-tests/db_hash_test
+%{_libdir}/ctdb-tests/pkt_read_test
+%{_libdir}/ctdb-tests/pkt_write_test
+%{_libdir}/ctdb-tests/protocol_client_test
+%{_libdir}/ctdb-tests/protocol_types_test
 %{_libdir}/ctdb-tests/rb_test
+%{_libdir}/ctdb-tests/reqid_test
+%{_libdir}/ctdb-tests/srvid_test
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
 %dir %{_datadir}/ctdb-tests
@@ -1973,14 +1943,20 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-checks.d
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-linux-kernel-callout
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/statd-callout
+%{_datadir}/ctdb-tests/onnode/functions
 %{_datadir}/ctdb-tests/scripts/common.sh
 %{_datadir}/ctdb-tests/scripts/integration.bash
 %{_datadir}/ctdb-tests/scripts/test_wrap
 %{_datadir}/ctdb-tests/scripts/unit.sh
+%{_datadir}/ctdb-tests/simple/functions
+%{_datadir}/ctdb-tests/simple/nodes
 %doc ctdb/tests/README
 %endif # with_clustering_support
 
 %changelog
+* Wed Jan 27 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0rc1-0
+- Update to Samba 4.4.0rc1
+
 * Fri Jan 22 2016 Alexander Bokovoy <abokovoy@redhat.com> - 4.3.4-1
 - resolves: #1300038 - PANIC: Bad talloc magic value - wrong talloc version used/mixed
 

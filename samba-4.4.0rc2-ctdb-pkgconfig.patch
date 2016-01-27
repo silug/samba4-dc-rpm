@@ -1,0 +1,64 @@
+From 86f71108636b19e7a2c9052e73b3f2251a98bcc3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Wed, 27 Jan 2016 15:40:33 +0100
+Subject: [PATCH] ctdb: do not provide a useless pkgconfig file for ctdb.
+
+We neither have public headers nor a public library.
+
+Guenther
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+---
+ ctdb/ctdb.pc.in | 19 -------------------
+ ctdb/wscript    |  9 ---------
+ 2 files changed, 28 deletions(-)
+ delete mode 100644 ctdb/ctdb.pc.in
+
+diff --git a/ctdb/ctdb.pc.in b/ctdb/ctdb.pc.in
+deleted file mode 100644
+index 5f5bfab..0000000
+--- a/ctdb/ctdb.pc.in
++++ /dev/null
+@@ -1,19 +0,0 @@
+-prefix=@prefix@
+-exec_prefix=@exec_prefix@
+-datarootdir=@datarootdir@
+-includedir=@includedir@
+-libdir=@libdir@
+-bindir=@bindir@
+-sbindir=@sbindir@
+-mandir=@mandir@
+-localstatedir=@localstatedir@
+-srcdir=@srcdir@
+-etcdir=@sysconfdir@
+-
+-Name: ctdb
+-Description: A clustered database to store temporary data
+-Version: @PACKAGE_VERSION@
+-Libs: -L${libdir}
+-Cflags: -I${includedir}
+-URL: http://ctdb.samba.org/
+-
+diff --git a/ctdb/wscript b/ctdb/wscript
+index edd4aa4..e1fad17 100755
+--- a/ctdb/wscript
++++ b/ctdb/wscript
+@@ -615,15 +615,6 @@ def build(bld):
+     bld.install_dir(bld.env.CTDB_RUNDIR)
+     bld.install_dir(bld.env.CTDB_VARDIR)
+ 
+-    sed_expr = 's/@PACKAGE_VERSION@/%s/g' % VERSION
+-    t = bld.SAMBA_GENERATOR('ctdb-pc',
+-                            source='ctdb.pc.in',
+-                            target='ctdb.pc',
+-                            rule='sed -e "%s" ${SRC} > ${TGT}' % sed_expr,
+-                            dep_vars=['VERSION'])
+-    t.env.VERSION = VERSION
+-    bld.INSTALL_FILES('${LIBDIR}/pkgconfig', 'ctdb.pc')
+-
+     # Unit tests
+     ctdb_unit_tests = [
+         'db_hash_test',
+-- 
+2.5.0
+
