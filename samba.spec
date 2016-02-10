@@ -14,7 +14,7 @@
 %define tevent_version 0.9.26
 %define ldb_version 1.1.25
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -105,8 +105,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.4.0rc2-ctdb-pkgconfig.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -664,8 +662,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.4.0rc2-ctdb-pkgconfig.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1639,6 +1635,7 @@ rm -rf %{buildroot}
 %files krb5-printing
 %defattr(-,root,root)
 %attr(0700,root,root) %{_libexecdir}/samba/smbspool_krb5_wrapper
+%{_mandir}/man8/smbspool_krb5_wrapper.8*
 
 ### LIBS
 %files libs
@@ -1958,6 +1955,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Feb 10 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0rc2-0
+- Update to Samba 4.4.0rc2
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.4.0-0.0.rc1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
