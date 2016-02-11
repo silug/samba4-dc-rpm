@@ -1,12 +1,12 @@
 # rpmbuild --rebuild --with testsuite --without clustering samba.src.rpm
 #
-# The testsuite is disabled by default. Set --with testsuite or %bcond_without
+# The testsuite is disabled by default. Set --with testsuite or bcond_without
 # to run the Samba torture testsuite.
 %bcond_with testsuite
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -128,12 +128,12 @@ Provides: samba4 = %{samba_depver}
 Obsoletes: samba4 < %{samba_depver}
 
 # We don't build it outdated docs anymore
-Obsoletes: samba-doc
+Obsoletes: samba-doc < %{samba_depver}
 # Is not supported yet
-Obsoletes: samba-domainjoin-gui
+Obsoletes: samba-domainjoin-gui < %{samba_depver}
 # SWAT been deprecated and removed from samba
-Obsoletes: samba-swat
-Obsoletes: samba4-swat
+Obsoletes: samba-swat < %{samba_depver}
+Obsoletes: samba4-swat < %{samba_depver}
 
 BuildRequires: cups-devel
 BuildRequires: dbus-devel
@@ -220,7 +220,8 @@ BuildRequires: ldb-tools
 
 ### SAMBA
 %description
-Samba is the standard Windows interoperability suite of programs for Linux and Unix.
+Samba is the standard Windows interoperability suite of programs for Linux and
+Unix.
 
 ### CLIENT
 %package client
@@ -441,7 +442,7 @@ The libwbclient package contains the winbind client library from the Samba suite
 Summary: Developer tools for the winbind library
 Group: Development/Libraries
 Requires: libwbclient = %{samba_depver}
-Obsoletes: samba-winbind-devel
+Obsoletes: samba-winbind-devel < %{samba_depver}
 Provides: samba-winbind-devel
 
 %description -n libwbclient-devel
@@ -874,13 +875,18 @@ fi
 ### CLIENT
 %post client
 %{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
-	cups_backend_smb \
-	%{_bindir}/smbspool 10
+    cups_backend_smb \
+    %{_bindir}/smbspool 10
 
 %postun client
 if [ $1 -eq 0 ] ; then
-	%{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool
+    %{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool
 fi
+
+### CLIENT-LIBS
+%post client-libs -p /sbin/ldconfig
+
+%postun client-libs -p /sbin/ldconfig
 
 ### COMMON
 
@@ -1056,13 +1062,12 @@ rm -rf %{buildroot}
 %{_unitdir}/smb.service
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
-%{_sysconfdir}/openldap/schema/samba.schema
-%{_sysconfdir}/pam.d/samba
+%config %{_sysconfdir}/openldap/schema/samba.schema
+%config %{_sysconfdir}/pam.d/samba
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man8/eventlogadm.8*
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/nmbd.8*
-#%{_mandir}/man8/vfs_*.8*
 %{_mandir}/man8/vfs_acl_tdb.8*
 %{_mandir}/man8/vfs_acl_xattr.8*
 %{_mandir}/man8/vfs_aio_fork.8*
@@ -1131,7 +1136,6 @@ rm -rf %{buildroot}
 %{_bindir}/smbclient
 %{_bindir}/smbcquotas
 %{_bindir}/smbget
-#%{_bindir}/smbiconv
 %{_bindir}/smbprint
 %{_bindir}/smbspool
 %{_bindir}/smbtar
@@ -1788,7 +1792,6 @@ rm -rf %{buildroot}
 ### WINBIND
 %files winbind
 %defattr(-,root,root)
-#%{_bindir}/wbinfo3
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
 %{_libdir}/samba/libnss-info-samba4.so
@@ -1830,12 +1833,12 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc ctdb/README
 %config(noreplace) %{_sysconfdir}/sysconfig/ctdb
-%config(noreplace) %{_sysconfdir}/ctdb/notify.sh
-%config(noreplace) %{_sysconfdir}/ctdb/debug-hung-script.sh
-%config(noreplace) %{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
-%config(noreplace) %{_sysconfdir}/ctdb/gcore_trace.sh
-%config(noreplace) %{_sysconfdir}/ctdb/functions
-%config(noreplace) %{_sysconfdir}/ctdb/debug_locks.sh
+%{_sysconfdir}/ctdb/notify.sh
+%{_sysconfdir}/ctdb/debug-hung-script.sh
+%{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
+%{_sysconfdir}/ctdb/gcore_trace.sh
+%{_sysconfdir}/ctdb/functions
+%{_sysconfdir}/ctdb/debug_locks.sh
 %dir %{_localstatedir}/lib/ctdb/
 %{_tmpfilesdir}/%{name}.conf
 
