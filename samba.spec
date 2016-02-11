@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -377,7 +377,7 @@ Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
 Obsoletes: samba-glusterfs < %{samba_depver}
-Provides: samba-glusterfs
+Provides: samba-glusterfs = %{samba_depver}
 
 %description vfs-glusterfs
 Samba VFS module for GlusterFS integration.
@@ -792,6 +792,7 @@ fi
 # Move smbspool_krb5_wrapper
 install -d -m 0755 %{buildroot}%{_libexecdir}/samba
 mv %{buildroot}%{_bindir}/smbspool_krb5_wrapper %{buildroot}%{_libexecdir}/samba
+touch %{buildroot}%{_libexecdir}/samba/cups_backend_smb
 
 # Install other stuff
 install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
