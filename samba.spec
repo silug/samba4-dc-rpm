@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -884,8 +884,6 @@ if [ -d /var/cache/samba ]; then
     ln -sf /var/cache/samba /var/lib/samba/
 fi
 
-
-### CLIENT
 %post client
 %{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
     cups_backend_smb \
@@ -896,24 +894,20 @@ if [ $1 -eq 0 ] ; then
     %{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool
 fi
 
-### CLIENT-LIBS
 %post client-libs -p /sbin/ldconfig
 
 %postun client-libs -p /sbin/ldconfig
 
-### COMMON-LIBS
 %post common-libs -p /sbin/ldconfig
 
 %postun common-libs -p /sbin/ldconfig
 
-### DC-LIBS
 %if %with_dc
 %post dc-libs -p /sbin/ldconfig
 
 %postun dc-libs -p /sbin/ldconfig
-%endif # with_dc
+%endif
 
-### KRB5-PRINTING
 %post krb5-printing
 %{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
 	cups_backend_smb \
@@ -924,7 +918,6 @@ if [ $1 -eq 0 ] ; then
 	%{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool_krb5_wrapper
 fi
 
-### LIBS
 %post libs -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
@@ -933,7 +926,7 @@ fi
 %post -n libsmbclient -p /sbin/ldconfig
 
 %postun -n libsmbclient -p /sbin/ldconfig
-%endif # with_libsmbclient
+%endif
 
 %if %with_libwbclient
 %posttrans -n libwbclient
@@ -1973,13 +1966,23 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
-* Wed Feb 10 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0rc2-0
+* Mon Feb 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.0-0.4.rc2
+- More spec file fixes
+- resolves: #1306542 - scriptlet failure because of comments
+
+* Mon Feb 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.0-0.3.rc2
+- More spec file fixes
+
+* Mon Feb 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.0-0.2.rc2
+- More spec file fixes
+
+* Wed Feb 10 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.1.rc2
 - Update to Samba 4.4.0rc2
 
-* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.4.0-0.0.rc1.1
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.4.0-0.1.rc1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
-* Wed Jan 27 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0rc1-0
+* Wed Jan 27 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.0.rc1
 - Update to Samba 4.4.0rc1
 
 * Fri Jan 22 2016 Alexander Bokovoy <abokovoy@redhat.com> - 4.3.4-1
