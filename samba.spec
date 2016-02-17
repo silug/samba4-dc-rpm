@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -105,6 +105,8 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-4.4.0rc2-mc-activate.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -675,6 +677,8 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .samba-4.4.0rc2-mc-activate.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1966,6 +1970,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Feb 17 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.5.rc2
+- Activate multi channel support (switched off by default)
+
 * Mon Feb 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.0-0.4.rc2
 - More spec file fixes
 - resolves: #1306542 - scriptlet failure because of comments
