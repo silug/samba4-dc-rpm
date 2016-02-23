@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 0
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.26
 %define ldb_version 1.1.25
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -795,7 +795,6 @@ fi
 
 # Move smbspool_krb5_wrapper
 install -d -m 0755 %{buildroot}%{_libexecdir}/samba
-mv %{buildroot}%{_bindir}/smbspool_krb5_wrapper %{buildroot}%{_libexecdir}/samba
 touch %{buildroot}%{_libexecdir}/samba/cups_backend_smb
 
 # Install other stuff
@@ -1172,6 +1171,7 @@ rm -rf %{buildroot}
 %{_mandir}/man5/smbgetrc.5*
 %{_mandir}/man1/smbtar.1*
 %{_mandir}/man1/smbtree.1*
+%{_mandir}/man8/cifsdd.8.*
 %{_mandir}/man8/samba-regedit.8*
 %{_mandir}/man8/smbspool.8*
 
@@ -1894,15 +1894,15 @@ rm -rf %{buildroot}
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
-%{_bindir}/ctdb_natgw
-%{_bindir}/ctdb_recovery_helper
-%{_bindir}/smnotify
+%{_libexecdir}/ctdb/ctdb_natgw
+%{_libexecdir}/ctdb/ctdb_recovery_helper
+%{_libexecdir}/ctdb/smnotify
 %{_bindir}/ping_pong
 %{_bindir}/ltdbtool
 %{_bindir}/ctdb_diagnostics
 %{_bindir}/onnode
-%{_bindir}/ctdb_lock_helper
-%{_bindir}/ctdb_event_helper
+%{_libexecdir}/ctdb/ctdb_lock_helper
+%{_libexecdir}/ctdb/ctdb_event_helper
 
 %{_mandir}/man1/ctdb.1.gz
 %{_mandir}/man1/ctdbd.1.gz
@@ -1970,6 +1970,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Feb 23 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.0.rc3
+- Update to Samba 4.4.0rc3
+
 * Wed Feb 17 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.5.rc2
 - Activate multi channel support (switched off by default)
 
