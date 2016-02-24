@@ -182,7 +182,7 @@ BuildRequires: glusterfs-devel >= 3.4.0.16
 BuildRequires: libcephfs1-devel
 %endif
 %if %{with_dc}
-BuildRequires: gnutls-devel
+BuildRequires: gnutls-devel >= 3.4.7
 %endif
 
 # pidl requirements
@@ -315,9 +315,13 @@ SMB/CIFS clients.
 %package dc
 Summary: Samba AD Domain Controller
 Group: Applications/System
+Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-python = %{samba_depver}
+Requires: %{name}-winbind = %{samba_depver}
+# samba-tool requirements
+Requires: python-crypto
 
 Provides: samba4-dc = %{samba_depver}
 Obsoletes: samba4-dc < %{samba_depver}
@@ -793,8 +797,6 @@ then
 fi
 
 
-# Move smbspool_krb5_wrapper
-install -d -m 0755 %{buildroot}%{_libexecdir}/samba
 touch %{buildroot}%{_libexecdir}/samba/cups_backend_smb
 
 # Install other stuff
@@ -1193,7 +1195,7 @@ rm -rf %{buildroot}
 %{_bindir}/ldbmodify
 %{_bindir}/ldbrename
 %{_bindir}/ldbsearch
-%{_libdir}/samba/libldb-cmdline.so
+%{_libdir}/samba/libldb-cmdline-samba4.so
 %dir %{_libdir}/samba/ldb
 %{_libdir}/samba/ldb/asq.so
 %{_libdir}/samba/ldb/paged_results.so
@@ -1336,6 +1338,8 @@ rm -rf %{buildroot}
 %if %{with_internal_ldb}
 %{_libdir}/samba/libldb.so.1
 %{_libdir}/samba/libldb.so.%{ldb_version}
+%{_libdir}/samba/libpyldb-util.so.1
+%{_libdir}/samba/libpyldb-util.so.%{ldb_version}
 %{_mandir}/man3/ldb.3.gz
 %endif
 
@@ -1619,10 +1623,6 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/dcerpc_server.h
 %{_libdir}/libdcerpc-server.so
 %{_libdir}/pkgconfig/dcerpc_server.pc
-%endif
-
-%if %with_internal_talloc
-%{_includedir}/samba-4.0/pytalloc.h
 %endif
 
 %if ! %with_libsmbclient
