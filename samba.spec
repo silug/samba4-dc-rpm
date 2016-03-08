@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 6
+%define main_release 7
 
 %define samba_version 4.4.0
 %define talloc_version 2.1.5
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.26
 %define ldb_version 1.1.25
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1970,6 +1970,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Mar 08 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.7.rc4
+- Update to Samba 4.4.0rc4
+- resolves: #1315942 - CVE-2015-7560 Incorrect ACL get/set allowed on symlink path
+
 * Tue Feb 23 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.6.rc3
 - Update to Samba 4.4.0rc3
 
