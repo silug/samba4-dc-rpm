@@ -6,15 +6,15 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 7
+%define main_release 8
 
 %define samba_version 4.4.0
-%define talloc_version 2.1.5
+%define talloc_version 2.1.6
 %define tdb_version 1.3.8
-%define tevent_version 0.9.26
-%define ldb_version 1.1.25
+%define tevent_version 0.9.28
+%define ldb_version 1.1.26
 # This should be rc1 or nil
-%define pre_release rc4
+%define pre_release rc5
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -106,8 +106,6 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0: samba-4.4.0rc2-mc-activate.patch
-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
@@ -189,21 +187,21 @@ BuildRequires: gnutls-devel >= 3.4.7
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.1.5
+%global libtalloc_version 2.1.6
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.26
+%global libtevent_version 0.9.28
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.25
+%global libldb_version 1.1.26
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
@@ -681,8 +679,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.4.0rc2-mc-activate.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1970,6 +1966,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 16 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.8.rc5
+- Update to Samba 4.4.0rc5
+
 * Tue Mar 08 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.0-0.7.rc4
 - Update to Samba 4.4.0rc4
 - resolves: #1315942 - CVE-2015-7560 Incorrect ACL get/set allowed on symlink path
