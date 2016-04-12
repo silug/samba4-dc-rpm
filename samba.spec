@@ -854,6 +854,17 @@ install -m 0755 packaging/NetworkManager/30-winbind-systemd \
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
 touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
+%if ! %with_dc
+for i in %{_libdir}/samba/libdfs-server-ad-samba4.so \
+	%{_libdir}/samba/libdnsserver-common-samba4.so \
+	%{_mandir}/man8/samba.8 \
+	%{_mandir}/man8/samba-tool.8 \
+	%{_libdir}/samba/ldb/ildap.so \
+	%{_libdir}/samba/ldb/ldbsamba_extensions.so ; do
+	rm -f %{buildroot}$i
+done
+%endif
+
 # This makes the right links, as rpmlint requires that
 # the ldconfig-created links be recorded in the RPM.
 /sbin/ldconfig -N -n %{buildroot}%{_libdir}
@@ -1457,11 +1468,6 @@ rm -rf %{buildroot}
 %{_mandir}/man8/samba-tool.8*
 %else # with_dc
 %doc packaging/README.dc
-%exclude %{_mandir}/man8/samba.8*
-%exclude %{_mandir}/man8/samba-tool.8*
-%exclude %{_libdir}/samba/ldb/ildap.so
-%exclude %{_libdir}/samba/ldb/ldbsamba_extensions.so
-
 %endif # with_dc
 
 ### DC-LIBS
