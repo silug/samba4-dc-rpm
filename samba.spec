@@ -8,7 +8,7 @@
 
 %define main_release 1
 
-%define samba_version 4.4.2
+%define samba_version 4.4.3
 %define talloc_version 2.1.6
 %define tdb_version 1.3.8
 %define tevent_version 0.9.28
@@ -1976,6 +1976,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon May 02 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.3-1
+- Update to Samba 4.4.3
+- resolves: #1332178
+
 * Tue Apr 12 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.2-1
 - Update to Samba 4.4.2, fix badlock security bug
 - resolves: #1326453 - CVE-2015-5370
