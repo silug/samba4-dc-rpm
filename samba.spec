@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1976,6 +1976,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sun May 15 2016 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.4.3-1.1
+- Perl 5.24 rebuild
+
 * Mon May 02 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.3-1
 - Update to Samba 4.4.3
 - resolves: #1332178
