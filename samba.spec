@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}.2
 
 %if 0%{?rhel}
 Epoch:          0
@@ -107,6 +107,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0:		samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
+Patch1:         samba-use-libsystemd.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -171,7 +172,6 @@ BuildRequires: sed
 BuildRequires: xfsprogs-devel
 BuildRequires: zlib-devel >= 1.2.3
 
-BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd)
 
 %if %{with_vfs_glusterfs}
@@ -683,6 +683,7 @@ and use CTDB instead.
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p 1 -b .samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
+%patch1 -p1
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1976,6 +1977,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon May 23 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2:4.4.3-1.2
+- Rebuild to drop libsystemd-daemon dependency (#1125086)
+
 * Sun May 15 2016 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.4.3-1.1
 - Perl 5.24 rebuild
 
