@@ -25,7 +25,7 @@ index 4622971907..04d77da529 100644
  _PUBLIC_ void exit_daemon(const char *msg, int error)
  {
 -#ifdef HAVE_LIBSYSTEMD_DAEMON
-+#ifdef HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
++#if HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
  	if (msg == NULL) {
  		msg = strerror(error);
  	}
@@ -34,7 +34,7 @@ index 4622971907..04d77da529 100644
  		name = "Samba";
  	}
 -#ifdef HAVE_LIBSYSTEMD_DAEMON
-+#ifdef HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
++#if HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
  	sd_notifyf(0, "READY=1\nSTATUS=%s: ready to serve connections...", name);
  #endif
  	DEBUG(0, ("STATUS=daemon '%s' finished starting up and ready to serve "
@@ -43,7 +43,7 @@ index 4622971907..04d77da529 100644
  		name = "Samba";
  	}
 -#ifdef HAVE_LIBSYSTEMD_DAEMON
-+#ifdef HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
++#if HAVE_LIBSYSTEMD_DAEMON || HAVE_LIBSYSTEMD
  	sd_notifyf(0, "\nSTATUS=%s: %s", name, msg);
  #endif
  	DEBUG(0, ("STATUS=daemon '%s' : %s", name, msg));

@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.4.3
 %define talloc_version 2.1.6
@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.2
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -686,7 +686,7 @@ and use CTDB instead.
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p 1 -b .samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
-%patch1 -p1
+%patch1 -p 1 -b .samba-use-libsystemd.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1983,6 +1983,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed May 25 2016 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.4.3-2
+- Fix libsystemd patch (#1125086) so that it actually works
+
 * Mon May 23 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2:4.4.3-1.2
 - Rebuild to drop libsystemd-daemon dependency (#1125086)
 
