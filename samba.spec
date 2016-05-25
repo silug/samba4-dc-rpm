@@ -820,10 +820,10 @@ install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/sch
 
 install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
 
-install -d -m 0755 %{buildroot}%{_prefix}/lib/tmpfiles.d/
-install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
+install -d -m 0755 %{buildroot}%{_tmpfilesdir}
+install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_tmpfilesdir}/samba.conf
 # create /run/samba too.
-echo "d /run/samba  755 root root" >> %{buildroot}%{_prefix}/lib/tmpfiles.d/samba.conf
+echo "d /run/samba  755 root root" >> %{buildroot}%{_tmpfilesdir}/samba.conf
 %if %with_clustering_support
 echo "d /run/ctdb 755 root root" >> %{buildroot}%{_tmpfilesdir}/ctdb.conf
 %endif
@@ -893,7 +893,7 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 
 %post common
 /sbin/ldconfig
-/usr/bin/systemd-tmpfiles --create %{_prefix}/lib/tmpfiles.d/samba.conf
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/samba.conf
 if [ -d /var/cache/samba ]; then
     mv /var/cache/samba/netsamlogon_cache.tdb /var/lib/samba/ 2>/dev/null
     mv /var/cache/samba/winbindd_cache.tdb /var/lib/samba/ 2>/dev/null
@@ -1014,7 +1014,7 @@ fi
 
 %if %with_clustering_support
 %post -n ctdb
-/usr/bin/systemd-tmpfiles --create %{_prefix}/lib/tmpfiles.d/ctdb.conf
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/ctdb.conf
 %systemd_post ctdb.service
 
 %preun -n ctdb
@@ -1358,7 +1358,7 @@ rm -rf %{buildroot}
 ### COMMON
 %files common
 %defattr(-,root,root)
-%{_prefix}/lib/tmpfiles.d/samba.conf
+%{_tmpfilesdir}/samba.conf
 %dir %{_sysconfdir}/logrotate.d/
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
@@ -1859,7 +1859,6 @@ rm -rf %{buildroot}
 %{_sysconfdir}/ctdb/functions
 %{_sysconfdir}/ctdb/debug_locks.sh
 %dir %{_localstatedir}/lib/ctdb/
-%{_tmpfilesdir}/%{name}.conf
 
 %{_unitdir}/ctdb.service
 
@@ -1897,7 +1896,7 @@ rm -rf %{buildroot}
 %{_sysconfdir}/ctdb/events.d/README
 %dir %{_sysconfdir}/ctdb/notify.d
 %{_sysconfdir}/ctdb/notify.d/README
-%{_prefix}/lib/tmpfiles.d/ctdb.conf
+%{_tmpfilesdir}/ctdb.conf
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
