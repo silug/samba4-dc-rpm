@@ -1864,35 +1864,39 @@ rm -rf %{buildroot}
 
 %dir %{_sysconfdir}/ctdb
 %{_sysconfdir}/ctdb/statd-callout
+# CTDB scripts, no config files
+# script with executable bit means activated
 %dir %{_sysconfdir}/ctdb/nfs-checks.d
-%config %{_sysconfdir}/ctdb/nfs-checks.d/00.portmapper.check
-%config %{_sysconfdir}/ctdb/nfs-checks.d/10.status.check
-%config %{_sysconfdir}/ctdb/nfs-checks.d/20.nfs.check
-%config %{_sysconfdir}/ctdb/nfs-checks.d/30.nlockmgr.check
-%config %{_sysconfdir}/ctdb/nfs-checks.d/40.mountd.check
-%config %{_sysconfdir}/ctdb/nfs-checks.d/50.rquotad.check
+%{_sysconfdir}/ctdb/nfs-checks.d/00.portmapper.check
+%{_sysconfdir}/ctdb/nfs-checks.d/10.status.check
+%{_sysconfdir}/ctdb/nfs-checks.d/20.nfs.check
+%{_sysconfdir}/ctdb/nfs-checks.d/30.nlockmgr.check
+%{_sysconfdir}/ctdb/nfs-checks.d/40.mountd.check
+%{_sysconfdir}/ctdb/nfs-checks.d/50.rquotad.check
 %{_sysconfdir}/ctdb/nfs-checks.d/README
 %{_sysconfdir}/ctdb/nfs-linux-kernel-callout
 %config %{_sysconfdir}/sudoers.d/ctdb
+# CTDB scripts, no config files
+# script with executable bit means activated
 %dir %{_sysconfdir}/ctdb/events.d
-%config %{_sysconfdir}/ctdb/events.d/00.ctdb
-%config %{_sysconfdir}/ctdb/events.d/01.reclock
-%config %{_sysconfdir}/ctdb/events.d/05.system
-%config %{_sysconfdir}/ctdb/events.d/10.external
-%config %{_sysconfdir}/ctdb/events.d/10.interface
-%config %{_sysconfdir}/ctdb/events.d/11.natgw
-%config %{_sysconfdir}/ctdb/events.d/11.routing
-%config %{_sysconfdir}/ctdb/events.d/13.per_ip_routing
-%config %{_sysconfdir}/ctdb/events.d/20.multipathd
-%config %{_sysconfdir}/ctdb/events.d/31.clamd
-%config %{_sysconfdir}/ctdb/events.d/40.vsftpd
-%config %{_sysconfdir}/ctdb/events.d/41.httpd
-%config %{_sysconfdir}/ctdb/events.d/49.winbind
-%config %{_sysconfdir}/ctdb/events.d/50.samba
-%config %{_sysconfdir}/ctdb/events.d/60.nfs
-%config %{_sysconfdir}/ctdb/events.d/70.iscsi
-%config %{_sysconfdir}/ctdb/events.d/91.lvs
-%config %{_sysconfdir}/ctdb/events.d/99.timeout
+%{_sysconfdir}/ctdb/events.d/00.ctdb
+%{_sysconfdir}/ctdb/events.d/01.reclock
+%{_sysconfdir}/ctdb/events.d/05.system
+%{_sysconfdir}/ctdb/events.d/10.external
+%{_sysconfdir}/ctdb/events.d/10.interface
+%{_sysconfdir}/ctdb/events.d/11.natgw
+%{_sysconfdir}/ctdb/events.d/11.routing
+%{_sysconfdir}/ctdb/events.d/13.per_ip_routing
+%{_sysconfdir}/ctdb/events.d/20.multipathd
+%{_sysconfdir}/ctdb/events.d/31.clamd
+%{_sysconfdir}/ctdb/events.d/40.vsftpd
+%{_sysconfdir}/ctdb/events.d/41.httpd
+%{_sysconfdir}/ctdb/events.d/49.winbind
+%{_sysconfdir}/ctdb/events.d/50.samba
+%{_sysconfdir}/ctdb/events.d/60.nfs
+%{_sysconfdir}/ctdb/events.d/70.iscsi
+%{_sysconfdir}/ctdb/events.d/91.lvs
+%{_sysconfdir}/ctdb/events.d/99.timeout
 %{_sysconfdir}/ctdb/events.d/README
 %dir %{_sysconfdir}/ctdb/notify.d
 %{_sysconfdir}/ctdb/notify.d/README
