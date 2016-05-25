@@ -417,8 +417,8 @@ Provides: samba4-libs = %{samba_depver}
 Obsoletes: samba4-libs < %{samba_depver}
 
 %description libs
-The %{name}-libs package contains the libraries needed by programs that
-link against the SMB, RPC and other protocols provided by the Samba suite.
+The %{name}-libs package contains the libraries needed by programs that link
+against the SMB, RPC and other protocols provided by the Samba suite.
 
 ### LIBSMBCLIENT
 %if %with_libsmbclient
@@ -437,8 +437,9 @@ Group: Development/Libraries
 Requires: libsmbclient = %{samba_depver}
 
 %description -n libsmbclient-devel
-The libsmbclient-devel package contains the header files and libraries needed to
-develop programs that link against the SMB client library in the Samba suite.
+The libsmbclient-devel package contains the header files and libraries needed
+to develop programs that link against the SMB client library in the Samba
+suite.
 %endif # with_libsmbclient
 
 ### LIBWBCLIENT
@@ -449,7 +450,8 @@ Group: Applications/System
 Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libwbclient
-The libwbclient package contains the winbind client library from the Samba suite.
+The libwbclient package contains the winbind client library from the Samba
+suite.
 
 %package -n libwbclient-devel
 Summary: Developer tools for the winbind library
@@ -460,7 +462,8 @@ Provides: samba-winbind-devel = %{samba_depver}
 Obsoletes: samba-winbind-devel < %{samba_depver}
 
 %description -n libwbclient-devel
-The libwbclient-devel package provides developer tools for the wbclient library.
+The libwbclient-devel package provides developer tools for the wbclient
+library.
 %endif # with_libwbclient
 
 ### PYTHON
@@ -554,9 +557,9 @@ Provides: samba4-winbind = %{samba_depver}
 Obsoletes: samba4-winbind < %{samba_depver}
 
 %description winbind
-The samba-winbind package provides the winbind NSS library, and some
-client tools.  Winbind enables Linux to be a full member in Windows
-domains and to use Windows user and group accounts on Linux.
+The samba-winbind package provides the winbind NSS library, and some client
+tools.  Winbind enables Linux to be a full member in Windows domains and to use
+Windows user and group accounts on Linux.
 
 ### WINBIND-CLIENTS
 %package winbind-clients
@@ -617,8 +620,8 @@ Requires: libwbclient = %{samba_depver}
 Requires: pam
 
 %description winbind-modules
-The samba-winbind-modules package provides the NSS library and a PAM
-module necessary to communicate to the Winbind Daemon
+The samba-winbind-modules package provides the NSS library and a PAM module
+necessary to communicate to the Winbind Daemon
 
 ### CTDB
 %if %with_clustering_support
