@@ -106,8 +106,8 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0:		samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
-Patch1:         samba-use-libsystemd.patch
+Patch0:    samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
+Patch1:    samba-use-libsystemd.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
