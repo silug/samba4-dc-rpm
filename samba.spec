@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 1
 
-%define samba_version 4.4.3
+%define samba_version 4.4.4
 %define talloc_version 2.1.6
 %define tdb_version 1.3.8
 %define tevent_version 0.9.28
@@ -108,7 +108,6 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0:    samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
-Patch1:    samba-use-libsystemd.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -687,7 +686,6 @@ and use CTDB instead.
 %setup -q -n samba-%{version}%{pre_release}
 
 %patch0 -p 1 -b .samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
-%patch1 -p 1 -b .samba-use-libsystemd.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -791,6 +789,7 @@ install -d -m 0755 %{buildroot}/var/spool/samba
 install -d -m 0755 %{buildroot}/var/run/samba
 install -d -m 0755 %{buildroot}/var/run/winbindd
 install -d -m 0755 %{buildroot}/%{_libdir}/samba
+install -d -m 0755 %{buildroot}/%{_libdir}/samba/ldb
 install -d -m 0755 %{buildroot}/%{_libdir}/pkgconfig
 
 # Move libwbclient.so* into private directory, it cannot be just libdir/samba
@@ -1210,6 +1209,8 @@ rm -rf %{buildroot}
 %{_mandir}/man8/tdbtool.8*
 %endif
 
+%dir %{_libdir}/samba/ldb
+
 %if %with_internal_ldb
 %{_bindir}/ldbadd
 %{_bindir}/ldbdel
@@ -1218,7 +1219,6 @@ rm -rf %{buildroot}
 %{_bindir}/ldbrename
 %{_bindir}/ldbsearch
 %{_libdir}/samba/libldb-cmdline-samba4.so
-%dir %{_libdir}/samba/ldb
 %{_libdir}/samba/ldb/asq.so
 %{_libdir}/samba/ldb/paged_results.so
 %{_libdir}/samba/ldb/paged_searches.so
@@ -1990,6 +1990,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Jun 07 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.4-1
+- Update to Samba 4.4.4
+- resolves: #1343529
+
 * Wed May 25 2016 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.4.3-2
 - Fix libsystemd patch (#1125086) so that it actually works
 
