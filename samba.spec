@@ -779,10 +779,12 @@ make %{?_smp_mflags} install DESTDIR=%{buildroot}
 install -d -m 0755 %{buildroot}/usr/{sbin,bin}
 install -d -m 0755 %{buildroot}%{_libdir}/security
 install -d -m 0755 %{buildroot}/var/lib/samba
+install -d -m 0755 %{buildroot}/var/lib/samba/drivers
+install -d -m 0755 %{buildroot}/var/lib/samba/lock
 install -d -m 0755 %{buildroot}/var/lib/samba/private
-install -d -m 0755 %{buildroot}/var/lib/samba/winbindd_privileged
 install -d -m 0755 %{buildroot}/var/lib/samba/scripts
 install -d -m 0755 %{buildroot}/var/lib/samba/sysvol
+install -d -m 0755 %{buildroot}/var/lib/samba/winbindd_privileged
 install -d -m 0755 %{buildroot}/var/log/samba/old
 install -d -m 0755 %{buildroot}/var/spool/samba
 install -d -m 0755 %{buildroot}/var/run/samba
@@ -1145,6 +1147,9 @@ rm -rf %{buildroot}
 %if ! %{with_vfs_cephfs}
 %exclude %{_mandir}/man8/vfs_ceph.8*
 %endif
+
+%dir /var/lib/samba/drivers
+%dir /var/lib/samba/lock
 
 ### CLIENT
 %files client
