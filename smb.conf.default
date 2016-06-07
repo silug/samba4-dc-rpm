@@ -2,26 +2,23 @@
 # options listed here, refer to the smb.conf(5) manual page. Samba has a huge
 # number of configurable options, most of which are not shown in this example.
 #
-# The Official Samba 3.2.x HOWTO and Reference Guide contains step-by-step
-# guides for installing, configuring, and using Samba:
-# http://www.samba.org/samba/docs/Samba-HOWTO-Collection.pdf
-#
-# The Samba-3 by Example guide has working examples for smb.conf. This guide is
-# generated daily: http://www.samba.org/samba/docs/Samba-Guide.pdf
+# The Samba Wiki contains a lot of step-by-step guides installing, configuring,
+# and using Samba:
+# https://wiki.samba.org/index.php/User_Documentation
 #
 # In this file, lines starting with a semicolon (;) or a hash (#) are
 # comments and are ignored. This file uses hashes to denote commentary and
 # semicolons for parts of the file you may wish to configure.
 #
-# Note: Run the "testparm" command after modifying this file to check for basic
+# NOTE: Run the "testparm" command after modifying this file to check for basic
 # syntax errors.
 #
 #---------------
 # Security-Enhanced Linux (SELinux) Notes:
 #
-# Turn the samba_domain_controller Boolean on to allow Samba to use the useradd
-# and groupadd family of binaries. Run the following command as the root user to
-# turn this Boolean on:
+# Turn the samba_domain_controller Boolean on to allow a Samba PDC to use the
+# useradd and groupadd family of binaries. Run the following command as the
+# root user to turn this Boolean on:
 # setsebool -P samba_domain_controller on
 #
 # Turn the samba_enable_home_dirs Boolean on if you want to share home
@@ -70,7 +67,8 @@
 #
 # server string = the equivalent of the Windows NT Description field.
 #
-# netbios name = used to specify a server name that is not tied to the hostname.
+# netbios name = used to specify a server name that is not tied to the hostname,
+#                maximum is 15 characters.
 #
 # interfaces = used to configure Samba to listen on multiple network interfaces.
 # If you have multiple interfaces, you can use the "interfaces =" option to
@@ -83,9 +81,6 @@
 # hosts deny = the hosts not allowed to connect. This option can also be used on
 # a per-share basis.
 #
-# max protocol = used to define the supported protocol. The default is NT1. You
-# can set it to SMB2 if you want experimental SMB2 support.
-#
 	workgroup = MYGROUP
 	server string = Samba Server Version %v
 
@@ -93,8 +88,6 @@
 
 ;	interfaces = lo eth0 192.168.12.2/24 192.168.13.2/24
 ;	hosts allow = 127. 192.168.12. 192.168.13.
-
-;	max protocol = SMB2
 
 # --------------------------- Logging Options -----------------------------
 #
