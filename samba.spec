@@ -99,7 +99,8 @@ Source0:        samba-%{version}%{pre_release}.tar.xz
 # Red Hat specific replacement-files
 Source1: samba.log
 Source2: samba.xinetd
-Source4: smb.conf.default
+Source3: smb.conf.vendor
+Source4: smb.conf.example
 Source5: pam_winbind.conf
 Source6: samba.pamd
 
@@ -809,7 +810,8 @@ touch %{buildroot}%{_libexecdir}/samba/cups_backend_smb
 install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
 
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/samba/smb.conf
+install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf.example
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/security
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
