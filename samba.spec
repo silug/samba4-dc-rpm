@@ -1379,6 +1379,7 @@ rm -rf %{buildroot}
 %attr(700,root,root) %dir /var/lib/samba/private
 %attr(755,root,root) %dir %{_sysconfdir}/samba
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
+%{_sysconfdir}/samba/smb.conf.example
 %config(noreplace) %{_sysconfdir}/samba/lmhosts
 %config(noreplace) %{_sysconfdir}/sysconfig/samba
 %{_mandir}/man5/lmhosts.5*
