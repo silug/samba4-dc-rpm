@@ -1094,7 +1094,7 @@ rm -rf %{buildroot}
 %attr(1777,root,root) %dir /var/spool/samba
 %dir %{_sysconfdir}/openldap/schema
 %config %{_sysconfdir}/openldap/schema/samba.schema
-%config %{_sysconfdir}/pam.d/samba
+%config(noreplace) %{_sysconfdir}/pam.d/samba
 %{_mandir}/man1/smbstatus.1*
 %{_mandir}/man8/eventlogadm.8*
 %{_mandir}/man8/smbd.8*
