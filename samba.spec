@@ -1506,7 +1506,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/service/nbtd.so
 %{_libdir}/samba/service/ntp_signd.so
 %{_libdir}/samba/service/s3fs.so
-%{_libdir}/samba/service/smb.so
 %{_libdir}/samba/service/web.so
 %{_libdir}/samba/service/winbindd.so
 %{_libdir}/samba/service/wrepl.so
@@ -1696,6 +1695,8 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libHDB-SAMBA4-samba4.so
 %{_libdir}/samba/libasn1-samba4.so.8
 %{_libdir}/samba/libasn1-samba4.so.8.0.0
+%{_libdir}/samba/libcom_err-samba4.so.0
+%{_libdir}/samba/libcom_err-samba4.so.0.25
 %{_libdir}/samba/libgssapi-samba4.so.2
 %{_libdir}/samba/libgssapi-samba4.so.2.0.0
 %{_libdir}/samba/libhcrypto-samba4.so.5
