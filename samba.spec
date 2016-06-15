@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.4.4
 %define talloc_version 2.1.6
@@ -107,7 +107,7 @@ Source6: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0:    samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
+Patch0:    samba-4.4.5-fix_resolving_trusted_domain_users.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -685,7 +685,7 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p 1 -b .samba-4.4.2-s3-winbind-make-sure-domain-member-can-talk-to-trust.patch
+%patch0 -p 1 -b .samba-4.4.5-fix_resolving_trusted_domain_users.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1992,6 +1992,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Jun 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.4-2
+- Fix resolving trusted domain users on domain member
+
 * Tue Jun 07 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.4-1
 - Update to Samba 4.4.4
 - resolves: #1343529

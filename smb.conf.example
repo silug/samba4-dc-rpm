@@ -295,7 +295,7 @@
 ;	writable = no
 ;	share modes = no
 
-# Un-comment the following to provide a specific roving profile share.
+# Un-comment the following to provide a specific roaming profile share.
 # The default is to use the user's home directory:
 ;	[Profiles]
 ;	path = /var/lib/samba/profiles
