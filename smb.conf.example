@@ -308,6 +308,6 @@
 ;	comment = Public Stuff
 ;	path = /home/samba
 ;	public = yes
-;	writable = yes
+;	writable = no
 ;	printable = no
 ;	write list = +staff

@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.4.4
 %define talloc_version 2.1.6
@@ -1992,6 +1992,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Jun 20 2016 Andreas Schneider <asn@redhat.com> - 4.4.4-3
+- resolves: #1337260 - Small fix to the example smb.conf file
+
 * Wed Jun 15 2016 Andreas Schneider <asn@redhat.com> - 4.4.4-2
 - Fix resolving trusted domain users on domain member
 
