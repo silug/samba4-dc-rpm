@@ -1,0 +1,513 @@
+From fb57f3e961c3554a3b6be04681f560e590c4b5f3 Mon Sep 17 00:00:00 2001
+From: Andrew Bartlett <abartlet@samba.org>
+Date: Wed, 11 May 2016 05:33:17 +1200
+Subject: [PATCH] build: Build less of Samba when building
+ --without-ntvfs-fileserver
+
+We would build, but not use, many components of the NTVFS file server
+even when we asked not to.  They would then consume disk, but not be
+of any use
+
+https://bugzilla.samba.org/show_bug.cgi?id=11991
+
+Signed-off-by: Andrew Bartlett <abartlet@samba.org>
+Reviewed-by: Garming Sam <garming@catalyst.net.nz>
+(cherry picked from commit 0b4c741b9c03d147ee5f56d027bacda75c1b5282)
+---
+ source4/ntvfs/posix/posix_eadb.c          |  81 ++++++++++----------
+ source4/ntvfs/posix/wscript_build         |  61 +++++++--------
+ source4/ntvfs/wscript_build               | 120 +++++++++++++++---------------
+ source4/rpc_server/common/server_info.c   |   1 -
+ source4/rpc_server/wkssvc/dcesrv_wkssvc.c |   1 -
+ source4/rpc_server/wscript_build          |  18 +++--
+ source4/smb_server/service_smb.c          |   4 +-
+ source4/smb_server/wscript_build          |   2 +-
+ source4/smbd/server.c                     |   4 -
+ 9 files changed, 149 insertions(+), 143 deletions(-)
+
+diff --git a/source4/ntvfs/posix/posix_eadb.c b/source4/ntvfs/posix/posix_eadb.c
+index 31c565c..e08597c 100644
+--- a/source4/ntvfs/posix/posix_eadb.c
++++ b/source4/ntvfs/posix/posix_eadb.c
+@@ -21,7 +21,9 @@
+ 
+ #include "includes.h"
+ #include "lib/tdb_wrap/tdb_wrap.h"
++#ifdef WITH_NTVFS_FILESERVER
+ #include "vfs_posix.h"
++#endif
+ #include "posix_eadb.h"
+ 
+ #define XATTR_LIST_ATTR ".xattr_list"
+@@ -143,17 +145,6 @@ NTSTATUS pull_xattr_blob_tdb_raw(struct tdb_wrap *ea_tdb,
+ 	return NT_STATUS_OK;
+ }
+ 
+-NTSTATUS pull_xattr_blob_tdb(struct pvfs_state *pvfs_state,
+-			     TALLOC_CTX *mem_ctx,
+-			     const char *attr_name,
+-			     const char *fname,
+-			     int fd,
+-			     size_t estimated_size,
+-			     DATA_BLOB *blob)
+-{
+-	return pull_xattr_blob_tdb_raw(pvfs_state->ea_db,mem_ctx,attr_name,fname,fd,estimated_size,blob);
+-}
+-
+ /*
+   push a xattr as a blob, using ea_tdb
+ */
+@@ -199,14 +190,6 @@ done:
+ 	talloc_free(mem_ctx);
+ 	return status;
+ }
+-NTSTATUS push_xattr_blob_tdb(struct pvfs_state *pvfs_state,
+-			     const char *attr_name,
+-			     const char *fname,
+-			     int fd,
+-			     const DATA_BLOB *blob)
+-{
+-	return push_xattr_blob_tdb_raw(pvfs_state->ea_db, attr_name, fname, fd, blob);
+-}
+ 
+ 
+ /*
+@@ -234,17 +217,6 @@ NTSTATUS delete_posix_eadb_raw(struct tdb_wrap *ea_tdb, const char *attr_name,
+ 
+ 
+ /*
+-  delete a xattr
+-*/
+-NTSTATUS delete_posix_eadb(struct pvfs_state *pvfs_state, const char *attr_name,
+-			  const char *fname, int fd)
+-{
+-	return delete_posix_eadb_raw(pvfs_state->ea_db,
+-				    attr_name, fname, fd);
+-}
+-
+-
+-/*
+   delete all xattrs for a file
+ */
+ NTSTATUS unlink_posix_eadb_raw(struct tdb_wrap *ea_tdb, const char *fname, int fd)
+@@ -271,14 +243,6 @@ NTSTATUS unlink_posix_eadb_raw(struct tdb_wrap *ea_tdb, const char *fname, int f
+ }
+ 
+ /*
+-  delete all xattrs for a file
+-*/
+-NTSTATUS unlink_posix_eadb(struct pvfs_state *pvfs_state, const char *fname)
+-{
+-	return unlink_posix_eadb_raw(pvfs_state->ea_db, fname, -1);
+-}
+-
+-/*
+   list all xattrs for a file
+ */
+ NTSTATUS list_posix_eadb_raw(struct tdb_wrap *ea_tdb, TALLOC_CTX *mem_ctx,
+@@ -288,3 +252,44 @@ NTSTATUS list_posix_eadb_raw(struct tdb_wrap *ea_tdb, TALLOC_CTX *mem_ctx,
+ 	return pull_xattr_blob_tdb_raw(ea_tdb, mem_ctx, XATTR_LIST_ATTR,
+ 				     fname, fd, 100, list);
+ }
++
++#ifdef WITH_NTVFS_FILESERVER
++NTSTATUS pull_xattr_blob_tdb(struct pvfs_state *pvfs_state,
++			     TALLOC_CTX *mem_ctx,
++			     const char *attr_name,
++			     const char *fname,
++			     int fd,
++			     size_t estimated_size,
++			     DATA_BLOB *blob)
++{
++	return pull_xattr_blob_tdb_raw(pvfs_state->ea_db,mem_ctx,attr_name,fname,fd,estimated_size,blob);
++}
++
++NTSTATUS push_xattr_blob_tdb(struct pvfs_state *pvfs_state,
++			     const char *attr_name,
++			     const char *fname,
++			     int fd,
++			     const DATA_BLOB *blob)
++{
++	return push_xattr_blob_tdb_raw(pvfs_state->ea_db, attr_name, fname, fd, blob);
++}
++
++/*
++  delete a xattr
++*/
++NTSTATUS delete_posix_eadb(struct pvfs_state *pvfs_state, const char *attr_name,
++			  const char *fname, int fd)
++{
++	return delete_posix_eadb_raw(pvfs_state->ea_db,
++				    attr_name, fname, fd);
++}
++
++/*
++  delete all xattrs for a file
++*/
++NTSTATUS unlink_posix_eadb(struct pvfs_state *pvfs_state, const char *fname)
++{
++	return unlink_posix_eadb_raw(pvfs_state->ea_db, fname, -1);
++}
++
++#endif
+diff --git a/source4/ntvfs/posix/wscript_build b/source4/ntvfs/posix/wscript_build
+index 06fea0b..a07da33 100644
+--- a/source4/ntvfs/posix/wscript_build
++++ b/source4/ntvfs/posix/wscript_build
+@@ -1,43 +1,44 @@
+ #!/usr/bin/env python
+ 
+-bld.SAMBA_SUBSYSTEM('pvfs_acl',
+-	source='pvfs_acl.c',
+-	autoproto='vfs_acl_proto.h',
+-	deps='events samba-modules',
+-	)
++if bld.CONFIG_SET('WITH_NTVFS_FILESERVER'):
++    bld.SAMBA_SUBSYSTEM('pvfs_acl',
++	                source='pvfs_acl.c',
++	                autoproto='vfs_acl_proto.h',
++	                deps='events samba-modules',
++    )
+ 
+ 
+-bld.SAMBA_MODULE('pvfs_acl_xattr',
+-	source='pvfs_acl_xattr.c',
+-	subsystem='pvfs_acl',
+-	init_function='pvfs_acl_xattr_init',
+-	deps='NDR_XATTR events'
+-	)
++    bld.SAMBA_MODULE('pvfs_acl_xattr',
++	             source='pvfs_acl_xattr.c',
++	             subsystem='pvfs_acl',
++	             init_function='pvfs_acl_xattr_init',
++	            deps='NDR_XATTR events'
++    )
+ 
+ 
+-bld.SAMBA_MODULE('pvfs_acl_nfs4',
+-	source='pvfs_acl_nfs4.c',
+-	subsystem='pvfs_acl',
+-	init_function='pvfs_acl_nfs4_init',
+-	deps='NDR_NFS4ACL samdb events'
+-	)
++    bld.SAMBA_MODULE('pvfs_acl_nfs4',
++	             source='pvfs_acl_nfs4.c',
++	             subsystem='pvfs_acl',
++	             init_function='pvfs_acl_nfs4_init',
++	            deps='NDR_NFS4ACL samdb events'
++    )
+ 
+ 
+-bld.SAMBA_SUBSYSTEM('pvfs_aio',
+-	source='pvfs_aio.c',
+-	deps='tevent',
+-        enabled=False
+-	)
++    bld.SAMBA_SUBSYSTEM('pvfs_aio',
++	                source='pvfs_aio.c',
++	                deps='tevent',
++                    enabled=False
++    )
+ 
+ 
+-bld.SAMBA_MODULE('ntvfs_posix',
+-	source='vfs_posix.c pvfs_util.c pvfs_search.c pvfs_dirlist.c pvfs_fileinfo.c pvfs_unlink.c pvfs_mkdir.c pvfs_open.c pvfs_read.c pvfs_flush.c pvfs_write.c pvfs_fsinfo.c pvfs_qfileinfo.c pvfs_setfileinfo.c pvfs_rename.c pvfs_resolve.c pvfs_shortname.c pvfs_lock.c pvfs_oplock.c pvfs_wait.c pvfs_seek.c pvfs_ioctl.c pvfs_xattr.c pvfs_streams.c pvfs_notify.c pvfs_sys.c xattr_system.c',
+-	autoproto='vfs_posix_proto.h',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_posix_init',
+-	deps='NDR_XATTR attr ntvfs_common MESSAGING LIBWBCLIENT_OLD pvfs_acl pvfs_aio posix_eadb',
+-	internal_module=True
+-	)
++    bld.SAMBA_MODULE('ntvfs_posix',
++	             source='vfs_posix.c pvfs_util.c pvfs_search.c pvfs_dirlist.c pvfs_fileinfo.c pvfs_unlink.c pvfs_mkdir.c pvfs_open.c pvfs_read.c pvfs_flush.c pvfs_write.c pvfs_fsinfo.c pvfs_qfileinfo.c pvfs_setfileinfo.c pvfs_rename.c pvfs_resolve.c pvfs_shortname.c pvfs_lock.c pvfs_oplock.c pvfs_wait.c pvfs_seek.c pvfs_ioctl.c pvfs_xattr.c pvfs_streams.c pvfs_notify.c pvfs_sys.c xattr_system.c',
++	             autoproto='vfs_posix_proto.h',
++	             subsystem='ntvfs',
++	            init_function='ntvfs_posix_init',
++	             deps='NDR_XATTR attr ntvfs_common MESSAGING LIBWBCLIENT_OLD pvfs_acl pvfs_aio posix_eadb',
++	             internal_module=True
++    )
+ 
+ 
+ bld.SAMBA_PYTHON('python_xattr_native',
+diff --git a/source4/ntvfs/wscript_build b/source4/ntvfs/wscript_build
+index 6e3ee6d..44cb78d 100644
+--- a/source4/ntvfs/wscript_build
++++ b/source4/ntvfs/wscript_build
+@@ -5,71 +5,71 @@ bld.SAMBA_LIBRARY('ntvfs',
+                   autoproto='ntvfs_proto.h',
+                   deps='tevent samba-modules',
+                   private_library=True,
+-                  enabled=bld.AD_DC_BUILD_IS_ENABLED()
++	          enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+                   )
+ 
+-if bld.AD_DC_BUILD_IS_ENABLED():
+-    bld.RECURSE('posix')
++bld.RECURSE('posix')
++if bld.CONFIG_SET('WITH_NTVFS_FILESERVER'):
+     bld.RECURSE('common')
+     bld.RECURSE('unixuid')
+     bld.RECURSE('sysdep')
+ 
+-bld.SAMBA_MODULE('ntvfs_cifs',
+-	source='cifs/vfs_cifs.c',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_cifs_init',
+-	deps='LIBCLI_SMB smbclient-raw param_options'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_smb2',
+-	source='smb2/vfs_smb2.c',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_smb2_init',
+-	deps='LIBCLI_SMB smbclient-raw param_options'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_simple',
+-	source='simple/vfs_simple.c simple/svfs_util.c',
+-	autoproto='simple/proto.h',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_simple_init',
+-	deps='talloc'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_cifsposix',
+-	source='cifs_posix_cli/vfs_cifs_posix.c cifs_posix_cli/svfs_util.c',
+-	autoproto='cifs_posix_cli/proto.h',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_cifs_posix_init',
+-	deps='talloc'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_print',
+-	source='print/vfs_print.c',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_print_init',
+-	deps='talloc'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_ipc',
+-	source='ipc/vfs_ipc.c ipc/ipc_rap.c ipc/rap_server.c',
+-	autoproto='ipc/proto.h',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_ipc_init',
+-	deps='NDR_NAMED_PIPE_AUTH npa_tstream gssapi samba-credentials DCERPC_SHARE'
+-	)
+-
+-
+-bld.SAMBA_MODULE('ntvfs_nbench',
+-	source='nbench/vfs_nbench.c',
+-	subsystem='ntvfs',
+-	init_function='ntvfs_nbench_init',
+-	deps='talloc'
+-	)
++    bld.SAMBA_MODULE('ntvfs_cifs',
++	             source='cifs/vfs_cifs.c',
++	             subsystem='ntvfs',
++	             init_function='ntvfs_cifs_init',
++	             deps='LIBCLI_SMB smbclient-raw param_options'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_smb2',
++	             source='smb2/vfs_smb2.c',
++	             subsystem='ntvfs',
++	             init_function='ntvfs_smb2_init',
++	             deps='LIBCLI_SMB smbclient-raw param_options'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_simple',
++	             source='simple/vfs_simple.c simple/svfs_util.c',
++	             autoproto='simple/proto.h',
++	             subsystem='ntvfs',
++	             init_function='ntvfs_simple_init',
++	             deps='talloc'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_cifsposix',
++	             source='cifs_posix_cli/vfs_cifs_posix.c cifs_posix_cli/svfs_util.c',
++	             autoproto='cifs_posix_cli/proto.h',
++	             subsystem='ntvfs',
++	             init_function='ntvfs_cifs_posix_init',
++	            deps='talloc'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_print',
++	             source='print/vfs_print.c',
++	            subsystem='ntvfs',
++	             init_function='ntvfs_print_init',
++	             deps='talloc'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_ipc',
++	             source='ipc/vfs_ipc.c ipc/ipc_rap.c ipc/rap_server.c',
++	             autoproto='ipc/proto.h',
++	            subsystem='ntvfs',
++	             init_function='ntvfs_ipc_init',
++	             deps='NDR_NAMED_PIPE_AUTH npa_tstream gssapi samba-credentials DCERPC_SHARE'
++    )
++
++
++    bld.SAMBA_MODULE('ntvfs_nbench',
++	             source='nbench/vfs_nbench.c',
++	             subsystem='ntvfs',
++	             init_function='ntvfs_nbench_init',
++	             deps='talloc'
++    )
+ 
+ 
+diff --git a/source4/rpc_server/common/server_info.c b/source4/rpc_server/common/server_info.c
+index e23b108..39c75cc 100644
+--- a/source4/rpc_server/common/server_info.c
++++ b/source4/rpc_server/common/server_info.c
+@@ -26,7 +26,6 @@
+ #include "auth/auth.h"
+ #include "param/param.h"
+ #include "rpc_server/common/common.h"
+-#include "rpc_server/common/share.h"
+ #include "libds/common/roles.h"
+ 
+ /* 
+diff --git a/source4/rpc_server/wkssvc/dcesrv_wkssvc.c b/source4/rpc_server/wkssvc/dcesrv_wkssvc.c
+index 80a518c..baae0e3 100644
+--- a/source4/rpc_server/wkssvc/dcesrv_wkssvc.c
++++ b/source4/rpc_server/wkssvc/dcesrv_wkssvc.c
+@@ -24,7 +24,6 @@
+ #include "librpc/gen_ndr/ndr_wkssvc.h"
+ #include "librpc/gen_ndr/ndr_srvsvc.h"
+ #include "rpc_server/common/common.h"
+-#include "rpc_server/common/share.h"
+ #include "param/param.h"
+ 
+ /*
+diff --git a/source4/rpc_server/wscript_build b/source4/rpc_server/wscript_build
+index aaf3d26..b9de1fb 100755
+--- a/source4/rpc_server/wscript_build
++++ b/source4/rpc_server/wscript_build
+@@ -1,14 +1,14 @@
+ #!/usr/bin/env python
+ 
+ bld.SAMBA_SUBSYSTEM('DCERPC_SHARE',
+-	source='common/server_info.c common/share_info.c',
++	source='common/share_info.c',
+ 	autoproto='common/share.h',
+ 	deps='ldb',
+-	enabled=bld.AD_DC_BUILD_IS_ENABLED()
++	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER'),
+ 	)
+ 
+ bld.SAMBA_SUBSYSTEM('DCERPC_COMMON',
+-	source='common/forward.c common/reply.c dcesrv_auth.c common/loadparm.c',
++	source='common/server_info.c common/forward.c common/reply.c dcesrv_auth.c common/loadparm.c',
+ 	autoproto='common/proto.h',
+ 	deps='ldb DCERPC_SHARE samba_server_gensec',
+ 	enabled=bld.AD_DC_BUILD_IS_ENABLED()
+@@ -54,7 +54,8 @@ bld.SAMBA_MODULE('dcerpc_srvsvc',
+ 	autoproto='srvsvc/proto.h',
+ 	subsystem='dcerpc_server',
+ 	init_function='dcerpc_server_srvsvc_init',
+-	deps='DCERPC_COMMON NDR_SRVSVC share ntvfs'
++	deps='DCERPC_COMMON NDR_SRVSVC share ntvfs',
++	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+ 	)
+ 
+ 
+@@ -88,7 +89,8 @@ bld.SAMBA_MODULE('dcerpc_winreg',
+ 	subsystem='dcerpc_server',
+ 	init_function='dcerpc_server_winreg_init',
+ 	deps='registry ndr-standard',
+-	internal_module=True
++	internal_module=True,
++	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+ 	)
+ 
+ 
+@@ -132,7 +134,8 @@ bld.SAMBA_MODULE('dcerpc_spoolss',
+ 	subsystem='dcerpc_server',
+ 	init_function='dcerpc_server_spoolss_init',
+ 	deps='DCERPC_COMMON NDR_SPOOLSS ntptr RPC_NDR_SPOOLSS',
+-	internal_module=True
++	internal_module=True,
++	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+ 	)
+ 
+ 
+@@ -155,7 +158,8 @@ bld.SAMBA_MODULE('dcerpc_eventlog',
+ 	source='eventlog/dcesrv_eventlog6.c',
+ 	subsystem='dcerpc_server',
+ 	init_function='dcerpc_server_eventlog6_init',
+-	deps='DCERPC_COMMON'
++	deps='DCERPC_COMMON',
++	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+ 	)
+ 
+ bld.SAMBA_MODULE('dcerpc_dnsserver',
+diff --git a/source4/smb_server/service_smb.c b/source4/smb_server/service_smb.c
+index 0e4897c..05004b0 100644
+--- a/source4/smb_server/service_smb.c
++++ b/source4/smb_server/service_smb.c
+@@ -34,7 +34,8 @@
+ #include "dsdb/samdb/samdb.h"
+ #include "param/param.h"
+ #include "file_server/file_server.h"
+-
++#include "ntvfs/ntvfs.h"
++#include "lib/cmdline/popt_common.h"
+ /*
+   open the smb server sockets
+ */
+@@ -86,6 +87,7 @@ failed:
+ /* called at smbd startup - register ourselves as a server service */
+ NTSTATUS server_service_smb_init(void)
+ {
++	ntvfs_init(cmdline_lp_ctx);
+ 	share_init();
+ 	return register_server_service("smb", smbsrv_task_init);
+ }
+diff --git a/source4/smb_server/wscript_build b/source4/smb_server/wscript_build
+index 78298d9..5860340 100644
+--- a/source4/smb_server/wscript_build
++++ b/source4/smb_server/wscript_build
+@@ -5,7 +5,7 @@ bld.SAMBA_MODULE('service_smb',
+ 	autoproto='service_smb_proto.h',
+ 	subsystem='service',
+ 	init_function='server_service_smb_init',
+-	deps='SMB_SERVER netif shares samba-hostconfig',
++	deps='SMB_SERVER netif shares samba-hostconfig POPT_SAMBA',
+ 	internal_module=False,
+ 	enabled=bld.CONFIG_SET('WITH_NTVFS_FILESERVER')
+ 	)
+diff --git a/source4/smbd/server.c b/source4/smbd/server.c
+index bd70ac6..1c74f40 100644
+--- a/source4/smbd/server.c
++++ b/source4/smbd/server.c
+@@ -28,7 +28,6 @@
+ #include "lib/cmdline/popt_common.h"
+ #include "system/dir.h"
+ #include "system/filesys.h"
+-#include "ntvfs/ntvfs.h"
+ #include "ntptr/ntptr.h"
+ #include "auth/gensec/gensec.h"
+ #include "libcli/auth/schannel.h"
+@@ -409,9 +408,6 @@ static int binary_smbd_main(const char *binary_name, int argc, const char *argv[
+ 	ntptr_init();	/* FIXME: maybe run this in the initialization function 
+ 						of the spoolss RPC server instead? */
+ 
+-	ntvfs_init(cmdline_lp_ctx); 	/* FIXME: maybe run this in the initialization functions 
+-						of the SMB[,2] server instead? */
+-
+ 	process_model_init(cmdline_lp_ctx); 
+ 
+ 	shared_init = load_samba_modules(NULL, "service");
+-- 
+2.5.5
+
