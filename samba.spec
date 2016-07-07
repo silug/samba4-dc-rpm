@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 1
 
-%define samba_version 4.4.4
+%define samba_version 4.4.5
 %define talloc_version 2.1.6
 %define tdb_version 1.3.8
 %define tevent_version 0.9.28
@@ -1995,6 +1995,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 07 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.5-1
+- Update to Samba 4.4.5
+- resolves: #1353504 - CVE-2016-2119
+
 * Thu Jun 23 2016 Guenther Deschner <gdeschner@redhat.com> - 4.4.4-4
 - resolves: #1348899 - Import of samba.ntacls fails
 
