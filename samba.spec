@@ -6,15 +6,15 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 0
 
-%define samba_version 4.4.5
-%define talloc_version 2.1.6
-%define tdb_version 1.3.8
-%define tevent_version 0.9.28
-%define ldb_version 1.1.26
+%define samba_version 4.5.0
+%define talloc_version 2.1.8
+%define tdb_version 1.3.10
+%define tevent_version 0.9.29
+%define ldb_version 1.1.27
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc1
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -50,7 +50,7 @@
 %endif
 %endif
 
-%global libwbc_alternatives_version 0.12
+%global libwbc_alternatives_version 0.13
 %global libwbc_alternatives_suffix %nil
 %if 0%{?__isa_bits} == 64
 %global libwbc_alternatives_suffix -64
@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -106,9 +106,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0:    samba-4.4.5-fix_resolving_trusted_domain_users.patch
-Patch1: samba-4.4.5-ntvfs_build.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -191,28 +188,28 @@ BuildRequires: gnutls-devel >= 3.4.7
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.1.6
+%global libtalloc_version 2.1.8
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.28
+%global libtevent_version 0.9.29
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.26
+%global libldb_version 1.1.27
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.3.8
+%global libtdb_version 1.3.10
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -687,9 +684,6 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p 1 -b .samba-4.4.5-fix_resolving_trusted_domain_users.patch
-%patch1 -p 1 -b .samba-4.4.5-ntvfs_build.patch
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -840,7 +834,7 @@ echo "d /run/ctdb 755 root root" >> %{buildroot}%{_tmpfilesdir}/ctdb.conf
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
 %if %with_clustering_support
-install -m 0644 ctdb/config/ctdb.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/ctdb
+install -m 0644 ctdb/config/ctdbd.conf %{buildroot}%{_sysconfdir}/sysconfig/ctdb
 %endif
 
 install -m 0644 %{SOURCE201} packaging/README.downgrade
@@ -1160,6 +1154,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_bindir}/cifsdd
 %{_bindir}/dbwrap_tool
+%{_bindir}/findsmb
 %{_bindir}/nmblookup
 %{_bindir}/oLschema2ldif
 %{_bindir}/regdiff
@@ -1186,7 +1181,7 @@ rm -rf %{buildroot}
 %{_mandir}/man1/regpatch.1*
 %{_mandir}/man1/regshell.1*
 %{_mandir}/man1/regtree.1*
-%exclude %{_mandir}/man1/findsmb.1*
+%{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/log2pcap.1*
 %{_mandir}/man1/rpcclient.1*
 %{_mandir}/man1/sharesec.1*
@@ -1255,7 +1250,6 @@ rm -rf %{buildroot}
 %{_libdir}/libsamdb.so.*
 %{_libdir}/libsmbconf.so.*
 %{_libdir}/libsmbldap.so.*
-%{_libdir}/libtevent-unix-util.so.*
 %{_libdir}/libtevent-util.so.*
 %{_libdir}/libdcerpc.so.*
 
@@ -1568,6 +1562,7 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/ndr/ndr_dcerpc.h
 %{_includedir}/samba-4.0/ndr/ndr_drsblobs.h
 %{_includedir}/samba-4.0/ndr/ndr_drsuapi.h
+%{_includedir}/samba-4.0/ndr/ndr_krb5pac.h
 %{_includedir}/samba-4.0/ndr/ndr_svcctl.h
 %{_includedir}/samba-4.0/ndr/ndr_nbt.h
 %{_includedir}/samba-4.0/netapi.h
@@ -1622,7 +1617,6 @@ rm -rf %{buildroot}
 %{_libdir}/libsamba-util.so
 %{_libdir}/libsamdb.so
 %{_libdir}/libsmbconf.so
-%{_libdir}/libtevent-unix-util.so
 %{_libdir}/libtevent-util.so
 %{_libdir}/pkgconfig/dcerpc.pc
 %{_libdir}/pkgconfig/dcerpc_samr.pc
@@ -1897,6 +1891,7 @@ rm -rf %{buildroot}
 %{_sysconfdir}/ctdb/events.d/00.ctdb
 %{_sysconfdir}/ctdb/events.d/01.reclock
 %{_sysconfdir}/ctdb/events.d/05.system
+%{_sysconfdir}/ctdb/events.d/06.nfs
 %{_sysconfdir}/ctdb/events.d/10.external
 %{_sysconfdir}/ctdb/events.d/10.interface
 %{_sysconfdir}/ctdb/events.d/11.natgw
@@ -1919,6 +1914,9 @@ rm -rf %{buildroot}
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
+%{_libexecdir}/ctdb/ctdb_killtcp
+%{_libexecdir}/ctdb/ctdb_lvs
+%{_libexecdir}/ctdb/ctdb_mutex_fcntl_helper
 %{_libexecdir}/ctdb/ctdb_natgw
 %{_libexecdir}/ctdb/ctdb_recovery_helper
 %{_libexecdir}/ctdb/smnotify
@@ -1930,6 +1928,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/ctdb_event_helper
 
 %{_mandir}/man1/ctdb.1.gz
+%{_mandir}/man1/ctdb_diagnostics.1.gz
 %{_mandir}/man1/ctdbd.1.gz
 %{_mandir}/man1/onnode.1.gz
 %{_mandir}/man1/ltdbtool.1.gz
@@ -1946,32 +1945,29 @@ rm -rf %{buildroot}
 %{_libdir}/ctdb-tests/comm_client_test
 %{_libdir}/ctdb-tests/comm_server_test
 %{_libdir}/ctdb-tests/comm_test
-%{_libdir}/ctdb-tests/ctdb_bench
-%{_libdir}/ctdb-tests/ctdb_fetch
-%{_libdir}/ctdb-tests/ctdb_fetch_one
-%{_libdir}/ctdb-tests/ctdb_fetch_readonly_loop
-%{_libdir}/ctdb-tests/ctdb_fetch_readonly_once
-%{_libdir}/ctdb-tests/ctdb_functest
-%{_libdir}/ctdb-tests/ctdb_lock_tdb
-%{_libdir}/ctdb-tests/ctdb_persistent
-%{_libdir}/ctdb-tests/ctdb_porting_tests
-%{_libdir}/ctdb-tests/ctdb_randrec
-%{_libdir}/ctdb-tests/ctdb_store
-%{_libdir}/ctdb-tests/ctdb_stubtest
+%{_libdir}/ctdb-tests/ctdb_packet_parse
 %{_libdir}/ctdb-tests/ctdb_takeover_tests
-%{_libdir}/ctdb-tests/ctdb_trackingdb_test
-%{_libdir}/ctdb-tests/ctdb_transaction
-%{_libdir}/ctdb-tests/ctdb_traverse
-%{_libdir}/ctdb-tests/ctdb_update_record
-%{_libdir}/ctdb-tests/ctdb_update_record_persistent
 %{_libdir}/ctdb-tests/db_hash_test
+%{_libdir}/ctdb-tests/fake_ctdbd
+%{_libdir}/ctdb-tests/fetch_loop
+%{_libdir}/ctdb-tests/fetch_loop_key
+%{_libdir}/ctdb-tests/fetch_readonly
+%{_libdir}/ctdb-tests/fetch_readonly_loop
+%{_libdir}/ctdb-tests/fetch_ring
+%{_libdir}/ctdb-tests/g_lock_loop
+%{_libdir}/ctdb-tests/lock_tdb
+%{_libdir}/ctdb-tests/message_ring
 %{_libdir}/ctdb-tests/pkt_read_test
 %{_libdir}/ctdb-tests/pkt_write_test
+%{_libdir}/ctdb-tests/porting_tests
 %{_libdir}/ctdb-tests/protocol_client_test
 %{_libdir}/ctdb-tests/protocol_types_test
 %{_libdir}/ctdb-tests/rb_test
 %{_libdir}/ctdb-tests/reqid_test
 %{_libdir}/ctdb-tests/srvid_test
+%{_libdir}/ctdb-tests/transaction_loop
+%{_libdir}/ctdb-tests/update_record
+%{_libdir}/ctdb-tests/update_record_persistent
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
 %dir %{_datadir}/ctdb-tests
@@ -1986,6 +1982,7 @@ rm -rf %{buildroot}
 %dir %{_datadir}/ctdb-tests/scripts
 %{_datadir}/ctdb-tests/scripts/common.sh
 %{_datadir}/ctdb-tests/scripts/integration.bash
+%{_datadir}/ctdb-tests/scripts/script_install_paths.sh
 %{_datadir}/ctdb-tests/scripts/test_wrap
 %{_datadir}/ctdb-tests/scripts/unit.sh
 %dir %{_datadir}/ctdb-tests/simple
@@ -1995,6 +1992,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 28 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0rc1-0
+- Update to Samba 4.5.0rc1
+
 * Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:4.4.5-1.1
 - https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
 
