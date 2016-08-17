@@ -148,7 +148,7 @@ BuildRequires: dbus-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
-BuildRequires: krb5-devel >= 1.10
+BuildRequires: krb5-devel >= 1.14
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
 BuildRequires: libarchive-devel
@@ -410,7 +410,7 @@ the Kerberos credentials cache of the user issuing the print job.
 %package libs
 Summary: Samba libraries
 Group: Applications/System
-Requires: krb5-libs >= 1.10
+Requires: krb5-libs >= 1.14
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
