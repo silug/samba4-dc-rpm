@@ -182,6 +182,8 @@ BuildRequires: libcephfs1-devel
 %endif
 %if %{with_dc}
 BuildRequires: gnutls-devel >= 3.4.7
+# Required by samba-tool to run tests
+BuildRequires: python-crypto
 %endif
 
 # pidl requirements
@@ -319,8 +321,10 @@ Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-python = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
+%if %{with_dc}
 # samba-tool requirements
 Requires: python-crypto
+%endif
 
 Provides: samba4-dc = %{samba_depver}
 Obsoletes: samba4-dc < %{samba_depver}
