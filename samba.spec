@@ -14,7 +14,7 @@
 %define tevent_version 0.9.29
 %define ldb_version 1.1.27
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1918,18 +1918,19 @@ rm -rf %{buildroot}
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
+%{_bindir}/ping_pong
+%{_bindir}/ltdbtool
+%{_bindir}/ctdb_diagnostics
+%{_bindir}/onnode
+%dir %{_libexecdir}/ctdb
+%{_libexecdir}/ctdb/ctdb_event_helper
 %{_libexecdir}/ctdb/ctdb_killtcp
+%{_libexecdir}/ctdb/ctdb_lock_helper
 %{_libexecdir}/ctdb/ctdb_lvs
 %{_libexecdir}/ctdb/ctdb_mutex_fcntl_helper
 %{_libexecdir}/ctdb/ctdb_natgw
 %{_libexecdir}/ctdb/ctdb_recovery_helper
 %{_libexecdir}/ctdb/smnotify
-%{_bindir}/ping_pong
-%{_bindir}/ltdbtool
-%{_bindir}/ctdb_diagnostics
-%{_bindir}/onnode
-%{_libexecdir}/ctdb/ctdb_lock_helper
-%{_libexecdir}/ctdb/ctdb_event_helper
 
 %{_mandir}/man1/ctdb.1.gz
 %{_mandir}/man1/ctdb_diagnostics.1.gz
@@ -1945,36 +1946,35 @@ rm -rf %{buildroot}
 
 %files -n ctdb-tests
 %defattr(-,root,root)
-%dir %{_libdir}/ctdb-tests
-%{_libdir}/ctdb-tests/comm_client_test
-%{_libdir}/ctdb-tests/comm_server_test
-%{_libdir}/ctdb-tests/comm_test
-%{_libdir}/ctdb-tests/ctdb_packet_parse
-%{_libdir}/ctdb-tests/ctdb_takeover_tests
-%{_libdir}/ctdb-tests/db_hash_test
-%{_libdir}/ctdb-tests/fake_ctdbd
-%{_libdir}/ctdb-tests/fetch_loop
-%{_libdir}/ctdb-tests/fetch_loop_key
-%{_libdir}/ctdb-tests/fetch_readonly
-%{_libdir}/ctdb-tests/fetch_readonly_loop
-%{_libdir}/ctdb-tests/fetch_ring
-%{_libdir}/ctdb-tests/g_lock_loop
-%{_libdir}/ctdb-tests/lock_tdb
-%{_libdir}/ctdb-tests/message_ring
-%{_libdir}/ctdb-tests/pkt_read_test
-%{_libdir}/ctdb-tests/pkt_write_test
-%{_libdir}/ctdb-tests/porting_tests
-%{_libdir}/ctdb-tests/protocol_client_test
-%{_libdir}/ctdb-tests/protocol_types_test
-%{_libdir}/ctdb-tests/rb_test
-%{_libdir}/ctdb-tests/reqid_test
-%{_libdir}/ctdb-tests/srvid_test
-%{_libdir}/ctdb-tests/transaction_loop
-%{_libdir}/ctdb-tests/update_record
-%{_libdir}/ctdb-tests/update_record_persistent
+%dir %{_libexecdir}/ctdb/tests
+%{_libexecdir}/ctdb/tests/comm_client_test
+%{_libexecdir}/ctdb/tests/comm_server_test
+%{_libexecdir}/ctdb/tests/comm_test
+%{_libexecdir}/ctdb/tests/ctdb_packet_parse
+%{_libexecdir}/ctdb/tests/ctdb_takeover_tests
+%{_libexecdir}/ctdb/tests/db_hash_test
+%{_libexecdir}/ctdb/tests/fake_ctdbd
+%{_libexecdir}/ctdb/tests/fetch_loop
+%{_libexecdir}/ctdb/tests/fetch_loop_key
+%{_libexecdir}/ctdb/tests/fetch_readonly
+%{_libexecdir}/ctdb/tests/fetch_readonly_loop
+%{_libexecdir}/ctdb/tests/fetch_ring
+%{_libexecdir}/ctdb/tests/g_lock_loop
+%{_libexecdir}/ctdb/tests/lock_tdb
+%{_libexecdir}/ctdb/tests/message_ring
+%{_libexecdir}/ctdb/tests/pkt_read_test
+%{_libexecdir}/ctdb/tests/pkt_write_test
+%{_libexecdir}/ctdb/tests/porting_tests
+%{_libexecdir}/ctdb/tests/protocol_client_test
+%{_libexecdir}/ctdb/tests/protocol_types_test
+%{_libexecdir}/ctdb/tests/rb_test
+%{_libexecdir}/ctdb/tests/reqid_test
+%{_libexecdir}/ctdb/tests/srvid_test
+%{_libexecdir}/ctdb/tests/transaction_loop
+%{_libexecdir}/ctdb/tests/update_record
+%{_libexecdir}/ctdb/tests/update_record_persistent
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
-%dir %{_datadir}/ctdb-tests
 %dir %{_datadir}/ctdb-tests/eventscripts
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/events.d
 %{_datadir}/ctdb-tests/eventscripts/etc-ctdb/functions
@@ -1996,6 +1996,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Aug 15 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0rc2-0
+- Update to Samba 4.5.0rc2
+
 * Thu Jul 28 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0rc1-0
 - Update to Samba 4.5.0rc1
 
