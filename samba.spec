@@ -14,7 +14,7 @@
 %define tevent_version 0.9.29
 %define ldb_version 1.1.27
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1996,6 +1996,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Aug 29 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0rc3-0
+- Update to Samba 4.5.0rc3
+
 * Mon Aug 15 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0rc2-0
 - Update to Samba 4.5.0rc2
 
