@@ -219,6 +219,7 @@ BuildRequires: python-tdb >= %{libtdb_version}
 
 %if %{with testsuite}
 BuildRequires: ldb-tools
+BuildRequires: python2-pygpgme
 %endif
 
 # filter out perl requirements pulled in from examples in the docdir.
