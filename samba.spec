@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.5.0
 %define talloc_version 2.1.8
@@ -106,6 +106,8 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0:    samba-4.5-fix_tevent_abi_issues.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -688,6 +690,8 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
+
+%patch0 -p1 -b .samba-4.5-fix_tevent_abi_issues.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1997,6 +2001,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Oct 17 2016 Andreas Schneider <asn@redhat.com> - 4.5.0-3
+- resolves: 1375973 - Fix tevent incompatibility issue
+
 * Wed Sep 14 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.0-2
 - Fix smbspool alternatives handling during samba-client uninstall
 
