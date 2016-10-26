@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 0
 
-%define samba_version 4.5.0
+%define samba_version 4.5.1
 %define talloc_version 2.1.8
 %define tdb_version 1.3.10
 %define tevent_version 0.9.29
@@ -106,8 +106,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0:    samba-4.5-fix_tevent_abi_issues.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -690,8 +688,6 @@ and use CTDB instead.
 
 %prep
 %setup -q -n samba-%{version}%{pre_release}
-
-%patch0 -p1 -b .samba-4.5-fix_tevent_abi_issues.patch
 
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
@@ -1278,6 +1274,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcmdline-credentials-samba4.so
 %{_libdir}/samba/libdbwrap-samba4.so
 %{_libdir}/samba/libdcerpc-samba-samba4.so
+%{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so
 %{_libdir}/samba/libevents-samba4.so
 %{_libdir}/samba/libflag-mapping-samba4.so
 %{_libdir}/samba/libgenrand-samba4.so
@@ -1967,6 +1964,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/g_lock_loop
 %{_libexecdir}/ctdb/tests/lock_tdb
 %{_libexecdir}/ctdb/tests/message_ring
+%{_libexecdir}/ctdb/tests/pidfile_test
 %{_libexecdir}/ctdb/tests/pkt_read_test
 %{_libexecdir}/ctdb/tests/pkt_write_test
 %{_libexecdir}/ctdb/tests/porting_tests
@@ -2001,6 +1999,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Oct 26 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.1-0
+- Update to Samba 4.5.1
+
 * Mon Oct 17 2016 Andreas Schneider <asn@redhat.com> - 4.5.0-3
 - resolves: 1375973 - Fix tevent incompatibility issue
 
