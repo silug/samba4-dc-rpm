@@ -91,7 +91,6 @@ Epoch:          2
 
 Summary:        Server and Client software to interoperate with Windows machines
 License:        GPLv3+ and LGPLv3+
-Group:          System Environment/Daemons
 URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
@@ -108,8 +107,6 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0:		samba-4.5.1-vfs_gluster_realpath.patch
-
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -239,7 +236,6 @@ Unix.
 ### CLIENT
 %package client
 Summary: Samba client programs
-Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -261,7 +257,6 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 ### CLIENT-LIBS
 %package client-libs
 Summary: Samba client libraries
-Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -274,7 +269,6 @@ SMB/CIFS clients.
 ### COMMON
 %package common
 Summary: Files used by both Samba servers and clients
-Group: Applications/System
 BuildArch: noarch
 
 Requires(post): systemd
@@ -289,7 +283,6 @@ packages of Samba.
 ### COMMON-LIBS
 %package common-libs
 Summary: Libraries used by both Samba servers and clients
-Group: Applications/System
 Requires(pre): samba-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
@@ -303,7 +296,6 @@ SMB/CIFS clients.
 ### COMMON-TOOLS
 %package common-tools
 Summary: Tools for Samba servers and clients
-Group: Applications/System
 Requires: samba-common-libs = %{samba_depver}
 Requires: samba-client-libs = %{samba_depver}
 Requires: samba-libs = %{samba_depver}
@@ -318,7 +310,6 @@ SMB/CIFS clients.
 ### DC
 %package dc
 Summary: Samba AD Domain Controller
-Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
@@ -338,7 +329,6 @@ The samba-dc package provides AD Domain Controller functionality
 ### DC-LIBS
 %package dc-libs
 Summary: Samba AD Domain Controller Libraries
-Group: Applications/System
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
@@ -352,7 +342,6 @@ link against the SMB, RPC and other protocols.
 ### DEVEL
 %package devel
 Summary: Developer tools for Samba libraries
-Group: Development/Libraries
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 
@@ -368,7 +357,6 @@ libraries in the Samba suite.
 %if %{with_vfs_cephfs}
 %package vfs-cephfs
 Summary: Samba VFS module for Ceph distributed storage system
-Group: Applications/System
 Requires: libcephfs1
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
@@ -381,7 +369,6 @@ Samba VFS module for Ceph distributed storage system integration.
 %if %{with_vfs_glusterfs}
 %package vfs-glusterfs
 Summary: Samba VFS module for GlusterFS
-Group: Applications/System
 Requires: glusterfs-api >= 3.4.0.16
 Requires: glusterfs >= 3.4.0.16
 Requires: %{name} = %{samba_depver}
@@ -398,7 +385,6 @@ Samba VFS module for GlusterFS integration.
 ### KRB5-PRINTING
 %package krb5-printing
 Summary: Samba CUPS backend for printing with Kerberos
-Group: Applications/System
 Requires(pre): %{name}-client
 
 Requires(post): %{_sbindir}/update-alternatives
@@ -412,7 +398,6 @@ the Kerberos credentials cache of the user issuing the print job.
 ### LIBS
 %package libs
 Summary: Samba libraries
-Group: Applications/System
 Requires: krb5-libs >= 1.14
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
@@ -430,7 +415,6 @@ against the SMB, RPC and other protocols provided by the Samba suite.
 %if %with_libsmbclient
 %package -n libsmbclient
 Summary: The SMB client library
-Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 
@@ -439,7 +423,6 @@ The libsmbclient contains the SMB client library from the Samba suite.
 
 %package -n libsmbclient-devel
 Summary: Developer tools for the SMB client library
-Group: Development/Libraries
 Requires: libsmbclient = %{samba_depver}
 
 %description -n libsmbclient-devel
@@ -452,7 +435,6 @@ suite.
 %if %with_libwbclient
 %package -n libwbclient
 Summary: The winbind client library
-Group: Applications/System
 Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libwbclient
@@ -461,7 +443,6 @@ suite.
 
 %package -n libwbclient-devel
 Summary: Developer tools for the winbind library
-Group: Development/Libraries
 Requires: libwbclient = %{samba_depver}
 
 Provides: samba-winbind-devel = %{samba_depver}
@@ -475,7 +456,6 @@ library.
 ### PYTHON
 %package python
 Summary: Samba Python libraries
-Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
@@ -494,7 +474,6 @@ that use SMB, RPC and other Samba provided protocols in Python programs.
 ### PIDL
 %package pidl
 Summary: Perl IDL compiler
-Group: Development/Tools
 Requires: perl(Parse::Yapp)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 BuildArch: noarch
@@ -509,7 +488,6 @@ and Wireshark to parse IDL and similar protocols
 ### TEST
 %package test
 Summary: Testing tools for Samba servers and clients
-Group: Applications/System
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
@@ -538,7 +516,6 @@ packages of Samba.
 ### TEST-LIBS
 %package test-libs
 Summary: Libraries need by the testing tools for Samba servers and clients
-Group: Applications/System
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
@@ -551,7 +528,6 @@ Obsoletes: %{name}-test-devel < %{samba_depver}
 ### WINBIND
 %package winbind
 Summary: Samba winbind
-Group: Applications/System
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
@@ -570,7 +546,6 @@ Windows user and group accounts on Linux.
 ### WINBIND-CLIENTS
 %package winbind-clients
 Summary: Samba winbind clients
-Group: Applications/System
 Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -590,7 +565,6 @@ tool.
 ### WINBIND-KRB5-LOCATOR
 %package winbind-krb5-locator
 Summary: Samba winbind krb5 locator
-Group: Applications/System
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
@@ -617,7 +591,6 @@ the local kerberos library to use the same KDC as samba and winbind use
 ### WINBIND-MODULES
 %package winbind-modules
 Summary: Samba winbind modules
-Group: Applications/System
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 %if %with_libwbclient
@@ -633,7 +606,6 @@ necessary to communicate to the Winbind Daemon
 %if %with_clustering_support
 %package -n ctdb
 Summary: A Clustered Database based on Samba's Trivial Database (TDB)
-Group: System Environment/Daemons
 
 Requires: %{name}-client-libs = %{samba_depver}
 
@@ -668,7 +640,6 @@ and use CTDB instead.
 ### CTDB-TEST
 %package -n ctdb-tests
 Summary: CTDB clustered database test suite
-Group: Development/Tools
 
 Requires: samba-client-libs = %{samba_depver}
 
