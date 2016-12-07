@@ -830,7 +830,7 @@ for i in nmb smb winbind ; do
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
 %if %with_clustering_support
-install -m 0755 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
+install -m 0644 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
 %endif
 
 # NetworkManager online/offline script
