@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 0
 
-%define samba_version 4.5.1
+%define samba_version 4.5.2
 %define talloc_version 2.1.8
 %define tdb_version 1.3.10
 %define tevent_version 0.9.29
@@ -105,8 +105,6 @@ Source6: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0:		samba-4.5.1-vfs_gluster_realpath.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -662,8 +660,6 @@ and use CTDB instead.
 %prep
 %setup -q -n samba-%{version}%{pre_release}
 
-%patch0 -p 1 -b .samba-4.5.1-vfs_gluster_realpath.patch
-
 %build
 %global _talloc_lib ,talloc,pytalloc,pytalloc-util
 %global _tevent_lib ,tevent,pytevent
@@ -1014,7 +1010,8 @@ rm -rf %{buildroot}
 ### SAMBA
 %files
 %defattr(-,root,root,-)
-%doc COPYING README WHATSNEW.txt
+%license COPYING
+%doc README WHATSNEW.txt
 %doc examples/autofs examples/LDAP examples/misc
 %doc examples/printer-accounting examples/printing
 %doc packaging/README.downgrade
@@ -1953,27 +1950,30 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/update_record_persistent
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
-%dir %{_datadir}/ctdb-tests/eventscripts
-%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/events.d
-%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/functions
-%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-checks.d
-%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/nfs-linux-kernel-callout
-%{_datadir}/ctdb-tests/eventscripts/etc-ctdb/statd-callout
-%dir %{_datadir}/ctdb-tests/onnode
-%{_datadir}/ctdb-tests/onnode/functions
-%dir %{_datadir}/ctdb-tests/scripts
-%{_datadir}/ctdb-tests/scripts/common.sh
-%{_datadir}/ctdb-tests/scripts/integration.bash
-%{_datadir}/ctdb-tests/scripts/script_install_paths.sh
-%{_datadir}/ctdb-tests/scripts/test_wrap
-%{_datadir}/ctdb-tests/scripts/unit.sh
-%dir %{_datadir}/ctdb-tests/simple
-%{_datadir}/ctdb-tests/simple/functions
-%{_datadir}/ctdb-tests/simple/nodes
+%dir %{_datadir}/ctdb/tests/eventscripts
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/events.d
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/functions
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/nfs-checks.d
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/nfs-linux-kernel-callout
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/statd-callout
+%dir %{_datadir}/ctdb/tests/onnode
+%{_datadir}/ctdb/tests/onnode/functions
+%dir %{_datadir}/ctdb/tests/scripts
+%{_datadir}/ctdb/tests/scripts/common.sh
+%{_datadir}/ctdb/tests/scripts/integration.bash
+%{_datadir}/ctdb/tests/scripts/script_install_paths.sh
+%{_datadir}/ctdb/tests/scripts/test_wrap
+%{_datadir}/ctdb/tests/scripts/unit.sh
+%dir %{_datadir}/ctdb/tests/simple
+%{_datadir}/ctdb/tests/simple/functions
+%{_datadir}/ctdb/tests/simple/nodes
 %doc ctdb/tests/README
 %endif # with_clustering_support
 
 %changelog
+* Wed Dec 07 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.2-0
+- Update to Samba 4.5.2
+
 * Mon Dec 05 2016 Rex Dieter <rdieter@fedoraproject.org> - -
 - rebuild (libldb)
 
