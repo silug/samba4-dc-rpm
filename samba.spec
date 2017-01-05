@@ -1894,9 +1894,11 @@ rm -rf %{buildroot}
 %{_bindir}/ltdbtool
 %{_bindir}/ctdb_diagnostics
 %{_bindir}/onnode
+
 %dir %{_libexecdir}/ctdb
 %{_libexecdir}/ctdb/ctdb_event
 %{_libexecdir}/ctdb/ctdb_eventd
+%{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/ctdb_killtcp
 %{_libexecdir}/ctdb/ctdb_lock_helper
 %{_libexecdir}/ctdb/ctdb_lvs
@@ -1905,6 +1907,11 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/ctdb_recovery_helper
 %{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/smnotify
+%{_libexecdir}/ctdb/tests/protocol_util_test
+%{_libexecdir}/ctdb/tests/run_proc_test
+%{_libexecdir}/ctdb/tests/sock_daemon_test
+
+%dir %{_libexecdir}/ctdb/tests
 %{_libexecdir}/ctdb/tests/protocol_util_test
 %{_libexecdir}/ctdb/tests/run_proc_test
 %{_libexecdir}/ctdb/tests/sock_daemon_test
