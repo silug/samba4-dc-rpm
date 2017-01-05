@@ -8,13 +8,13 @@
 
 %define main_release 0
 
-%define samba_version 4.5.3
+%define samba_version 4.6.0
 %define talloc_version 2.1.8
-%define tdb_version 1.3.10
-%define tevent_version 0.9.29
-%define ldb_version 1.1.27
+%define tdb_version 1.3.12
+%define tevent_version 0.9.31
+%define ldb_version 1.1.29
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc1
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -194,21 +194,21 @@ BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.29
+%global libtevent_version 0.9.31
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.27
+%global libldb_version 1.1.29
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.3.10
+%global libtdb_version 1.3.12
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -1290,7 +1290,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libsmbd-conn-samba4.so
 %{_libdir}/samba/libsmbd-shim-samba4.so
 %{_libdir}/samba/libsmbldaphelper-samba4.so
-%{_libdir}/samba/libsmbregistry-samba4.so
 %{_libdir}/samba/libsys-rw-samba4.so
 %{_libdir}/samba/libsocket-blocking-samba4.so
 %{_libdir}/samba/libtalloc-report-samba4.so
@@ -1578,7 +1577,6 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/util/tevent_unix.h
 %{_includedir}/samba-4.0/util/tevent_werror.h
 %{_includedir}/samba-4.0/util/time.h
-%{_includedir}/samba-4.0/util/xfile.h
 %{_includedir}/samba-4.0/util_ldb.h
 %{_libdir}/libdcerpc-binding.so
 %{_libdir}/libdcerpc-samr.so
@@ -1897,14 +1895,19 @@ rm -rf %{buildroot}
 %{_bindir}/ctdb_diagnostics
 %{_bindir}/onnode
 %dir %{_libexecdir}/ctdb
-%{_libexecdir}/ctdb/ctdb_event_helper
+%{_libexecdir}/ctdb/ctdb_event
+%{_libexecdir}/ctdb/ctdb_eventd
 %{_libexecdir}/ctdb/ctdb_killtcp
 %{_libexecdir}/ctdb/ctdb_lock_helper
 %{_libexecdir}/ctdb/ctdb_lvs
 %{_libexecdir}/ctdb/ctdb_mutex_fcntl_helper
 %{_libexecdir}/ctdb/ctdb_natgw
 %{_libexecdir}/ctdb/ctdb_recovery_helper
+%{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/smnotify
+%{_libexecdir}/ctdb/tests/protocol_util_test
+%{_libexecdir}/ctdb/tests/run_proc_test
+%{_libexecdir}/ctdb/tests/sock_daemon_test
 
 %{_mandir}/man1/ctdb.1.gz
 %{_mandir}/man1/ctdb_diagnostics.1.gz
@@ -1971,6 +1974,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jan 05 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc1-0
+- Update to Samba 4.6.0rc1
+
 * Mon Dec 19 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.3-0
 - Update to Samba 4.5.3
 - resolves: #1405984 - CVE-2016-2123,CVE-2016-2125 and CVE-2016-2126
