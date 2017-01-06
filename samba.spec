@@ -1898,7 +1898,6 @@ rm -rf %{buildroot}
 %dir %{_libexecdir}/ctdb
 %{_libexecdir}/ctdb/ctdb_event
 %{_libexecdir}/ctdb/ctdb_eventd
-%{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/ctdb_killtcp
 %{_libexecdir}/ctdb/ctdb_lock_helper
 %{_libexecdir}/ctdb/ctdb_lvs
@@ -1907,14 +1906,6 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/ctdb_recovery_helper
 %{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/smnotify
-%{_libexecdir}/ctdb/tests/protocol_util_test
-%{_libexecdir}/ctdb/tests/run_proc_test
-%{_libexecdir}/ctdb/tests/sock_daemon_test
-
-%dir %{_libexecdir}/ctdb/tests
-%{_libexecdir}/ctdb/tests/protocol_util_test
-%{_libexecdir}/ctdb/tests/run_proc_test
-%{_libexecdir}/ctdb/tests/sock_daemon_test
 
 %{_mandir}/man1/ctdb.1.gz
 %{_mandir}/man1/ctdb_diagnostics.1.gz
@@ -1952,8 +1943,11 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/porting_tests
 %{_libexecdir}/ctdb/tests/protocol_client_test
 %{_libexecdir}/ctdb/tests/protocol_types_test
+%{_libexecdir}/ctdb/tests/protocol_util_test
 %{_libexecdir}/ctdb/tests/rb_test
 %{_libexecdir}/ctdb/tests/reqid_test
+%{_libexecdir}/ctdb/tests/run_proc_test
+%{_libexecdir}/ctdb/tests/sock_daemon_test
 %{_libexecdir}/ctdb/tests/srvid_test
 %{_libexecdir}/ctdb/tests/transaction_loop
 %{_libexecdir}/ctdb/tests/update_record
