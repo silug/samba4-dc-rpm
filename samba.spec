@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.8
@@ -112,6 +112,7 @@ Requires(preun): systemd
 Requires(postun): systemd
 
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -235,6 +236,7 @@ Unix.
 %package client
 Summary: Samba client programs
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libsmbclient
@@ -256,6 +258,7 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 %package client-libs
 Summary: Samba client libraries
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
@@ -282,6 +285,7 @@ packages of Samba.
 %package common-libs
 Summary: Libraries used by both Samba servers and clients
 Requires(pre): samba-common = %{samba_depver}
+Requires: samba-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
@@ -384,6 +388,7 @@ Samba VFS module for GlusterFS integration.
 %package krb5-printing
 Summary: Samba CUPS backend for printing with Kerberos
 Requires(pre): %{name}-client
+Requires: %{name}-client
 
 Requires(post): %{_sbindir}/update-alternatives
 Requires(postun): %{_sbindir}/update-alternatives
@@ -414,6 +419,7 @@ against the SMB, RPC and other protocols provided by the Samba suite.
 %package -n libsmbclient
 Summary: The SMB client library
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 
 %description -n libsmbclient
@@ -527,6 +533,7 @@ Obsoletes: %{name}-test-devel < %{samba_depver}
 %package winbind
 Summary: Samba winbind
 Requires(pre): %{name}-common = %{samba_depver}
+Requires: %{name}-common = %{samba_depver}
 Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-common-tools = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -1975,6 +1982,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jan 12 2017 Andreas Schneider <asn@redhat.com> - 4.6.0rc1-1
+- resolves: #1319098 - Add missing Requires for pre-required packages
+
 * Thu Jan 05 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc1-0
 - Update to Samba 4.6.0rc1
 
