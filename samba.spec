@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 0
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.8
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.31
 %define ldb_version 1.1.29
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1955,7 +1955,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/reqid_test
 %{_libexecdir}/ctdb/tests/run_proc_test
 %{_libexecdir}/ctdb/tests/sock_daemon_test
+%{_libexecdir}/ctdb/tests/sock_io_test
 %{_libexecdir}/ctdb/tests/srvid_test
+%{_libexecdir}/ctdb/tests/test_mutex_raw
 %{_libexecdir}/ctdb/tests/transaction_loop
 %{_libexecdir}/ctdb/tests/update_record
 %{_libexecdir}/ctdb/tests/update_record_persistent
@@ -1982,6 +1984,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jan 27 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc2-0
+- Update to Samba 4.6.0rc2
+
 * Thu Jan 12 2017 Andreas Schneider <asn@redhat.com> - 4.6.0rc1-1
 - resolves: #1319098 - Add missing Requires for pre-required packages
 
