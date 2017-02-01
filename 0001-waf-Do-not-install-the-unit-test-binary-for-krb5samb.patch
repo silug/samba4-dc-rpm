@@ -1,0 +1,26 @@
+From 777499d2371a2f48472f8a353d95f1a9318b352b Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Wed, 1 Feb 2017 15:53:44 +0100
+Subject: [PATCH] waf: Do not install the unit test binary for krb5samba
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12552
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ testsuite/unittests/wscript | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/testsuite/unittests/wscript b/testsuite/unittests/wscript
+index ea4af07799f..e2569513d49 100644
+--- a/testsuite/unittests/wscript
++++ b/testsuite/unittests/wscript
+@@ -12,4 +12,5 @@ def build(bld):
+     if bld.CONFIG_SET('HAVE_CMOCKA'):
+         bld.SAMBA_BINARY('test_krb5samba',
+                          source='test_krb5_samba.c',
+-                         deps='krb5samba cmocka')
++                         deps='krb5samba cmocka',
++                         install=False)
+-- 
+2.11.0
+
