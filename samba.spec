@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.8
@@ -94,6 +94,8 @@ License:        GPLv3+ and LGPLv3+
 URL:            http://www.samba.org/
 
 Source0:        samba-%{version}%{pre_release}.tar.xz
+Source1:        samba-%{version}%{pre_release}.tar.asc
+Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
 
 # Red Hat specific replacement-files
 Source10: samba.log
@@ -145,6 +147,7 @@ BuildRequires: dbus-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
+BuildRequires: gnupg2
 BuildRequires: krb5-devel >= 1.14
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
@@ -170,6 +173,7 @@ BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
 BuildRequires: xfsprogs-devel
+BuildRequires: xz
 BuildRequires: zlib-devel >= 1.2.3
 
 BuildRequires: pkgconfig(libsystemd)
@@ -668,6 +672,7 @@ and use CTDB instead.
 
 
 %prep
+xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %autosetup -n samba-%{version}%{pre_release} -p1
 
 %build
