@@ -96,12 +96,11 @@ URL:            http://www.samba.org/
 Source0:        samba-%{version}%{pre_release}.tar.xz
 
 # Red Hat specific replacement-files
-Source1: samba.log
-Source2: samba.xinetd
-Source3: smb.conf.vendor
-Source4: smb.conf.example
-Source5: pam_winbind.conf
-Source6: samba.pamd
+Source10: samba.log
+Source11: smb.conf.vendor
+Source12: smb.conf.example
+Source13: pam_winbind.conf
+Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
@@ -791,16 +790,16 @@ touch %{buildroot}%{_libexecdir}/samba/cups_backend_smb
 
 # Install other stuff
 install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/samba
+install -m 0644 %{SOURCE10} %{buildroot}%{_sysconfdir}/logrotate.d/samba
 
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/samba/smb.conf
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/samba/smb.conf.example
+install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/samba/smb.conf
+install -m 0644 %{SOURCE12} %{buildroot}%{_sysconfdir}/samba/smb.conf.example
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/security
-install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
+install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/pam.d
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/samba
+install -m 0644 %{SOURCE14} %{buildroot}%{_sysconfdir}/pam.d/samba
 
 echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/samba/lmhosts
 
