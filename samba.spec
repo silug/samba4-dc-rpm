@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1994,6 +1994,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.6.0-0.1.rc2.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Fri Jan 27 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc2-0
 - Update to Samba 4.6.0rc2
 
