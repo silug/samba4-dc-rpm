@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 3
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.8
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.31
 %define ldb_version 1.1.29
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -36,7 +36,7 @@
 
 %global with_profiling 1
 
-%global with_vfs_cephfs 1
+%global with_vfs_cephfs 0
 %if 0%{?rhel}
 %global with_vfs_cephfs 0
 %endif
@@ -75,7 +75,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -96,8 +96,6 @@ URL:            http://www.samba.org/
 Source0:        samba-%{version}%{pre_release}.tar.xz
 Source1:        samba-%{version}%{pre_release}.tar.asc
 Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
-
-Patch0:         0001-waf-Do-not-install-the-unit-test-binary-for-krb5samb.patch
 
 # Red Hat specific replacement-files
 Source10: samba.log
@@ -1938,6 +1936,11 @@ rm -rf %{buildroot}
 
 %files -n ctdb-tests
 %defattr(-,root,root)
+%doc ctdb/tests/README
+%{_bindir}/ctdb_run_tests
+%{_bindir}/ctdb_run_cluster_tests
+
+%dir %{_libexecdir}/ctdb
 %dir %{_libexecdir}/ctdb/tests
 %{_libexecdir}/ctdb/tests/comm_client_test
 %{_libexecdir}/ctdb/tests/comm_server_test
@@ -1971,39 +1974,655 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/transaction_loop
 %{_libexecdir}/ctdb/tests/update_record
 %{_libexecdir}/ctdb/tests/update_record_persistent
-%{_bindir}/ctdb_run_tests
-%{_bindir}/ctdb_run_cluster_tests
+
+%dir %{_datadir}/ctdb
+%dir %{_datadir}/ctdb/tests
+
+%dir %{_datadir}/ctdb/tests/complex
+%{_datadir}/ctdb/tests/complex/README
+%{_datadir}/ctdb/tests/complex/11_ctdb_delip_removes_ip.sh
+%{_datadir}/ctdb/tests/complex/18_ctdb_reloadips.sh
+%{_datadir}/ctdb/tests/complex/30_nfs_tickle_killtcp.sh
+%{_datadir}/ctdb/tests/complex/31_nfs_tickle.sh
+%{_datadir}/ctdb/tests/complex/32_cifs_tickle.sh
+%{_datadir}/ctdb/tests/complex/33_gratuitous_arp.sh
+%{_datadir}/ctdb/tests/complex/34_nfs_tickle_restart.sh
+%{_datadir}/ctdb/tests/complex/35_cifs_external_tickle.sh
+%{_datadir}/ctdb/tests/complex/41_failover_ping_discrete.sh
+%{_datadir}/ctdb/tests/complex/42_failover_ssh_hostname.sh
+%{_datadir}/ctdb/tests/complex/43_failover_nfs_basic.sh
+%{_datadir}/ctdb/tests/complex/44_failover_nfs_oneway.sh
+%{_datadir}/ctdb/tests/complex/45_failover_nfs_kill.sh
+%{_datadir}/ctdb/tests/complex/60_rogueip_releaseip.sh
+%{_datadir}/ctdb/tests/complex/61_rogueip_takeip.sh
+%{_datadir}/ctdb/tests/complex/90_debug_hung_script.sh
+
+%dir %{_datadir}/ctdb/tests/complex/scripts
+%{_datadir}/ctdb/tests/complex/scripts/local.bash
+
+%dir %{_datadir}/ctdb/tests/cunit
+%{_datadir}/ctdb/tests/cunit/comm_test_001.sh
+%{_datadir}/ctdb/tests/cunit/comm_test_002.sh
+%{_datadir}/ctdb/tests/cunit/db_hash_test_001.sh
+%{_datadir}/ctdb/tests/cunit/pidfile_test_001.sh
+%{_datadir}/ctdb/tests/cunit/pkt_read_001.sh
+%{_datadir}/ctdb/tests/cunit/pkt_write_001.sh
+%{_datadir}/ctdb/tests/cunit/porting_tests_001.sh
+%{_datadir}/ctdb/tests/cunit/protocol_test_001.sh
+%{_datadir}/ctdb/tests/cunit/protocol_test_002.sh
+%{_datadir}/ctdb/tests/cunit/protocol_test_003.sh
+%{_datadir}/ctdb/tests/cunit/rb_test_001.sh
+%{_datadir}/ctdb/tests/cunit/reqid_test_001.sh
+%{_datadir}/ctdb/tests/cunit/run_proc_001.sh
+%{_datadir}/ctdb/tests/cunit/sock_daemon_test_001.sh
+%{_datadir}/ctdb/tests/cunit/sock_io_test_001.sh
+%{_datadir}/ctdb/tests/cunit/srvid_test_001.sh
+
+%dir %{_datadir}/ctdb/tests/eventd
+%{_datadir}/ctdb/tests/eventd/README
+%{_datadir}/ctdb/tests/eventd/eventd_001.sh
+%{_datadir}/ctdb/tests/eventd/eventd_002.sh
+%{_datadir}/ctdb/tests/eventd/eventd_003.sh
+%{_datadir}/ctdb/tests/eventd/eventd_004.sh
+%{_datadir}/ctdb/tests/eventd/eventd_005.sh
+%{_datadir}/ctdb/tests/eventd/eventd_006.sh
+%{_datadir}/ctdb/tests/eventd/eventd_007.sh
+%{_datadir}/ctdb/tests/eventd/eventd_011.sh
+%{_datadir}/ctdb/tests/eventd/eventd_012.sh
+%{_datadir}/ctdb/tests/eventd/eventd_013.sh
+%{_datadir}/ctdb/tests/eventd/eventd_014.sh
+%{_datadir}/ctdb/tests/eventd/eventd_021.sh
+%{_datadir}/ctdb/tests/eventd/eventd_022.sh
+%{_datadir}/ctdb/tests/eventd/eventd_023.sh
+%{_datadir}/ctdb/tests/eventd/eventd_024.sh
+%{_datadir}/ctdb/tests/eventd/eventd_031.sh
+%{_datadir}/ctdb/tests/eventd/eventd_032.sh
+%{_datadir}/ctdb/tests/eventd/eventd_033.sh
+%{_datadir}/ctdb/tests/eventd/eventd_041.sh
+%{_datadir}/ctdb/tests/eventd/eventd_042.sh
+%{_datadir}/ctdb/tests/eventd/eventd_043.sh
+%{_datadir}/ctdb/tests/eventd/eventd_051.sh
+%dir %{_datadir}/ctdb/tests/eventd/scripts
+%{_datadir}/ctdb/tests/eventd/scripts/local.sh
+
+%dir %{_datadir}/ctdb/tests/events.d
+%{_datadir}/ctdb/tests/events.d/00.test
+
 %dir %{_datadir}/ctdb/tests/eventscripts
+%{_datadir}/ctdb/tests/eventscripts/README
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.001.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.002.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.003.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.004.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.005.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.006.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.007.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.008.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.init.009.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.setup.001.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.setup.002.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.setup.003.sh
+%{_datadir}/ctdb/tests/eventscripts/00.ctdb.setup.004.sh
+%{_datadir}/ctdb/tests/eventscripts/01.reclock.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/01.reclock.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/01.reclock.monitor.003.sh
+%{_datadir}/ctdb/tests/eventscripts/01.reclock.monitor.004.sh
+%{_datadir}/ctdb/tests/eventscripts/01.reclock.monitor.005.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.003.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.004.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.005.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.006.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.007.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.011.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.012.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.013.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.014.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.015.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.016.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.017.sh
+%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.018.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.init.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.init.002.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.init.021.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.init.022.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.init.023.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.003.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.004.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.005.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.006.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.007.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.008.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.009.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.010.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.011.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.012.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.013.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.014.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.015.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.016.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.017.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.monitor.018.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.multi.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.002.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.010.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.011.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.startup.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.startup.002.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.takeip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.takeip.002.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.takeip.003.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.001.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.002.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.003.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.004.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.011.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.012.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.013.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.014.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.015.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.021.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.022.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.023.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.024.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.025.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.031.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.041.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.042.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.051.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.052.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.053.sh
+%{_datadir}/ctdb/tests/eventscripts/11.natgw.054.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.001.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.002.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.003.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.004.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.005.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.006.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.007.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.008.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.009.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.010.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.011.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.012.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.013.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.014.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.015.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.016.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.017.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.018.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.019.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.021.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.022.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.023.sh
+%{_datadir}/ctdb/tests/eventscripts/13.per_ip_routing.024.sh
+%{_datadir}/ctdb/tests/eventscripts/20.multipathd.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/20.multipathd.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/20.multipathd.monitor.003.sh
+%{_datadir}/ctdb/tests/eventscripts/20.multipathd.monitor.004.sh
+%{_datadir}/ctdb/tests/eventscripts/40.vsftpd.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/40.vsftpd.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/41.httpd.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/41.httpd.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.050.sh
+%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.051.sh
+%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.101.sh
+%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.102.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.050.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.051.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.101.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.103.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.104.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.105.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.106.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.107.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.110.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.111.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.112.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.113.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.shutdown.001.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.shutdown.002.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.shutdown.011.sh
+%{_datadir}/ctdb/tests/eventscripts/50.samba.startup.011.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.101.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.102.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.103.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.104.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.105.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.106.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.107.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.108.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.111.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.112.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.113.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.114.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.121.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.122.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.131.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.132.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.141.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.142.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.143.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.144.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.151.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.152.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.153.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.161.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.162.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.multi.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.multi.002.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.001.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.011.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.012.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.013.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.014.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.monitor.001.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.monitor.002.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.monitor.003.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.shutdown.001.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.shutdown.002.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.startup.001.sh
+%{_datadir}/ctdb/tests/eventscripts/91.lvs.startup.002.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.001.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.002.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.003.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.004.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.005.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.006.sh
+%{_datadir}/ctdb/tests/eventscripts/statd-callout.007.sh
+
+%dir %{_datadir}/ctdb/tests/eventscripts/etc-ctdb
 %{_datadir}/ctdb/tests/eventscripts/etc-ctdb/events.d
 %{_datadir}/ctdb/tests/eventscripts/etc-ctdb/functions
 %{_datadir}/ctdb/tests/eventscripts/etc-ctdb/nfs-checks.d
 %{_datadir}/ctdb/tests/eventscripts/etc-ctdb/nfs-linux-kernel-callout
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/public_addresses
+%{_datadir}/ctdb/tests/eventscripts/etc-ctdb/rc.local
 %{_datadir}/ctdb/tests/eventscripts/etc-ctdb/statd-callout
+
+%dir %{_datadir}/ctdb/tests/eventscripts/etc
+%dir %{_datadir}/ctdb/tests/eventscripts/etc/init.d
+%{_datadir}/ctdb/tests/eventscripts/etc/init.d/nfs
+%{_datadir}/ctdb/tests/eventscripts/etc/init.d/nfslock
+
+%dir %{_datadir}/ctdb/tests/eventscripts/etc/samba
+%{_datadir}/ctdb/tests/eventscripts/etc/samba/smb.conf
+
+%dir %{_datadir}/ctdb/tests/eventscripts/etc/sysconfig
+%{_datadir}/ctdb/tests/eventscripts/etc/sysconfig/ctdb
+%{_datadir}/ctdb/tests/eventscripts/etc/sysconfig/nfs
+
+%dir %{_datadir}/ctdb/tests/eventscripts/scripts
+%{_datadir}/ctdb/tests/eventscripts/scripts/local.sh
+
+%dir %{_datadir}/ctdb/tests/eventscripts/stubs
+%{_datadir}/ctdb/tests/eventscripts/stubs/ctdb
+%{_datadir}/ctdb/tests/eventscripts/stubs/ctdb_killtcp
+%{_datadir}/ctdb/tests/eventscripts/stubs/ctdb_lvs
+%{_datadir}/ctdb/tests/eventscripts/stubs/ctdb_natgw
+%{_datadir}/ctdb/tests/eventscripts/stubs/date
+%{_datadir}/ctdb/tests/eventscripts/stubs/df
+%{_datadir}/ctdb/tests/eventscripts/stubs/ethtool
+%{_datadir}/ctdb/tests/eventscripts/stubs/exportfs
+%{_datadir}/ctdb/tests/eventscripts/stubs/id
+%{_datadir}/ctdb/tests/eventscripts/stubs/ip
+%{_datadir}/ctdb/tests/eventscripts/stubs/ip6tables
+%{_datadir}/ctdb/tests/eventscripts/stubs/iptables
+%{_datadir}/ctdb/tests/eventscripts/stubs/ipvsadm
+%{_datadir}/ctdb/tests/eventscripts/stubs/kill
+%{_datadir}/ctdb/tests/eventscripts/stubs/killall
+%{_datadir}/ctdb/tests/eventscripts/stubs/multipath
+%{_datadir}/ctdb/tests/eventscripts/stubs/net
+%{_datadir}/ctdb/tests/eventscripts/stubs/netstat
+%{_datadir}/ctdb/tests/eventscripts/stubs/nmap
+%{_datadir}/ctdb/tests/eventscripts/stubs/pidof
+%{_datadir}/ctdb/tests/eventscripts/stubs/pkill
+%{_datadir}/ctdb/tests/eventscripts/stubs/ps
+%{_datadir}/ctdb/tests/eventscripts/stubs/rm
+%{_datadir}/ctdb/tests/eventscripts/stubs/rpc.lockd
+%{_datadir}/ctdb/tests/eventscripts/stubs/rpc.mountd
+%{_datadir}/ctdb/tests/eventscripts/stubs/rpc.rquotad
+%{_datadir}/ctdb/tests/eventscripts/stubs/rpc.statd
+%{_datadir}/ctdb/tests/eventscripts/stubs/rpcinfo
+%{_datadir}/ctdb/tests/eventscripts/stubs/service
+%{_datadir}/ctdb/tests/eventscripts/stubs/sleep
+%{_datadir}/ctdb/tests/eventscripts/stubs/smnotify
+%{_datadir}/ctdb/tests/eventscripts/stubs/ss
+%{_datadir}/ctdb/tests/eventscripts/stubs/tdbdump
+%{_datadir}/ctdb/tests/eventscripts/stubs/tdbtool
+%{_datadir}/ctdb/tests/eventscripts/stubs/testparm
+%{_datadir}/ctdb/tests/eventscripts/stubs/timeout
+%{_datadir}/ctdb/tests/eventscripts/stubs/wbinfo
+
 %dir %{_datadir}/ctdb/tests/onnode
+%{_datadir}/ctdb/tests/onnode/README
+%{_datadir}/ctdb/tests/onnode/0001.sh
+%{_datadir}/ctdb/tests/onnode/0002.sh
+%{_datadir}/ctdb/tests/onnode/0003.sh
+%{_datadir}/ctdb/tests/onnode/0004.sh
+%{_datadir}/ctdb/tests/onnode/0005.sh
+%{_datadir}/ctdb/tests/onnode/0006.sh
+%{_datadir}/ctdb/tests/onnode/0070.sh
+%{_datadir}/ctdb/tests/onnode/0071.sh
+%{_datadir}/ctdb/tests/onnode/0072.sh
+%{_datadir}/ctdb/tests/onnode/0075.sh
 %{_datadir}/ctdb/tests/onnode/functions
+%{_datadir}/ctdb/tests/onnode/nodes
+
+%dir %{_datadir}/ctdb/tests/onnode/scripts
+%{_datadir}/ctdb/tests/onnode/scripts/local.sh
+
+%dir %{_datadir}/ctdb/tests/onnode/stubs
+%{_datadir}/ctdb/tests/onnode/stubs/ctdb
+%{_datadir}/ctdb/tests/onnode/stubs/onnode-buggy-001
+%{_datadir}/ctdb/tests/onnode/stubs/ssh
+
 %dir %{_datadir}/ctdb/tests/scripts
 %{_datadir}/ctdb/tests/scripts/common.sh
 %{_datadir}/ctdb/tests/scripts/integration.bash
 %{_datadir}/ctdb/tests/scripts/script_install_paths.sh
 %{_datadir}/ctdb/tests/scripts/test_wrap
 %{_datadir}/ctdb/tests/scripts/unit.sh
+
+%dir %{_datadir}/ctdb/tests/shellcheck
+%{_datadir}/ctdb/tests/shellcheck/base_scripts.sh
+%{_datadir}/ctdb/tests/shellcheck/ctdb_helpers.sh
+%{_datadir}/ctdb/tests/shellcheck/ctdbd_wrapper.sh
+%{_datadir}/ctdb/tests/shellcheck/event_scripts.sh
+%{_datadir}/ctdb/tests/shellcheck/functions.sh
+%{_datadir}/ctdb/tests/shellcheck/init_script.sh
+%{_datadir}/ctdb/tests/shellcheck/tools.sh
+
+%dir %{_datadir}/ctdb/tests/shellcheck/scripts
+%{_datadir}/ctdb/tests/shellcheck/scripts/local.sh
+
 %dir %{_datadir}/ctdb/tests/simple
+%{_datadir}/ctdb/tests/simple/README
+%{_datadir}/ctdb/tests/simple/00_ctdb_init.sh
+%{_datadir}/ctdb/tests/simple/00_ctdb_onnode.sh
+%{_datadir}/ctdb/tests/simple/01_ctdb_version.sh
+%{_datadir}/ctdb/tests/simple/02_ctdb_listvars.sh
+%{_datadir}/ctdb/tests/simple/03_ctdb_getvar.sh
+%{_datadir}/ctdb/tests/simple/04_ctdb_setvar.sh
+%{_datadir}/ctdb/tests/simple/05_ctdb_listnodes.sh
+%{_datadir}/ctdb/tests/simple/06_ctdb_getpid.sh
+%{_datadir}/ctdb/tests/simple/07_ctdb_process_exists.sh
+%{_datadir}/ctdb/tests/simple/08_ctdb_isnotrecmaster.sh
+%{_datadir}/ctdb/tests/simple/09_ctdb_ping.sh
+%{_datadir}/ctdb/tests/simple/11_ctdb_ip.sh
+%{_datadir}/ctdb/tests/simple/12_ctdb_getdebug.sh
+%{_datadir}/ctdb/tests/simple/13_ctdb_setdebug.sh
+%{_datadir}/ctdb/tests/simple/14_ctdb_statistics.sh
+%{_datadir}/ctdb/tests/simple/15_ctdb_statisticsreset.sh
+%{_datadir}/ctdb/tests/simple/16_ctdb_config_add_ip.sh
+%{_datadir}/ctdb/tests/simple/17_ctdb_config_delete_ip.sh
+%{_datadir}/ctdb/tests/simple/18_ctdb_reloadips.sh
+%{_datadir}/ctdb/tests/simple/19_ip_takeover_noop.sh
+%{_datadir}/ctdb/tests/simple/20_delip_iface_gc.sh
+%{_datadir}/ctdb/tests/simple/23_ctdb_moveip.sh
+%{_datadir}/ctdb/tests/simple/24_ctdb_getdbmap.sh
+%{_datadir}/ctdb/tests/simple/25_dumpmemory.sh
+%{_datadir}/ctdb/tests/simple/26_ctdb_config_check_error_on_unreachable_ctdb.sh
+%{_datadir}/ctdb/tests/simple/27_ctdb_detach.sh
+%{_datadir}/ctdb/tests/simple/28_zero_eventscripts.sh
+%{_datadir}/ctdb/tests/simple/31_ctdb_disable.sh
+%{_datadir}/ctdb/tests/simple/32_ctdb_enable.sh
+%{_datadir}/ctdb/tests/simple/35_ctdb_getreclock.sh
+%{_datadir}/ctdb/tests/simple/41_ctdb_stop.sh
+%{_datadir}/ctdb/tests/simple/42_ctdb_continue.sh
+%{_datadir}/ctdb/tests/simple/43_stop_recmaster_yield.sh
+%{_datadir}/ctdb/tests/simple/51_message_ring.sh
+%{_datadir}/ctdb/tests/simple/52_fetch_ring.sh
+%{_datadir}/ctdb/tests/simple/53_transaction_loop.sh
+%{_datadir}/ctdb/tests/simple/54_transaction_loop_recovery.sh
+%{_datadir}/ctdb/tests/simple/55_ctdb_ptrans.sh
+%{_datadir}/ctdb/tests/simple/58_ctdb_restoredb.sh
+%{_datadir}/ctdb/tests/simple/60_recoverd_missing_ip.sh
+%{_datadir}/ctdb/tests/simple/70_recoverpdbbyseqnum.sh
+%{_datadir}/ctdb/tests/simple/71_ctdb_wipedb.sh
+%{_datadir}/ctdb/tests/simple/72_update_record_persistent.sh
+%{_datadir}/ctdb/tests/simple/73_tunable_NoIPTakeover.sh
+%{_datadir}/ctdb/tests/simple/75_readonly_records_basic.sh
+%{_datadir}/ctdb/tests/simple/76_ctdb_pdb_recovery.sh
+%{_datadir}/ctdb/tests/simple/77_ctdb_db_recovery.sh
+%{_datadir}/ctdb/tests/simple/78_ctdb_large_db_recovery.sh
+%{_datadir}/ctdb/tests/simple/80_ctdb_traverse.sh
+%{_datadir}/ctdb/tests/simple/99_daemons_shutdown.sh
 %{_datadir}/ctdb/tests/simple/functions
 %{_datadir}/ctdb/tests/simple/nodes
-%doc ctdb/tests/README
+
+%dir %{_datadir}/ctdb/tests/simple/scripts
+%{_datadir}/ctdb/tests/simple/scripts/local.bash
+%{_datadir}/ctdb/tests/simple/scripts/local_daemons.bash
+
+%dir %{_datadir}/ctdb/tests/takeover
+%{_datadir}/ctdb/tests/takeover/README
+%{_datadir}/ctdb/tests/takeover/det.001.sh
+%{_datadir}/ctdb/tests/takeover/det.002.sh
+%{_datadir}/ctdb/tests/takeover/det.003.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.001.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.002.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.003.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.004.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.005.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.006.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.007.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.008.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.009.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.010.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.011.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.012.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.013.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.014.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.015.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.016.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.017.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.018.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.019.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.022.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.023.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.024.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.025.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.026.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.027.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.028.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.029.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.030.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.031.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.032.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.033.sh
+%{_datadir}/ctdb/tests/takeover/nondet.001.sh
+%{_datadir}/ctdb/tests/takeover/nondet.002.sh
+%{_datadir}/ctdb/tests/takeover/nondet.003.sh
+
+%dir %{_datadir}/ctdb/tests/takeover/scripts
+%{_datadir}/ctdb/tests/takeover/scripts/local.sh
+
+%dir %{_datadir}/ctdb/tests/takeover_helper
+%{_datadir}/ctdb/tests/takeover_helper/000.sh
+%{_datadir}/ctdb/tests/takeover_helper/010.sh
+%{_datadir}/ctdb/tests/takeover_helper/011.sh
+%{_datadir}/ctdb/tests/takeover_helper/012.sh
+%{_datadir}/ctdb/tests/takeover_helper/013.sh
+%{_datadir}/ctdb/tests/takeover_helper/014.sh
+%{_datadir}/ctdb/tests/takeover_helper/015.sh
+%{_datadir}/ctdb/tests/takeover_helper/016.sh
+%{_datadir}/ctdb/tests/takeover_helper/017.sh
+%{_datadir}/ctdb/tests/takeover_helper/018.sh
+%{_datadir}/ctdb/tests/takeover_helper/019.sh
+%{_datadir}/ctdb/tests/takeover_helper/020.sh
+%{_datadir}/ctdb/tests/takeover_helper/021.sh
+%{_datadir}/ctdb/tests/takeover_helper/022.sh
+%{_datadir}/ctdb/tests/takeover_helper/023.sh
+%{_datadir}/ctdb/tests/takeover_helper/024.sh
+%{_datadir}/ctdb/tests/takeover_helper/025.sh
+%{_datadir}/ctdb/tests/takeover_helper/026.sh
+%{_datadir}/ctdb/tests/takeover_helper/027.sh
+%{_datadir}/ctdb/tests/takeover_helper/028.sh
+%{_datadir}/ctdb/tests/takeover_helper/110.sh
+%{_datadir}/ctdb/tests/takeover_helper/111.sh
+%{_datadir}/ctdb/tests/takeover_helper/120.sh
+%{_datadir}/ctdb/tests/takeover_helper/121.sh
+%{_datadir}/ctdb/tests/takeover_helper/122.sh
+%{_datadir}/ctdb/tests/takeover_helper/130.sh
+%{_datadir}/ctdb/tests/takeover_helper/131.sh
+%{_datadir}/ctdb/tests/takeover_helper/132.sh
+%{_datadir}/ctdb/tests/takeover_helper/140.sh
+%{_datadir}/ctdb/tests/takeover_helper/150.sh
+%{_datadir}/ctdb/tests/takeover_helper/160.sh
+%{_datadir}/ctdb/tests/takeover_helper/210.sh
+%{_datadir}/ctdb/tests/takeover_helper/211.sh
+%{_datadir}/ctdb/tests/takeover_helper/220.sh
+%{_datadir}/ctdb/tests/takeover_helper/230.sh
+%{_datadir}/ctdb/tests/takeover_helper/240.sh
+%{_datadir}/ctdb/tests/takeover_helper/250.sh
+%{_datadir}/ctdb/tests/takeover_helper/260.sh
+
+%dir %{_datadir}/ctdb/tests/takeover_helper/scripts
+%{_datadir}/ctdb/tests/takeover_helper/scripts/local.sh
+
+%dir %{_datadir}/ctdb/tests/tool
+%{_datadir}/ctdb/tests/tool/README
+%{_datadir}/ctdb/tests/tool/ctdb.ban.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ban.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ban.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.continue.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.continue.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.continue.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.disable.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.disable.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.disable.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.disable.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.disablemonitor.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.enable.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.enable.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.enable.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.enablemonitor.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getcapabilities.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getcapabilities.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getcapabilities.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getcapabilities.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getdbmap.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getdbseqnum.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getdbseqnum.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getdbstatus.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getdbstatus.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getmonmode.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getpid.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getreclock.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getreclock.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getvar.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.getvar.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ifaces.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.005.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.006.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ip.007.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ipinfo.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ipinfo.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ipinfo.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.listnodes.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.listnodes.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.listvars.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.005.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.006.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.007.sh
+%{_datadir}/ctdb/tests/tool/ctdb.lvs.008.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.005.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.006.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.007.sh
+%{_datadir}/ctdb/tests/tool/ctdb.natgw.008.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.ping.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.pnn.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.process-exists.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.recmaster.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.recmaster.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.recover.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.011.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.012.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.013.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.014.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.015.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.016.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.017.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.018.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.019.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.020.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.021.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.023.sh
+%{_datadir}/ctdb/tests/tool/ctdb.reloadnodes.024.sh
+%{_datadir}/ctdb/tests/tool/ctdb.runstate.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.runstate.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.runstate.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.runstate.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.runstate.005.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdebug.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdebug.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdebug.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setifacelink.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setifacelink.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setvar.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setvar.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.status.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.status.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.stop.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.stop.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.stop.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.unban.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.unban.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.unban.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.uptime.001.sh
+
+%dir %{_datadir}/ctdb/tests/tool/scripts
+%{_datadir}/ctdb/tests/tool/scripts/local.sh
+
 %endif # with_clustering_support
 
 %changelog
-* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.6.0-0.1.rc2.1
+* Tue Feb 14 2017 Andreas Schneider <asn@redhat.com> - 4.6.0-0.1.rc3
+- Update to Samba 4.6.0rc3
+
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.6.0-0.1.rc2.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
-* Fri Jan 27 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc2-0
+* Fri Jan 27 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0-0.1.rc2
 - Update to Samba 4.6.0rc2
 
-* Thu Jan 12 2017 Andreas Schneider <asn@redhat.com> - 4.6.0rc1-1
+* Thu Jan 12 2017 Andreas Schneider <asn@redhat.com> - 4.6.0-0.1.rc1
 - resolves: #1319098 - Add missing Requires for pre-required packages
 
-* Thu Jan 05 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0rc1-0
+* Thu Jan 05 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.0-0.1.rc1
 - Update to Samba 4.6.0rc1
 
 * Mon Dec 19 2016 Guenther Deschner <gdeschner@redhat.com> - 4.5.3-0
