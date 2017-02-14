@@ -36,7 +36,7 @@
 
 %global with_profiling 1
 
-%global with_vfs_cephfs 0
+%global with_vfs_cephfs 1
 %if 0%{?rhel}
 %global with_vfs_cephfs 0
 %endif
