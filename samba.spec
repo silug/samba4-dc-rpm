@@ -825,7 +825,12 @@ echo "d /run/ctdb 755 root root" >> %{buildroot}%{_tmpfilesdir}/ctdb.conf
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 packaging/systemd/samba.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/samba
 %if %with_clustering_support
-install -m 0644 ctdb/config/ctdbd.conf %{buildroot}%{_sysconfdir}/sysconfig/ctdb
+cat > %{buildroot}%{_sysconfdir}/sysconfig/ctdb <<EOF
+# CTDB configuration is now in %{_sysconfdir}/ctdb/ctdbd.conf
+EOF
+
+install -d -m 0755 %{buildroot}%{_sysconfdir}/ctdb
+install -m 0644 ctdb/config/ctdbd.conf %{buildroot}%{_sysconfdir}/ctdb/ctdb.conf
 %endif
 
 install -m 0644 %{SOURCE201} packaging/README.downgrade
@@ -1851,31 +1856,22 @@ rm -rf %{buildroot}
 %files -n ctdb
 %defattr(-,root,root)
 %doc ctdb/README
-%config(noreplace) %{_sysconfdir}/sysconfig/ctdb
-%{_sysconfdir}/ctdb/notify.sh
-%{_sysconfdir}/ctdb/debug-hung-script.sh
-%{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
-%{_sysconfdir}/ctdb/gcore_trace.sh
-%{_sysconfdir}/ctdb/functions
-%{_sysconfdir}/ctdb/debug_locks.sh
-%dir %{_localstatedir}/lib/ctdb/
-
-%{_unitdir}/ctdb.service
+# Obsolete
+%config(noreplace, missingok) %{_sysconfdir}/sysconfig/ctdb
 
 %dir %{_sysconfdir}/ctdb
-%{_sysconfdir}/ctdb/statd-callout
-# CTDB scripts, no config files
-# script with executable bit means activated
-%dir %{_sysconfdir}/ctdb/nfs-checks.d
-%{_sysconfdir}/ctdb/nfs-checks.d/00.portmapper.check
-%{_sysconfdir}/ctdb/nfs-checks.d/10.status.check
-%{_sysconfdir}/ctdb/nfs-checks.d/20.nfs.check
-%{_sysconfdir}/ctdb/nfs-checks.d/30.nlockmgr.check
-%{_sysconfdir}/ctdb/nfs-checks.d/40.mountd.check
-%{_sysconfdir}/ctdb/nfs-checks.d/50.rquotad.check
-%{_sysconfdir}/ctdb/nfs-checks.d/README
+%config(noreplace) %{_sysconfdir}/ctdb/ctdb.conf
+%config(noreplace) %{_sysconfdir}/ctdb/notify.sh
+%config(noreplace) %{_sysconfdir}/ctdb/debug-hung-script.sh
+%config(noreplace) %{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
+%config(noreplace) %{_sysconfdir}/ctdb/gcore_trace.sh
+%config(noreplace) %{_sysconfdir}/ctdb/debug_locks.sh
+
+%{_sysconfdir}/ctdb/functions
 %{_sysconfdir}/ctdb/nfs-linux-kernel-callout
+%{_sysconfdir}/ctdb/statd-callout
 %config %{_sysconfdir}/sudoers.d/ctdb
+
 # CTDB scripts, no config files
 # script with executable bit means activated
 %dir %{_sysconfdir}/ctdb/events.d
@@ -1901,7 +1897,18 @@ rm -rf %{buildroot}
 %{_sysconfdir}/ctdb/events.d/README
 %dir %{_sysconfdir}/ctdb/notify.d
 %{_sysconfdir}/ctdb/notify.d/README
-%{_tmpfilesdir}/ctdb.conf
+
+# CTDB scripts, no config files
+# script with executable bit means activated
+%dir %{_sysconfdir}/ctdb/nfs-checks.d
+%{_sysconfdir}/ctdb/nfs-checks.d/README
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/00.portmapper.check
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/10.status.check
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/20.nfs.check
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/30.nlockmgr.check
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/40.mountd.check
+%config(noreplace) %{_sysconfdir}/ctdb/nfs-checks.d/50.rquotad.check
+
 %{_sbindir}/ctdbd
 %{_sbindir}/ctdbd_wrapper
 %{_bindir}/ctdb
@@ -1922,6 +1929,8 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/ctdb_takeover_helper
 %{_libexecdir}/ctdb/smnotify
 
+%dir %{_localstatedir}/lib/ctdb/
+
 %{_mandir}/man1/ctdb.1.gz
 %{_mandir}/man1/ctdb_diagnostics.1.gz
 %{_mandir}/man1/ctdbd.1.gz
@@ -1933,6 +1942,10 @@ rm -rf %{buildroot}
 %{_mandir}/man7/ctdb.7.gz
 %{_mandir}/man7/ctdb-tunables.7.gz
 %{_mandir}/man7/ctdb-statistics.7.gz
+
+%{_tmpfilesdir}/ctdb.conf
+
+%{_unitdir}/ctdb.service
 
 %files -n ctdb-tests
 %defattr(-,root,root)
@@ -2396,6 +2409,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/simple/80_ctdb_traverse.sh
 %{_datadir}/ctdb/tests/simple/99_daemons_shutdown.sh
 %{_datadir}/ctdb/tests/simple/functions
+# This is a dangling symlink but needed for testing
 %{_datadir}/ctdb/tests/simple/nodes
 
 %dir %{_datadir}/ctdb/tests/simple/scripts
