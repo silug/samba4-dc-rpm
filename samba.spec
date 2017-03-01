@@ -9,12 +9,12 @@
 %define main_release 3
 
 %define samba_version 4.6.0
-%define talloc_version 2.1.8
+%define talloc_version 2.1.9
 %define tdb_version 1.3.12
 %define tevent_version 0.9.31
 %define ldb_version 1.1.29
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -195,7 +195,7 @@ BuildRequires: python-crypto
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
-%global libtalloc_version 2.1.8
+%global libtalloc_version 2.1.9
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
@@ -1152,6 +1152,7 @@ rm -rf %{buildroot}
 %{_bindir}/cifsdd
 %{_bindir}/dbwrap_tool
 %{_bindir}/findsmb
+%{_bindir}/mvxattr
 %{_bindir}/nmblookup
 %{_bindir}/oLschema2ldif
 %{_bindir}/regdiff
@@ -1180,6 +1181,7 @@ rm -rf %{buildroot}
 %{_mandir}/man1/regtree.1*
 %{_mandir}/man1/findsmb.1*
 %{_mandir}/man1/log2pcap.1*
+%{_mandir}/man1/mvxattr.1*
 %{_mandir}/man1/rpcclient.1*
 %{_mandir}/man1/sharesec.1*
 %{_mandir}/man1/smbcacls.1*
@@ -2624,6 +2626,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 01 2017 Andreas Schneider <asn@redhat.com> - 4.6.0-0.3.rc4
+- Update to Samba 4.6.0rc4
+
 * Tue Feb 14 2017 Andreas Schneider <asn@redhat.com> - 4.6.0-0.1.rc3
 - Update to Samba 4.6.0rc3
 
