@@ -1,0 +1,543 @@
+From 334a4870cbbfefcd09c10f432a320ceaac29a14a Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Fri, 3 Mar 2017 17:08:09 +0200
+Subject: [PATCH 1/6] gssapi: check for gss_acquire_cred_from
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+(cherry picked from commit d630a364f9d74443e482934f76cd7107c331e108)
+---
+ wscript_configure_system_mitkrb5 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/wscript_configure_system_mitkrb5 b/wscript_configure_system_mitkrb5
+index 06a9821..d3e8ebf 100644
+--- a/wscript_configure_system_mitkrb5
++++ b/wscript_configure_system_mitkrb5
+@@ -92,6 +92,7 @@ conf.CHECK_FUNCS_IN('''
+        gsskrb5_extract_authz_data_from_sec_context
+        gss_krb5_export_lucid_sec_context
+        gss_import_cred gss_export_cred
++       gss_acquire_cred_from
+        ''', 'gssapi gssapi_krb5')
+ conf.CHECK_VARIABLE('GSS_KRB5_CRED_NO_CI_FLAGS_X', headers=possible_gssapi_headers)
+ conf.CHECK_FUNCS_IN('krb5_mk_req_extended krb5_kt_compare', 'krb5')
+-- 
+2.9.3
+
+
+From 4b4a95436a56ee91e6bef8e905656c387ce2f62c Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Fri, 3 Mar 2017 16:14:57 +0200
+Subject: [PATCH 2/6] lib/krb5_wrap: add smb_gss_krb5_import_cred wrapper
+
+Wrap gss_krb5_import_cred() to allow re-implementing it with
+gss_acquire_cred_from() for newer MIT versions. gss_acquire_cred_from()
+works fine with GSSAPI interposer (GSS-proxy) while
+gss_krb5_import_cred() is not interposed yet.
+
+The wrapper has additional parameter, krb5_context handle, to facilitate
+with credentials cache name discovery. All our callers to
+gss_krb5_import_cred() already have krb5 context handy.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+(cherry picked from commit 0e6e8dd2600c699a7a02e3d11fed21b5bc49858d)
+---
+ lib/krb5_wrap/gss_samba.c | 121 ++++++++++++++++++++++++++++++++++++++++++++++
+ lib/krb5_wrap/gss_samba.h |  13 +++++
+ 2 files changed, 134 insertions(+)
+
+diff --git a/lib/krb5_wrap/gss_samba.c b/lib/krb5_wrap/gss_samba.c
+index b444633..757ffc5 100644
+--- a/lib/krb5_wrap/gss_samba.c
++++ b/lib/krb5_wrap/gss_samba.c
+@@ -48,4 +48,125 @@ int smb_gss_oid_equal(const gss_OID first_oid, const gss_OID second_oid)
+ }
+ #endif /* !HAVE_GSS_OID_EQUAL */
+ 
++
++/* wrapper around gss_krb5_import_cred() that prefers to use gss_acquire_cred_from()
++ * if this GSSAPI extension is available. gss_acquire_cred_from() is properly
++ * interposed by GSSPROXY while gss_krb5_import_cred() is not.
++ *
++ * This wrapper requires a proper krb5_context to resolve ccache name.
++ * All gss_krb5_import_cred() callers in Samba already have krb5_context available. */
++uint32_t smb_gss_krb5_import_cred(uint32_t *minor_status, krb5_context ctx,
++				  krb5_ccache id, krb5_principal keytab_principal,
++				  krb5_keytab keytab, gss_cred_id_t *cred)
++{
++	uint32_t major_status = 0;
++
++#if HAVE_GSS_ACQUIRE_CRED_FROM
++	uint32_t minor = 0;
++	gss_key_value_element_desc ccache_element = {
++		.key = "ccache",
++		.value = NULL,
++	};
++
++	gss_key_value_element_desc keytab_element = {
++		.key = "keytab",
++		.value = NULL,
++	};
++
++	gss_key_value_element_desc elements[2];
++
++	gss_key_value_set_desc cred_store = {
++		.elements = &ccache_element,
++		.count = 1,
++	};
++
++	gss_OID_set mech_set = GSS_C_NO_OID_SET;
++	gss_cred_usage_t cred_usage = GSS_C_INITIATE;
++	gss_name_t name = NULL;
++	gss_buffer_desc pr_name = {
++		.value = NULL,
++		.length = 0,
++	};
++
++	if (id != NULL) {
++		major_status = krb5_cc_get_full_name(ctx,
++						     id,
++						     discard_const(&ccache_element.value));
++		if (major_status != 0) {
++			return major_status;
++		}
++	}
++
++	if (keytab != NULL) {
++		keytab_element.value = malloc(4096);
++		if (!keytab_element.value) {
++			return ENOMEM;
++		}
++		major_status = krb5_kt_get_name(ctx,
++						keytab,
++						discard_const(keytab_element.value), 4096);
++		if (major_status != 0) {
++			free(discard_const(keytab_element.value));
++			return major_status;
++		}
++		cred_usage = GSS_C_ACCEPT;
++		cred_store.elements = &keytab_element;
++
++		if (keytab_principal != NULL) {
++			major_status = krb5_unparse_name(ctx, keytab_principal, (char**)&pr_name.value);
++			if (major_status != 0) {
++				free(discard_const(keytab_element.value));
++				return major_status;
++			}
++			pr_name.length = strlen(pr_name.value);
++
++			major_status = gss_import_name(minor_status,
++						       &pr_name,
++						       discard_const(GSS_KRB5_NT_PRINCIPAL_NAME),
++						       &name);
++			if (major_status != 0) {
++				krb5_free_unparsed_name(ctx, pr_name.value);
++				free(discard_const(keytab_element.value));
++				return major_status;
++			}
++		}
++	}
++
++	if (id != NULL && keytab != NULL) {
++		elements[0] = ccache_element;
++		elements[1] = keytab_element;
++
++		cred_store.elements = elements;
++		cred_store.count = 2;
++		cred_usage = GSS_C_BOTH;
++	}
++
++	major_status = gss_acquire_cred_from(minor_status,
++					     name,
++					     0,
++					     mech_set,
++					     cred_usage,
++					     &cred_store,
++					     cred,
++					     NULL,
++					     NULL);
++
++	if (pr_name.value != NULL) {
++		(void)gss_release_name(&minor, &name);
++		krb5_free_unparsed_name(ctx, pr_name.value);
++	}
++	if (keytab_element.value != NULL) {
++		free(discard_const(keytab_element.value));
++	}
++	krb5_free_string(ctx, discard_const(ccache_element.value));
++#else
++	major_status = gss_krb5_import_cred(minor_status,
++					id,
++					keytab_principal,
++					keytab, cred);
++#endif
++	return major_status;
++}
++
++
+ #endif /* HAVE_GSSAPI */
+diff --git a/lib/krb5_wrap/gss_samba.h b/lib/krb5_wrap/gss_samba.h
+index 5319932..89aee34 100644
+--- a/lib/krb5_wrap/gss_samba.h
++++ b/lib/krb5_wrap/gss_samba.h
+@@ -25,6 +25,7 @@
+ #ifdef HAVE_GSSAPI
+ 
+ #include "system/gssapi.h"
++#include "krb5_samba.h"
+ 
+ #if defined(HAVE_GSS_OID_EQUAL)
+ #define smb_gss_oid_equal gss_oid_equal
+@@ -32,5 +33,17 @@
+ int smb_gss_oid_equal(const gss_OID first_oid, const gss_OID second_oid);
+ #endif /* HAVE_GSS_OID_EQUAL */
+ 
++/* wrapper around gss_krb5_import_cred() that prefers to use gss_acquire_cred_from()
++ * if this GSSAPI extension is available. gss_acquire_cred_from() is properly
++ * interposed by GSS-proxy while gss_krb5_import_cred() is not.
++ *
++ * This wrapper requires a proper krb5_context to resolve the ccache name for
++ * gss_acquire_cred_from().
++ *
++ * All gss_krb5_import_cred() callers in Samba already have krb5_context available. */
++uint32_t smb_gss_krb5_import_cred(OM_uint32 *minor_status, krb5_context ctx,
++				  krb5_ccache id, krb5_principal keytab_principal,
++				  krb5_keytab keytab, gss_cred_id_t *cred);
++
+ #endif /* HAVE_GSSAPI */
+ #endif /* _GSS_SAMBA_H */
+-- 
+2.9.3
+
+
+From f06fafce32a27acf4028ab573297c64189b62e30 Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Fri, 3 Mar 2017 16:57:13 +0200
+Subject: [PATCH 3/6] credentials_krb5: convert to use smb_gss_krb5_import_cred
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+(cherry picked from commit ca8fd793930173b4e625d3f286739de214155bc1)
+---
+ auth/credentials/credentials_krb5.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/auth/credentials/credentials_krb5.c b/auth/credentials/credentials_krb5.c
+index e974df9..0e68012 100644
+--- a/auth/credentials/credentials_krb5.c
++++ b/auth/credentials/credentials_krb5.c
+@@ -579,8 +579,9 @@ _PUBLIC_ int cli_credentials_get_client_gss_creds(struct cli_credentials *cred,
+ 		return ENOMEM;
+ 	}
+ 
+-	maj_stat = gss_krb5_import_cred(&min_stat, ccache->ccache, NULL, NULL, 
+-					&gcc->creds);
++	maj_stat = smb_gss_krb5_import_cred(&min_stat, ccache->smb_krb5_context->krb5_context,
++					    ccache->ccache, NULL, NULL,
++					    &gcc->creds);
+ 	if ((maj_stat == GSS_S_FAILURE) &&
+ 	    (min_stat == (OM_uint32)KRB5_CC_END ||
+ 	     min_stat == (OM_uint32)KRB5_CC_NOTFOUND ||
+@@ -597,8 +598,9 @@ _PUBLIC_ int cli_credentials_get_client_gss_creds(struct cli_credentials *cred,
+ 			return ret;
+ 		}
+ 
+-		maj_stat = gss_krb5_import_cred(&min_stat, ccache->ccache, NULL, NULL,
+-						&gcc->creds);
++		maj_stat = smb_gss_krb5_import_cred(&min_stat, ccache->smb_krb5_context->krb5_context,
++						    ccache->ccache, NULL, NULL,
++						    &gcc->creds);
+ 
+ 	}
+ 
+@@ -609,7 +611,7 @@ _PUBLIC_ int cli_credentials_get_client_gss_creds(struct cli_credentials *cred,
+ 		} else {
+ 			ret = EINVAL;
+ 		}
+-		(*error_string) = talloc_asprintf(cred, "gss_krb5_import_cred failed: %s", error_message(ret));
++		(*error_string) = talloc_asprintf(cred, "smb_gss_krb5_import_cred failed: %s", error_message(ret));
+ 		return ret;
+ 	}
+ 
+@@ -1076,12 +1078,14 @@ _PUBLIC_ int cli_credentials_get_server_gss_creds(struct cli_credentials *cred,
+ 
+ 	if (ktc->password_based || obtained < CRED_SPECIFIED) {
+ 		/* This creates a GSSAPI cred_id_t for match-by-key with only the keytab set */
+-		maj_stat = gss_krb5_import_cred(&min_stat, NULL, NULL, ktc->keytab,
+-						&gcc->creds);
++		maj_stat = smb_gss_krb5_import_cred(&min_stat, smb_krb5_context->krb5_context,
++						    NULL, NULL, ktc->keytab,
++						    &gcc->creds);
+ 	} else {
+ 		/* This creates a GSSAPI cred_id_t with the principal and keytab set, matching by name */
+-		maj_stat = gss_krb5_import_cred(&min_stat, NULL, princ, ktc->keytab,
+-						&gcc->creds);
++		maj_stat = smb_gss_krb5_import_cred(&min_stat, smb_krb5_context->krb5_context,
++						    NULL, princ, ktc->keytab,
++						    &gcc->creds);
+ 	}
+ 	if (maj_stat) {
+ 		if (min_stat) {
+-- 
+2.9.3
+
+
+From 5305bffd4c72a85cc6c3148222ef7e346cbe3d87 Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Fri, 3 Mar 2017 16:57:50 +0200
+Subject: [PATCH 4/6] libads: convert to use smb_gss_krb5_import_cred
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+(cherry picked from commit 520167992bd2477bc11920d2dc9ec87f2cb339c9)
+---
+ source3/libads/sasl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/libads/sasl.c b/source3/libads/sasl.c
+index 8570788..30127fa 100644
+--- a/source3/libads/sasl.c
++++ b/source3/libads/sasl.c
+@@ -372,7 +372,7 @@ static ADS_STATUS ads_init_gssapi_cred(ADS_STRUCT *ads, gss_cred_id_t *cred)
+ 		goto done;
+ 	}
+ 
+-	maj = gss_krb5_import_cred(&min, kccache, NULL, NULL, cred);
++	maj = smb_gss_krb5_import_cred(&min, kctx, kccache, NULL, NULL, cred);
+ 	if (maj != GSS_S_COMPLETE) {
+ 		status = ADS_ERROR_GSS(maj, min);
+ 		goto done;
+-- 
+2.9.3
+
+
+From 1dbc68f9bee19a9c26825cc5be7d81951dcac710 Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Fri, 3 Mar 2017 16:58:14 +0200
+Subject: [PATCH 5/6] s3-gse: convert to use smb_gss_krb5_import_cred
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+(cherry picked from commit 3d733d5791a6d82edda13ac39790bd8ba893f3d7)
+---
+ source3/librpc/crypto/gse.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/source3/librpc/crypto/gse.c b/source3/librpc/crypto/gse.c
+index abf20bc..f4238f3 100644
+--- a/source3/librpc/crypto/gse.c
++++ b/source3/librpc/crypto/gse.c
+@@ -252,11 +252,12 @@ static NTSTATUS gse_init_client(TALLOC_CTX *mem_ctx,
+ 	/* TODO: get krb5 ticket using username/password, if no valid
+ 	 * one already available in ccache */
+ 
+-	gss_maj = gss_krb5_import_cred(&gss_min,
+-				       gse_ctx->ccache,
+-				       NULL, /* keytab_principal */
+-				       NULL, /* keytab */
+-				       &gse_ctx->creds);
++	gss_maj = smb_gss_krb5_import_cred(&gss_min,
++					   gse_ctx->k5ctx,
++					   gse_ctx->ccache,
++					   NULL, /* keytab_principal */
++					   NULL, /* keytab */
++					   &gse_ctx->creds);
+ 	if (gss_maj) {
+ 		char *ccache = NULL;
+ 		int kret;
+@@ -268,7 +269,7 @@ static NTSTATUS gse_init_client(TALLOC_CTX *mem_ctx,
+ 			ccache = NULL;
+ 		}
+ 
+-		DEBUG(5, ("gss_krb5_import_cred ccache[%s] failed with [%s] -"
++		DEBUG(5, ("smb_gss_krb5_import_cred ccache[%s] failed with [%s] -"
+ 			  "the caller may retry after a kinit.\n",
+ 			  ccache, gse_errstr(gse_ctx, gss_maj, gss_min)));
+ 		SAFE_FREE(ccache);
+@@ -430,12 +431,13 @@ static NTSTATUS gse_init_server(TALLOC_CTX *mem_ctx,
+ 	}
+ 
+ 	/* This creates a GSSAPI cred_id_t with the keytab set */
+-	gss_maj = gss_krb5_import_cred(&gss_min, NULL, NULL, gse_ctx->keytab, 
+-				       &gse_ctx->creds);
++	gss_maj = smb_gss_krb5_import_cred(&gss_min, gse_ctx->k5ctx,
++					   NULL, NULL, gse_ctx->keytab,
++					   &gse_ctx->creds);
+ 
+ 	if (gss_maj != 0
+ 	    && gss_maj != (GSS_S_CALL_BAD_STRUCTURE|GSS_S_BAD_NAME)) {
+-		DEBUG(0, ("gss_krb5_import_cred failed with [%s]\n",
++		DEBUG(0, ("smb_gss_krb5_import_cred failed with [%s]\n",
+ 			  gse_errstr(gse_ctx, gss_maj, gss_min)));
+ 		status = NT_STATUS_INTERNAL_ERROR;
+ 		goto done;
+-- 
+2.9.3
+
+
+From 3c9390d26cf12e483d98f005b43da7b10348753d Mon Sep 17 00:00:00 2001
+From: Alexander Bokovoy <ab@samba.org>
+Date: Wed, 8 Mar 2017 12:38:49 +0200
+Subject: [PATCH 6/6] s3-gse: move krb5 fallback to smb_gss_krb5_import_cred
+ wrapper
+
+MIT krb5 1.9 version of gss_krb5_import_cred() may fail when importing
+credentials from a keytab without specifying actual principal.
+This was fixed in MIT krb5 1.9.2 (see commit
+71c3be093db577aa52f6b9a9a3a9f442ca0d8f20 in MIT krb5-1.9 branch, git
+master's version is bd18687a705a8a6cdcb7c140764d1a7c6a3381b5).
+
+Move fallback code to the smb_gss_krb5_import_cred wrapper. We only
+expect this fallback to happen with krb5 GSSAPI mechanism, thus hard
+code use of krb5 mech when calling to gss_acquire_cred.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12611
+
+Signed-off-by: Alexander Bokovoy <ab@samba.org>
+Reviewed-by: Stefan Metzmacher <metze@samba.org>
+
+Autobuild-User(master): Alexander Bokovoy <ab@samba.org>
+Autobuild-Date(master): Wed Mar  8 22:00:24 CET 2017 on sn-devel-144
+
+(cherry picked from commit 57286d57732d49fdb8b8e21f584787cdbc917c32)
+---
+ lib/krb5_wrap/gss_samba.c   | 46 +++++++++++++++++++++++++++++++++++++++---
+ source3/librpc/crypto/gse.c | 49 +--------------------------------------------
+ 2 files changed, 44 insertions(+), 51 deletions(-)
+
+diff --git a/lib/krb5_wrap/gss_samba.c b/lib/krb5_wrap/gss_samba.c
+index 757ffc5..9e5ad4a 100644
+--- a/lib/krb5_wrap/gss_samba.c
++++ b/lib/krb5_wrap/gss_samba.c
+@@ -161,9 +161,49 @@ uint32_t smb_gss_krb5_import_cred(uint32_t *minor_status, krb5_context ctx,
+ 	krb5_free_string(ctx, discard_const(ccache_element.value));
+ #else
+ 	major_status = gss_krb5_import_cred(minor_status,
+-					id,
+-					keytab_principal,
+-					keytab, cred);
++					    id,
++					    keytab_principal,
++					    keytab, cred);
++
++	if (major_status == (GSS_S_CALL_BAD_STRUCTURE|GSS_S_BAD_NAME)) {
++		if ((keytab_principal == NULL) && (keytab != NULL)) {
++			/* No principal was specified and MIT krb5 1.9 version failed.
++			 * We have to fall back to set global acceptor identity */
++			gss_OID_set_desc mech_set;
++			char *kt_name = NULL;
++
++			kt_name = malloc(4096);
++			if (!kt_name) {
++				return ENOMEM;
++			}
++
++			major_status = krb5_kt_get_name(ctx,
++							keytab,
++							kt_name, 4096);
++			if (major_status != 0) {
++				free(kt_name);
++				return major_status;
++			}
++
++			major_status = gsskrb5_register_acceptor_identity(kt_name);
++			if (major_status) {
++				free(kt_name);
++				return major_status;
++			}
++
++			/* We are dealing with krb5 GSSAPI mech in this fallback */
++			mech_set.count = 1;
++			mech_set.elements = gss_mech_krb5;
++			major_status = gss_acquire_cred(minor_status,
++							GSS_C_NO_NAME,
++							GSS_C_INDEFINITE,
++							&mech_set,
++							GSS_C_ACCEPT,
++							cred,
++							NULL, NULL);
++			free(kt_name);
++		}
++	}
+ #endif
+ 	return major_status;
+ }
+diff --git a/source3/librpc/crypto/gse.c b/source3/librpc/crypto/gse.c
+index f4238f3..a111320 100644
+--- a/source3/librpc/crypto/gse.c
++++ b/source3/librpc/crypto/gse.c
+@@ -435,58 +435,11 @@ static NTSTATUS gse_init_server(TALLOC_CTX *mem_ctx,
+ 					   NULL, NULL, gse_ctx->keytab,
+ 					   &gse_ctx->creds);
+ 
+-	if (gss_maj != 0
+-	    && gss_maj != (GSS_S_CALL_BAD_STRUCTURE|GSS_S_BAD_NAME)) {
++	if (gss_maj != 0) {
+ 		DEBUG(0, ("smb_gss_krb5_import_cred failed with [%s]\n",
+ 			  gse_errstr(gse_ctx, gss_maj, gss_min)));
+ 		status = NT_STATUS_INTERNAL_ERROR;
+ 		goto done;
+-
+-		/* This is the error the MIT krb5 1.9 gives when it
+-		 * implements the function, but we do not specify the
+-		 * principal.  However, when we specify the principal
+-		 * as host$@REALM the GSS acceptor fails with 'wrong
+-		 * principal in request'.  Work around the issue by
+-		 * falling back to the alternate approach below. */
+-	} else if (gss_maj == (GSS_S_CALL_BAD_STRUCTURE|GSS_S_BAD_NAME))
+-	/* FIXME!!!
+-	 * This call sets the default keytab for the whole server, not
+-	 * just for this context. Need to find a way that does not alter
+-	 * the state of the whole server ... */
+-	{
+-		const char *ktname;
+-		gss_OID_set_desc mech_set;
+-
+-		ret = smb_krb5_kt_get_name(gse_ctx, gse_ctx->k5ctx,
+-				   gse_ctx->keytab, &ktname);
+-		if (ret) {
+-			status = NT_STATUS_INTERNAL_ERROR;
+-			goto done;
+-		}
+-
+-		ret = gsskrb5_register_acceptor_identity(ktname);
+-		if (ret) {
+-			status = NT_STATUS_INTERNAL_ERROR;
+-			goto done;
+-		}
+-
+-		mech_set.count = 1;
+-		mech_set.elements = &gse_ctx->gss_mech;
+-
+-		gss_maj = gss_acquire_cred(&gss_min,
+-				   GSS_C_NO_NAME,
+-				   GSS_C_INDEFINITE,
+-				   &mech_set,
+-				   GSS_C_ACCEPT,
+-				   &gse_ctx->creds,
+-				   NULL, NULL);
+-
+-		if (gss_maj) {
+-			DEBUG(0, ("gss_acquire_creds failed with [%s]\n",
+-				  gse_errstr(gse_ctx, gss_maj, gss_min)));
+-			status = NT_STATUS_INTERNAL_ERROR;
+-			goto done;
+-		}
+ 	}
+ 
+ 	status = NT_STATUS_OK;
+-- 
+2.9.3
+

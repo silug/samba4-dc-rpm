@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.9
@@ -106,6 +106,8 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-v4.6-gss_krb5_import_cred.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2626,6 +2628,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Mar 09 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-2
+- resolves: #1430761 - credentials_krb5: use gss_acquire_cred for client-side GSSAPI use case
+
 * Tue Mar 07 2017 Andreas Schneider <asn@redhat.com> - 4.6.0-1
 - Update to Samba 4.6.0
 
