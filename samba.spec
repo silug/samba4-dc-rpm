@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.9
@@ -108,6 +108,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-v4.6-gss_krb5_import_cred.patch
+Patch1: samba-v4.6-credentials-fix-realm.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2628,6 +2629,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Mar 10 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-3
+- auth/credentials: Always set the the realm if we set the principal from the ccache
+- resolves: #1430761 - credentials_crb5: use gss_acquire_cred for client-side GSSAPI use case
+
 * Thu Mar 09 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-2
 - resolves: #1430761 - credentials_krb5: use gss_acquire_cred for client-side GSSAPI use case
 
