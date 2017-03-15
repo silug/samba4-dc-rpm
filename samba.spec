@@ -2634,7 +2634,7 @@ rm -rf %{buildroot}
 - Export arcfour_crypt_blob to Python as samba.crypto.arcfour_encrypt
 - Makes possible to run trust to AD in FreeIPA in FIPS mode
 
-* Thu Mar 10 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-3
+* Fri Mar 10 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-3
 - auth/credentials: Always set the the realm if we set the principal from the ccache
 - resolves: #1430761 - credentials_crb5: use gss_acquire_cred for client-side GSSAPI use case
 
