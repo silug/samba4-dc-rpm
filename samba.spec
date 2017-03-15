@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.6.0
 %define talloc_version 2.1.9
@@ -109,6 +109,7 @@ Source201: README.downgrade
 
 Patch0: samba-v4.6-gss_krb5_import_cred.patch
 Patch1: samba-v4.6-credentials-fix-realm.patch
+Patch2: samba-v4.6-lib-crypto-implement-samba.crypto-Python-module-for-.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2629,6 +2630,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 15 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-4
+- Export arcfour_crypt_blob to Python as samba.crypto.arcfour_encrypt
+- Makes possible to run trust to AD in FreeIPA in FIPS mode
+
 * Thu Mar 10 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-3
 - auth/credentials: Always set the the realm if we set the principal from the ccache
 - resolves: #1430761 - credentials_crb5: use gss_acquire_cred for client-side GSSAPI use case
