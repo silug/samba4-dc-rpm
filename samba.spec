@@ -834,7 +834,7 @@ cat > %{buildroot}%{_sysconfdir}/sysconfig/ctdb <<EOF
 EOF
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/ctdb
-install -m 0644 ctdb/config/ctdbd.conf %{buildroot}%{_sysconfdir}/ctdb/ctdb.conf
+install -m 0644 ctdb/config/ctdbd.conf %{buildroot}%{_sysconfdir}/ctdb/ctdbd.conf
 %endif
 
 install -m 0644 %{SOURCE201} packaging/README.downgrade
@@ -1866,7 +1866,7 @@ rm -rf %{buildroot}
 %config(noreplace, missingok) %{_sysconfdir}/sysconfig/ctdb
 
 %dir %{_sysconfdir}/ctdb
-%config(noreplace) %{_sysconfdir}/ctdb/ctdb.conf
+%config(noreplace) %{_sysconfdir}/ctdb/ctdbd.conf
 %config(noreplace) %{_sysconfdir}/ctdb/notify.sh
 %config(noreplace) %{_sysconfdir}/ctdb/debug-hung-script.sh
 %config(noreplace) %{_sysconfdir}/ctdb/ctdb-crash-cleanup.sh
