@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 0
 
-%define samba_version 4.6.0
+%define samba_version 4.6.1
 %define talloc_version 2.1.9
 %define tdb_version 1.3.12
 %define tevent_version 0.9.31
@@ -2630,6 +2630,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Mar 23 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.1-0
+- Update to Samba 4.6.1
+- resolves: #1435156 - Security fix for CVE-2017-2619
+
 * Wed Mar 15 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.6.0-4
 - Export arcfour_crypt_blob to Python as samba.crypto.arcfour_encrypt
 - Makes possible to run trust to AD in FreeIPA in FIPS mode
