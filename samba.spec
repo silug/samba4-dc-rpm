@@ -158,7 +158,6 @@ BuildRequires: libaio-devel
 BuildRequires: libarchive-devel
 BuildRequires: libattr-devel
 BuildRequires: libcap-devel
-BuildRequires: libcmocka-devel
 BuildRequires: libuuid-devel
 BuildRequires: libxslt
 BuildRequires: ncurses-devel
@@ -229,6 +228,7 @@ BuildRequires: python-tdb >= %{libtdb_version}
 %if %{with testsuite}
 BuildRequires: ldb-tools
 BuildRequires: python2-pygpgme
+BuildRequires: libcmocka-devel
 %endif
 
 # filter out perl requirements pulled in from examples in the docdir.
