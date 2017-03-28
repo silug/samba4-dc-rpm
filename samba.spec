@@ -65,6 +65,12 @@
 %global with_dc 1
 %endif
 
+%if %{with_dc}
+%global required_mit_krb5 1.15.1
+%else
+%global required_mit_krb5 1.10
+%endif
+
 %global with_clustering_support 0
 
 %if %{with clustering}
@@ -152,7 +158,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
 BuildRequires: gnupg2
-BuildRequires: krb5-devel >= 1.14
+BuildRequires: krb5-devel >= %{required_mit_krb5}
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
 BuildRequires: libarchive-devel
