@@ -29,10 +29,10 @@
 %global with_libsmbclient 1
 %global with_libwbclient 1
 
-%global with_internal_talloc 0
-%global with_internal_tevent 0
-%global with_internal_tdb 0
-%global with_internal_ldb 0
+%global with_internal_talloc 1
+%global with_internal_tevent 1
+%global with_internal_tdb 1
+%global with_internal_ldb 1
 
 %global with_profiling 1
 
@@ -56,8 +56,8 @@
 %global libwbc_alternatives_suffix -64
 %endif
 
-%global with_mitkrb5 1
-%global with_dc 0
+%global with_mitkrb5 0
+%global with_dc 1
 
 %if %{with testsuite}
 # The testsuite only works with a full build right now.
