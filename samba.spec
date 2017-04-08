@@ -158,7 +158,9 @@ BuildRequires: docbook-style-xsl
 BuildRequires: e2fsprogs-devel
 BuildRequires: gawk
 BuildRequires: gnupg2
+%if %with_mitkrb5
 BuildRequires: krb5-devel >= %{required_mit_krb5}
+%endif
 BuildRequires: libacl-devel
 BuildRequires: libaio-devel
 BuildRequires: libarchive-devel
@@ -480,10 +482,22 @@ Summary: Samba Python libraries
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
+
+%if ! %with_internal_tevent
 Requires: python-tevent
+%endif
+
+%if ! %with_internal_tdb
 Requires: python-tdb
+%endif
+
+%if ! %with_internal_ldb
 Requires: pyldb
+%endif
+
+%if ! %with_internal_talloc
 Requires: pytalloc
+%endif
 
 Provides: samba4-python = %{samba_depver}
 Obsoletes: samba4-python < %{samba_depver}
@@ -636,7 +650,11 @@ Requires: fileutils
 # for ps and killall
 Requires: psmisc
 Requires: sed
+
+%if ! %with_internal_tdb
 Requires: tdb-tools
+%endif
+
 Requires: gawk
 # for pkill and pidof:
 Requires: procps-ng
@@ -1225,6 +1243,7 @@ rm -rf %{buildroot}
 %{_bindir}/ldbsearch
 %{_libdir}/samba/libldb-cmdline-samba4.so
 %{_libdir}/samba/ldb/asq.so
+%{_libdir}/samba/ldb/dsdb_notification.so
 %{_libdir}/samba/ldb/paged_results.so
 %{_libdir}/samba/ldb/paged_searches.so
 %{_libdir}/samba/ldb/rdn_name.so
@@ -1232,6 +1251,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/ldb/server_sort.so
 %{_libdir}/samba/ldb/skel.so
 %{_libdir}/samba/ldb/tdb.so
+%{_libdir}/samba/ldb/vlv.so
 %{_mandir}/man1/ldbadd.1.gz
 %{_mandir}/man1/ldbdel.1.gz
 %{_mandir}/man1/ldbedit.1.gz
@@ -1435,6 +1455,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/auth/samba4.so
 %{_libdir}/samba/bind9/dlz_bind9.so
 %{_libdir}/samba/bind9/dlz_bind9_10.so
+%{_libdir}/samba/bind9/dlz_bind9_11.so
 %{_libdir}/samba/libheimntlm-samba4.so.1
 %{_libdir}/samba/libheimntlm-samba4.so.1.0.1
 %{_libdir}/samba/libkdc-samba4.so.2
@@ -1520,7 +1541,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
-%{_libdir}/samba/libntvfs-samba4.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
 %else
 %doc packaging/README.dc-libs
