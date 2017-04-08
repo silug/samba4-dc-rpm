@@ -99,8 +99,8 @@ Summary:        Server and Client software to interoperate with Windows machines
 License:        GPLv3+ and LGPLv3+
 URL:            http://www.samba.org/
 
-Source0:        samba-%{version}%{pre_release}.tar.xz
-Source1:        samba-%{version}%{pre_release}.tar.asc
+Source0:        https://download.samba.org/pub/samba/stable/samba-%{version}%{pre_release}.tar.gz
+Source1:        https://download.samba.org/pub/samba/stable/samba-%{version}%{pre_release}.tar.asc
 Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
 
 # Red Hat specific replacement-files
@@ -682,7 +682,7 @@ and use CTDB instead.
 
 
 %prep
-xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
+zcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %autosetup -n samba-%{version}%{pre_release} -p1
 
 %build
