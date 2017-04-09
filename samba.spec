@@ -871,10 +871,14 @@ install -m 0644 %{SOURCE200} packaging/README.dc-libs
 %endif
 
 install -d -m 0755 %{buildroot}%{_unitdir}
+%if ! %with_dc
 for i in nmb smb winbind ; do
     cat packaging/systemd/$i.service | sed -e 's@\[Service\]@[Service]\nEnvironment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba@g' >tmp$i.service
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
+%else
+install -m 0644 packaging/systemd/*.service %{buildroot}%{_unitdir}/
+%endif
 %if %with_clustering_support
 install -m 0644 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
 %endif
@@ -1448,6 +1452,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 
 %if %with_dc
+%{_unitdir}/samba.service
 %{_bindir}/samba-tool
 %{_sbindir}/samba
 %{_sbindir}/samba_kcc
