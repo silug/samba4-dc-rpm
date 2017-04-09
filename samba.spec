@@ -177,8 +177,10 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
 BuildRequires: python-devel
+%if 0%{?fedora} > 0
 BuildRequires: python2-pygpgme
 BuildRequires: python2-subunit
+%endif
 BuildRequires: python-tevent
 BuildRequires: quota-devel
 BuildRequires: readline-devel
@@ -197,7 +199,7 @@ BuildRequires: glusterfs-devel >= 3.4.0.16
 BuildRequires: libcephfs1-devel
 %endif
 %if %{with_dc}
-BuildRequires: gnutls-devel >= 3.4.7
+BuildRequires: gnutls-devel
 # Required by samba-tool to run tests
 BuildRequires: python-crypto
 %endif
