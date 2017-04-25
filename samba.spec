@@ -8,7 +8,7 @@
 
 %define main_release 0
 
-%define samba_version 4.6.2
+%define samba_version 4.6.3
 %define talloc_version 2.1.9
 %define tdb_version 1.3.12
 %define tevent_version 0.9.31
@@ -112,10 +112,6 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-v4.6-gss_krb5_import_cred.patch
-Patch1: samba-v4.6-credentials-fix-realm.patch
-Patch2: samba-v4.6-lib-crypto-implement-samba.crypto-Python-module-for-.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2636,6 +2632,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Apr 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.3-0
+- Update to Samba 4.6.3
+
 * Fri Mar 31 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.2-0
 - Update to Samba 4.6.2
 - related: #1435156 - Security fix for CVE-2017-2619
