@@ -703,13 +703,13 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %global _ldb_lib ,!ldb,!pyldb,!pyldb-util
 %endif
 
-%global _samba4_libraries heimdal,!zlib,!popt%{_talloc_lib}%{_tevent_lib}%{_tdb_lib}%{_ldb_lib}
+%global _samba_libraries heimdal,!zlib,!popt%{_talloc_lib}%{_tevent_lib}%{_tdb_lib}%{_ldb_lib}
 
-%global _samba4_idmap_modules idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2
-%global _samba4_pdb_modules pdb_tdbsam,pdb_ldap,pdb_ads,pdb_smbpasswd,pdb_wbc_sam,pdb_samba4
-%global _samba4_auth_modules auth_unix,auth_wbc,auth_server,auth_netlogond,auth_script,auth_samba4
+%global _samba_idmap_modules idmap_ad,idmap_rid,idmap_ldap,idmap_hash,idmap_tdb2
+%global _samba_pdb_modules pdb_tdbsam,pdb_ldap,pdb_ads,pdb_smbpasswd,pdb_wbc_sam,pdb_samba4
+%global _samba_auth_modules auth_unix,auth_wbc,auth_server,auth_netlogond,auth_script,auth_samba4
 
-%global _samba4_modules %{_samba4_idmap_modules},%{_samba4_pdb_modules},%{_samba4_auth_modules}
+%global _samba_modules %{_samba_idmap_modules},%{_samba_pdb_modules},%{_samba_auth_modules}
 
 %global _libsmbclient %nil
 %global _libwbclient %nil
@@ -722,7 +722,7 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %global _libwbclient wbclient,
 %endif
 
-%global _samba4_private_libraries %{_libsmbclient}%{_libwbclient}
+%global _samba_private_libraries %{_libsmbclient}%{_libwbclient}
 
 %configure \
         --enable-fhs \
@@ -734,14 +734,14 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
         --with-statedir=/var/lib/samba \
         --with-cachedir=/var/lib/samba \
         --disable-rpath-install \
-        --with-shared-modules=%{_samba4_modules} \
-        --bundled-libraries=%{_samba4_libraries} \
+        --with-shared-modules=%{_samba_modules} \
+        --bundled-libraries=%{_samba_libraries} \
         --with-pam \
         --with-pie \
         --with-relro \
         --without-fam \
 %if (! %with_libsmbclient) || (! %with_libwbclient)
-        --private-libraries=%{_samba4_private_libraries} \
+        --private-libraries=%{_samba_private_libraries} \
 %endif
 %if %with_mitkrb5
         --with-system-mitkrb5 \
