@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.6.4
 %define talloc_version 2.1.9
@@ -99,8 +99,9 @@ Summary:        Server and Client software to interoperate with Windows machines
 License:        GPLv3+ and LGPLv3+
 URL:            http://www.samba.org/
 
+# This is a xz recompressed file of https://ftp.samba.org/pub/samba/samba-%{version}%{pre_release}.tar.gz
 Source0:        samba-%{version}%{pre_release}.tar.xz
-Source1:        samba-%{version}%{pre_release}.tar.asc
+Source1:        https://ftp.samba.org/pub/samba/samba-%{version}%{pre_release}.tar.asc
 Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
 
 # Red Hat specific replacement-files
@@ -2632,6 +2633,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed May 24 2017 Andreas Schneider <asn@redhat.com> - 4.6.4-1
+- #resolves: #1451486 - Add source tarball comment
+
 * Wed May 24 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.4-0
 - Update to Samba 4.6.4
 - resolves: #1455050 - Security fix for CVE-2017-7494
