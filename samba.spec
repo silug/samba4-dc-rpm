@@ -81,7 +81,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -2633,6 +2633,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sun Jun 04 2017 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.6.4-1.1
+- Perl 5.26 rebuild
+
 * Wed May 24 2017 Andreas Schneider <asn@redhat.com> - 4.6.4-1
 - #resolves: #1451486 - Add source tarball comment
 
