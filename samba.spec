@@ -955,17 +955,27 @@ fi
 %posttrans -n libwbclient
 # It has to be posttrans here to make sure all files of a previous version
 # without alternatives support are removed
-%{_sbindir}/update-alternatives --install %{_libdir}/libwbclient.so.%{libwbc_alternatives_version} \
-                                libwbclient.so.%{libwbc_alternatives_version}%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so.%{libwbc_alternatives_version} 10
+%{_sbindir}/update-alternatives \
+        --install \
+        %{_libdir}/libwbclient.so.%{libwbc_alternatives_version} \
+        libwbclient.so.%{libwbc_alternatives_version}%{libwbc_alternatives_suffix} \
+        %{_libdir}/samba/wbclient/libwbclient.so.%{libwbc_alternatives_version} \
+        10
 /sbin/ldconfig
 
 %preun -n libwbclient
-%{_sbindir}/update-alternatives --remove libwbclient.so.%{libwbc_alternatives_version}%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so.%{libwbc_alternatives_version}
+%{_sbindir}/update-alternatives \
+        --remove \
+        libwbclient.so.%{libwbc_alternatives_version}%{libwbc_alternatives_suffix} \
+        %{_libdir}/samba/wbclient/libwbclient.so.%{libwbc_alternatives_version}
 /sbin/ldconfig
 
 %posttrans -n libwbclient-devel
-%{_sbindir}/update-alternatives --install %{_libdir}/libwbclient.so \
-                                libwbclient.so%{libwbc_alternatives_suffix} %{_libdir}/samba/wbclient/libwbclient.so 10
+%{_sbindir}/update-alternatives \
+        --install %{_libdir}/libwbclient.so \
+        libwbclient.so.0 \
+        %{_libdir}/samba/wbclient/libwbclient.so \
+        10
 
 %preun -n libwbclient-devel
 # alternatives checks if the file which should be removed is a link or not, but
