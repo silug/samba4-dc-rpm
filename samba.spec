@@ -2575,6 +2575,10 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/tool/ctdb.natgw.008.sh
 %{_datadir}/ctdb/tests/tool/ctdb.nodestatus.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.nodestatus.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.003.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.005.sh
+%{_datadir}/ctdb/tests/tool/ctdb.nodestatus.006.sh
 %{_datadir}/ctdb/tests/tool/ctdb.ping.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.pnn.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.process-exists.001.sh
