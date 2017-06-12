@@ -973,7 +973,7 @@ fi
 %posttrans -n libwbclient-devel
 %{_sbindir}/update-alternatives \
         --install %{_libdir}/libwbclient.so \
-        libwbclient.so.0 \
+        libwbclient.so.%{libwbc_alternatives_suffix} \
         %{_libdir}/samba/wbclient/libwbclient.so \
         10
 
