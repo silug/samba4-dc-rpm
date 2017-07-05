@@ -238,6 +238,10 @@ BuildRequires: python2-pygpgme
 BuildRequires: libcmocka-devel
 %endif
 
+%if %{with_dc}
+BuildRequires: krb5-server >= %{required_mit_krb5}
+%endif
+
 # filter out perl requirements pulled in from examples in the docdir.
 %{?filter_setup:
 %filter_provides_in %{_docdir}
@@ -338,6 +342,7 @@ Requires: %{name}-winbind = %{samba_depver}
 %if %{with_dc}
 # samba-tool requirements
 Requires: python-crypto
+Requires: krb5-server >= %{required_mit_krb5}
 %endif
 
 Provides: samba4-dc = %{samba_depver}
