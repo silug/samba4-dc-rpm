@@ -1,0 +1,26 @@
+From 9315278f5f0d94116657caaffe1080804abd7087 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Wed, 5 Jul 2017 10:30:35 +0200
+Subject: [PATCH] unittests: Do not install the test_dummy rpc module
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=12879
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ testsuite/unittests/wscript | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/testsuite/unittests/wscript b/testsuite/unittests/wscript
+index ba6ad3c..561cb4b 100644
+--- a/testsuite/unittests/wscript
++++ b/testsuite/unittests/wscript
+@@ -34,4 +34,5 @@ def build(bld):
+                      subsystem='rpc',
+                      allow_undefined_symbols=True,
+                      init_function='',
+-                     internal_module=False)
++                     internal_module=False,
++                     install=False)
+-- 
+2.9.4
+

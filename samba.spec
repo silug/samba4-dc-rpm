@@ -118,6 +118,7 @@ Source201: README.downgrade
 
 Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
 Patch1:    samba-4.7.0-waf-Only-build-unit-tests-with-selftest-enabled.patch
+Patch2:    samba-4.7.0-unittests-Do-not-install-the-test_dummy-rpc-module.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -1069,8 +1070,6 @@ rm -rf %{buildroot}
 %dir %{_libdir}/samba/auth
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/auth/unix.so
-%dir %{_libdir}/samba/rpc
-%{_libdir}/samba/rpc/test_dummy_module.so
 %dir %{_libdir}/samba/vfs
 %{_libdir}/samba/vfs/acl_tdb.so
 %{_libdir}/samba/vfs/acl_xattr.so
