@@ -8,13 +8,13 @@
 
 %define main_release 0
 
-%define samba_version 4.6.5
+%define samba_version 4.7.0
 %define talloc_version 2.1.9
-%define tdb_version 1.3.12
-%define tevent_version 0.9.31
-%define ldb_version 1.1.29
+%define tdb_version 1.3.14
+%define tevent_version 0.9.32
+%define ldb_version 1.2.0
 # This should be rc1 or nil
-%define pre_release %nil
+%define pre_release rc1
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -50,7 +50,7 @@
 %endif
 %endif
 
-%global libwbc_alternatives_version 0.13
+%global libwbc_alternatives_version 0.14
 %global libwbc_alternatives_suffix %nil
 %if 0%{?__isa_bits} == 64
 %global libwbc_alternatives_suffix -64
@@ -208,21 +208,21 @@ BuildRequires: pytalloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.31
+%global libtevent_version 0.9.32
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.1.29
+%global libldb_version 1.2.0
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
-%global libtdb_version 1.3.12
+%global libtdb_version 1.3.14
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
@@ -1059,7 +1059,8 @@ rm -rf %{buildroot}
 %dir %{_libdir}/samba/auth
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/auth/unix.so
-%{_libdir}/samba/auth/wbc.so
+%dir %{_libdir}/samba/rpc
+%{_libdir}/samba/rpc/test_dummy_module.so
 %dir %{_libdir}/samba/vfs
 %{_libdir}/samba/vfs/acl_tdb.so
 %{_libdir}/samba/vfs/acl_xattr.so
@@ -1272,7 +1273,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libaddns-samba4.so
 %{_libdir}/samba/libads-samba4.so
 %{_libdir}/samba/libasn1util-samba4.so
-%{_libdir}/samba/libauth-sam-reply-samba4.so
 %{_libdir}/samba/libauth-samba4.so
 %{_libdir}/samba/libauthkrb5-samba4.so
 %{_libdir}/samba/libcli-cldap-samba4.so
@@ -1411,7 +1411,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/pdb/ldapsam.so
 %{_libdir}/samba/pdb/smbpasswd.so
 %{_libdir}/samba/pdb/tdbsam.so
-%{_libdir}/samba/pdb/wbc_sam.so
 
 %files common-tools
 %defattr(-,root,root)
@@ -1541,7 +1540,9 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/core/error.h
 %{_includedir}/samba-4.0/core/hresult.h
 %{_includedir}/samba-4.0/core/ntstatus.h
+%{_includedir}/samba-4.0/core/ntstatus_gen.h
 %{_includedir}/samba-4.0/core/werror.h
+%{_includedir}/samba-4.0/core/werror_gen.h
 %{_includedir}/samba-4.0/credentials.h
 %{_includedir}/samba-4.0/dcerpc.h
 %{_includedir}/samba-4.0/domain_credentials.h
@@ -1616,6 +1617,7 @@ rm -rf %{buildroot}
 %{_includedir}/samba-4.0/util/tevent_unix.h
 %{_includedir}/samba-4.0/util/tevent_werror.h
 %{_includedir}/samba-4.0/util/time.h
+%{_includedir}/samba-4.0/util/tfork.h
 %{_includedir}/samba-4.0/util_ldb.h
 %{_libdir}/libdcerpc-binding.so
 %{_libdir}/libdcerpc-samr.so
@@ -1690,10 +1692,12 @@ rm -rf %{buildroot}
 
 # libraries needed by the public libraries
 %{_libdir}/samba/libMESSAGING-samba4.so
+%{_libdir}/samba/libMESSAGING-SEND-samba4.so
 %{_libdir}/samba/libLIBWBCLIENT-OLD-samba4.so
 %{_libdir}/samba/libauth4-samba4.so
 %{_libdir}/samba/libauth-unix-token-samba4.so
 %{_libdir}/samba/libcluster-samba4.so
+%{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
 %{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libsamba-net-samba4.so
@@ -1987,6 +1991,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/fetch_readonly_loop
 %{_libexecdir}/ctdb/tests/fetch_ring
 %{_libexecdir}/ctdb/tests/g_lock_loop
+%{_libexecdir}/ctdb/tests/hash_count_test
 %{_libexecdir}/ctdb/tests/lock_tdb
 %{_libexecdir}/ctdb/tests/message_ring
 %{_libexecdir}/ctdb/tests/pidfile_test
@@ -1998,6 +2003,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/protocol_util_test
 %{_libexecdir}/ctdb/tests/rb_test
 %{_libexecdir}/ctdb/tests/reqid_test
+%{_libexecdir}/ctdb/tests/run_event_test
 %{_libexecdir}/ctdb/tests/run_proc_test
 %{_libexecdir}/ctdb/tests/sock_daemon_test
 %{_libexecdir}/ctdb/tests/sock_io_test
@@ -2036,6 +2042,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/cunit/comm_test_001.sh
 %{_datadir}/ctdb/tests/cunit/comm_test_002.sh
 %{_datadir}/ctdb/tests/cunit/db_hash_test_001.sh
+%{_datadir}/ctdb/tests/cunit/hash_count_test_001.sh
 %{_datadir}/ctdb/tests/cunit/pidfile_test_001.sh
 %{_datadir}/ctdb/tests/cunit/pkt_read_001.sh
 %{_datadir}/ctdb/tests/cunit/pkt_write_001.sh
@@ -2045,6 +2052,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/cunit/protocol_test_003.sh
 %{_datadir}/ctdb/tests/cunit/rb_test_001.sh
 %{_datadir}/ctdb/tests/cunit/reqid_test_001.sh
+%{_datadir}/ctdb/tests/cunit/run_event_001.sh
 %{_datadir}/ctdb/tests/cunit/run_proc_001.sh
 %{_datadir}/ctdb/tests/cunit/sock_daemon_test_001.sh
 %{_datadir}/ctdb/tests/cunit/sock_io_test_001.sh
@@ -2115,6 +2123,10 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.016.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.017.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.018.sh
+%{_datadir}/ctdb/tests/eventscripts/06.nfs.releaseip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/06.nfs.releaseip.002.sh
+%{_datadir}/ctdb/tests/eventscripts/06.nfs.takeip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/06.nfs.takeip.002.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.init.001.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.init.002.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.init.021.sh
@@ -2143,6 +2155,8 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.002.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.010.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.011.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.012.sh
+%{_datadir}/ctdb/tests/eventscripts/10.interface.releaseip.013.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.startup.001.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.startup.002.sh
 %{_datadir}/ctdb/tests/eventscripts/10.interface.takeip.001.sh
@@ -2201,19 +2215,14 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/eventscripts/41.httpd.monitor.001.sh
 %{_datadir}/ctdb/tests/eventscripts/41.httpd.monitor.002.sh
 %{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.001.sh
-%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.050.sh
-%{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.051.sh
 %{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.101.sh
 %{_datadir}/ctdb/tests/eventscripts/49.winbind.monitor.102.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.001.sh
-%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.050.sh
-%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.051.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.101.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.103.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.104.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.105.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.106.sh
-%{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.107.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.110.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.111.sh
 %{_datadir}/ctdb/tests/eventscripts/50.samba.monitor.112.sh
@@ -2231,6 +2240,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.106.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.107.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.108.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.109.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.111.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.112.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.113.sh
@@ -2250,6 +2260,14 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.monitor.162.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.multi.001.sh
 %{_datadir}/ctdb/tests/eventscripts/60.nfs.multi.002.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.releaseip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.releaseip.002.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.shutdown.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.shutdown.002.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.startup.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.startup.002.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.takeip.001.sh
+%{_datadir}/ctdb/tests/eventscripts/60.nfs.takeip.002.sh
 %{_datadir}/ctdb/tests/eventscripts/91.lvs.001.sh
 %{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.011.sh
 %{_datadir}/ctdb/tests/eventscripts/91.lvs.ipreallocated.012.sh
@@ -2415,6 +2433,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/simple/53_transaction_loop.sh
 %{_datadir}/ctdb/tests/simple/54_transaction_loop_recovery.sh
 %{_datadir}/ctdb/tests/simple/55_ctdb_ptrans.sh
+%{_datadir}/ctdb/tests/simple/56_replicated_transaction_recovery.sh
 %{_datadir}/ctdb/tests/simple/58_ctdb_restoredb.sh
 %{_datadir}/ctdb/tests/simple/60_recoverd_missing_ip.sh
 %{_datadir}/ctdb/tests/simple/70_recoverpdbbyseqnum.sh
@@ -2471,6 +2490,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/takeover/lcp2.031.sh
 %{_datadir}/ctdb/tests/takeover/lcp2.032.sh
 %{_datadir}/ctdb/tests/takeover/lcp2.033.sh
+%{_datadir}/ctdb/tests/takeover/lcp2.034.sh
 %{_datadir}/ctdb/tests/takeover/nondet.001.sh
 %{_datadir}/ctdb/tests/takeover/nondet.002.sh
 %{_datadir}/ctdb/tests/takeover/nondet.003.sh
@@ -2499,6 +2519,8 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/takeover_helper/026.sh
 %{_datadir}/ctdb/tests/takeover_helper/027.sh
 %{_datadir}/ctdb/tests/takeover_helper/028.sh
+%{_datadir}/ctdb/tests/takeover_helper/030.sh
+%{_datadir}/ctdb/tests/takeover_helper/031.sh
 %{_datadir}/ctdb/tests/takeover_helper/110.sh
 %{_datadir}/ctdb/tests/takeover_helper/111.sh
 %{_datadir}/ctdb/tests/takeover_helper/120.sh
@@ -2620,10 +2642,12 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.002.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.003.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbreadonly.005.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.002.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.003.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.004.sh
+%{_datadir}/ctdb/tests/tool/ctdb.setdbsticky.005.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdebug.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdebug.002.sh
 %{_datadir}/ctdb/tests/tool/ctdb.setdebug.003.sh
@@ -2647,6 +2671,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.rc1
+- Update to Samba 4.7.0rc1
+
 * Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.5-0
 - Update to Samba 4.6.5
 
