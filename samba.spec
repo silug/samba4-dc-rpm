@@ -117,6 +117,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
+Patch1:    samba-4.7.0-waf-Only-build-unit-tests-with-selftest-enabled.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -1811,7 +1812,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnss-wrapper.so
 %{_libdir}/samba/libsocket-wrapper.so
 %{_libdir}/samba/libuid-wrapper.so
-%{_libdir}/samba/libcmocka-samba4.so
 %endif
 
 ### TEST-LIBS
