@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -83,7 +83,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -245,11 +245,8 @@ BuildRequires: krb5-server >= %{required_mit_krb5}
 %endif
 
 # filter out perl requirements pulled in from examples in the docdir.
-%{?filter_setup:
-%filter_provides_in %{_docdir}
-%filter_requires_in %{_docdir}
-%filter_setup
-}
+%global __requires_exclude_from ^%{_docdir}/.*$
+%global __provides_exclude_from ^%{_docdir}/.*$
 
 ### SAMBA
 %description
@@ -2657,6 +2654,12 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-2.rc1
+- Fix requirement generation for shared libraries
+
+* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-1.rc1
+- Build Samba with Active Directory support!
+
 * Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.rc1
 - Update to Samba 4.7.0rc1
 
