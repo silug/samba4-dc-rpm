@@ -167,6 +167,7 @@ BuildRequires: libaio-devel
 BuildRequires: libarchive-devel
 BuildRequires: libattr-devel
 BuildRequires: libcap-devel
+BuildRequires: libcmocka-devel
 BuildRequires: libuuid-devel
 BuildRequires: libxslt
 BuildRequires: ncurses-devel
@@ -237,7 +238,6 @@ BuildRequires: python-tdb >= %{libtdb_version}
 %if %{with testsuite}
 BuildRequires: ldb-tools
 BuildRequires: python2-pygpgme
-BuildRequires: libcmocka-devel
 %endif
 
 %if %{with_dc}
