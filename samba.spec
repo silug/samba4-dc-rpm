@@ -1806,6 +1806,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libnss-wrapper.so
 %{_libdir}/samba/libsocket-wrapper.so
 %{_libdir}/samba/libuid-wrapper.so
+%{_libdir}/samba/libcmocka-samba4.so
 %endif
 
 ### TEST-LIBS
