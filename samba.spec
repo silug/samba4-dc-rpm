@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -57,11 +57,13 @@
 %endif
 
 %global with_mitkrb5 1
+%global with_dc 1
+
+%if 0%{?rhel}
 %global with_dc 0
+%endif
 
 %if %{with testsuite}
-# The testsuite only works with a full build right now.
-%global with_mitkrb5 0
 %global with_dc 1
 %endif
 
@@ -113,6 +115,8 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -1438,13 +1442,12 @@ rm -rf %{buildroot}
 %{_sbindir}/samba_dnsupdate
 %{_sbindir}/samba_spnupdate
 %{_sbindir}/samba_upgradedns
+
+%{_libdir}/krb5/plugins/kdb/samba.so
+
 %{_libdir}/samba/auth/samba4.so
 %{_libdir}/samba/bind9/dlz_bind9.so
 %{_libdir}/samba/bind9/dlz_bind9_10.so
-%{_libdir}/samba/libheimntlm-samba4.so.1
-%{_libdir}/samba/libheimntlm-samba4.so.1.0.1
-%{_libdir}/samba/libkdc-samba4.so.2
-%{_libdir}/samba/libkdc-samba4.so.2.0.0
 %{_libdir}/samba/libpac-samba4.so
 %dir %{_libdir}/samba/gensec
 %{_libdir}/samba/gensec/krb5.so
@@ -1454,6 +1457,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/ldb/descriptor.so
 %{_libdir}/samba/ldb/dirsync.so
 %{_libdir}/samba/ldb/dns_notify.so
+%{_libdir}/samba/ldb/dsdb_notification.so
 %{_libdir}/samba/ldb/extended_dn_in.so
 %{_libdir}/samba/ldb/extended_dn_out.so
 %{_libdir}/samba/ldb/extended_dn_store.so
@@ -1489,6 +1493,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/ldb/subtree_rename.so
 %{_libdir}/samba/ldb/tombstone_reanimate.so
 %{_libdir}/samba/ldb/update_keytab.so
+%{_libdir}/samba/ldb/vlv.so
 %{_libdir}/samba/ldb/wins_ldb.so
 %{_libdir}/samba/vfs/posix_eadb.so
 %dir /var/lib/samba/sysvol
@@ -1503,6 +1508,7 @@ rm -rf %{buildroot}
 %files dc-libs
 %defattr(-,root,root)
 %if %with_dc
+%{_libdir}/samba/libdb-glue-samba4.so
 %{_libdir}/samba/libprocess-model-samba4.so
 %{_libdir}/samba/libservice-samba4.so
 %dir %{_libdir}/samba/process_model
@@ -1526,8 +1532,8 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
-%{_libdir}/samba/libntvfs-samba4.so
 %{_libdir}/samba/bind9/dlz_bind9_9.so
+%{_libdir}/samba/bind9/dlz_bind9_11.so
 %else
 %doc packaging/README.dc-libs
 %endif # with_dc
@@ -1705,31 +1711,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libshares-samba4.so
 %{_libdir}/samba/libsmbpasswdparser-samba4.so
 %{_libdir}/samba/libxattr-tdb-samba4.so
-
-%if %with_dc
-%{_libdir}/samba/libdb-glue-samba4.so
-%{_libdir}/samba/libHDB-SAMBA4-samba4.so
-%{_libdir}/samba/libasn1-samba4.so.8
-%{_libdir}/samba/libasn1-samba4.so.8.0.0
-%{_libdir}/samba/libcom_err-samba4.so.0
-%{_libdir}/samba/libcom_err-samba4.so.0.25
-%{_libdir}/samba/libgssapi-samba4.so.2
-%{_libdir}/samba/libgssapi-samba4.so.2.0.0
-%{_libdir}/samba/libhcrypto-samba4.so.5
-%{_libdir}/samba/libhcrypto-samba4.so.5.0.1
-%{_libdir}/samba/libhdb-samba4.so.11
-%{_libdir}/samba/libhdb-samba4.so.11.0.2
-%{_libdir}/samba/libheimbase-samba4.so.1
-%{_libdir}/samba/libheimbase-samba4.so.1.0.0
-%{_libdir}/samba/libhx509-samba4.so.5
-%{_libdir}/samba/libhx509-samba4.so.5.0.0
-%{_libdir}/samba/libkrb5-samba4.so.26
-%{_libdir}/samba/libkrb5-samba4.so.26.0.0
-%{_libdir}/samba/libroken-samba4.so.19
-%{_libdir}/samba/libroken-samba4.so.19.0.1
-%{_libdir}/samba/libwind-samba4.so.0
-%{_libdir}/samba/libwind-samba4.so.0.0.0
-%endif
 
 ### LIBSMBCLIENT
 %if %with_libsmbclient
