@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -119,6 +119,7 @@ Source201: README.downgrade
 Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
 Patch1:    samba-4.7.0-waf-Only-build-unit-tests-with-selftest-enabled.patch
 Patch2:    samba-4.7.0-unittests-Do-not-install-the-test_dummy-rpc-module.patch
+Patch3:    samba-4.7.0-Do-not-install-_ldb_text.py-if-we-have-system-libldb.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2654,6 +2655,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-3.rc1
+- Do not install conflicting file _ldb_text.py
+
 * Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-2.rc1
 - Fix requirement generation for shared libraries
 
