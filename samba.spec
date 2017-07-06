@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -182,7 +182,7 @@ BuildRequires: popt-devel
 BuildRequires: python-devel
 BuildRequires: python2-pygpgme
 BuildRequires: python2-subunit
-BuildRequires: python-tevent
+BuildRequires: python3-devel
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
@@ -203,6 +203,7 @@ BuildRequires: libcephfs1-devel
 BuildRequires: gnutls-devel >= 3.4.7
 # Required by samba-tool to run tests
 BuildRequires: python-crypto
+BuildRequires: python3-crypto
 %endif
 
 # pidl requirements
@@ -213,6 +214,8 @@ BuildRequires: perl(Parse::Yapp)
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
 BuildRequires: pytalloc-devel >= %{libtalloc_version}
+BuildRequires: python3-talloc >= %{libtalloc_version}
+BuildRequires: python3-talloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
@@ -220,6 +223,7 @@ BuildRequires: pytalloc-devel >= %{libtalloc_version}
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python-tevent >= %{libtevent_version}
+BuildRequires: python3-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
@@ -227,6 +231,8 @@ BuildRequires: python-tevent >= %{libtevent_version}
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: pyldb-devel >= %{libldb_version}
+BuildRequires: python3-ldb >= %{libldb_version}
+BuildRequires: python3-ldb-devel >= %{libldb_version}
 %endif
 
 %if ! %with_internal_tdb
@@ -234,11 +240,13 @@ BuildRequires: pyldb-devel >= %{libldb_version}
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
 BuildRequires: python-tdb >= %{libtdb_version}
+BuildRequires: python3-tdb >= %{libtdb_version}
 %endif
 
 %if %{with testsuite}
 BuildRequires: ldb-tools
 BuildRequires: python2-pygpgme
+BuildRequires: python3-pygpgme
 %endif
 
 %if %{with_dc}
@@ -338,10 +346,13 @@ Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-python = %{samba_depver}
+Requires: python3-%{name} = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %{with_dc}
 # samba-tool requirements
 Requires: python-crypto
+Requires: python3-crypto
+
 Requires: krb5-server >= %{required_mit_krb5}
 %endif
 
@@ -497,6 +508,21 @@ Obsoletes: samba4-python < %{samba_depver}
 %description python
 The %{name}-python package contains the Python libraries needed by programs
 that use SMB, RPC and other Samba provided protocols in Python programs.
+
+### PYTHON3
+%package -n python3-%{name}
+Summary: Samba Python3 libraries
+Requires: %{name} = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
+Requires: python3-talloc
+Requires: python3-tevent
+Requires: python3-tdb
+Requires: python3-ldb
+
+%description -n python3-%{name}
+The python3-%{name} package contains the Python 3 libraries needed by programs
+that use SMB, RPC and other Samba provided protocols in Python 3 programs.
 
 ### PIDL
 %package pidl
@@ -771,13 +797,86 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %if %{with testsuite}
         --enable-selftest \
 %endif
-        --with-systemd
+        --with-systemd \
+        --extra-python=%{__python3}
 
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 make %{?_smp_mflags} install DESTDIR=%{buildroot}
+
+# FIXME: Remove Python3 files with bad syntax
+# (needs to be done after install; before that the py2 and py3 versions
+#  are the same)
+filenames=$(echo "
+    dbchecker.py
+    drs_utils.py
+    join.py
+    kcc/__init__.py
+    kcc/graph_utils.py
+    kcc/kcc_utils.py
+    kcc/ldif_import_export.py
+    ms_display_specifiers.py
+    ms_schema.py
+    netcmd/__init__.py
+    netcmd/common.py
+    netcmd/delegation.py
+    netcmd/dns.py
+    netcmd/domain.py
+    netcmd/drs.py
+    netcmd/fsmo.py
+    netcmd/gpo.py
+    netcmd/group.py
+    netcmd/ldapcmp.py
+    netcmd/ntacl.py
+    netcmd/rodc.py
+    netcmd/sites.py
+    netcmd/testparm.py
+    netcmd/user.py
+    ntacls.py
+    provision/__init__.py
+    provision/backend.py
+    provision/sambadns.py
+    remove_dc.py
+    sites.py
+    subnets.py
+    tests/auth_log.py
+    tests/auth_log_base.py
+    tests/auth_log_pass_change.py
+    tests/blackbox/ndrdump.py
+    tests/dcerpc/array.py
+    tests/dcerpc/dnsserver.py
+    tests/dcerpc/integer.py
+    tests/dcerpc/sam.py
+    tests/dcerpc/testrpc.py
+    tests/dcerpc/unix.py
+    tests/dns.py
+    tests/dns_base.py
+    tests/dns_forwarder.py
+    tests/dns_forwarder_helpers/server.py
+    tests/docs.py
+    tests/netcmd.py
+    tests/posixacl.py
+    tests/samba3.py
+    tests/samba3sam.py
+    tests/samba_tool/dnscmd.py
+    tests/samba_tool/fsmo.py
+    tests/source.py
+    upgrade.py
+    upgradehelpers.py
+    web_server/__init__.py
+")
+for file in $filenames; do
+    filename="%{buildroot}/%{python3_sitearch}/samba/$file"
+    if python3 -c "with open('$filename') as f: compile(f.read(), '$file', 'exec')"; then
+        echo "python3 compilation of $file succeeded unexpectedly"
+        exit 1
+    else
+        echo "python3 compilation of $file failed, removing"
+        rm "$filename"
+    fi
+done
 
 install -d -m 0755 %{buildroot}/usr/{sbin,bin}
 install -d -m 0755 %{buildroot}%{_libdir}/security
@@ -888,6 +987,9 @@ done
 # This makes the right links, as rpmlint requires that
 # the ldconfig-created links be recorded in the RPM.
 /sbin/ldconfig -N -n %{buildroot}%{_libdir}
+
+# FIXME
+find %{buildroot}%{python2_sitearch} -name "*.pyc" -print -delete
 
 %if %{with testsuite}
 %check
@@ -1789,6 +1891,12 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{python_sitearch}/*
 
+### PYTHON3
+%files -n python3-%{name}
+%defattr(-,root,root,-)
+%dir %{python3_sitearch}/samba/
+%{python3_sitearch}/samba/*
+
 ### TEST
 %files test
 %defattr(-,root,root)
@@ -2655,6 +2763,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-4.rc1
+- Add python3 support
+
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-3.rc1
 - Do not install conflicting file _ldb_text.py
 
