@@ -1084,7 +1084,7 @@ fi
 %posttrans -n libwbclient-devel
 %{_sbindir}/update-alternatives \
         --install %{_libdir}/libwbclient.so \
-        libwbclient.so.%{libwbc_alternatives_suffix} \
+        libwbclient.so%{libwbc_alternatives_suffix} \
         %{_libdir}/samba/wbclient/libwbclient.so \
         10
 
@@ -2765,6 +2765,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-4.rc1
 - Add python3 support
+- Fix %posttrans for libwbclient-devel
 
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-3.rc1
 - Do not install conflicting file _ldb_text.py
