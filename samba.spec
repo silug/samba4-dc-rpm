@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -120,6 +120,7 @@ Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
 Patch1:    samba-4.7.0-waf-Only-build-unit-tests-with-selftest-enabled.patch
 Patch2:    samba-4.7.0-unittests-Do-not-install-the-test_dummy-rpc-module.patch
 Patch3:    samba-4.7.0-Do-not-install-_ldb_text.py-if-we-have-system-libldb.patch
+Patch4:    samba-4.7.0-py3-dcerpc-modules.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2763,6 +2764,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Jul 18 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-5.rc1
+- Convert more rpc modules to python3
+
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-4.rc1
 - Add python3 support
 - Fix %posttrans for libwbclient-devel
