@@ -183,6 +183,7 @@ BuildRequires: popt-devel
 BuildRequires: python-devel
 BuildRequires: python2-pygpgme
 BuildRequires: python2-subunit
+BuildRequires: python2-dns
 BuildRequires: python3-devel
 BuildRequires: quota-devel
 BuildRequires: readline-devel
@@ -1010,9 +1011,6 @@ done
 
 # FIXME
 find %{buildroot}%{python2_sitearch} -name "*.pyc" -print -delete
-
-# remove embedded python2-dns code from third_parties
-rm -rf %{buildroot}%{python2_sitearch}/%{name}/third_party/dns
 
 
 %if %{with testsuite}
