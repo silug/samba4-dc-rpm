@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 6
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -348,13 +348,17 @@ Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-python = %{samba_depver}
-Requires: python3-%{name} = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %{with_dc}
-# samba-tool requirements
+# samba-tool requirements, explicitly require python2 right now
 Requires: python-crypto
+Requires: python2
+### Note that samba-dc right now cannot be used with Python 3
+### so we should make sure it does use python2 explicitly
+%if 0
 Requires: python3-crypto
-
+Requires: python3-%{name} = %{samba_depver}
+%endif
 Requires: krb5-server >= %{required_mit_krb5}
 %endif
 
@@ -827,6 +831,18 @@ make %{?_smp_mflags}
 rm -rf %{buildroot}
 make %{?_smp_mflags} install DESTDIR=%{buildroot}
 
+export PYTHON=%{__python2}
+# Workaround: make sure all general Python shebangs are pointing to Python 2
+# otherwise it will not work when default python is different from Python 2.
+# Samba tools aren't ready for Python 3 yet.
+for i in %{buildroot}%{_bindir} %{buildroot}%{_sbindir} ; do
+	find $i \
+		! -name '*.pyc' -a \
+		! -name '*.pyo' -a \
+		-type f -exec grep -qsm1 '^#!.*\bpython' {} \; \
+		-exec sed -i -e '1 s|^#!.*\bpython[^ ]*|#!%{__python2}|' {} \;
+done
+
 # FIXME: Remove Python3 files with bad syntax
 # (needs to be done after install; before that the py2 and py3 versions
 #  are the same)
@@ -977,7 +993,11 @@ install -m 0644 %{SOURCE200} packaging/README.dc-libs
 %endif
 
 install -d -m 0755 %{buildroot}%{_unitdir}
-for i in nmb smb winbind ; do
+services="nmb smb winbind"
+%if %with_dc
+services="$services samba"
+%endif
+for i in $services ; do
     cat packaging/systemd/$i.service | sed -e 's@\[Service\]@[Service]\nEnvironment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba@g' >tmp$i.service
     install -m 0644 tmp$i.service %{buildroot}%{_unitdir}/$i.service
 done
@@ -1062,6 +1082,15 @@ fi
 %post dc-libs -p /sbin/ldconfig
 
 %postun dc-libs -p /sbin/ldconfig
+
+%post dc
+%systemd_post samba.service
+
+%preun dc
+%systemd_preun samba.service
+
+%postun dc
+%systemd_postun_with_restart samba.service
 %endif
 
 %post krb5-printing
@@ -1563,6 +1592,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 
 %if %with_dc
+%{_unitdir}/samba.service
 %{_bindir}/samba-tool
 %{_sbindir}/samba
 %{_sbindir}/samba_kcc
@@ -3295,6 +3325,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 20 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-6.rc1
+- Use Python 2 explicitly for samba-tool and other Python-based tools
+- Install samba.service as it is required for the AD DC case
+
 * Tue Jul 18 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-5.rc1
 - Convert more rpc modules to python3
 - Explicitly specify Python artifacts in the spec to be able to catch unpackaged ones
