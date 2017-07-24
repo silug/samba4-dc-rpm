@@ -180,7 +180,7 @@ BuildRequires: perl(Test::More)
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
-BuildRequires: python-devel
+BuildRequires: python2-devel
 BuildRequires: python2-pygpgme
 BuildRequires: python2-subunit
 BuildRequires: python2-dns
@@ -204,7 +204,7 @@ BuildRequires: libcephfs1-devel
 %if %{with_dc}
 BuildRequires: gnutls-devel >= 3.4.7
 # Required by samba-tool to run tests
-BuildRequires: python-crypto
+BuildRequires: python2-crypto
 BuildRequires: python3-crypto
 %endif
 
@@ -215,8 +215,7 @@ BuildRequires: perl(Parse::Yapp)
 %global libtalloc_version 2.1.9
 
 BuildRequires: libtalloc-devel >= %{libtalloc_version}
-BuildRequires: pytalloc-devel >= %{libtalloc_version}
-BuildRequires: python3-talloc >= %{libtalloc_version}
+BuildRequires: python2-talloc-devel >= %{libtalloc_version}
 BuildRequires: python3-talloc-devel >= %{libtalloc_version}
 %endif
 
@@ -224,7 +223,7 @@ BuildRequires: python3-talloc-devel >= %{libtalloc_version}
 %global libtevent_version 0.9.32
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
-BuildRequires: python-tevent >= %{libtevent_version}
+BuildRequires: python2-tevent >= %{libtevent_version}
 BuildRequires: python3-tevent >= %{libtevent_version}
 %endif
 
@@ -232,8 +231,7 @@ BuildRequires: python3-tevent >= %{libtevent_version}
 %global libldb_version 1.2.0
 
 BuildRequires: libldb-devel >= %{libldb_version}
-BuildRequires: pyldb-devel >= %{libldb_version}
-BuildRequires: python3-ldb >= %{libldb_version}
+BuildRequires: python2-ldb-devel >= %{libldb_version}
 BuildRequires: python3-ldb-devel >= %{libldb_version}
 %endif
 
@@ -241,12 +239,13 @@ BuildRequires: python3-ldb-devel >= %{libldb_version}
 %global libtdb_version 1.3.14
 
 BuildRequires: libtdb-devel >= %{libtdb_version}
-BuildRequires: python-tdb >= %{libtdb_version}
+BuildRequires: python2-tdb >= %{libtdb_version}
 BuildRequires: python3-tdb >= %{libtdb_version}
 %endif
 
 %if %{with testsuite}
 BuildRequires: ldb-tools
+BuildRequires: tdb-tools
 BuildRequires: python2-pygpgme
 BuildRequires: python3-pygpgme
 %endif
@@ -503,10 +502,10 @@ Summary: Samba Python libraries
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
-Requires: python-tevent
-Requires: python-tdb
-Requires: pyldb
-Requires: pytalloc
+Requires: python2-tevent
+Requires: python2-tdb
+Requires: python2-ldb
+Requires: python2-talloc
 Requires: python2-dns
 
 Provides: samba4-python = %{samba_depver}
