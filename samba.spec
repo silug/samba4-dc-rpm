@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 6
+%define main_release 7
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -346,12 +346,13 @@ Summary: Samba AD Domain Controller
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
-Requires: %{name}-python = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 %if %{with_dc}
 # samba-tool requirements, explicitly require python2 right now
-Requires: python-crypto
 Requires: python2
+Requires: python2-python = %{samba_depver}
+Requires: python2-crypto
+
 ### Note that samba-dc right now cannot be used with Python 3
 ### so we should make sure it does use python2 explicitly
 %if 0
@@ -497,7 +498,7 @@ library.
 %endif # with_libwbclient
 
 ### PYTHON
-%package python
+%package -n python2-%{name}
 Summary: Samba Python libraries
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
@@ -508,16 +509,19 @@ Requires: python2-ldb
 Requires: python2-talloc
 Requires: python2-dns
 
+Provides: samba-python = %{samba_depver}
+Obsoletes: samba-python < %{samba_depver}
+
 Provides: samba4-python = %{samba_depver}
 Obsoletes: samba4-python < %{samba_depver}
 
-%description python
+%description -n python2-%{name}
 The %{name}-python package contains the Python libraries needed by programs
 that use SMB, RPC and other Samba provided protocols in Python programs.
 
 %package -n python2-samba-test
 Summary: Samba Python libraries
-Requires: %{name}-python = %{samba_depver}
+Requires: python2-%{name} = %{samba_depver}
 
 %description -n python2-samba-test
 The python2-%{name}-test package contains the Python libraries used by the test suite of Samba.
@@ -1938,7 +1942,7 @@ rm -rf %{buildroot}
 %{_mandir}/man3/Parse::Pidl*
 
 ### PYTHON
-%files python
+%files -n python2-%{name}
 %defattr(-,root,root,-)
 %dir %{python_sitearch}/samba
 %{python_sitearch}/samba/__init__.py*
@@ -3324,6 +3328,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Jul 24 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-7.rc1
+- Rename samba-python to python2-samba
+
 * Thu Jul 20 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-6.rc1
 - Use Python 2 explicitly for samba-tool and other Python-based tools
 - Install samba.service as it is required for the AD DC case
