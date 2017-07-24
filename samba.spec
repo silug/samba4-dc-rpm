@@ -36,9 +36,11 @@
 
 %global with_profiling 1
 
-%global with_vfs_cephfs 1
-%if 0%{?rhel}
 %global with_vfs_cephfs 0
+%if 0%{?fedora}
+%ifarch aarch64 ppc64le s390x x86_64
+%global with_vfs_cephfs 1
+%endif
 %endif
 
 %global with_vfs_glusterfs 1
