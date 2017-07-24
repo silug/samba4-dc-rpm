@@ -199,7 +199,7 @@ BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
 %endif
 %if %{with_vfs_cephfs}
-BuildRequires: libcephfs1-devel
+BuildRequires: libcephfs-devel
 %endif
 %if %{with_dc}
 BuildRequires: gnutls-devel >= 3.4.7
@@ -3330,6 +3330,7 @@ rm -rf %{buildroot}
 %changelog
 * Mon Jul 24 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-7.rc1
 - Rename samba-python to python2-samba
+- Update build requirement for libcephfs
 
 * Thu Jul 20 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-6.rc1
 - Use Python 2 explicitly for samba-tool and other Python-based tools
