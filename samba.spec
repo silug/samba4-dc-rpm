@@ -6,15 +6,15 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 7
+%define main_release 0
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
 %define tdb_version 1.3.14
-%define tevent_version 0.9.32
-%define ldb_version 1.2.0
+%define tevent_version 0.9.33
+%define ldb_version 1.2.1
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -118,12 +118,6 @@ Source14: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
-Patch0:    samba-4.7.0-unittests-Add-missing-stdint.h-include.patch
-Patch1:    samba-4.7.0-waf-Only-build-unit-tests-with-selftest-enabled.patch
-Patch2:    samba-4.7.0-unittests-Do-not-install-the-test_dummy-rpc-module.patch
-Patch3:    samba-4.7.0-Do-not-install-_ldb_text.py-if-we-have-system-libldb.patch
-Patch4:    samba-4.7.0-py3-dcerpc-modules.patch
-
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
 Requires(preun): systemd
@@ -222,7 +216,7 @@ BuildRequires: python3-talloc-devel >= %{libtalloc_version}
 %endif
 
 %if ! %with_internal_tevent
-%global libtevent_version 0.9.32
+%global libtevent_version 0.9.33
 
 BuildRequires: libtevent-devel >= %{libtevent_version}
 BuildRequires: python2-tevent >= %{libtevent_version}
@@ -230,7 +224,7 @@ BuildRequires: python3-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.2.0
+%global libldb_version 1.2.1
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: python2-ldb-devel >= %{libldb_version}
@@ -3330,6 +3324,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Jul 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.rc3
+- Update to Samba 4.7.0rc3
+
 * Mon Jul 24 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-7.rc1
 - Rename samba-python to python2-samba
 - Update build requirement for libcephfs
