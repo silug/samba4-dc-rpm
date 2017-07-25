@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 7
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -3324,37 +3324,37 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
-* Tue Jul 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.rc3
+* Tue Jul 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.7.rc3
 - Update to Samba 4.7.0rc3
 
-* Mon Jul 24 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-7.rc1
+* Mon Jul 24 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.7.rc1
 - Rename samba-python to python2-samba
 - Update build requirement for libcephfs
 
-* Thu Jul 20 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-6.rc1
+* Thu Jul 20 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.6.rc1
 - Use Python 2 explicitly for samba-tool and other Python-based tools
 - Install samba.service as it is required for the AD DC case
 
-* Tue Jul 18 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-5.rc1
+* Tue Jul 18 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.5.rc1
 - Convert more rpc modules to python3
 - Explicitly specify Python artifacts in the spec to be able to catch unpackaged ones
 - Split 'make test' Python code into separate python2-samba-test/python3-samba-test sub-packages
 - Remove embedded python2-dns version, require python{2,3}-dns instead
 
-* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-4.rc1
+* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.4.rc1
 - Add python3 support
 - Fix %posttrans for libwbclient-devel
 
-* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-3.rc1
+* Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.3.rc1
 - Do not install conflicting file _ldb_text.py
 
-* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-2.rc1
+* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.2.rc1
 - Fix requirement generation for shared libraries
 
-* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-1.rc1
+* Wed Jul 05 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.1.rc1
 - Build Samba with Active Directory support!
 
-* Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.rc1
+* Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.0.rc1
 - Update to Samba 4.7.0rc1
 
 * Mon Jun 12 2017 Guenther Deschner <gdeschner@redhat.com> - 4.6.5-0
