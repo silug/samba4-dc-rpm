@@ -347,7 +347,7 @@ Requires: %{name}-winbind = %{samba_depver}
 %if %{with_dc}
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
-Requires: python2-python = %{samba_depver}
+Requires: python2-%{name} = %{samba_depver}
 Requires: python2-crypto
 
 ### Note that samba-dc right now cannot be used with Python 3
