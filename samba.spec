@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 7
+%define main_release 8
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -153,6 +153,7 @@ Obsoletes: samba-swat < %{samba_depver}
 Provides: samba4-swat = %{samba_depver}
 Obsoletes: samba4-swat < %{samba_depver}
 
+BuildRequires: avahi-devel
 BuildRequires: cups-devel
 BuildRequires: dbus-devel
 BuildRequires: docbook-style-xsl
@@ -3324,6 +3325,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Jul 26 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.8.rc3
+- resolves: #1301002 - Enable avahi support
+
 * Tue Jul 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.7.rc3
 - Update to Samba 4.7.0rc3
 
