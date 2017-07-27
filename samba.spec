@@ -85,7 +85,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3325,6 +3325,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.7.0-0.8.rc3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Wed Jul 26 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.8.rc3
 - resolves: #1301002 - Enable avahi support
 
