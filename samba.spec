@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 9
+%define main_release 10
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -113,6 +113,8 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0: samba-4.7.0-bind_dlz.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -245,6 +247,7 @@ BuildRequires: python3-pygpgme
 
 %if %{with_dc}
 BuildRequires: krb5-server >= %{required_mit_krb5}
+BuildRequires: bind
 %endif
 
 # filter out perl requirements pulled in from examples in the docdir.
@@ -374,6 +377,20 @@ Obsoletes: samba4-dc-libs < %{samba_depver}
 %description dc-libs
 The %{name}-dc-libs package contains the libraries needed by the DC to
 link against the SMB, RPC and other protocols.
+
+### DC-BIND
+%if %with_dc
+%package dc-bind-dlz
+Summary: Bind DLZ module for Samba AD
+Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-dc-libs = %{samba_depver}
+Requires: %{name}-dc = %{samba_depver}
+Requires: bind
+
+%description dc-bind-dlz
+The %{name}-dc-bind-dlz package contains the libraries for bind to manage all
+name server related details of Samba AD.
+%endif # with_dc
 
 ### DEVEL
 %package devel
@@ -1320,7 +1337,6 @@ rm -rf %{buildroot}
 %endif
 
 %attr(775,root,printadmin) %dir /var/lib/samba/drivers
-%dir /var/lib/samba/lock
 
 ### CLIENT
 %files client
@@ -1547,6 +1563,7 @@ rm -rf %{buildroot}
 %ghost %dir /var/run/winbindd
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
+%dir /var/lib/samba/lock
 %attr(755,root,root) %dir %{_sysconfdir}/samba
 %config(noreplace) %{_sysconfdir}/samba/smb.conf
 %{_sysconfdir}/samba/smb.conf.example
@@ -1601,8 +1618,6 @@ rm -rf %{buildroot}
 %{_libdir}/krb5/plugins/kdb/samba.so
 
 %{_libdir}/samba/auth/samba4.so
-%{_libdir}/samba/bind9/dlz_bind9.so
-%{_libdir}/samba/bind9/dlz_bind9_10.so
 %{_libdir}/samba/libpac-samba4.so
 %dir %{_libdir}/samba/gensec
 %{_libdir}/samba/gensec/krb5.so
@@ -1687,10 +1702,19 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
-%{_libdir}/samba/bind9/dlz_bind9_9.so
-%{_libdir}/samba/bind9/dlz_bind9_11.so
 %else
 %doc packaging/README.dc-libs
+%endif # with_dc
+
+### DC-BIND
+%if %with_dc
+%files dc-bind-dlz
+%attr(770,root,named) %dir /var/lib/samba/bind-dns
+%dir %{_libdir}/samba/bind9
+%{_libdir}/samba/bind9/dlz_bind9.so
+%{_libdir}/samba/bind9/dlz_bind9_9.so
+%{_libdir}/samba/bind9/dlz_bind9_10.so
+%{_libdir}/samba/bind9/dlz_bind9_11.so
 %endif # with_dc
 
 ### DEVEL
@@ -3330,6 +3354,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Sep 12 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.10.rc5
+- resolves: #1476175 - Create seperate package for bind_dlz module
+
 * Tue Aug 29 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.9.rc5
 - Update to Samba 4.7.0rc5
 
