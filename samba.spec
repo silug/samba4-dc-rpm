@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 8
+%define main_release 9
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -85,7 +85,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.3
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -1323,7 +1323,7 @@ rm -rf %{buildroot}
 %exclude %{_mandir}/man8/vfs_ceph.8*
 %endif
 
-%dir /var/lib/samba/drivers
+%attr(775,root,printadmin) %dir /var/lib/samba/drivers
 %dir /var/lib/samba/lock
 
 ### CLIENT
@@ -3327,6 +3327,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Aug 08 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.9.rc3
+- Add printadmin group for printer driver handling
+
 * Sun Jul 30 2017 Florian Weimer <fweimer@redhat.com> - 2:4.7.0-0.8.rc3.2
 - Rebuild with binutils fix for ppc64le (#1475636)
 
