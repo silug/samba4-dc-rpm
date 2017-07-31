@@ -1049,6 +1049,9 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 %systemd_postun_with_restart smb.service
 %systemd_postun_with_restart nmb.service
 
+%pre common
+getent group printadmin >/dev/null || groupadd -r printadmin || :
+
 %post common
 /sbin/ldconfig
 /usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/samba.conf
