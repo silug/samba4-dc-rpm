@@ -85,7 +85,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.2
+Release:        %{samba_release}.3
 
 %if 0%{?rhel}
 Epoch:          0
@@ -396,7 +396,6 @@ libraries in the Samba suite.
 %if %{with_vfs_cephfs}
 %package vfs-cephfs
 Summary: Samba VFS module for Ceph distributed storage system
-Requires: libcephfs1
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 
