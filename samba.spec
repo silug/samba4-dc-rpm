@@ -69,11 +69,7 @@
 %global with_dc 1
 %endif
 
-%if %{with_dc}
 %global required_mit_krb5 1.15.1
-%else
-%global required_mit_krb5 1.10
-%endif
 
 %global with_clustering_support 0
 
@@ -437,7 +433,7 @@ the Kerberos credentials cache of the user issuing the print job.
 ### LIBS
 %package libs
 Summary: Samba libraries
-Requires: krb5-libs >= 1.14
+Requires: krb5-libs >= %{required_mit_krb5}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
