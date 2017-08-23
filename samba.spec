@@ -286,6 +286,7 @@ Requires: %{name}-common = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
+Requires: krb5-libs >= %{required_mit_krb5}
 
 %description client-libs
 The samba-client-libs package contains internal libraries needed by the
@@ -433,7 +434,6 @@ the Kerberos credentials cache of the user issuing the print job.
 ### LIBS
 %package libs
 Summary: Samba libraries
-Requires: krb5-libs >= %{required_mit_krb5}
 Requires: %{name}-client-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
