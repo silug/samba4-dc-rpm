@@ -14,7 +14,7 @@
 %define tevent_version 0.9.33
 %define ldb_version 1.2.1
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc5
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -2081,6 +2081,8 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/tests/auth_log.py*
 %{python_sitearch}/samba/tests/auth_log_base.py*
 %{python_sitearch}/samba/tests/auth_log_ncalrpc.py*
+%{python_sitearch}/samba/tests/auth_log_netlogon.py*
+%{python_sitearch}/samba/tests/auth_log_netlogon_bad_creds.py*
 %{python_sitearch}/samba/tests/auth_log_pass_change.py*
 %{python_sitearch}/samba/tests/auth_log_samlogon.py*
 %dir %{python_sitearch}/samba/tests/blackbox
@@ -2300,6 +2302,8 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/tests/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/auth.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/auth_log_ncalrpc.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/auth_log_netlogon.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/auth_log_netlogon_bad_creds.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/auth_log_samlogon.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/common.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/core.*.pyc
@@ -2342,6 +2346,8 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/tests/__pycache__/xattr.*.pyc
 %{python3_sitearch}/samba/tests/auth.py
 %{python3_sitearch}/samba/tests/auth_log_ncalrpc.py
+%{python3_sitearch}/samba/tests/auth_log_netlogon.py
+%{python3_sitearch}/samba/tests/auth_log_netlogon_bad_creds.py
 %{python3_sitearch}/samba/tests/auth_log_samlogon.py
 %dir %{python3_sitearch}/samba/tests/blackbox
 %{python3_sitearch}/samba/tests/blackbox/__init__.py
@@ -3068,6 +3074,7 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/simple/18_ctdb_reloadips.sh
 %{_datadir}/ctdb/tests/simple/19_ip_takeover_noop.sh
 %{_datadir}/ctdb/tests/simple/20_delip_iface_gc.sh
+%{_datadir}/ctdb/tests/simple/21_ctdb_attach.sh
 %{_datadir}/ctdb/tests/simple/23_ctdb_moveip.sh
 %{_datadir}/ctdb/tests/simple/24_ctdb_getdbmap.sh
 %{_datadir}/ctdb/tests/simple/25_dumpmemory.sh
@@ -3323,6 +3330,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Aug 29 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.9.rc5
+- Update to Samba 4.7.0rc5
+
 * Tue Aug 08 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.9.rc3
 - Add printadmin group for printer driver handling
 
