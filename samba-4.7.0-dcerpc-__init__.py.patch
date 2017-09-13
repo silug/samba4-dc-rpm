@@ -1,34 +1,33 @@
-From f62ca366bd96cd2d73a8c65db5d361548dfa2f1a Mon Sep 17 00:00:00 2001
+From 71f48e7fac4ea2914f8d2b5be6dc53114a9e71c3 Mon Sep 17 00:00:00 2001
 From: Alexander Bokovoy <ab@samba.org>
 Date: Wed, 13 Sep 2017 11:37:34 +0300
 Subject: [PATCH] Install dcerpc/__init__.py for all Python environments
 
 Also fix whitespace. We use tabs, not spaces in Python/waf code.
 ---
- source4/librpc/wscript_build | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ source4/librpc/wscript_build | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/source4/librpc/wscript_build b/source4/librpc/wscript_build
-index e341432fa14..a826fbed8ea 100644
+index e341432fa14..a381a65e3fa 100644
 --- a/source4/librpc/wscript_build
 +++ b/source4/librpc/wscript_build
-@@ -406,10 +406,10 @@ for env in bld.gen_python_environments():
- 		realname='samba/dcerpc/messaging.so'
+@@ -407,9 +407,10 @@ for env in bld.gen_python_environments():
  		)
  
--if bld.PYTHON_BUILD_IS_ENABLED():
+ if bld.PYTHON_BUILD_IS_ENABLED():
 -    bld.SAMBA_SCRIPT('python_dcerpc_init',
 -                 pattern='rpc/dcerpc.py',
 -                 installdir='python/samba/dcerpc',
 -                 installname='__init__.py')
-+	if bld.PYTHON_BUILD_IS_ENABLED():
++	for env in bld.gen_python_environments():
 +		bld.SAMBA_SCRIPT('python_dcerpc_init',
 +			pattern='rpc/dcerpc.py',
 +			installdir='python/samba/dcerpc',
 +			installname='__init__.py')
  
 -    bld.INSTALL_FILES('${PYTHONARCHDIR}/samba/dcerpc', 'rpc/dcerpc.py', destname='__init__.py')
-+	bld.INSTALL_FILES('${PYTHONARCHDIR}/samba/dcerpc', 'rpc/dcerpc.py', destname='__init__.py')
++		bld.INSTALL_FILES('${PYTHONARCHDIR}/samba/dcerpc', 'rpc/dcerpc.py', destname='__init__.py')
 -- 
 2.13.5
 
