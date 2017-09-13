@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 10
+%define main_release 11
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -115,6 +115,7 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.7.0-bind_dlz.patch
+Patch1: samba-4.7.0-dcerpc-__init__.py.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2232,6 +2233,9 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/credentials.*.so
 %{python3_sitearch}/samba/crypto.*.so
 %dir %{python3_sitearch}/samba/dcerpc
+%dir %{python3_sitearch}/samba/dcerpc/__pycache__
+%{python3_sitearch}/samba/dcerpc/__pycache__/__init__.*.pyc
+%{python3_sitearch}/samba/dcerpc/__init__.py
 %{python3_sitearch}/samba/dcerpc/atsvc.*.so
 %{python3_sitearch}/samba/dcerpc/auth.*.so
 %{python3_sitearch}/samba/dcerpc/base.*.so
@@ -3354,6 +3358,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Sep 13 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.11.rc5
+- resolves: #1491137 - dcerpc/__init__.py is not packaged for py3
+
 * Tue Sep 12 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.10.rc5
 - resolves: #1476175 - Create seperate package for bind_dlz module
 
