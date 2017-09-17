@@ -14,7 +14,7 @@
 %define tevent_version 0.9.33
 %define ldb_version 1.2.1
 # This should be rc1 or nil
-%define pre_release rc5
+%define pre_release rc6
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -115,7 +115,6 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch0: samba-4.7.0-bind_dlz.patch
-Patch1: samba-4.7.0-dcerpc-__init__.py.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3358,6 +3357,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sun Sep 17 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.11.rc6
+- Update to Samba 4.7.0rc6
+
 * Wed Sep 13 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.11.rc5
 - resolves: #1491137 - dcerpc/__init__.py is not packaged for py3
 
