@@ -12,7 +12,7 @@
 %define talloc_version 2.1.9
 %define tdb_version 1.3.14
 %define tevent_version 0.9.33
-%define ldb_version 1.2.1
+%define ldb_version 1.2.2
 # This should be rc1 or nil
 %define pre_release rc6
 
@@ -223,7 +223,7 @@ BuildRequires: python3-tevent >= %{libtevent_version}
 %endif
 
 %if ! %with_internal_ldb
-%global libldb_version 1.2.1
+%global libldb_version 1.2.2
 
 BuildRequires: libldb-devel >= %{libldb_version}
 BuildRequires: python2-ldb-devel >= %{libldb_version}
