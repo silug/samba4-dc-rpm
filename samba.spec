@@ -2669,6 +2669,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/ctdb/tests/ctdb_packet_parse
 %{_libexecdir}/ctdb/tests/ctdb_takeover_tests
 %{_libexecdir}/ctdb/tests/db_hash_test
+%{_libexecdir}/ctdb/tests/dummy_client
 %{_libexecdir}/ctdb/tests/fake_ctdbd
 %{_libexecdir}/ctdb/tests/fetch_loop
 %{_libexecdir}/ctdb/tests/fetch_loop_key
