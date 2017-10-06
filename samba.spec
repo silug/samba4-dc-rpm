@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 12
+%define main_release 13
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -1459,7 +1459,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcmdline-credentials-samba4.so
 %{_libdir}/samba/libdbwrap-samba4.so
 %{_libdir}/samba/libdcerpc-samba-samba4.so
-%{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so
 %{_libdir}/samba/libevents-samba4.so
 %{_libdir}/samba/libflag-mapping-samba4.so
 %{_libdir}/samba/libgenrand-samba4.so
@@ -1702,6 +1701,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
+%{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so
 %else
 %doc packaging/README.dc-libs
 %endif # with_dc
@@ -3358,6 +3358,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Oct 06 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.13
+- Move %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so to %{name}-dc-libs
+- Rebuild in rawhide against new krb5 1.16 and docbook-xml
+
 * Thu Sep 21 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.12
 - Update to Samba 4.7.0
 - resolves: #1493441 - Security fix for CVE-2017-12150 CVE-2017-12151 CVE-2017-12163
