@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 13
+%define main_release 14
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.9
@@ -1698,7 +1698,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/service/winbindd.so
 %{_libdir}/samba/service/wrepl.so
 %{_libdir}/libdcerpc-server.so.*
-%{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libdnsserver-common-samba4.so
 %{_libdir}/samba/libdsdb-module-samba4.so
 %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so
@@ -1884,6 +1883,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcluster-samba4.so
 %{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
+%{_libdir}/samba/libdfs-server-ad-samba4.so
 %{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libsamba-net-samba4.so
 %{_libdir}/samba/libsamba-python-samba4.so
@@ -3358,11 +3358,14 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
-* Fri Oct 06 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-0.13
+* Fri Oct 13 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-14
+- resolves: #1499140 - Move libdfs-server-ad to the correct subpackage
+
+* Fri Oct 06 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-13
 - Move %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so to %{name}-dc-libs
 - Rebuild in rawhide against new krb5 1.16 and docbook-xml
 
-* Thu Sep 21 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-0.12
+* Thu Sep 21 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-12
 - Update to Samba 4.7.0
 - resolves: #1493441 - Security fix for CVE-2017-12150 CVE-2017-12151 CVE-2017-12163
 
