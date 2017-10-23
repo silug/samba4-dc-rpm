@@ -1028,6 +1028,7 @@ touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 %if ! %with_dc
 for i in %{_libdir}/samba/libdfs-server-ad-samba4.so \
+	%{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so \
 	%{_libdir}/samba/libdnsserver-common-samba4.so \
 	%{_mandir}/man8/samba.8 \
 	%{_mandir}/man8/samba-tool.8 \
@@ -1883,7 +1884,9 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcluster-samba4.so
 %{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
+%if %with_dc
 %{_libdir}/samba/libdfs-server-ad-samba4.so
+%endif
 %{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libsamba-net-samba4.so
 %{_libdir}/samba/libsamba-python-samba4.so
@@ -2009,7 +2012,6 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/dcerpc/winreg.so
 %{python_sitearch}/samba/dcerpc/wkssvc.so
 %{python_sitearch}/samba/dcerpc/xattr.so
-%{python_sitearch}/samba/dckeytab.so
 %{python_sitearch}/samba/descriptor.py*
 %{python_sitearch}/samba/dnsserver.py*
 %{python_sitearch}/samba/drs_utils.py*
@@ -2096,6 +2098,10 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/xattr.py*
 %{python_sitearch}/samba/xattr_native.so
 %{python_sitearch}/samba/xattr_tdb.so
+
+%if %with_dc
+%{python_sitearch}/samba/dckeytab.so
+%endif
 
 %files -n python2-%{name}-test
 %defattr(-,root,root,-)
