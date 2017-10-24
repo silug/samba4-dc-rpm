@@ -9,8 +9,8 @@
 %define main_release 14
 
 %define samba_version 4.7.0
-%define talloc_version 2.1.9
-%define tdb_version 1.3.14
+%define talloc_version 2.1.10
+%define tdb_version 1.3.15
 %define tevent_version 0.9.33
 %define ldb_version 1.2.2
 # This should be rc1 or nil
@@ -28,11 +28,6 @@
 
 %global with_libsmbclient 1
 %global with_libwbclient 1
-
-%global with_internal_talloc 0
-%global with_internal_tevent 0
-%global with_internal_tdb 0
-%global with_internal_ldb 0
 
 %global with_profiling 1
 
@@ -177,10 +172,9 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
 BuildRequires: python2-devel
-BuildRequires: python2-pygpgme
-BuildRequires: python2-subunit
 BuildRequires: python2-dns
 BuildRequires: python3-devel
+BuildRequires: python3-dns
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
@@ -194,11 +188,16 @@ BuildRequires: pkgconfig(libsystemd)
 BuildRequires: glusterfs-api-devel >= 3.4.0.16
 BuildRequires: glusterfs-devel >= 3.4.0.16
 %endif
+
 %if %{with_vfs_cephfs}
 BuildRequires: libcephfs-devel
 %endif
+
 %if %{with_dc}
+BuildRequires: bind
 BuildRequires: gnutls-devel >= 3.4.7
+BuildRequires: krb5-server >= %{required_mit_krb5}
+
 # Required by samba-tool to run tests
 BuildRequires: python2-crypto
 BuildRequires: python3-crypto
@@ -207,43 +206,27 @@ BuildRequires: python3-crypto
 # pidl requirements
 BuildRequires: perl(Parse::Yapp)
 
-%if ! %with_internal_talloc
-%global libtalloc_version 2.1.9
+BuildRequires: libtalloc-devel >= %{talloc_version}
+BuildRequires: python2-talloc-devel >= %{talloc_version}
+BuildRequires: python3-talloc-devel >= %{talloc_version}
 
-BuildRequires: libtalloc-devel >= %{libtalloc_version}
-BuildRequires: python2-talloc-devel >= %{libtalloc_version}
-BuildRequires: python3-talloc-devel >= %{libtalloc_version}
-%endif
+BuildRequires: libtevent-devel >= %{tevent_version}
+BuildRequires: python2-tevent >= %{tevent_version}
+BuildRequires: python3-tevent >= %{tevent_version}
 
-%if ! %with_internal_tevent
-%global libtevent_version 0.9.33
+BuildRequires: libtdb-devel >= %{tdb_version}
+BuildRequires: python2-tdb >= %{tdb_version}
+BuildRequires: python3-tdb >= %{tdb_version}
 
-BuildRequires: libtevent-devel >= %{libtevent_version}
-BuildRequires: python2-tevent >= %{libtevent_version}
-BuildRequires: python3-tevent >= %{libtevent_version}
-%endif
-
-%if ! %with_internal_ldb
-%global libldb_version 1.2.2
-
-BuildRequires: libldb-devel >= %{libldb_version}
-BuildRequires: python2-ldb-devel >= %{libldb_version}
-BuildRequires: python3-ldb-devel >= %{libldb_version}
-%endif
-
-%if ! %with_internal_tdb
-%global libtdb_version 1.3.14
-
-BuildRequires: libtdb-devel >= %{libtdb_version}
-BuildRequires: python2-tdb >= %{libtdb_version}
-BuildRequires: python3-tdb >= %{libtdb_version}
-%endif
+BuildRequires: libldb-devel >= %{ldb_version}
+BuildRequires: python2-ldb-devel >= %{ldb_version}
+BuildRequires: python3-ldb-devel >= %{ldb_version}
 
 %if %{with testsuite}
 BuildRequires: ldb-tools
 BuildRequires: tdb-tools
 BuildRequires: python2-pygpgme
-BuildRequires: python3-pygpgme
+BuildRequires: python2-subunit
 %endif
 
 %if %{with_dc}
@@ -761,21 +744,10 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %global _tdb_lib ,tdb,pytdb
 %global _ldb_lib ,ldb,pyldb,pyldb-util
 
-%if ! %{with_internal_talloc}
 %global _talloc_lib ,!talloc,!pytalloc,!pytalloc-util
-%endif
-
-%if ! %{with_internal_tevent}
 %global _tevent_lib ,!tevent,!pytevent
-%endif
-
-%if ! %{with_internal_tdb}
 %global _tdb_lib ,!tdb,!pytdb
-%endif
-
-%if ! %{with_internal_ldb}
 %global _ldb_lib ,!ldb,!pyldb,!pyldb-util
-%endif
 
 %global _samba_libraries !zlib,!popt%{_talloc_lib}%{_tevent_lib}%{_tdb_lib}%{_ldb_lib}
 
@@ -1393,41 +1365,6 @@ rm -rf %{buildroot}
 %{_mandir}/man8/samba-regedit.8*
 %{_mandir}/man8/smbspool.8*
 
-%if %{with_internal_tdb}
-%{_bindir}/tdbbackup
-%{_bindir}/tdbdump
-%{_bindir}/tdbrestore
-%{_bindir}/tdbtool
-%{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
-%{_mandir}/man8/tdbrestore.8*
-%{_mandir}/man8/tdbtool.8*
-%endif
-
-%if %with_internal_ldb
-%{_bindir}/ldbadd
-%{_bindir}/ldbdel
-%{_bindir}/ldbedit
-%{_bindir}/ldbmodify
-%{_bindir}/ldbrename
-%{_bindir}/ldbsearch
-%{_libdir}/samba/libldb-cmdline-samba4.so
-%{_libdir}/samba/ldb/asq.so
-%{_libdir}/samba/ldb/paged_results.so
-%{_libdir}/samba/ldb/paged_searches.so
-%{_libdir}/samba/ldb/rdn_name.so
-%{_libdir}/samba/ldb/sample.so
-%{_libdir}/samba/ldb/server_sort.so
-%{_libdir}/samba/ldb/skel.so
-%{_libdir}/samba/ldb/tdb.so
-%{_mandir}/man1/ldbadd.1.gz
-%{_mandir}/man1/ldbdel.1.gz
-%{_mandir}/man1/ldbedit.1.gz
-%{_mandir}/man1/ldbmodify.1.gz
-%{_mandir}/man1/ldbrename.1.gz
-%{_mandir}/man1/ldbsearch.1.gz
-%endif
-
 ### CLIENT-LIBS
 %files client-libs
 %defattr(-,root,root)
@@ -1529,32 +1466,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libsmbclient.so.*
 %{_mandir}/man7/libsmbclient.7*
 %endif # ! with_libsmbclient
-
-%if %{with_internal_talloc}
-%{_libdir}/samba/libtalloc.so.2
-%{_libdir}/samba/libtalloc.so.%{talloc_version}
-%{_libdir}/samba/libpytalloc-util.so.2
-%{_libdir}/samba/libpytalloc-util.so.%{talloc_version}
-%{_mandir}/man3/talloc.3.gz
-%endif
-
-%if %{with_internal_tevent}
-%{_libdir}/samba/libtevent.so.0
-%{_libdir}/samba/libtevent.so.%{tevent_version}
-%endif
-
-%if %{with_internal_tdb}
-%{_libdir}/samba/libtdb.so.1
-%{_libdir}/samba/libtdb.so.%{tdb_version}
-%endif
-
-%if %{with_internal_ldb}
-%{_libdir}/samba/libldb.so.1
-%{_libdir}/samba/libldb.so.%{ldb_version}
-%{_libdir}/samba/libpyldb-util.so.1
-%{_libdir}/samba/libpyldb-util.so.%{ldb_version}
-%{_mandir}/man3/ldb.3.gz
-%endif
 
 ### COMMON
 %files common
