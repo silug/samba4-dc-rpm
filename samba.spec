@@ -173,9 +173,13 @@ BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
 BuildRequires: python2-devel
 BuildRequires: python2-dns
+# Add python2-iso8601 to avoid that the
+# version in Samba is being packaged
 BuildRequires: python2-iso8601
 BuildRequires: python2-subunit
 BuildRequires: python3-devel
+# Add python3-iso8601 to avoid that the
+# version in Samba is being packaged
 BuildRequires: python3-iso8601
 BuildRequires: python3-subunit
 BuildRequires: quota-devel
@@ -757,8 +761,9 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %global _samba_idmap_modules idmap_ad,idmap_rid,idmap_ldap,idmap_hash,idmap_tdb2
 %global _samba_pdb_modules pdb_tdbsam,pdb_ldap,pdb_smbpasswd,pdb_wbc_sam,pdb_samba4
 %global _samba_auth_modules auth_wbc,auth_unix,auth_server,auth_script,auth_samba4
+%global _samba_vfs_modules vfs_dfs_samba4
 
-%global _samba_modules %{_samba_idmap_modules},%{_samba_pdb_modules},%{_samba_auth_modules}
+%global _samba_modules %{_samba_idmap_modules},%{_samba_pdb_modules},%{_samba_auth_modules},%{_samba_vfs_modules}
 
 %global _libsmbclient %nil
 %global _libwbclient %nil
@@ -1230,6 +1235,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/commit.so
 %{_libdir}/samba/vfs/crossrename.so
 %{_libdir}/samba/vfs/default_quota.so
+%{_libdir}/samba/vfs/dfs_samba4.so
 %{_libdir}/samba/vfs/dirsort.so
 %{_libdir}/samba/vfs/expand_msdfs.so
 %{_libdir}/samba/vfs/extd_audit.so
