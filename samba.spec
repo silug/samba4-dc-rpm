@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 14
+%define main_release 15
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.10
@@ -1400,6 +1400,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcli-spoolss-samba4.so
 %{_libdir}/samba/libcliauth-samba4.so
 %{_libdir}/samba/libcmdline-credentials-samba4.so
+%{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdbwrap-samba4.so
 %{_libdir}/samba/libdcerpc-samba-samba4.so
 %{_libdir}/samba/libevents-samba4.so
@@ -1798,7 +1799,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libauth4-samba4.so
 %{_libdir}/samba/libauth-unix-token-samba4.so
 %{_libdir}/samba/libcluster-samba4.so
-%{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
 %{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libsamba-net-samba4.so
@@ -3277,6 +3277,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Wed Oct 25 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-15
+- Fix several dependency issues
+- Fix building with MIT Kerberos 1.16
+
 * Fri Oct 13 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-14
 - resolves: #1499140 - Move libdfs-server-ad to the correct subpackage
 
