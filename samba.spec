@@ -3287,7 +3287,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Wed Oct 25 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-15
-- Fix several dependency issues
+- related: #1499140 - Fix several dependency issues
 - Fix building with MIT Kerberos 1.16
 
 * Fri Oct 13 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-14
