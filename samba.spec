@@ -173,8 +173,11 @@ BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
 BuildRequires: python2-devel
 BuildRequires: python2-dns
+BuildRequires: python2-iso8601
+BuildRequires: python2-subunit
 BuildRequires: python3-devel
-BuildRequires: python3-dns
+BuildRequires: python3-iso8601
+BuildRequires: python3-subunit
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: sed
@@ -226,7 +229,7 @@ BuildRequires: python3-ldb-devel >= %{ldb_version}
 BuildRequires: ldb-tools
 BuildRequires: tdb-tools
 BuildRequires: python2-pygpgme
-BuildRequires: python2-subunit
+BuildRequires: python3-pygpgme
 %endif
 
 %if %{with_dc}
