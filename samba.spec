@@ -1234,6 +1234,10 @@ rm -rf %{buildroot}
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
+%if %with_dc
+# This is only used by vfs_dfs_samba4
+%{_libdir}/samba/libdfs-server-ad-samba4.so
+%endif
 %dir %{_libdir}/samba/auth
 %{_libdir}/samba/auth/script.so
 %{_libdir}/samba/auth/unix.so
@@ -1884,9 +1888,6 @@ rm -rf %{buildroot}
 %{_libdir}/samba/libcluster-samba4.so
 %{_libdir}/samba/libcommon-auth-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
-%if %with_dc
-%{_libdir}/samba/libdfs-server-ad-samba4.so
-%endif
 %{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libsamba-net-samba4.so
 %{_libdir}/samba/libsamba-python-samba4.so
