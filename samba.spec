@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 15
+%define main_release 16
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.10
@@ -339,6 +339,7 @@ Requires: %{name}-winbind = %{samba_depver}
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
 Requires: python2-%{name} = %{samba_depver}
+Requires: python2-%{name}-dc = %{samba_depver}
 Requires: python2-crypto
 
 ### Note that samba-dc right now cannot be used with Python 3
@@ -346,6 +347,7 @@ Requires: python2-crypto
 %if 0
 Requires: python3-crypto
 Requires: python3-%{name} = %{samba_depver}
+Requires: python3-%{name}-dc = %{samba_depver}
 %endif
 Requires: krb5-server >= %{required_mit_krb5}
 %endif
@@ -527,6 +529,16 @@ Requires: python2-%{name} = %{samba_depver}
 The python2-%{name}-test package contains the Python libraries used by the test suite of Samba.
 If you want to run full set of Samba tests, you need to install this package.
 
+%if %{with_dc}
+%package -n python2-samba-dc
+Summary: Samba Python libraries for Samba AD
+Requires: python2-%{name} = %{samba_depver}
+
+%description -n python2-samba-dc
+The python2-%{name}-dc package contains the Python libraries needed by programs
+to manage Samba AD.
+%endif
+
 ### PYTHON3
 %package -n python3-%{name}
 Summary: Samba Python3 libraries
@@ -551,6 +563,15 @@ Requires: python3-%{name} = %{samba_depver}
 The python3-%{name}-test package contains the Python libraries used by the test suite of Samba.
 If you want to run full set of Samba tests, you need to install this package.
 
+%if %{with_dc}
+%package -n python3-samba-dc
+Summary: Samba Python libraries for Samba AD
+Requires: python3-%{name} = %{samba_depver}
+
+%description -n python3-samba-dc
+The python3-%{name}-dc package contains the Python libraries needed by programs
+to manage Samba AD.
+%endif
 
 ### PIDL
 %package pidl
@@ -1008,14 +1029,48 @@ install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
 touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
 %if ! %with_dc
-for i in %{_libdir}/samba/libdfs-server-ad-samba4.so \
-	%{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so \
-	%{_libdir}/samba/libdnsserver-common-samba4.so \
-	%{_mandir}/man8/samba.8 \
-	%{_mandir}/man8/samba-tool.8 \
-	%{_libdir}/samba/ldb/ildap.so \
-	%{_libdir}/samba/ldb/ldbsamba_extensions.so ; do
-	rm -f %{buildroot}$i
+for i in \
+    %{_libdir}/samba/libdfs-server-ad-samba4.so \
+    %{_libdir}/samba/libdnsserver-common-samba4.so \
+    %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so \
+    %{_mandir}/man8/samba.8 \
+    %{_mandir}/man8/samba-tool.8 \
+    %{_libdir}/samba/ldb/ildap.so \
+    %{_libdir}/samba/ldb/ldbsamba_extensions.so \
+    %{python_sitearch}/samba/dcerpc/dnsserver.so \
+    %{python_sitearch}/samba/dnsserver.py* \
+    %{python_sitearch}/samba/samdb.py* \
+    %{python_sitearch}/samba/schema.py* \
+    %{python_sitearch}/samba/kcc/__init__.py* \
+    %{python_sitearch}/samba/kcc/debug.py* \
+    %{python_sitearch}/samba/kcc/graph.py* \
+    %{python_sitearch}/samba/kcc/graph_utils.py* \
+    %{python_sitearch}/samba/kcc/kcc_utils.py* \
+    %{python_sitearch}/samba/kcc/ldif_import_export.py* \
+    %{python_sitearch}/samba/provision/__init__.py* \
+    %{python_sitearch}/samba/provision/backend.py* \
+    %{python_sitearch}/samba/provision/common.py* \
+    %{python_sitearch}/samba/provision/kerberos.py* \
+    %{python_sitearch}/samba/provision/kerberos_implementation.py* \
+    %{python_sitearch}/samba/provision/sambadns.py* \
+    %{python_sitearch}/samba/web_server/__init__.py* \
+    %{python3_sitearch}/samba/__pycache__/schema.*.pyc \
+    %{python3_sitearch}/samba/dcerpc/dnsserver.*.so \
+    %{python3_sitearch}/samba/kcc/debug.py \
+    %{python3_sitearch}/samba/kcc/graph.py \
+    %{python3_sitearch}/samba/dnsserver.py \
+    %{python3_sitearch}/samba/kcc/__pycache__/debug.*.pyc \
+    %{python3_sitearch}/samba/kcc/__pycache__/graph.*.pyc \
+    %{python3_sitearch}/samba/provision/common.py \
+    %{python3_sitearch}/samba/provision/kerberos.py \
+    %{python3_sitearch}/samba/provision/kerberos_implementation.py \
+    %{python3_sitearch}/samba/provision/__pycache__/common.*.pyc \
+    %{python3_sitearch}/samba/provision/__pycache__/kerberos.*.pyc \
+    %{python3_sitearch}/samba/provision/__pycache__/kerberos_implementation.*.pyc \
+    %{python3_sitearch}/samba/samdb.py \
+    %{python3_sitearch}/samba/schema.py \
+    ; do
+    rm -f %{buildroot}$i
 done
 %endif
 
@@ -1215,7 +1270,7 @@ rm -rf %{buildroot}
 %{_bindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
-%if %with_dc
+%if %{with_dc}
 # This is only used by vfs_dfs_samba4
 %{_libdir}/samba/libdfs-server-ad-samba4.so
 %endif
@@ -1235,7 +1290,9 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/commit.so
 %{_libdir}/samba/vfs/crossrename.so
 %{_libdir}/samba/vfs/default_quota.so
+%if %{with_dc}
 %{_libdir}/samba/vfs/dfs_samba4.so
+%endif
 %{_libdir}/samba/vfs/dirsort.so
 %{_libdir}/samba/vfs/expand_msdfs.so
 %{_libdir}/samba/vfs/extd_audit.so
@@ -1898,6 +1955,40 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/credentials.so
 %{python_sitearch}/samba/crypto.so
 %{python_sitearch}/samba/dbchecker.py*
+%{python_sitearch}/samba/descriptor.py*
+%{python_sitearch}/samba/drs_utils.py*
+%{python_sitearch}/samba/dsdb.so
+%{python_sitearch}/samba/dsdb_dns.so
+%{python_sitearch}/samba/gensec.so
+%{python_sitearch}/samba/getopt.py*
+%{python_sitearch}/samba/hostconfig.py*
+%{python_sitearch}/samba/idmap.py*
+%{python_sitearch}/samba/join.py*
+%{python_sitearch}/samba/messaging.so
+%{python_sitearch}/samba/ms_display_specifiers.py*
+%{python_sitearch}/samba/ms_schema.py*
+%{python_sitearch}/samba/ndr.py*
+%{python_sitearch}/samba/net.so
+%{python_sitearch}/samba/netbios.so
+%{python_sitearch}/samba/ntacls.py*
+%{python_sitearch}/samba/ntstatus.so
+%{python_sitearch}/samba/param.so
+%{python_sitearch}/samba/policy.so
+%{python_sitearch}/samba/posix_eadb.so
+%{python_sitearch}/samba/registry.so
+%{python_sitearch}/samba/remove_dc.py*
+%{python_sitearch}/samba/sd_utils.py*
+%{python_sitearch}/samba/security.so
+%{python_sitearch}/samba/sites.py*
+%{python_sitearch}/samba/smb.so
+%{python_sitearch}/samba/subnets.py*
+%{python_sitearch}/samba/upgrade.py*
+%{python_sitearch}/samba/upgradehelpers.py*
+%{python_sitearch}/samba/werror.so
+%{python_sitearch}/samba/xattr.py*
+%{python_sitearch}/samba/xattr_native.so
+%{python_sitearch}/samba/xattr_tdb.so
+
 %dir %{python_sitearch}/samba/dcerpc
 %{python_sitearch}/samba/dcerpc/__init__.py*
 %{python_sitearch}/samba/dcerpc/atsvc.so
@@ -1907,7 +1998,6 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/dcerpc/dfs.so
 %{python_sitearch}/samba/dcerpc/dns.so
 %{python_sitearch}/samba/dcerpc/dnsp.so
-%{python_sitearch}/samba/dcerpc/dnsserver.so
 %{python_sitearch}/samba/dcerpc/drsblobs.so
 %{python_sitearch}/samba/dcerpc/drsuapi.so
 %{python_sitearch}/samba/dcerpc/echo.so
@@ -1934,29 +2024,7 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/dcerpc/winreg.so
 %{python_sitearch}/samba/dcerpc/wkssvc.so
 %{python_sitearch}/samba/dcerpc/xattr.so
-%{python_sitearch}/samba/descriptor.py*
-%{python_sitearch}/samba/dnsserver.py*
-%{python_sitearch}/samba/drs_utils.py*
-%{python_sitearch}/samba/dsdb.so
-%{python_sitearch}/samba/dsdb_dns.so
-%{python_sitearch}/samba/gensec.so
-%{python_sitearch}/samba/getopt.py*
-%{python_sitearch}/samba/hostconfig.py*
-%{python_sitearch}/samba/idmap.py*
-%{python_sitearch}/samba/join.py*
-%dir %{python_sitearch}/samba/kcc
-%{python_sitearch}/samba/kcc/__init__.py*
-%{python_sitearch}/samba/kcc/debug.py*
-%{python_sitearch}/samba/kcc/graph.py*
-%{python_sitearch}/samba/kcc/graph_utils.py*
-%{python_sitearch}/samba/kcc/kcc_utils.py*
-%{python_sitearch}/samba/kcc/ldif_import_export.py*
-%{python_sitearch}/samba/messaging.so
-%{python_sitearch}/samba/ms_display_specifiers.py*
-%{python_sitearch}/samba/ms_schema.py*
-%{python_sitearch}/samba/ndr.py*
-%{python_sitearch}/samba/net.so
-%{python_sitearch}/samba/netbios.so
+
 %dir %{python_sitearch}/samba/netcmd
 %{python_sitearch}/samba/netcmd/__init__.py*
 %{python_sitearch}/samba/netcmd/common.py*
@@ -1979,11 +2047,40 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/netcmd/spn.py*
 %{python_sitearch}/samba/netcmd/testparm.py*
 %{python_sitearch}/samba/netcmd/user.py*
-%{python_sitearch}/samba/ntacls.py*
-%{python_sitearch}/samba/ntstatus.so
-%{python_sitearch}/samba/param.so
-%{python_sitearch}/samba/policy.so
-%{python_sitearch}/samba/posix_eadb.so
+
+%dir %{python_sitearch}/samba/samba3
+%{python_sitearch}/samba/samba3/__init__.py*
+%{python_sitearch}/samba/samba3/libsmb_samba_internal.so
+%{python_sitearch}/samba/samba3/param.so
+%{python_sitearch}/samba/samba3/passdb.so
+%{python_sitearch}/samba/samba3/smbd.so
+
+%dir %{python_sitearch}/samba/subunit
+%{python_sitearch}/samba/subunit/__init__.py*
+%{python_sitearch}/samba/subunit/run.py*
+%{python_sitearch}/samba/tdb_util.py*
+
+%dir %{python_sitearch}/samba/third_party
+%{python_sitearch}/samba/third_party/__init__.py*
+
+%if %{with_dc}
+%files -n python2-%{name}-dc
+%defattr(-,root,root,-)
+%{python_sitearch}/samba/dckeytab.so
+%{python_sitearch}/samba/dnsserver.py*
+%{python_sitearch}/samba/samdb.py*
+%{python_sitearch}/samba/schema.py*
+
+%{python_sitearch}/samba/dcerpc/dnsserver.so
+
+%dir %{python_sitearch}/samba/kcc
+%{python_sitearch}/samba/kcc/__init__.py*
+%{python_sitearch}/samba/kcc/debug.py*
+%{python_sitearch}/samba/kcc/graph.py*
+%{python_sitearch}/samba/kcc/graph_utils.py*
+%{python_sitearch}/samba/kcc/kcc_utils.py*
+%{python_sitearch}/samba/kcc/ldif_import_export.py*
+
 %dir %{python_sitearch}/samba/provision
 %{python_sitearch}/samba/provision/__init__.py*
 %{python_sitearch}/samba/provision/backend.py*
@@ -1991,38 +2088,9 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/provision/kerberos.py*
 %{python_sitearch}/samba/provision/kerberos_implementation.py*
 %{python_sitearch}/samba/provision/sambadns.py*
-%{python_sitearch}/samba/registry.so
-%{python_sitearch}/samba/remove_dc.py*
-%dir %{python_sitearch}/samba/samba3
-%{python_sitearch}/samba/samba3/__init__.py*
-%{python_sitearch}/samba/samba3/libsmb_samba_internal.so
-%{python_sitearch}/samba/samba3/param.so
-%{python_sitearch}/samba/samba3/passdb.so
-%{python_sitearch}/samba/samba3/smbd.so
-%{python_sitearch}/samba/samdb.py*
-%{python_sitearch}/samba/schema.py*
-%{python_sitearch}/samba/sd_utils.py*
-%{python_sitearch}/samba/security.so
-%{python_sitearch}/samba/sites.py*
-%{python_sitearch}/samba/smb.so
-%{python_sitearch}/samba/subnets.py*
-%dir %{python_sitearch}/samba/subunit
-%{python_sitearch}/samba/subunit/__init__.py*
-%{python_sitearch}/samba/subunit/run.py*
-%{python_sitearch}/samba/tdb_util.py*
-%dir %{python_sitearch}/samba/third_party
-%{python_sitearch}/samba/third_party/__init__.py*
-%{python_sitearch}/samba/upgrade.py*
-%{python_sitearch}/samba/upgradehelpers.py*
+
 %dir %{python_sitearch}/samba/web_server
 %{python_sitearch}/samba/web_server/__init__.py*
-%{python_sitearch}/samba/werror.so
-%{python_sitearch}/samba/xattr.py*
-%{python_sitearch}/samba/xattr_native.so
-%{python_sitearch}/samba/xattr_tdb.so
-
-%if %with_dc
-%{python_sitearch}/samba/dckeytab.so
 %endif
 
 %files -n python2-%{name}-test
@@ -2142,13 +2210,10 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/__pycache__/common.*.pyc
 %{python3_sitearch}/samba/__pycache__/compat.*.pyc
 %{python3_sitearch}/samba/__pycache__/descriptor.*.pyc
-%{python3_sitearch}/samba/__pycache__/dnsserver.*.pyc
 %{python3_sitearch}/samba/__pycache__/getopt.*.pyc
 %{python3_sitearch}/samba/__pycache__/hostconfig.*.pyc
 %{python3_sitearch}/samba/__pycache__/idmap.*.pyc
 %{python3_sitearch}/samba/__pycache__/ndr.*.pyc
-%{python3_sitearch}/samba/__pycache__/samdb.*.pyc
-%{python3_sitearch}/samba/__pycache__/schema.*.pyc
 %{python3_sitearch}/samba/__pycache__/sd_utils.*.pyc
 %{python3_sitearch}/samba/__pycache__/tdb_util.*.pyc
 %{python3_sitearch}/samba/__pycache__/xattr.*.pyc
@@ -2170,7 +2235,6 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/dcerpc/dfs.*.so
 %{python3_sitearch}/samba/dcerpc/dns.*.so
 %{python3_sitearch}/samba/dcerpc/dnsp.*.so
-%{python3_sitearch}/samba/dcerpc/dnsserver.*.so
 %{python3_sitearch}/samba/dcerpc/drsblobs.*.so
 %{python3_sitearch}/samba/dcerpc/drsuapi.*.so
 %{python3_sitearch}/samba/dcerpc/echo.*.so
@@ -2198,17 +2262,10 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/dcerpc/wkssvc.*.so
 %{python3_sitearch}/samba/dcerpc/xattr.*.so
 %{python3_sitearch}/samba/descriptor.py
-%{python3_sitearch}/samba/dnsserver.py
 %{python3_sitearch}/samba/gensec.*.so
 %{python3_sitearch}/samba/getopt.py
 %{python3_sitearch}/samba/hostconfig.py
 %{python3_sitearch}/samba/idmap.py
-%dir %{python3_sitearch}/samba/kcc
-%dir %{python3_sitearch}/samba/kcc/__pycache__
-%{python3_sitearch}/samba/kcc/__pycache__/debug.*.pyc
-%{python3_sitearch}/samba/kcc/__pycache__/graph.*.pyc
-%{python3_sitearch}/samba/kcc/debug.py
-%{python3_sitearch}/samba/kcc/graph.py
 %{python3_sitearch}/samba/ndr.py
 %{python3_sitearch}/samba/net.*.so
 %dir %{python3_sitearch}/samba/netcmd
@@ -2226,20 +2283,10 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/netcmd/processes.py
 %{python3_sitearch}/samba/netcmd/spn.py
 %{python3_sitearch}/samba/param.*.so
-%dir %{python3_sitearch}/samba/provision
-%dir %{python3_sitearch}/samba/provision/__pycache__
-%{python3_sitearch}/samba/provision/__pycache__/common.*.pyc
-%{python3_sitearch}/samba/provision/__pycache__/kerberos.*.pyc
-%{python3_sitearch}/samba/provision/__pycache__/kerberos_implementation.*.pyc
-%{python3_sitearch}/samba/provision/common.py
-%{python3_sitearch}/samba/provision/kerberos.py
-%{python3_sitearch}/samba/provision/kerberos_implementation.py
 %dir %{python3_sitearch}/samba/samba3
 %{python3_sitearch}/samba/samba3/__init__.py
 %dir %{python3_sitearch}/samba/samba3/__pycache__
 %{python3_sitearch}/samba/samba3/__pycache__/__init__.*.pyc
-%{python3_sitearch}/samba/samdb.py
-%{python3_sitearch}/samba/schema.py
 %{python3_sitearch}/samba/sd_utils.py
 %dir %{python3_sitearch}/samba/subunit
 %{python3_sitearch}/samba/subunit/__init__.py
@@ -2248,6 +2295,38 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/subunit/__pycache__/run.*.pyc
 %{python3_sitearch}/samba/subunit/run.py
 %{python3_sitearch}/samba/tdb_util.py
+
+%if %{with_dc}
+%files -n python3-%{name}-dc
+%defattr(-,root,root,-)
+%{python3_sitearch}/samba/samdb.py
+%{python3_sitearch}/samba/schema.py
+
+%{python3_sitearch}/samba/__pycache__/dnsserver.*.pyc
+%{python3_sitearch}/samba/__pycache__/samdb.*.pyc
+%{python3_sitearch}/samba/__pycache__/schema.*.pyc
+
+%{python3_sitearch}/samba/dcerpc/dnsserver.*.so
+
+%dir %{python3_sitearch}/samba/kcc
+%{python3_sitearch}/samba/kcc/debug.py
+%{python3_sitearch}/samba/kcc/graph.py
+%{python3_sitearch}/samba/dnsserver.py
+
+%dir %{python3_sitearch}/samba/kcc/__pycache__
+%{python3_sitearch}/samba/kcc/__pycache__/debug.*.pyc
+%{python3_sitearch}/samba/kcc/__pycache__/graph.*.pyc
+
+%dir %{python3_sitearch}/samba/provision
+%{python3_sitearch}/samba/provision/common.py
+%{python3_sitearch}/samba/provision/kerberos.py
+%{python3_sitearch}/samba/provision/kerberos_implementation.py
+
+%dir %{python3_sitearch}/samba/provision/__pycache__
+%{python3_sitearch}/samba/provision/__pycache__/common.*.pyc
+%{python3_sitearch}/samba/provision/__pycache__/kerberos.*.pyc
+%{python3_sitearch}/samba/provision/__pycache__/kerberos_implementation.*.pyc
+%endif
 
 %files -n python3-%{name}-test
 %defattr(-,root,root,-)
@@ -2416,7 +2495,6 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/tests/xattr.py
 %dir %{python3_sitearch}/samba/web_server
 %{python3_sitearch}/samba/xattr.py
-
 
 ### TEST
 %files test
@@ -3286,6 +3364,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Oct 26 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-16
+- Create python[2|3]-samba-dc packages
+
 * Wed Oct 25 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-15
 - related: #1499140 - Fix several dependency issues
 - Fix building with MIT Kerberos 1.16
