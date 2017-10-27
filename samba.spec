@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 16
+%define main_release 17
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.10
@@ -1039,6 +1039,8 @@ for i in \
     %{_libdir}/samba/ldb/ldbsamba_extensions.so \
     %{python_sitearch}/samba/dcerpc/dnsserver.so \
     %{python_sitearch}/samba/dnsserver.py* \
+    %{python_sitearch}/samba/dsdb.so \
+    %{python_sitearch}/samba/dsdb_dns.so \
     %{python_sitearch}/samba/samdb.py* \
     %{python_sitearch}/samba/schema.py* \
     %{python_sitearch}/samba/kcc/__init__.py* \
@@ -1957,8 +1959,6 @@ rm -rf %{buildroot}
 %{python_sitearch}/samba/dbchecker.py*
 %{python_sitearch}/samba/descriptor.py*
 %{python_sitearch}/samba/drs_utils.py*
-%{python_sitearch}/samba/dsdb.so
-%{python_sitearch}/samba/dsdb_dns.so
 %{python_sitearch}/samba/gensec.so
 %{python_sitearch}/samba/getopt.py*
 %{python_sitearch}/samba/hostconfig.py*
@@ -2067,6 +2067,8 @@ rm -rf %{buildroot}
 %files -n python2-%{name}-dc
 %defattr(-,root,root,-)
 %{python_sitearch}/samba/dckeytab.so
+%{python_sitearch}/samba/dsdb.so
+%{python_sitearch}/samba/dsdb_dns.so
 %{python_sitearch}/samba/dnsserver.py*
 %{python_sitearch}/samba/samdb.py*
 %{python_sitearch}/samba/schema.py*
@@ -3364,6 +3366,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Oct 27 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-17
+- Move dsdb libs to python2-samba-dc
+
 * Thu Oct 26 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-16
 - Create python[2|3]-samba-dc packages
 
