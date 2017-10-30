@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 17
+%define main_release 18
 
 %define samba_version 4.7.0
 %define talloc_version 2.1.10
@@ -341,6 +341,10 @@ Requires: python2
 Requires: python2-%{name} = %{samba_depver}
 Requires: python2-%{name}-dc = %{samba_depver}
 Requires: python2-crypto
+# Force using libldb version to be the same as build version
+# Otherwise LDB modules will not be loaded and samba-tool will fail
+# See bug 1507420
+%requires_eq libldb
 
 ### Note that samba-dc right now cannot be used with Python 3
 ### so we should make sure it does use python2 explicitly
@@ -3366,6 +3370,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Oct 30 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-18
+- Force samba-dc to use the same libldb version as LDB modules compiled
+- resolves: #1507420 - LDB / Samba module version mismatch
+
 * Fri Oct 27 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-17
 - Move dsdb libs to python2-samba-dc
 
