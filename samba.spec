@@ -2424,6 +2424,7 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/tests/dcerpc/string.py
 %{python3_sitearch}/samba/tests/dns_forwarder_helpers
 %{python3_sitearch}/samba/tests/dns_tkey.py
+%{python3_sitearch}/samba/tests/dns_wildcard.py
 %{python3_sitearch}/samba/tests/dsdb.py
 %{python3_sitearch}/samba/tests/dsdb_schema_attributes.py
 %{python3_sitearch}/samba/tests/gensec.py
