@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 18
+%define main_release 0
 
-%define samba_version 4.7.0
+%define samba_version 4.7.1
 %define talloc_version 2.1.10
 %define tdb_version 1.3.15
 %define tevent_version 0.9.33
@@ -2141,6 +2141,7 @@ rm -rf %{buildroot}
 %dir %{python_sitearch}/samba/tests/dns_forwarder_helpers
 %{python_sitearch}/samba/tests/dns_forwarder_helpers/server.py*
 %{python_sitearch}/samba/tests/dns_tkey.py*
+%{python_sitearch}/samba/tests/dns_wildcard.py*
 %{python_sitearch}/samba/tests/docs.py*
 %{python_sitearch}/samba/tests/dsdb.py*
 %{python_sitearch}/samba/tests/dsdb_schema_attributes.py*
@@ -2349,6 +2350,7 @@ rm -rf %{buildroot}
 %{python3_sitearch}/samba/tests/__pycache__/core.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/credentials.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dns_tkey.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/dns_wildcard.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dsdb.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dsdb_schema_attributes.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/gensec.*.pyc
@@ -3313,6 +3315,8 @@ rm -rf %{buildroot}
 %{_datadir}/ctdb/tests/tool/ctdb.ping.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.pnn.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.process-exists.001.sh
+%{_datadir}/ctdb/tests/tool/ctdb.process-exists.002.sh
+%{_datadir}/ctdb/tests/tool/ctdb.process-exists.003.sh
 %{_datadir}/ctdb/tests/tool/ctdb.recmaster.001.sh
 %{_datadir}/ctdb/tests/tool/ctdb.recmaster.002.sh
 %{_datadir}/ctdb/tests/tool/ctdb.recover.001.sh
@@ -3370,6 +3374,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Nov 02 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.1-0
+- resolves: #1508871 - Update to Samba 4.7.1
+
 * Mon Oct 30 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-18
 - Force samba-dc to use the same libldb version as LDB modules compiled
 - resolves: #1507420 - LDB / Samba module version mismatch
