@@ -76,7 +76,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -717,7 +717,6 @@ Summary: A Clustered Database based on Samba's Trivial Database (TDB)
 Requires: %{name}-client-libs = %{samba_depver}
 
 Requires: coreutils
-Requires: fileutils
 # for ps and killall
 Requires: psmisc
 Requires: sed
@@ -3375,6 +3374,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.7.1-0.1
+- Remove old crufty coreutils requires
+
 * Thu Nov 02 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.1-0
 - resolves: #1508871 - Update to Samba 4.7.1
 
