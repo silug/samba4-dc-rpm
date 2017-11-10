@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.7.1
 %define talloc_version 2.1.10
@@ -32,14 +32,14 @@
 %global with_profiling 1
 
 %global with_vfs_cephfs 0
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 %ifarch aarch64 ppc64le s390x x86_64
 %global with_vfs_cephfs 1
 %endif
 %endif
 
 %global with_vfs_glusterfs 1
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 %global with_vfs_glusterfs 0
 # Only enable on x86_64
 %ifarch x86_64
@@ -56,7 +56,7 @@
 %global with_mitkrb5 1
 %global with_dc 1
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 %global with_dc 0
 %endif
 
@@ -3374,6 +3374,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Nov 10 2017 Merlin Mathesius <mmathesi@redhat.com> - 4.7.1-1
+- Cleanup spec file conditionals
+
 * Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.7.1-0.1
 - Remove old crufty coreutils requires
 
