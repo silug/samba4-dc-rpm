@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 2
 
 %define samba_version 4.7.1
 %define talloc_version 2.1.10
@@ -76,7 +76,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3374,7 +3374,10 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
-* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.7.1-0.1
+* Mon Nov 13 2017 Andreas Schneider <asn@redhat.com> - 4.7.1-2
+- Fix release number
+
+* Tue Nov 07 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.7.1-1
 - Remove old crufty coreutils requires
 
 * Thu Nov 02 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.1-0
