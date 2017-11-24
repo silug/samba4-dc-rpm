@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.7.3
 %define talloc_version 2.1.10
@@ -45,6 +45,11 @@
 %ifarch x86_64
 %global with_vfs_glusterfs 1
 %endif
+%endif
+
+%global with_intel_aes_accel 0
+%ifarch x86_64
+%global with_intel_aes_accel 1
 %endif
 
 %global libwbc_alternatives_version 0.14
@@ -839,6 +844,9 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %if %{with testsuite}
         --enable-selftest \
 %endif
+%if %with_intel_aes_accel
+        --accel-aes=intelaesni \
+%endif
         --with-systemd \
         --extra-python=%{__python3}
 
@@ -1567,6 +1575,9 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 # common libraries
 %{_libdir}/samba/libpopt-samba3-samba4.so
+%if %{with_intel_aes_accel}
+%{_libdir}/samba/libaesni-intel-samba4.so
+%endif
 
 %dir %{_libdir}/samba/ldb
 
@@ -3374,6 +3385,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Nov 23 2017 Bastien Nocera <bnocera@redhat.com> - 4.7.3-1
+- Enable AES acceleration on Intel compatible CPUs by default
+
 * Tue Nov 21 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.3-0
 - Update to Samba 4.7.3
 - resolves: #1515692 - Security fix for CVE-2017-14746 and CVE-2017-15275
