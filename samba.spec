@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.7.3
 %define talloc_version 2.1.10
@@ -116,6 +116,7 @@ Source201: README.downgrade
 
 Patch0: samba-4.7.0-bind_dlz.patch
 Patch1: samba-4.7.0-support-krb5-1.16.patch
+Patch2: samba-4.7-fix_samba_with_systemd.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3385,6 +3386,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Thu Nov 30 2017 Andreas Schneider <asn@redhat.com> - 4.7.3-2
+- Fix deamon startup with systemd
+
 * Thu Nov 23 2017 Bastien Nocera <bnocera@redhat.com> - 4.7.3-1
 - Enable AES acceleration on Intel compatible CPUs by default
 
