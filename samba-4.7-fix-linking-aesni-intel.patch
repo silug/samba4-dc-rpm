@@ -1,0 +1,38 @@
+From 0f6d676a74818fc1a3d59c2238bd3752470fdc40 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Baumbach?= <bb@sernet.de>
+Date: Mon, 4 Dec 2017 10:49:19 +0100
+Subject: [PATCH] third_party: Link th aesni-intel library with -z noexecstack
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13174
+
+Signed-off-by: Björn Baumbach <bb@sernet.de>
+Reviewed-by: Andreas Schneider <asn@samba.org>
+---
+ third_party/aesni-intel/wscript | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/third_party/aesni-intel/wscript b/third_party/aesni-intel/wscript
+index eb92d6626fe..f11cf9446a2 100644
+--- a/third_party/aesni-intel/wscript
++++ b/third_party/aesni-intel/wscript
+@@ -12,6 +12,8 @@ def configure(conf):
+                 raise Utils.WafError('--aes-accel=intelaesni selected and non x86_64 CPU')
+         else:
+             raise Utils.WafError('--aes-accel=intelaesni selected and compiler rejects -Wp,-E,-lang-asm')
++        if not conf.CHECK_LDFLAGS('-z noexecstack'):
++            raise Utils.WafError('--aes-accel=intelaesni selected and linker rejects -z noexecstack')
+ 
+ def build(bld):
+     if not bld.CONFIG_SET('HAVE_AESNI_INTEL'):
+@@ -20,4 +22,5 @@ def build(bld):
+     bld.SAMBA_LIBRARY('aesni-intel',
+         source='aesni-intel_asm.c',
+         cflags='-Wp,-E,-lang-asm',
++        ldflags='-z noexecstack',
+         private_library=True)
+-- 
+2.15.0
+
