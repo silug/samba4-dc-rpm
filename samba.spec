@@ -3431,7 +3431,7 @@ rm -rf %{buildroot}
 - resolves: #1499140 - Move libdfs-server-ad to the correct subpackage
 
 * Fri Oct 06 2017 Alexander Bokovoy <abokovoy@redhat.com> - 4.7.0-13
-- Move %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so to %{name}-dc-libs
+- Move /usr/lib{64,}/samba/libdsdb-garbage-collect-tombstones-samba4.so to samba-dc-libs
 - Rebuild in rawhide against new krb5 1.16 and docbook-xml
 
 * Thu Sep 21 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.0-12
