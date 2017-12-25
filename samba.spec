@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 0
 
-%define samba_version 4.7.3
+%define samba_version 4.7.4
 %define talloc_version 2.1.10
 %define tdb_version 1.3.15
 %define tevent_version 0.9.34
@@ -3387,6 +3387,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Dec 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.4-0
+- Update to Samba 4.7.4
+
 * Mon Dec 04 2017 Andreas Schneider <asn@redhat.com> - 4.7.3-3
 - resolves: #1520163 - Link libaesni-intel-samba4.so with -z noexecstack
 
