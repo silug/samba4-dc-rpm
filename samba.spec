@@ -282,6 +282,7 @@ of SMB/CIFS shares and printing to SMB/CIFS printers.
 Summary: Samba client libraries
 Requires(pre): %{name}-common = %{samba_depver}
 Requires: %{name}-common = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
