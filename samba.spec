@@ -189,6 +189,7 @@ BuildRequires: python3-iso8601
 BuildRequires: python3-subunit
 BuildRequires: quota-devel
 BuildRequires: readline-devel
+BuildRequires: rpcgen
 BuildRequires: sed
 BuildRequires: xfsprogs-devel
 BuildRequires: xz
