@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.7.4
 %define talloc_version 2.1.10
@@ -341,6 +341,8 @@ Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
+# samb-tool needs tdbbackup
+Requires: tdb-tools
 %if %{with_dc}
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
@@ -3386,6 +3388,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Jan 08 2018 Andreas Schneider <asn@redhat.com> - 4.7.4-1
+- resolves: #1508092 - Add missing dependency for tdbbackup
+
 * Mon Dec 25 2017 Guenther Deschner <gdeschner@redhat.com> - 4.7.4-0
 - Update to Samba 4.7.4
 
