@@ -1,0 +1,28 @@
+From ebae8df5e4b955f235cdeb629e99d32d35766d65 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 15 Jan 2018 23:20:39 +0100
+Subject: [PATCH] FIXME: build: fix libceph-common detection
+
+Guenther
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+---
+ source3/wscript | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/source3/wscript b/source3/wscript
+index 0f8fe5452da..4eba0103be8 100644
+--- a/source3/wscript
++++ b/source3/wscript
+@@ -1540,6 +1540,8 @@ main() {
+         conf.env['CPPPATH_CEPHFS'] = Options.options.libcephfs_dir + '/include'
+         conf.env['LIBPATH_CEPHFS'] = Options.options.libcephfs_dir + '/lib'
+         conf.env['LIBPATH_CEPH-COMMON'] = Options.options.libcephfs_dir + '/lib/ceph'
++    else:
++        conf.env['LIBPATH_CEPH-COMMON'] = Options.options.LIBDIR + '/ceph'
+ 
+     if (Options.options.with_cephfs and
+         conf.CHECK_HEADERS('cephfs/libcephfs.h', False, False, 'cephfs') and
+-- 
+2.14.3
+
