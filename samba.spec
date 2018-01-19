@@ -119,6 +119,7 @@ Source201: README.downgrade
 Patch1: samba-4.7.0-support-krb5-1.16.patch
 Patch2: samba-4.8.0-python.patch
 Patch3: samba-4.8.0-ceph.patch
+Patch4: samba-4.8.0-build.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -169,6 +170,7 @@ BuildRequires: libarchive-devel
 BuildRequires: libattr-devel
 BuildRequires: libcap-devel
 BuildRequires: libcmocka-devel
+BuildRequires: libtirpc-devel
 BuildRequires: libuuid-devel
 BuildRequires: libxslt
 BuildRequires: ncurses-devel
@@ -193,6 +195,7 @@ BuildRequires: python3-subunit
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: rpcgen
+BuildRequires: rpcsvc-proto
 BuildRequires: sed
 BuildRequires: xfsprogs-devel
 BuildRequires: xz
