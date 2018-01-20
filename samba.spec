@@ -83,7 +83,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3546,6 +3546,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 2:4.8.0-0.1.rc1.1
+- Rebuilt for switch to libxcrypt
+
 * Mon Jan 15 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0rc1-1
 - Update to Samba 4.8.0rc1
 
