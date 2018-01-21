@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.8.0
 %define talloc_version 2.1.11
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.35
 %define ldb_version 1.3.1
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -125,7 +125,6 @@ Source201: README.downgrade
 Patch1: samba-4.7.0-support-krb5-1.16.patch
 Patch2: samba-4.8.0-python.patch
 Patch3: samba-4.8.0-ceph.patch
-Patch4: samba-4.8.0-build.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -176,6 +175,7 @@ BuildRequires: libarchive-devel
 BuildRequires: libattr-devel
 BuildRequires: libcap-devel
 BuildRequires: libcmocka-devel
+BuildRequires: libnsl2-devel
 BuildRequires: libtirpc-devel
 BuildRequires: libuuid-devel
 BuildRequires: libxslt
@@ -824,6 +824,9 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %endif
 
 %global _samba_private_libraries %{_libsmbclient}%{_libwbclient}
+
+# TODO: resolve underlinked python modules
+export python_LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//g')"
 
 %configure \
         --enable-fhs \
@@ -3552,6 +3555,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Jan 26 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0rc2-3
+- Update to Samba 4.8.0rc2
+
 * Sun Jan 21 2018 Björn Esser <besser82@fedoraproject.org> - 2:4.8.0-0.2.rc1
 - Explicitly BR: rpcsvc-proto-devel
 
