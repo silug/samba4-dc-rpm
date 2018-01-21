@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.8.0
 %define talloc_version 2.1.11
@@ -83,7 +83,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -195,7 +195,7 @@ BuildRequires: python3-subunit
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: rpcgen
-BuildRequires: rpcsvc-proto
+BuildRequires: rpcsvc-proto-devel
 BuildRequires: sed
 BuildRequires: xfsprogs-devel
 BuildRequires: xz
@@ -3546,6 +3546,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Sun Jan 21 2018 Björn Esser <besser82@fedoraproject.org> - 2:4.8.0-0.2.rc1
+- Explicitly BR: rpcsvc-proto-devel
+
 * Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 2:4.8.0-0.1.rc1.1
 - Rebuilt for switch to libxcrypt
 
