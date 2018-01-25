@@ -25,6 +25,12 @@
 # This is a network daemon, do a hardened build
 # Enables PIE and full RELRO protection
 %global _hardened_build 1
+# Samba cannot be linked with -Wl,-z,defs (from hardened build config)
+# For exmple the samba-cluster-support library is marked to allow undefined
+# symbols in the samba build.
+#
+# https://src.fedoraproject.org/rpms/redhat-rpm-config/blob/master/f/buildflags.md
+%undefine _strict_symbol_defs_build
 
 %global with_libsmbclient 1
 %global with_libwbclient 1
@@ -818,11 +824,6 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %endif
 
 %global _samba_private_libraries %{_libsmbclient}%{_libwbclient}
-
-# Samba cannot be linked with -Wl,-z,defs (from hardened build config)
-# For exmple the samba-cluster-support library is marked to allow undefined
-# symbols in the samba build.
-export LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//')"
 
 %configure \
         --enable-fhs \
