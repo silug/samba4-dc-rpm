@@ -819,6 +819,11 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 
 %global _samba_private_libraries %{_libsmbclient}%{_libwbclient}
 
+# Samba cannot be linked with -Wl,-z,defs (from hardened build config)
+# For exmple the samba-cluster-support library is marked to allow undefined
+# symbols in the samba build.
+export LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//')"
+
 %configure \
         --enable-fhs \
         --with-piddir=/run \
