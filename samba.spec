@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3555,6 +3555,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.8.0-0.3.rc2.1
+- Escape macros in %%changelog
+
 * Fri Jan 26 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0rc2-3
 - Update to Samba 4.8.0rc2
 
@@ -3666,7 +3669,7 @@ rm -rf %{buildroot}
 
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.4.rc1
 - Add python3 support
-- Fix %posttrans for libwbclient-devel
+- Fix %%posttrans for libwbclient-devel
 
 * Thu Jul 06 2017 Andreas Schneider <asn@redhat.com> - 4.7.0-0.3.rc1
 - Do not install conflicting file _ldb_text.py
