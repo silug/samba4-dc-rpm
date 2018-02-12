@@ -1362,6 +1362,7 @@ rm -rf %{buildroot}
 %{_libdir}/samba/vfs/syncops.so
 %{_libdir}/samba/vfs/time_audit.so
 %{_libdir}/samba/vfs/unityed_media.so
+%{_libdir}/samba/vfs/virusfilter.so
 %{_libdir}/samba/vfs/worm.so
 %{_libdir}/samba/vfs/xattr_tdb.so
 
@@ -1414,6 +1415,7 @@ rm -rf %{buildroot}
 %{_mandir}/man8/vfs_time_audit.8*
 %{_mandir}/man8/vfs_tsmsm.8*
 %{_mandir}/man8/vfs_unityed_media.8*
+%{_mandir}/man8/vfs_virusfilter.8*
 %{_mandir}/man8/vfs_worm.8*
 %{_mandir}/man8/vfs_xattr_tdb.8*
 
