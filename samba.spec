@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.8.0
 %define talloc_version 2.1.11
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.35
 %define ldb_version 1.3.1
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -123,7 +123,6 @@ Source200: README.dc
 Source201: README.downgrade
 
 Patch1: samba-4.7.0-support-krb5-1.16.patch
-Patch2: samba-4.8.0-python.patch
 Patch3: samba-4.8.0-ceph.patch
 
 Requires(pre): /usr/sbin/groupadd
@@ -3555,6 +3554,9 @@ rm -rf %{buildroot}
 %endif # with_clustering_support
 
 %changelog
+* Mon Feb 12 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0rc3-4
+- Update to Samba 4.8.0rc3
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.8.0-0.3.rc2.1
 - Escape macros in %%changelog
 
