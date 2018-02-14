@@ -1301,9 +1301,6 @@ fi
 %endif
 
 
-%clean
-rm -rf %{buildroot}
-
 ### SAMBA
 %files
 %defattr(-,root,root,-)
