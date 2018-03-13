@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 6
 
 %define samba_version 4.8.0
 %define talloc_version 2.1.11
@@ -121,6 +121,8 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
+
+Patch0:    samba-4.8.0-nc_in_ctdb_tests.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -769,7 +771,7 @@ Summary: CTDB clustered database test suite
 Requires: samba-client-libs = %{samba_depver}
 
 Requires: ctdb = %{samba_depver}
-Requires: nc
+Recommends: nc
 
 Provides: ctdb-devel = %{samba_depver}
 Obsoletes: ctdb-devel < %{samba_depver}
@@ -3550,6 +3552,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Mar 13 2018 Andreas Schneider <asn@redhat.com> - 4.8.0rc4-6
+- resolves: #1552652 - Fix usage of nc in ctdb tests and only recommned it
+
 * Fri Mar 02 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0rc4-5
 - Update to Samba 4.8.0rc4
 
