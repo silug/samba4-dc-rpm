@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 6
+%define main_release 7
 
 %define samba_version 4.8.0
 %define talloc_version 2.1.11
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.36
 %define ldb_version 1.3.2
 # This should be rc1 or nil
-%define pre_release rc4
+%define pre_release %nil
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -3552,6 +3552,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 14 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0-7
+- resolves: #1554754, #1554756 - Security fixes for CVE-2018-1050 CVE-2018-1057
+- resolves: #1555112 - Update to Samba 4.8.0
+
 * Tue Mar 13 2018 Andreas Schneider <asn@redhat.com> - 4.8.0rc4-6
 - resolves: #1552652 - Fix usage of nc in ctdb tests and only recommned it
 
