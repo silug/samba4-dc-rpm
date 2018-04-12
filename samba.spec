@@ -1065,6 +1065,7 @@ for i in \
     %{_mandir}/man8/samba_gpoupdate.8 \
     %{_libdir}/samba/ldb/ildap.so \
     %{_libdir}/samba/ldb/ldbsamba_extensions.so \
+    %{_unitdir}/samba.service \
     %{python_sitearch}/samba/dcerpc/dnsserver.so \
     %{python_sitearch}/samba/dnsserver.py* \
     %{python_sitearch}/samba/domain_update.py* \
