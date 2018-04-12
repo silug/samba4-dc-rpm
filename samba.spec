@@ -107,7 +107,7 @@ Summary:        Server and Client software to interoperate with Windows machines
 License:        GPLv3+ and LGPLv3+
 URL:            http://www.samba.org/
 
-# This is a xz recompressed file of https://ftp.samba.org/pub/samba/samba-%{version}%{pre_release}.tar.gz
+# This is a xz recompressed file of https://ftp.samba.org/pub/samba/samba-%%{version}%%{pre_release}.tar.gz
 Source0:        samba-%{version}%{pre_release}.tar.xz
 Source1:        https://ftp.samba.org/pub/samba/samba-%{version}%{pre_release}.tar.asc
 Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
