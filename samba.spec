@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 7
+%define main_release 0
 
-%define samba_version 4.8.0
+%define samba_version 4.8.1
 %define talloc_version 2.1.11
 %define tdb_version 1.3.15
 %define tevent_version 0.9.36
@@ -121,8 +121,6 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0:    samba-4.8.0-nc_in_ctdb_tests.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3553,6 +3551,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Apr 26 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.1-0
+- Update to Samba 4.8.1
+
 * Wed Mar 14 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.0-7
 - resolves: #1554754, #1554756 - Security fixes for CVE-2018-1050 CVE-2018-1057
 - resolves: #1555112 - Update to Samba 4.8.0
