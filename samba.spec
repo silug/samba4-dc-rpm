@@ -122,6 +122,8 @@ Source14: samba.pamd
 Source200: README.dc
 Source201: README.downgrade
 
+Patch0: samba-4.8.2-fix_smbspool_cmdline.patch
+
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
 Requires(preun): systemd
@@ -3551,6 +3553,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed May 09 2018 Andreas Schneider <asn@redhat.com> - 4.8.1-1
+- resolves: #1574177 - Fix smbspool command line argument handling
+
 * Thu Apr 26 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.1-0
 - Update to Samba 4.8.1
 
