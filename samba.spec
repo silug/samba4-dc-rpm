@@ -8,11 +8,11 @@
 
 %define main_release 1
 
-%define samba_version 4.8.1
+%define samba_version 4.8.2
 %define talloc_version 2.1.11
 %define tdb_version 1.3.15
 %define tevent_version 0.9.36
-%define ldb_version 1.3.2
+%define ldb_version 1.3.3
 # This should be rc1 or nil
 %define pre_release %nil
 
@@ -121,8 +121,6 @@ Source14: samba.pamd
 
 Source200: README.dc
 Source201: README.downgrade
-
-Patch0: samba-4.8.2-fix_smbspool_cmdline.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3553,6 +3551,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed May 16 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.2-0
+- Update to Samba 4.8.2
+
 * Wed May 09 2018 Andreas Schneider <asn@redhat.com> - 4.8.1-1
 - resolves: #1574177 - Fix smbspool command line argument handling
 
