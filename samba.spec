@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3551,6 +3551,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2:4.8.2-1.1
+- Rebuilt for Python 3.7
+
 * Wed May 16 2018 Guenther Deschner <gdeschner@redhat.com> - 4.8.2-0
 - Update to Samba 4.8.2
 
