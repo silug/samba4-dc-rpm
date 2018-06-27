@@ -824,6 +824,9 @@ xzcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 # TODO: resolve underlinked python modules
 export python_LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//g')"
 
+# Use the gold linker
+export LDFLAGS="%{__global_ldflags} -fuse-ld=gold"
+
 %configure \
         --enable-fhs \
         --with-piddir=/run \
