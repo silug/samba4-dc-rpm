@@ -8,7 +8,7 @@
 
 %define main_release 1
 
-%define samba_version 4.8.2
+%define samba_version 4.8.3
 %define talloc_version 2.1.11
 %define tdb_version 1.3.15
 %define tevent_version 0.9.36
@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -113,14 +113,16 @@ Source1:        https://ftp.samba.org/pub/samba/samba-%{version}%{pre_release}.t
 Source2:        gpgkey-52FBC0B86D954B0843324CDC6F33915B6568B7EA.gpg
 
 # Red Hat specific replacement-files
-Source10: samba.log
-Source11: smb.conf.vendor
-Source12: smb.conf.example
-Source13: pam_winbind.conf
-Source14: samba.pamd
+Source10:       samba.log
+Source11:       smb.conf.vendor
+Source12:       smb.conf.example
+Source13:       pam_winbind.conf
+Source14:       samba.pamd
 
-Source200: README.dc
-Source201: README.downgrade
+Source200:      README.dc
+Source201:      README.downgrade
+
+Patch0:         samba-4.8.3-fix_krb5_plugins.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -188,12 +190,10 @@ BuildRequires: python2-dns
 # Add python2-iso8601 to avoid that the
 # version in Samba is being packaged
 BuildRequires: python2-iso8601
-BuildRequires: python2-subunit
 BuildRequires: python3-devel
 # Add python3-iso8601 to avoid that the
 # version in Samba is being packaged
 BuildRequires: python3-iso8601
-BuildRequires: python3-subunit
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: rpcgen
@@ -1049,7 +1049,7 @@ install -d -m 0755 %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/
 install -m 0755 packaging/NetworkManager/30-winbind-systemd \
             %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
 
-# winbind krb5 locator
+# winbind krb5 plugins
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
 touch %{buildroot}%{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 
@@ -1268,18 +1268,18 @@ fi
 
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
-        if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/winbind_krb5_locator.so" ]; then
-                %{_sbindir}/update-alternatives --set winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so
+        if [ "`readlink %{_sysconfdir}/alternatives/winbind_krb5_locator.so`" == "%{_libdir}/samba/krb5/winbind_krb5_locator.so" ]; then
+                %{_sbindir}/update-alternatives --set winbind_krb5_locator.so %{_libdir}/samba/krb5/winbind_krb5_locator.so
         fi
 fi
 
 %post winbind-krb5-locator
 %{_sbindir}/update-alternatives --install %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so \
-                                winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so 10
+                                winbind_krb5_locator.so %{_libdir}/samba/krb5/winbind_krb5_locator.so 10
 
 %preun winbind-krb5-locator
 if [ $1 -eq 0 ]; then
-        %{_sbindir}/update-alternatives --remove winbind_krb5_locator.so %{_libdir}/winbind_krb5_locator.so
+        %{_sbindir}/update-alternatives --remove winbind_krb5_locator.so %{_libdir}/samba/krb5/winbind_krb5_locator.so
 fi
 
 %post winbind-modules -p /sbin/ldconfig
@@ -2707,15 +2707,17 @@ fi
 %defattr(-,root,root)
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
+%{_libdir}/samba/krb5/winbind_krb5_localauth.so
 %{_mandir}/man1/ntlm_auth.1.gz
 %{_mandir}/man1/wbinfo.1*
+%{_mandir}/man8/winbind_krb5_localauth.8*
 
 ### WINBIND-KRB5-LOCATOR
 %files winbind-krb5-locator
 %defattr(-,root,root)
 %ghost %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
-%{_libdir}/winbind_krb5_locator.so
-%{_mandir}/man7/winbind_krb5_locator.7*
+%{_libdir}/samba/krb5/winbind_krb5_locator.so
+%{_mandir}/man8/winbind_krb5_locator.8*
 
 ### WINBIND-MODULES
 %files winbind-modules
@@ -3551,6 +3553,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Jun 26 2018 Andreas Schneider <asn@redhat.com> - 4.8.3-1
+- Update to Samba 4.8.3
+- Remove python(2|3)-subunit dependency
+
 * Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2:4.8.2-1.1
 - Rebuilt for Python 3.7
 
