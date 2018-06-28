@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3556,6 +3556,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Jun 28 2018 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.8.3-1.1
+- Perl 5.28 rebuild
+
 * Tue Jun 26 2018 Andreas Schneider <asn@redhat.com> - 4.8.3-1
 - Update to Samba 4.8.3
 - Remove python(2|3)-subunit dependency
