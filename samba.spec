@@ -531,6 +531,7 @@ library.
 Summary: Samba Python libraries
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: python2-tevent
 Requires: python2-tdb
@@ -571,6 +572,7 @@ to manage Samba AD.
 Summary: Samba Python3 libraries
 Requires: %{name} = %{samba_depver}
 Requires: %{name}-client-libs = %{samba_depver}
+Requires: %{name}-common-libs = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: python3-talloc
 Requires: python3-tevent
