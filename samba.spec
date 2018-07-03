@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.2
+Release:        %{samba_release}.3
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3556,6 +3556,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Jul 03 2018 Petr Pisar <ppisar@redhat.com>
+- Perl 5.28 rebuild
+
 * Mon Jul 02 2018 Miro Hrončok <mhroncok@redhat.com> - 2:4.8.3-1.2
 - Rebuilt for Python 3.7
 
