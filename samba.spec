@@ -882,9 +882,10 @@ make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
+export PYTHON=%{__python2}
+
 make %{?_smp_mflags} install DESTDIR=%{buildroot}
 
-export PYTHON=%{__python2}
 # Workaround: make sure all general Python shebangs are pointing to Python 2
 # otherwise it will not work when default python is different from Python 2.
 # Samba tools aren't ready for Python 3 yet.
