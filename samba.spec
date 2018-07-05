@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.8.3
 %define talloc_version 2.1.11
@@ -83,13 +83,13 @@
 %global with_clustering_support 1
 %endif
 
-%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+%{!?python_sitearch: %define python_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 %global _systemd_extra "Environment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba"
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.3
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -826,6 +826,8 @@ export python_LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//g')"
 
 # Use the gold linker
 export LDFLAGS="%{__global_ldflags} -fuse-ld=gold"
+
+export PYTHON=%{__python2}
 
 %configure \
         --enable-fhs \
@@ -3556,6 +3558,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 05 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-2
+- Fix rawhide build by explicitly using /usr/bin/python2
+
 * Tue Jul 03 2018 Petr Pisar <ppisar@redhat.com>
 - Perl 5.28 rebuild
 
