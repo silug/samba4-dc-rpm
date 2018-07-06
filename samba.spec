@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3559,6 +3559,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Fri Jul 06 2018 Petr Pisar <ppisar@redhat.com>
+- Perl 5.28 rebuild
+
 * Thu Jul 05 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-2
 - Fix rawhide build by explicitly using /usr/bin/python2
 
