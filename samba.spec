@@ -1307,7 +1307,6 @@ fi
 
 ### SAMBA
 %files
-%defattr(-,root,root,-)
 %license COPYING
 %doc README WHATSNEW.txt
 %doc examples/autofs examples/LDAP examples/misc
@@ -1432,7 +1431,6 @@ fi
 
 ### CLIENT
 %files client
-%defattr(-,root,root)
 %{_bindir}/cifsdd
 %{_bindir}/dbwrap_tool
 %{_bindir}/findsmb
@@ -1483,7 +1481,6 @@ fi
 
 ### CLIENT-LIBS
 %files client-libs
-%defattr(-,root,root)
 %{_libdir}/libdcerpc-binding.so.*
 %{_libdir}/libndr.so.*
 %{_libdir}/libndr-krb5pac.so.*
@@ -1586,7 +1583,6 @@ fi
 
 ### COMMON
 %files common
-%defattr(-,root,root)
 %{_tmpfilesdir}/samba.conf
 %dir %{_sysconfdir}/logrotate.d/
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
@@ -1609,7 +1605,6 @@ fi
 
 ### COMMON-libs
 %files common-libs
-%defattr(-,root,root)
 # common libraries
 %{_libdir}/samba/libpopt-samba3-samba4.so
 %if %{with_intel_aes_accel}
@@ -1624,7 +1619,6 @@ fi
 %{_libdir}/samba/pdb/tdbsam.so
 
 %files common-tools
-%defattr(-,root,root)
 %{_bindir}/net
 %{_bindir}/pdbedit
 %{_bindir}/profiles
@@ -1640,7 +1634,6 @@ fi
 
 ### DC
 %files dc
-%defattr(-,root,root)
 
 %if %with_dc
 %{_unitdir}/samba.service
@@ -1716,7 +1709,6 @@ fi
 
 ### DC-LIBS
 %files dc-libs
-%defattr(-,root,root)
 %if %with_dc
 %{_libdir}/samba/libdb-glue-samba4.so
 %{_libdir}/samba/libprocess-model-samba4.so
@@ -1760,7 +1752,6 @@ fi
 
 ### DEVEL
 %files devel
-%defattr(-,root,root)
 %{_includedir}/samba-4.0/charset.h
 %{_includedir}/samba-4.0/core/doserr.h
 %{_includedir}/samba-4.0/core/error.h
@@ -1906,13 +1897,11 @@ fi
 
 ### KRB5-PRINTING
 %files krb5-printing
-%defattr(-,root,root)
 %attr(0700,root,root) %{_libexecdir}/samba/smbspool_krb5_wrapper
 %{_mandir}/man8/smbspool_krb5_wrapper.8*
 
 ### LIBS
 %files libs
-%defattr(-,root,root)
 %{_libdir}/libdcerpc-samr.so.*
 %{_libdir}/libsamba-policy.so.*
 
@@ -1934,12 +1923,10 @@ fi
 ### LIBSMBCLIENT
 %if %with_libsmbclient
 %files -n libsmbclient
-%defattr(-,root,root)
 %{_libdir}/libsmbclient.so.*
 
 ### LIBSMBCLIENT-DEVEL
 %files -n libsmbclient-devel
-%defattr(-,root,root)
 %{_includedir}/samba-4.0/libsmbclient.h
 %{_libdir}/libsmbclient.so
 %{_libdir}/pkgconfig/smbclient.pc
@@ -1949,13 +1936,11 @@ fi
 ### LIBWBCLIENT
 %if %with_libwbclient
 %files -n libwbclient
-%defattr(-,root,root)
 %{_libdir}/samba/wbclient/libwbclient.so.*
 %{_libdir}/samba/libwinbind-client-samba4.so
 
 ### LIBWBCLIENT-DEVEL
 %files -n libwbclient-devel
-%defattr(-,root,root)
 %{_includedir}/samba-4.0/wbclient.h
 %{_libdir}/samba/wbclient/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
@@ -1963,7 +1948,6 @@ fi
 
 ### PIDL
 %files pidl
-%defattr(-,root,root,-)
 %attr(755,root,root) %{_bindir}/pidl
 %dir %{perl_vendorlib}/Parse
 %{perl_vendorlib}/Parse/Pidl.pm
@@ -2002,7 +1986,6 @@ fi
 
 ### PYTHON
 %files -n python2-%{name}
-%defattr(-,root,root,-)
 %dir %{python2_sitearch}/samba
 %{python2_sitearch}/samba/__init__.py*
 %{python2_sitearch}/samba/_glue.so
@@ -2129,7 +2112,6 @@ fi
 
 %if %{with_dc}
 %files -n python2-%{name}-dc
-%defattr(-,root,root,-)
 %{python2_sitearch}/samba/domain_update.py*
 %{python2_sitearch}/samba/dckeytab.so
 %{python2_sitearch}/samba/dsdb.so
@@ -2166,7 +2148,6 @@ fi
 %endif
 
 %files -n python2-%{name}-test
-%defattr(-,root,root,-)
 %dir %{python2_sitearch}/samba/tests
 %{python2_sitearch}/samba/tests/__init__.py*
 %{python2_sitearch}/samba/tests/auth.py*
@@ -2295,7 +2276,6 @@ fi
 
 ### PYTHON3
 %files -n python3-%{name}
-%defattr(-,root,root,-)
 %dir %{python3_sitearch}/samba/
 %{python3_sitearch}/samba/__init__.py
 %dir %{python3_sitearch}/samba/__pycache__
@@ -2412,7 +2392,6 @@ fi
 
 %if %{with_dc}
 %files -n python3-%{name}-dc
-%defattr(-,root,root,-)
 %{python3_sitearch}/samba/samdb.py
 %{python3_sitearch}/samba/schema.py
 
@@ -2451,7 +2430,6 @@ fi
 %endif
 
 %files -n python3-%{name}-test
-%defattr(-,root,root,-)
 %dir %{python3_sitearch}/samba/tests
 %{python3_sitearch}/samba/tests/__init__.py
 %dir %{python3_sitearch}/samba/tests/__pycache__
@@ -2665,7 +2643,6 @@ fi
 
 ### TEST
 %files test
-%defattr(-,root,root)
 %{_bindir}/gentest
 %{_bindir}/locktest
 %{_bindir}/masktest
@@ -2687,7 +2664,6 @@ fi
 
 ### TEST-LIBS
 %files test-libs
-%defattr(-,root,root)
 %if %with_dc
 %{_libdir}/samba/libdlz-bind9-for-torture-samba4.so
 %else
@@ -2696,7 +2672,6 @@ fi
 
 ### WINBIND
 %files winbind
-%defattr(-,root,root)
 %{_libdir}/samba/idmap
 %{_libdir}/samba/nss_info
 %{_libdir}/samba/libnss-info-samba4.so
@@ -2710,7 +2685,6 @@ fi
 
 ### WINBIND-CLIENTS
 %files winbind-clients
-%defattr(-,root,root)
 %{_bindir}/ntlm_auth
 %{_bindir}/wbinfo
 %{_libdir}/samba/krb5/winbind_krb5_localauth.so
@@ -2720,14 +2694,12 @@ fi
 
 ### WINBIND-KRB5-LOCATOR
 %files winbind-krb5-locator
-%defattr(-,root,root)
 %ghost %{_libdir}/krb5/plugins/libkrb5/winbind_krb5_locator.so
 %{_libdir}/samba/krb5/winbind_krb5_locator.so
 %{_mandir}/man8/winbind_krb5_locator.8*
 
 ### WINBIND-MODULES
 %files winbind-modules
-%defattr(-,root,root)
 %{_libdir}/libnss_winbind.so*
 %{_libdir}/libnss_wins.so*
 %{_libdir}/security/pam_winbind.so
@@ -2737,7 +2709,6 @@ fi
 
 %if %with_clustering_support
 %files -n ctdb
-%defattr(-,root,root)
 %doc ctdb/README
 # Obsolete
 %config(noreplace, missingok) %{_sysconfdir}/sysconfig/ctdb
@@ -2831,7 +2802,6 @@ fi
 %{_unitdir}/ctdb.service
 
 %files -n ctdb-tests
-%defattr(-,root,root)
 %doc ctdb/tests/README
 %{_bindir}/ctdb_run_tests
 %{_bindir}/ctdb_run_cluster_tests
