@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.8.3
 %define talloc_version 2.1.11
@@ -159,6 +159,7 @@ Obsoletes: samba-swat < %{samba_depver}
 Provides: samba4-swat = %{samba_depver}
 Obsoletes: samba4-swat < %{samba_depver}
 
+BuildRequires: gcc
 BuildRequires: avahi-devel
 BuildRequires: cups-devel
 BuildRequires: dbus-devel
@@ -3529,6 +3530,11 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Jul 11 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-3
+- Rebuild Samba against binutils 2.30.90-2.fc29
+- Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1600035
+- Add explicit BuildRequires for gcc
+
 * Fri Jul 06 2018 Petr Pisar <ppisar@redhat.com>
 - Perl 5.28 rebuild
 
