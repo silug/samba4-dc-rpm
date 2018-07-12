@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.8.3
 %define talloc_version 2.1.11
@@ -89,7 +89,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -123,6 +123,7 @@ Source200:      README.dc
 Source201:      README.downgrade
 
 Patch0:         samba-4.8.3-fix_krb5_plugins.patch
+Patch1:         samba-4.8.3-vscript.local.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3530,6 +3531,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 12 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-4
+- Change scope to local for symbols automatically added by upcoming binutils 2.31
+- Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1600035
+
 * Wed Jul 11 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-3
 - Rebuild Samba against binutils 2.30.90-2.fc29
 - Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1600035
