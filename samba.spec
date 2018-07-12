@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 4.1
 
 %define samba_version 4.8.3
 %define talloc_version 2.1.11
@@ -3531,6 +3531,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Jul 12 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-4.1
+- Scope to local __bss_start symbol (typo in a patch)
+- Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1600035
+
 * Thu Jul 12 2018 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.8.3-4
 - Change scope to local for symbols automatically added by upcoming binutils 2.31
 - Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1600035

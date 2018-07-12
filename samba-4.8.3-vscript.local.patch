@@ -1,4 +1,4 @@
-From dd70ab4d600192336af547c32acd18dcbcb0c8b0 Mon Sep 17 00:00:00 2001
+From dd9da7bc9306b95496d502589f95be0efc097fc0 Mon Sep 17 00:00:00 2001
 From: Alexander Bokovoy <ab@samba.org>
 Date: Thu, 12 Jul 2018 10:19:41 +0300
 Subject: [PATCH] wafsamba/samba_abi: always hide ABI symbols which must be
@@ -16,7 +16,7 @@ libraries and deliberately don't want to have ABI versioning control for
 all of them, so the change I introduce here is to explicitly mark those
 symbols that will always be added by default linker configuration with
 binutils 2.31 as local. Right now these are '_end', '_edata', and
-'_bss_start' symbols.
+'__bss_start' symbols.
 
 Signed-off-by: Alexander Bokovoy <ab@samba.org>
 ---
@@ -25,7 +25,7 @@ Signed-off-by: Alexander Bokovoy <ab@samba.org>
  2 files changed, 20 insertions(+), 4 deletions(-)
 
 diff --git a/buildtools/wafsamba/samba_abi.py b/buildtools/wafsamba/samba_abi.py
-index 196b468f5b3..f3f66dd1d45 100644
+index 196b468f5b3..4603e764fea 100644
 --- a/buildtools/wafsamba/samba_abi.py
 +++ b/buildtools/wafsamba/samba_abi.py
 @@ -192,10 +192,12 @@ def abi_write_vscript(f, libname, current_version, versions, symmap, abi_match):
@@ -37,7 +37,7 @@ index 196b468f5b3..f3f66dd1d45 100644
 -        for x in local_abi:
 -            f.write("\t\t%s;\n" % x[1:])
 +    # Always hide symbols that must be local if exist
-+    local_abi.extend(["!_end", "!_bss_start", "!_edata"])
++    local_abi.extend(["!_end", "!__bss_start", "!_edata"])
 +    f.write("\tlocal:\n")
 +    for x in local_abi:
 +        f.write("\t\t%s;\n" % x[1:])
@@ -46,7 +46,7 @@ index 196b468f5b3..f3f66dd1d45 100644
              f.write("\t\t*;\n")
      f.write("};\n")
 diff --git a/buildtools/wafsamba/tests/test_abi.py b/buildtools/wafsamba/tests/test_abi.py
-index bba78c1ba07..30c152417c7 100644
+index bba78c1ba07..74892146990 100644
 --- a/buildtools/wafsamba/tests/test_abi.py
 +++ b/buildtools/wafsamba/tests/test_abi.py
 @@ -66,6 +66,10 @@ class WriteVscriptTests(TestCase):
@@ -55,7 +55,7 @@ index bba78c1ba07..30c152417c7 100644
  \t\t*;
 +\tlocal:
 +\t\t_end;
-+\t\t_bss_start;
++\t\t__bss_start;
 +\t\t_edata;
  };
  """)
@@ -66,7 +66,7 @@ index bba78c1ba07..30c152417c7 100644
  \t\t*;
 +\tlocal:
 +\t\t_end;
-+\t\t_bss_start;
++\t\t__bss_start;
 +\t\t_edata;
  };
  """)
@@ -76,7 +76,7 @@ index bba78c1ba07..30c152417c7 100644
  \tlocal:
  \t\texc_*;
 +\t\t_end;
-+\t\t_bss_start;
++\t\t__bss_start;
 +\t\t_edata;
  };
  """)
@@ -86,7 +86,7 @@ index bba78c1ba07..30c152417c7 100644
  \tlocal:
  \t\texc_*;
 +\t\t_end;
-+\t\t_bss_start;
++\t\t__bss_start;
 +\t\t_edata;
  \t\t*;
  };
