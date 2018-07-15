@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.9.0
 %define talloc_version 2.1.14
@@ -1014,6 +1014,7 @@ for i in \
     %{_libdir}/samba/libdfs-server-ad-samba4.so \
     %{_libdir}/samba/libdnsserver-common-samba4.so \
     %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so \
+    %{_libdir}/samba/libscavenge-dns-records-samba4.so \
     %{_mandir}/man8/samba.8 \
     %{_mandir}/man8/samba-tool.8 \
     %{_mandir}/man8/samba-gpupdate.8 \
@@ -1028,12 +1029,14 @@ for i in \
     %{python2_sitearch}/samba/forest_update.py* \
     %{python2_sitearch}/samba/gpclass.py* \
     %{python2_sitearch}/samba/gpo.so \
+    %{python2_sitearch}/samba/gp_sec_ext.py* \
     %{python2_sitearch}/samba/kcc/debug.py* \
     %{python2_sitearch}/samba/kcc/graph.py* \
     %{python2_sitearch}/samba/kcc/graph_utils.py* \
     %{python2_sitearch}/samba/kcc/__init__.py* \
     %{python2_sitearch}/samba/kcc/kcc_utils.py* \
     %{python2_sitearch}/samba/kcc/ldif_import_export.py* \
+    %{python2_sitearch}/samba/mdb_util.py* \
     %{python2_sitearch}/samba/ms_forest_updates_markdown.py* \
     %{python2_sitearch}/samba/ms_schema_markdown.py* \
     %{python2_sitearch}/samba/provision/backend.py* \
@@ -1049,23 +1052,39 @@ for i in \
     %{python3_sitearch}/samba/dnsserver.py \
     %{python3_sitearch}/samba/domain_update.py \
     %{python3_sitearch}/samba/forest_update.py \
+    %{python3_sitearch}/samba/kcc/__init__.py \
     %{python3_sitearch}/samba/kcc/debug.py \
     %{python3_sitearch}/samba/kcc/graph.py \
+    %{python3_sitearch}/samba/kcc/graph_utils.py \
+    %{python3_sitearch}/samba/kcc/kcc_utils.py \
+    %{python3_sitearch}/samba/kcc/ldif_import_export.py \
+    %{python3_sitearch}/samba/kcc/__pycache__/__init__.*.pyc \
     %{python3_sitearch}/samba/kcc/__pycache__/debug.*.pyc \
     %{python3_sitearch}/samba/kcc/__pycache__/graph.*.pyc \
+    %{python3_sitearch}/samba/kcc/__pycache__/graph_utils.*.pyc \
+    %{python3_sitearch}/samba/kcc/__pycache__/kcc_utils.*.pyc \
+    %{python3_sitearch}/samba/kcc/__pycache__/ldif_import_export.*.pyc \
     %{python3_sitearch}/samba/ms_forest_updates_markdown.py \
     %{python3_sitearch}/samba/ms_schema_markdown.py \
+    %{python3_sitearch}/samba/provision/__init__.py \
+    %{python3_sitearch}/samba/provision/backend.py \
     %{python3_sitearch}/samba/provision/common.py \
     %{python3_sitearch}/samba/provision/kerberos_implementation.py \
     %{python3_sitearch}/samba/provision/kerberos.py \
+    %{python3_sitearch}/samba/provision/sambadns.py \
+    %{python3_sitearch}/samba/provision/__pycache__/__init__.*.pyc \
+    %{python3_sitearch}/samba/provision/__pycache__/backend.*.pyc \
     %{python3_sitearch}/samba/provision/__pycache__/common.*.pyc \
     %{python3_sitearch}/samba/provision/__pycache__/kerberos_implementation.*.pyc \
     %{python3_sitearch}/samba/provision/__pycache__/kerberos.*.pyc \
+    %{python3_sitearch}/samba/provision/__pycache__/sambadns.*.pyc \
     %{python3_sitearch}/samba/__pycache__/domain_update.*.pyc \
     %{python3_sitearch}/samba/__pycache__/forest_update.*.pyc \
     %{python3_sitearch}/samba/__pycache__/ms_forest_updates_markdown.*.pyc \
     %{python3_sitearch}/samba/__pycache__/ms_schema_markdown.*.pyc \
+    %{python3_sitearch}/samba/__pycache__/remove_dc.*.pyc \
     %{python3_sitearch}/samba/__pycache__/schema.*.pyc \
+    %{python3_sitearch}/samba/remove_dc.py \
     %{python3_sitearch}/samba/samdb.py \
     %{python3_sitearch}/samba/schema.py \
     %{_sbindir}/samba-gpupdate \
@@ -2285,7 +2304,6 @@ fi
 %{python3_sitearch}/samba/__pycache__/ms_schema.*.pyc
 %{python3_sitearch}/samba/__pycache__/ndr.*.pyc
 %{python3_sitearch}/samba/__pycache__/ntacls.*.pyc
-%{python3_sitearch}/samba/__pycache__/remove_dc.*.pyc
 %{python3_sitearch}/samba/__pycache__/sd_utils.*.pyc
 %{python3_sitearch}/samba/__pycache__/sites.*.pyc
 %{python3_sitearch}/samba/__pycache__/subnets.*.pyc
@@ -2339,7 +2357,6 @@ fi
 %{python3_sitearch}/samba/dcerpc/winreg.*.so
 %{python3_sitearch}/samba/dcerpc/wkssvc.*.so
 %{python3_sitearch}/samba/dcerpc/xattr.*.so
-%{python3_sitearch}/samba/dckeytab.*.so
 %{python3_sitearch}/samba/descriptor.py
 %{python3_sitearch}/samba/drs_utils.py
 %{python3_sitearch}/samba/dsdb.*.so
@@ -2478,10 +2495,12 @@ fi
 %{python3_sitearch}/samba/__pycache__/forest_update.*.pyc
 %{python3_sitearch}/samba/__pycache__/ms_forest_updates_markdown.*.pyc
 %{python3_sitearch}/samba/__pycache__/ms_schema_markdown.*.pyc
+%{python3_sitearch}/samba/__pycache__/remove_dc.*.pyc
 %{python3_sitearch}/samba/__pycache__/samdb.*.pyc
 %{python3_sitearch}/samba/__pycache__/schema.*.pyc
 
 %{python3_sitearch}/samba/dcerpc/dnsserver.*.so
+%{python3_sitearch}/samba/dckeytab.*.so
 %{python3_sitearch}/samba/domain_update.py
 %{python3_sitearch}/samba/forest_update.py
 %{python3_sitearch}/samba/ms_forest_updates_markdown.py
