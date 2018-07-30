@@ -1155,7 +1155,7 @@ getent group printadmin >/dev/null || groupadd -r printadmin || :
 
 %post common
 /sbin/ldconfig
-/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/samba.conf
+%tmpfiles_create %{_tmpfilesdir}/samba.conf
 if [ -d /var/cache/samba ]; then
     mv /var/cache/samba/netsamlogon_cache.tdb /var/lib/samba/ 2>/dev/null
     mv /var/cache/samba/winbindd_cache.tdb /var/lib/samba/ 2>/dev/null
