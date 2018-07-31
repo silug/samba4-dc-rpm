@@ -14,7 +14,7 @@
 %define tevent_version 0.9.37
 %define ldb_version 1.4.1
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -3027,7 +3027,9 @@ fi
 %{_libexecdir}/ctdb/tests/ctdb_takeover_tests
 %{_libexecdir}/ctdb/tests/db_hash_test
 %{_libexecdir}/ctdb/tests/dummy_client
+%{_libexecdir}/ctdb/tests/errcode
 %{_libexecdir}/ctdb/tests/event_protocol_test
+%{_libexecdir}/ctdb/tests/event_script_test
 %{_libexecdir}/ctdb/tests/fake_ctdbd
 %{_libexecdir}/ctdb/tests/fetch_loop
 %{_libexecdir}/ctdb/tests/fetch_loop_key
@@ -3036,6 +3038,7 @@ fi
 %{_libexecdir}/ctdb/tests/fetch_ring
 %{_libexecdir}/ctdb/tests/g_lock_loop
 %{_libexecdir}/ctdb/tests/hash_count_test
+%{_libexecdir}/ctdb/tests/line_test
 %{_libexecdir}/ctdb/tests/lock_tdb
 %{_libexecdir}/ctdb/tests/message_ring
 %{_libexecdir}/ctdb/tests/pidfile_test
@@ -3052,6 +3055,7 @@ fi
 %{_libexecdir}/ctdb/tests/reqid_test
 %{_libexecdir}/ctdb/tests/run_event_test
 %{_libexecdir}/ctdb/tests/run_proc_test
+%{_libexecdir}/ctdb/tests/sigcode
 %{_libexecdir}/ctdb/tests/sock_daemon_test
 %{_libexecdir}/ctdb/tests/sock_io_test
 %{_libexecdir}/ctdb/tests/srvid_test
@@ -3100,7 +3104,9 @@ fi
 %{_datadir}/ctdb/tests/cunit/config_test_006.sh
 %{_datadir}/ctdb/tests/cunit/db_hash_test_001.sh
 %{_datadir}/ctdb/tests/cunit/event_protocol_test_001.sh
+%{_datadir}/ctdb/tests/cunit/event_script_test_001.sh
 %{_datadir}/ctdb/tests/cunit/hash_count_test_001.sh
+%{_datadir}/ctdb/tests/cunit/line_test_001.sh
 %{_datadir}/ctdb/tests/cunit/path_tests_001.sh
 %{_datadir}/ctdb/tests/cunit/pidfile_test_001.sh
 %{_datadir}/ctdb/tests/cunit/pkt_read_001.sh
@@ -3128,6 +3134,7 @@ fi
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/events
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/events/data
 %{_datadir}/ctdb/tests/eventd/etc-ctdb/events/data/README
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/events/data/03.notalink.script
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/events/empty
 %{_datadir}/ctdb/tests/eventd/etc-ctdb/events/empty/README
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/events/multi
@@ -3143,6 +3150,14 @@ fi
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/
 %dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/data
 %{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/data/01.dummy.script
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/data/02.disabled.script
+%dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/empty
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/empty/README
+%dir %{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/random
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/random/01.disabled.script
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/random/02.enabled.script
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/random/a.script
+%{_datadir}/ctdb/tests/eventd/etc-ctdb/share/events/random/README.script
 %{_datadir}/ctdb/tests/eventd/eventd_001.sh
 %{_datadir}/ctdb/tests/eventd/eventd_002.sh
 %{_datadir}/ctdb/tests/eventd/eventd_003.sh
@@ -3776,6 +3791,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Aug 01 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc2-0
+- Update to Samba 4.9.0rc2
+
 * Thu Jul 12 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc1-0
 - Update to Samba 4.9.0rc1
 
