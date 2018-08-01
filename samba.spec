@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.9.0
 %define talloc_version 2.1.14
@@ -190,14 +190,16 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
 BuildRequires: popt-devel
 BuildRequires: python2-devel
+BuildRequires: python3-devel
+%if %{with_dc}
 BuildRequires: python2-dns
 # Add python2-iso8601 to avoid that the
 # version in Samba is being packaged
 BuildRequires: python2-iso8601
-BuildRequires: python3-devel
 # Add python3-iso8601 to avoid that the
 # version in Samba is being packaged
 BuildRequires: python3-iso8601
+%endif # with_dc
 BuildRequires: quota-devel
 BuildRequires: readline-devel
 BuildRequires: rpcgen
@@ -526,7 +528,9 @@ The libwbclient-devel package provides developer tools for the wbclient
 library.
 %endif # with_libwbclient
 
-### PYTHON
+### PYTHON2
+%if %{with_dc}
+### PYTHON 2 is required for Samba AD DC right now
 %package -n python2-%{name}
 Summary: Samba Python libraries
 Requires: %{name} = %{samba_depver}
@@ -557,7 +561,6 @@ Requires: python2-%{name} = %{samba_depver}
 The python2-%{name}-test package contains the Python libraries used by the test suite of Samba.
 If you want to run full set of Samba tests, you need to install this package.
 
-%if %{with_dc}
 %package -n python2-samba-dc
 Summary: Samba Python libraries for Samba AD
 Requires: python2-%{name} = %{samba_depver}
@@ -833,6 +836,12 @@ export python_LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//g')"
 # Use the gold linker
 export LDFLAGS="%{__global_ldflags} -fuse-ld=gold"
 
+%if 0%{?rhel}
+# Use Python 2 for the waf buildscript
+pathfix.py -n -p -i %{__python2} buildtools/bin/waf
+export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
+%endif # rhel
+
 export PYTHON=%{__python2}
 
 %configure \
@@ -888,6 +897,10 @@ make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
+
+%if 0%{?rhel}
+export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
+%endif # rhel
 export PYTHON=%{__python2}
 
 make %{?_smp_mflags} install DESTDIR=%{buildroot}
@@ -1102,11 +1115,28 @@ done
 # FIXME
 find %{buildroot}%{python2_sitearch} -name "*.pyc" -print -delete
 
+%if ! %with_dc
+# Remove whole %python2_sitearch for non-DC build
+# Also remove libraries specific to DC or only used for test generation
+# but requiring Python 2
+rm -rf %{buildroot}%{python2_sitearch}
+for f in samba/libsamba-net-samba4.so \
+         samba/libsamba-python-samba4.so \
+         libsamba-policy.so* \
+         pkgconfig/samba-policy.pc ; do
+    rm -f %{buildroot}%{_libdir}/$f
+done
+%endif # ! with_dc
 
 %if %{with testsuite}
 %check
+%if 0%{?rhel}
+export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
+%endif # rhel
+export PYTHON=%{__python2}
+
 TDB_NO_FSYNC=1 make %{?_smp_mflags} test
-%endif
+%endif # with testsuite
 
 %post
 %systemd_post smb.service
@@ -1822,7 +1852,6 @@ fi
 %{_libdir}/libsamba-credentials.so
 %{_libdir}/libsamba-errors.so
 %{_libdir}/libsamba-hostconfig.so
-%{_libdir}/libsamba-policy.so
 %{_libdir}/libsamba-util.so
 %{_libdir}/libsamdb.so
 %{_libdir}/libsmbconf.so
@@ -1836,7 +1865,6 @@ fi
 %{_libdir}/pkgconfig/netapi.pc
 %{_libdir}/pkgconfig/samba-credentials.pc
 %{_libdir}/pkgconfig/samba-hostconfig.pc
-%{_libdir}/pkgconfig/samba-policy.pc
 %{_libdir}/pkgconfig/samba-util.pc
 %{_libdir}/pkgconfig/samdb.pc
 %{_libdir}/libsamba-passdb.so
@@ -1846,6 +1874,9 @@ fi
 %{_includedir}/samba-4.0/dcerpc_server.h
 %{_libdir}/libdcerpc-server.so
 %{_libdir}/pkgconfig/dcerpc_server.pc
+
+%{_libdir}/libsamba-policy.so
+%{_libdir}/pkgconfig/samba-policy.pc
 %endif
 
 %if ! %with_libsmbclient
@@ -1878,7 +1909,6 @@ fi
 ### LIBS
 %files libs
 %{_libdir}/libdcerpc-samr.so.*
-%{_libdir}/libsamba-policy.so.*
 
 # libraries needed by the public libraries
 %{_libdir}/samba/libMESSAGING-samba4.so
@@ -1889,8 +1919,6 @@ fi
 %{_libdir}/samba/libcluster-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
 %{_libdir}/samba/libnon-posix-acls-samba4.so
-%{_libdir}/samba/libsamba-net-samba4.so
-%{_libdir}/samba/libsamba-python-samba4.so
 %{_libdir}/samba/libshares-samba4.so
 %{_libdir}/samba/libsmbpasswdparser-samba4.so
 %{_libdir}/samba/libxattr-tdb-samba4.so
@@ -1959,8 +1987,13 @@ fi
 %{_mandir}/man1/pidl*
 %{_mandir}/man3/Parse::Pidl*
 
-### PYTHON
+### PYTHON2
+%if %{with_dc}
 %files -n python2-%{name}
+%{_libdir}/samba/libsamba-python-samba4.so
+%{_libdir}/samba/libsamba-net-samba4.so
+%{_libdir}/libsamba-policy.so.*
+
 %dir %{python2_sitearch}/samba
 %{python2_sitearch}/samba/__init__.py*
 %{python2_sitearch}/samba/_glue.so
@@ -2281,6 +2314,7 @@ fi
 %{python2_sitearch}/samba/tests/upgradeprovision.py*
 %{python2_sitearch}/samba/tests/upgradeprovisionneeddc.py*
 %{python2_sitearch}/samba/tests/xattr.py*
+%endif # rhel
 
 ### PYTHON3
 %files -n python3-%{name}
@@ -2361,8 +2395,6 @@ fi
 %{python3_sitearch}/samba/dcerpc/xattr.*.so
 %{python3_sitearch}/samba/descriptor.py
 %{python3_sitearch}/samba/drs_utils.py
-%{python3_sitearch}/samba/dsdb.*.so
-%{python3_sitearch}/samba/dsdb_dns.*.so
 %{python3_sitearch}/samba/gensec.*.so
 %{python3_sitearch}/samba/getopt.py
 %{python3_sitearch}/samba/gpclass.py
@@ -2503,6 +2535,8 @@ fi
 
 %{python3_sitearch}/samba/dcerpc/dnsserver.*.so
 %{python3_sitearch}/samba/dckeytab.*.so
+%{python3_sitearch}/samba/dsdb.*.so
+%{python3_sitearch}/samba/dsdb_dns.*.so
 %{python3_sitearch}/samba/domain_update.py
 %{python3_sitearch}/samba/forest_update.py
 %{python3_sitearch}/samba/ms_forest_updates_markdown.py
@@ -3791,6 +3825,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Aug 01 2018 Andreas Schneider <asn@redhat.com> - 4.9.0rc2-2
+- Add some spec file cleanups
+
 * Wed Aug 01 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc2-0
 - Update to Samba 4.9.0rc2
 
