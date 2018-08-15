@@ -12,9 +12,9 @@
 %define talloc_version 2.1.14
 %define tdb_version 1.3.16
 %define tevent_version 0.9.37
-%define ldb_version 1.4.1
+%define ldb_version 1.4.2
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -122,7 +122,6 @@ Source14:       samba.pamd
 Source200:      README.dc
 Source201:      README.downgrade
 
-Patch0:         samba-4.9.0-test_tldap.patch
 Patch1:         samba-4.8.3-vscript.local.patch
 
 Requires(pre): /usr/sbin/groupadd
@@ -922,6 +921,7 @@ done
 filenames=$(echo "
     tests/dcerpc/integer.py
     tests/dcerpc/unix.py
+    tests/dns_invalid.py
 ")
 for file in $filenames; do
     filename="%{buildroot}/%{python3_sitearch}/samba/$file"
@@ -1314,7 +1314,7 @@ fi
 %doc examples/printer-accounting examples/printing
 %doc packaging/README.downgrade
 %{_bindir}/smbstatus
-%{_bindir}/eventlogadm
+%{_sbindir}/eventlogadm
 %{_sbindir}/nmbd
 %{_sbindir}/smbd
 %if %{with_dc}
@@ -2213,6 +2213,7 @@ fi
 %dir %{python2_sitearch}/samba/tests/dns_forwarder_helpers
 %{python2_sitearch}/samba/tests/dns_forwarder_helpers/server.py*
 %{python2_sitearch}/samba/tests/dns_tkey.py*
+%{python2_sitearch}/samba/tests/dns_invalid.py*
 %{python2_sitearch}/samba/tests/dns_wildcard.py*
 %{python2_sitearch}/samba/tests/docs.py*
 %{python2_sitearch}/samba/tests/domain_backup.py*
@@ -3825,6 +3826,14 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Aug 15 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc3-2
+- Update to Samba 4.9.0rc3
+- resolves: #1589651, #1617916 - Security fixes for CVE-2018-1139
+- resolves: #1580230, #1618613 - Security fixes for CVE-2018-1140
+- resolves: #1612805, #1618697 - Security fixes for CVE-2018-10858
+- resolves: #1610640, #1617910 - Security fixes for CVE-2018-10918
+- resolves: #1610645, #1617911 - Security fixes for CVE-2018-10919
+
 * Wed Aug 01 2018 Andreas Schneider <asn@redhat.com> - 4.9.0rc2-2
 - Add some spec file cleanups
 
