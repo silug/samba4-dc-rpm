@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 2
+%define main_release 3
 
 %define samba_version 4.9.0
 %define talloc_version 2.1.14
@@ -122,7 +122,8 @@ Source14:       samba.pamd
 Source200:      README.dc
 Source201:      README.downgrade
 
-Patch1:         samba-4.8.3-vscript.local.patch
+Patch0:         samba-4.8.3-vscript.local.patch
+Patch1:         samba-4.9.0rc3-fix-python37.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -2210,6 +2211,7 @@ fi
 %{python2_sitearch}/samba/tests/dns.py*
 %{python2_sitearch}/samba/tests/dns_base.py*
 %{python2_sitearch}/samba/tests/dns_forwarder.py*
+%{python2_sitearch}/samba/tests/dns_invalid.py*
 %dir %{python2_sitearch}/samba/tests/dns_forwarder_helpers
 %{python2_sitearch}/samba/tests/dns_forwarder_helpers/server.py*
 %{python2_sitearch}/samba/tests/dns_tkey.py*
@@ -2602,6 +2604,7 @@ fi
 %{python3_sitearch}/samba/tests/__pycache__/dns.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dns_base.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dns_forwarder.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/dns_invalid.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dns_tkey.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dns_wildcard.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/dsdb.*.pyc
@@ -2733,7 +2736,10 @@ fi
 %{python3_sitearch}/samba/tests/dns.py
 %{python3_sitearch}/samba/tests/dns_base.py
 %{python3_sitearch}/samba/tests/dns_forwarder.py
-%{python3_sitearch}/samba/tests/dns_forwarder_helpers
+%dir %{python3_sitearch}/samba/tests/dns_forwarder_helpers
+%{python3_sitearch}/samba/tests/dns_forwarder_helpers/__pycache__/server.*.pyc
+%{python3_sitearch}/samba/tests/dns_forwarder_helpers/server.py
+%{python3_sitearch}/samba/tests/dns_invalid.py
 %{python3_sitearch}/samba/tests/dns_tkey.py
 %{python3_sitearch}/samba/tests/dns_wildcard.py
 %{python3_sitearch}/samba/tests/dsdb.py
@@ -3826,6 +3832,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Aug 16 2018 Andreas Schneider <asn@redhat.com> - 4.9.0rc3-3
+- Fix python3 packaging
+
 * Wed Aug 15 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc3-2
 - Update to Samba 4.9.0rc3
 - resolves: #1589651, #1617916 - Security fixes for CVE-2018-1139
