@@ -922,7 +922,6 @@ done
 filenames=$(echo "
     tests/dcerpc/integer.py
     tests/dcerpc/unix.py
-    tests/dns_invalid.py
 ")
 for file in $filenames; do
     filename="%{buildroot}/%{python3_sitearch}/samba/$file"
@@ -2215,7 +2214,6 @@ fi
 %dir %{python2_sitearch}/samba/tests/dns_forwarder_helpers
 %{python2_sitearch}/samba/tests/dns_forwarder_helpers/server.py*
 %{python2_sitearch}/samba/tests/dns_tkey.py*
-%{python2_sitearch}/samba/tests/dns_invalid.py*
 %{python2_sitearch}/samba/tests/dns_wildcard.py*
 %{python2_sitearch}/samba/tests/docs.py*
 %{python2_sitearch}/samba/tests/domain_backup.py*
