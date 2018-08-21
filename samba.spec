@@ -590,6 +590,8 @@ that use SMB, RPC and other Samba provided protocols in Python 3 programs.
 %package -n python3-samba-test
 Summary: Samba Python libraries
 Requires: python3-%{name} = %{samba_depver}
+Requires: %{name}-client-libs = %{samba_depver}
+Requires: %{name}-libs = %{samba_depver}
 
 %description -n python3-samba-test
 The python3-%{name}-test package contains the Python libraries used by the test suite of Samba.
