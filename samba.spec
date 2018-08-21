@@ -1484,6 +1484,8 @@ fi
 
 ### CLIENT-LIBS
 %files client-libs
+%{_libdir}/samba/libMESSAGING-SEND-samba4.so
+
 %{_libdir}/libdcerpc-binding.so.*
 %{_libdir}/libndr.so.*
 %{_libdir}/libndr-krb5pac.so.*
@@ -1912,9 +1914,7 @@ fi
 %files libs
 %{_libdir}/libdcerpc-samr.so.*
 
-# libraries needed by the public libraries
 %{_libdir}/samba/libMESSAGING-samba4.so
-%{_libdir}/samba/libMESSAGING-SEND-samba4.so
 %{_libdir}/samba/libLIBWBCLIENT-OLD-samba4.so
 %{_libdir}/samba/libauth4-samba4.so
 %{_libdir}/samba/libauth-unix-token-samba4.so
