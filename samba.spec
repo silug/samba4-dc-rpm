@@ -119,7 +119,6 @@ Source12:       smb.conf.example
 Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
-Source200:      README.dc
 Source201:      README.downgrade
 
 Patch0:         samba-4.8.3-vscript.local.patch
@@ -352,6 +351,7 @@ The samba-common-tools package contains tools for Samba servers and
 SMB/CIFS clients.
 
 ### DC
+%if %{with_dc}
 %package dc
 Summary: Samba AD Domain Controller
 Requires: %{name} = %{samba_depver}
@@ -360,7 +360,6 @@ Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
 # samb-tool needs tdbbackup
 Requires: tdb-tools
-%if %{with_dc}
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
 Requires: python2-%{name} = %{samba_depver}
@@ -379,7 +378,6 @@ Requires: python3-%{name} = %{samba_depver}
 Requires: python3-%{name}-dc = %{samba_depver}
 %endif
 Requires: krb5-server >= %{required_mit_krb5}
-%endif
 
 Provides: samba4-dc = %{samba_depver}
 Obsoletes: samba4-dc < %{samba_depver}
@@ -401,7 +399,6 @@ The %{name}-dc-libs package contains the libraries needed by the DC to
 link against the SMB, RPC and other protocols.
 
 ### DC-BIND
-%if %with_dc
 %package dc-bind-dlz
 Summary: Bind DLZ module for Samba AD
 Requires: %{name}-common = %{samba_depver}
@@ -1008,11 +1005,6 @@ install -m 0644 ctdb/config/ctdb.conf %{buildroot}%{_sysconfdir}/ctdb/ctdb.conf
 
 install -m 0644 %{SOURCE201} packaging/README.downgrade
 
-%if ! %with_dc
-install -m 0644 %{SOURCE200} packaging/README.dc
-install -m 0644 %{SOURCE200} packaging/README.dc-libs
-%endif
-
 %if %with_clustering_support
 install -m 0644 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
 %endif
@@ -1183,7 +1175,7 @@ fi
 
 %postun common-libs -p /sbin/ldconfig
 
-%if %with_dc
+%if %{with_dc}
 %post dc-libs -p /sbin/ldconfig
 
 %postun dc-libs -p /sbin/ldconfig
@@ -1196,7 +1188,7 @@ fi
 
 %postun dc
 %systemd_postun_with_restart samba.service
-%endif
+%endif # with_dc
 
 %post krb5-printing
 %{_sbindir}/update-alternatives --install %{_libexecdir}/samba/cups_backend_smb \
@@ -1639,9 +1631,8 @@ fi
 %{_mandir}/man8/smbpasswd.8*
 
 ### DC
+%if %{with_dc}
 %files dc
-
-%if %with_dc
 %{_unitdir}/samba.service
 %{_bindir}/samba-tool
 %{_sbindir}/samba
@@ -1711,13 +1702,9 @@ fi
 %{_mandir}/man8/samba.8*
 %{_mandir}/man8/samba-gpupdate.8*
 %{_mandir}/man8/samba-tool.8*
-%else # with_dc
-%doc packaging/README.dc
-%endif # with_dc
 
 ### DC-LIBS
 %files dc-libs
-%if %with_dc
 %{_libdir}/samba/libdb-glue-samba4.so
 %{_libdir}/samba/libprocess-model-samba4.so
 %{_libdir}/samba/libservice-samba4.so
@@ -1744,12 +1731,8 @@ fi
 %{_libdir}/samba/libdsdb-module-samba4.so
 %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so
 %{_libdir}/samba/libscavenge-dns-records-samba4.so
-%else
-%doc packaging/README.dc-libs
-%endif # with_dc
 
 ### DC-BIND
-%if %with_dc
 %files dc-bind-dlz
 %attr(770,root,named) %dir /var/lib/samba/bind-dns
 %dir %{_libdir}/samba/bind9
