@@ -14,7 +14,7 @@
 %define tevent_version 0.9.37
 %define ldb_version 1.4.2
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -120,9 +120,6 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
-
-Patch0:         samba-4.8.3-vscript.local.patch
-Patch1:         samba-4.9.0rc3-fix-python37.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3126,6 +3123,7 @@ fi
 %{_datadir}/ctdb/tests/cunit/config_test_004.sh
 %{_datadir}/ctdb/tests/cunit/config_test_005.sh
 %{_datadir}/ctdb/tests/cunit/config_test_006.sh
+%{_datadir}/ctdb/tests/cunit/config_test_007.sh
 %{_datadir}/ctdb/tests/cunit/db_hash_test_001.sh
 %{_datadir}/ctdb/tests/cunit/event_protocol_test_001.sh
 %{_datadir}/ctdb/tests/cunit/event_script_test_001.sh
@@ -3815,6 +3813,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Aug 29 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0rc4-3
+- Update to Samba 4.9.0rc4
+
 * Thu Aug 16 2018 Andreas Schneider <asn@redhat.com> - 4.9.0rc3-3
 - Fix python3 packaging
 
