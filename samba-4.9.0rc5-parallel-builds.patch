@@ -1,0 +1,54 @@
+From 45ff96780bad2c1f806b101ca1211f5c3cef1a4d Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 6 Sep 2018 12:40:10 +0200
+Subject: [PATCH] wafsamba: Deal with make -j<num>
+
+Currently only make -j works for parallel builds and make -j4 results in
+no parallel jobs at all.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13606
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+---
+ buildtools/wafsamba/samba_utils.py | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/buildtools/wafsamba/samba_utils.py b/buildtools/wafsamba/samba_utils.py
+index 0f95c125854..ad46005519f 100644
+--- a/buildtools/wafsamba/samba_utils.py
++++ b/buildtools/wafsamba/samba_utils.py
+@@ -466,7 +466,7 @@ def CHECK_MAKEFLAGS(bld):
+     makeflags = os.environ.get('MAKEFLAGS')
+     if makeflags is None:
+         return
+-    jobs_set = False
++    jobs = 1
+     # we need to use shlex.split to cope with the escaping of spaces
+     # in makeflags
+     for opt in shlex.split(makeflags):
+@@ -489,17 +489,15 @@ def CHECK_MAKEFLAGS(bld):
+             setattr(Options.options, opt[0:loc], opt[loc+1:])
+         elif opt[0] != '-':
+             for v in opt:
+-                if v == 'j':
+-                    jobs_set = True
++                if re.search(r'j[0-9]*$', v):
++                    jobs = int(opt.strip('j'))
+                 elif v == 'k':
+                     Options.options.keep = True
+-        elif opt == '-j':
+-            jobs_set = True
++        elif re.search(r'-j[0-9]*$', opt):
++            jobs = int(opt.strip('-j'))
+         elif opt == '-k':
+             Options.options.keep = True
+-    if not jobs_set:
+-        # default to one job
+-        Options.options.jobs = 1
++    Options.options.jobs = jobs
+ 
+ Build.BuildContext.CHECK_MAKEFLAGS = CHECK_MAKEFLAGS
+ 
+-- 
+2.18.0
+
