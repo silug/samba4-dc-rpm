@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.9.0
 %define talloc_version 2.1.14
@@ -14,7 +14,7 @@
 %define tevent_version 0.9.37
 %define ldb_version 1.4.2
 # This should be rc1 or nil
-%define pre_release rc5
+%define pre_release %nil
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -122,7 +122,6 @@ Source14:       samba.pamd
 Source201:      README.downgrade
 
 Patch0:         samba-4.9.0rc5-stack-protector.patch
-Patch1:         samba-4.9.0rc5-parallel-builds.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3816,6 +3815,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Sep 13 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.0-4
+- Update to Samba 4.9.0
+
 * Thu Sep 06 2018 Andreas Schneider <asn@redhat.com> - 4.9.0rc5-3
 - Update to Samba 4.9.0rc5
 
