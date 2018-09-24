@@ -883,12 +883,12 @@ export PYTHON=%{__python2}
         --accel-aes=intelaesni \
 %endif
         --with-systemd \
-	--systemd-install-services \
-	--with-systemddir=/usr/lib/systemd/system \
-	--systemd-smb-extra=%{_systemd_extra} \
-	--systemd-nmb-extra=%{_systemd_extra} \
-	--systemd-winbind-extra=%{_systemd_extra} \
-	--systemd-samba-extra=%{_systemd_extra} \
+        --systemd-install-services \
+        --with-systemddir=/usr/lib/systemd/system \
+        --systemd-smb-extra=%{_systemd_extra} \
+        --systemd-nmb-extra=%{_systemd_extra} \
+        --systemd-winbind-extra=%{_systemd_extra} \
+        --systemd-samba-extra=%{_systemd_extra} \
         --extra-python=%{__python3}
 
 make %{?_smp_mflags}
