@@ -64,7 +64,6 @@
 %global libwbc_alternatives_suffix -64
 %endif
 
-%global with_mitkrb5 1
 %global with_dc 1
 
 %if 0%{?rhel}
@@ -861,9 +860,7 @@ export PYTHON=%{__python2}
 %if (! %with_libsmbclient) || (! %with_libwbclient)
         --private-libraries=%{_samba_private_libraries} \
 %endif
-%if %with_mitkrb5
         --with-system-mitkrb5 \
-%endif
 %if ! %with_dc
         --without-ad-dc \
 %endif
