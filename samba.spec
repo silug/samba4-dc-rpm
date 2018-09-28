@@ -1472,8 +1472,6 @@ fi
 
 ### CLIENT-LIBS
 %files client-libs
-%{_libdir}/samba/libMESSAGING-SEND-samba4.so
-
 %{_libdir}/libdcerpc-binding.so.*
 %{_libdir}/libndr.so.*
 %{_libdir}/libndr-krb5pac.so.*
@@ -1493,6 +1491,7 @@ fi
 
 %dir %{_libdir}/samba
 %{_libdir}/samba/libCHARSET3-samba4.so
+%{_libdir}/samba/libMESSAGING-SEND-samba4.so
 %{_libdir}/samba/libaddns-samba4.so
 %{_libdir}/samba/libads-samba4.so
 %{_libdir}/samba/libasn1util-samba4.so
