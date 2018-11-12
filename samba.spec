@@ -354,8 +354,10 @@ Requires: %{name} = %{samba_depver}
 Requires: %{name}-libs = %{samba_depver}
 Requires: %{name}-dc-libs = %{samba_depver}
 Requires: %{name}-winbind = %{samba_depver}
-# samb-tool needs tdbbackup
+# samba-tool needs tdbbackup
 Requires: tdb-tools
+# samba-tool needs mdb_copy
+Requires: lmdb
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
 Requires: python2-%{name} = %{samba_depver}
