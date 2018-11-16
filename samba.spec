@@ -248,9 +248,9 @@ BuildRequires: python3-ldb-devel >= %{ldb_version}
 %if %{with testsuite}
 BuildRequires: ldb-tools
 BuildRequires: tdb-tools
-BuildRequires: python2-pygpgme
+BuildRequires: python2-gpg
 BuildRequires: python2-markdown
-BuildRequires: python3-pygpgme
+BuildRequires: python3-gpg
 BuildRequires: python3-markdown
 %endif
 
