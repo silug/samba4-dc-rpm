@@ -181,9 +181,10 @@ BuildRequires: ncurses-devel
 BuildRequires: openldap-devel
 BuildRequires: pam-devel
 BuildRequires: perl-generators
-BuildRequires: perl(Test::More)
+BuildRequires: perl(Archive::Tar)
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
+BuildRequires: perl(Test::More)
 BuildRequires: popt-devel
 BuildRequires: python2-devel
 BuildRequires: python3-devel
@@ -637,6 +638,7 @@ Requires: libsmbclient = %{samba_depver}
 %if %with_libwbclient
 Requires: libwbclient = %{samba_depver}
 %endif
+Requires: perl(Archive::Tar)
 
 Provides: samba4-test = %{samba_depver}
 Obsoletes: samba4-test < %{samba_depver}
