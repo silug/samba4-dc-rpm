@@ -864,6 +864,7 @@ export PYTHON=%{__python2}
         --private-libraries=%{_samba_private_libraries} \
 %endif
         --with-system-mitkrb5 \
+	--with-experimental-mit-ad-dc \
 %if ! %with_dc
         --without-ad-dc \
 %endif
