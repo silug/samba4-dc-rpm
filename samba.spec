@@ -360,6 +360,7 @@ Requires: %{name}-winbind = %{samba_depver}
 Requires: tdb-tools
 # samba-tool needs mdb_copy
 Requires: lmdb
+Requires: ldb-tools
 # samba-tool requirements, explicitly require python2 right now
 Requires: python2
 Requires: python2-%{name} = %{samba_depver}
