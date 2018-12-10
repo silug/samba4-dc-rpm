@@ -945,8 +945,8 @@ install -d -m 0755 %{buildroot}/var/lib/samba/sysvol
 install -d -m 0755 %{buildroot}/var/lib/samba/winbindd_privileged
 install -d -m 0755 %{buildroot}/var/log/samba/old
 install -d -m 0755 %{buildroot}/var/spool/samba
-install -d -m 0755 %{buildroot}/var/run/samba
-install -d -m 0755 %{buildroot}/var/run/winbindd
+install -d -m 0755 %{buildroot}/run/samba
+install -d -m 0755 %{buildroot}/run/winbindd
 install -d -m 0755 %{buildroot}/%{_libdir}/samba
 install -d -m 0755 %{buildroot}/%{_libdir}/samba/ldb
 install -d -m 0755 %{buildroot}/%{_libdir}/pkgconfig
@@ -986,11 +986,10 @@ install -m644 examples/LDAP/samba.schema %{buildroot}%{_sysconfdir}/openldap/sch
 install -m 0744 packaging/printing/smbprint %{buildroot}%{_bindir}/smbprint
 
 install -d -m 0755 %{buildroot}%{_tmpfilesdir}
-install -m644 packaging/systemd/samba.conf.tmp %{buildroot}%{_tmpfilesdir}/samba.conf
-# create /run/samba too.
-echo "d /run/samba  755 root root" >> %{buildroot}%{_tmpfilesdir}/samba.conf
+# Create /run/samba.
+echo "d /run/samba  755 root root" > %{buildroot}%{_tmpfilesdir}/samba.conf
 %if %with_clustering_support
-echo "d /run/ctdb 755 root root" >> %{buildroot}%{_tmpfilesdir}/ctdb.conf
+echo "d /run/ctdb 755 root root" > %{buildroot}%{_tmpfilesdir}/ctdb.conf
 %endif
 
 install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
@@ -1587,8 +1586,8 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/samba
 %attr(0700,root,root) %dir /var/log/samba
 %attr(0700,root,root) %dir /var/log/samba/old
-%ghost %dir /var/run/samba
-%ghost %dir /var/run/winbindd
+%ghost %dir /run/samba
+%ghost %dir /run/winbindd
 %dir /var/lib/samba
 %attr(700,root,root) %dir /var/lib/samba/private
 %dir /var/lib/samba/lock
