@@ -8,7 +8,7 @@
 
 %define main_release 0
 
-%define samba_version 4.9.3
+%define samba_version 4.9.4
 %define talloc_version 2.1.14
 %define tdb_version 1.3.16
 %define tevent_version 0.9.37
@@ -3822,6 +3822,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Dec 20 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.4-0
+- Update to Samba 4.9.4
+
 * Tue Nov 27 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.3-0
 - Update to Samba 4.9.3
 - resolves: #1625449, #1654078 - Security fixes for CVE-2018-14629
