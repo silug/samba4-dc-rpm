@@ -88,7 +88,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3822,6 +3822,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 2:4.9.4-0.1
+- Rebuilt for libcrypt.so.2 (#1666033)
+
 * Thu Dec 20 2018 Guenther Deschner <gdeschner@redhat.com> - 4.9.4-0
 - Update to Samba 4.9.4
 
