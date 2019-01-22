@@ -1148,7 +1148,7 @@ TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 getent group printadmin >/dev/null || groupadd -r printadmin || :
 
 %post common
-/sbin/ldconfig
+%{?ldconfig}
 %tmpfiles_create %{_tmpfilesdir}/samba.conf
 if [ -d /var/cache/samba ]; then
     mv /var/cache/samba/netsamlogon_cache.tdb /var/lib/samba/ 2>/dev/null
@@ -1167,18 +1167,12 @@ if [ $1 -eq 0 ] ; then
     %{_sbindir}/update-alternatives --remove cups_backend_smb %{_bindir}/smbspool
 fi
 
-%post client-libs -p /sbin/ldconfig
+%ldconfig_scriptlets client-libs
 
-%postun client-libs -p /sbin/ldconfig
-
-%post common-libs -p /sbin/ldconfig
-
-%postun common-libs -p /sbin/ldconfig
+%ldconfig_scriptlets common-libs
 
 %if %{with_dc}
-%post dc-libs -p /sbin/ldconfig
-
-%postun dc-libs -p /sbin/ldconfig
+%ldconfig_scriptlets dc-libs
 
 %post dc
 %systemd_post samba.service
@@ -1200,14 +1194,10 @@ if [ $1 -eq 0 ] ; then
 	%{_sbindir}/update-alternatives --remove cups_backend_smb %{_libexecdir}/samba/smbspool_krb5_wrapper
 fi
 
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
 
 %if %with_libsmbclient
-%post -n libsmbclient -p /sbin/ldconfig
-
-%postun -n libsmbclient -p /sbin/ldconfig
+%ldconfig_scriptlets -n libsmbclient
 %endif
 
 %if %with_libwbclient
@@ -1220,7 +1210,7 @@ fi
         libwbclient.so.%{libwbc_alternatives_version}%{libwbc_alternatives_suffix} \
         %{_libdir}/samba/wbclient/libwbclient.so.%{libwbc_alternatives_version} \
         10
-/sbin/ldconfig
+%{?ldconfig}
 
 %preun -n libwbclient
 %{_sbindir}/update-alternatives \
@@ -1250,9 +1240,7 @@ fi
 
 %endif # with_libwbclient
 
-%post test -p /sbin/ldconfig
-
-%postun test -p /sbin/ldconfig
+%ldconfig_scriptlets test
 
 %pre winbind
 /usr/sbin/groupadd -g 88 wbpriv >/dev/null 2>&1 || :
@@ -1283,9 +1271,7 @@ if [ $1 -eq 0 ]; then
         %{_sbindir}/update-alternatives --remove winbind_krb5_locator.so %{_libdir}/samba/krb5/winbind_krb5_locator.so
 fi
 
-%post winbind-modules -p /sbin/ldconfig
-
-%postun winbind-modules -p /sbin/ldconfig
+%ldconfig_scriptlets winbind-modules
 
 %if %with_clustering_support
 %post -n ctdb
