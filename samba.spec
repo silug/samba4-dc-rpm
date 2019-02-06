@@ -14,7 +14,7 @@
 %define tevent_version 0.9.38
 %define ldb_version 1.5.2
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -1266,6 +1266,7 @@ fi
 
 %if ! %{with_vfs_glusterfs}
 %exclude %{_mandir}/man8/vfs_glusterfs.8*
+%exclude %{_mandir}/man8/vfs_glusterfs_fuse.8*
 %endif
 
 %if ! %{with_vfs_cephfs}
@@ -1738,7 +1739,9 @@ fi
 %if %{with_vfs_glusterfs}
 %files vfs-glusterfs
 %{_libdir}/samba/vfs/glusterfs.so
+%{_libdir}/samba/vfs/glusterfs_fuse.so
 %{_mandir}/man8/vfs_glusterfs.8*
+%{_mandir}/man8/vfs_glusterfs_fuse.8*
 %endif
 
 ### KRB5-PRINTING
@@ -3391,6 +3394,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Feb 06 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc2-0
+- Update to Samba 4.10.0rc2
+
 * Tue Jan 15 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc1-0
 - Update to Samba 4.10.0rc1
 
