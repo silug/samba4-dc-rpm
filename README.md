@@ -140,7 +140,7 @@ subscribe go to [mailman](http://lists.samba.org) or send mail to
 samba list, so you only need to be on one.
 
 For details of other Samba mailing lists and for access to archives, see
-[mailman](<http://lists.samba.org)
+[mailman](http://lists.samba.org)
 
 ### MAILING LIST ETIQUETTE
 
