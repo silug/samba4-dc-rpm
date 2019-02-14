@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.10.0
 %define talloc_version 2.1.15
@@ -118,6 +118,8 @@ Source14:       samba.pamd
 
 Source201:      README.downgrade
 
+Patch0:         samba-4.10-fix_ndr_public_api.patch
+
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
 Requires(preun): systemd
@@ -178,6 +180,7 @@ BuildRequires: lmdb
 BuildRequires: ncurses-devel
 BuildRequires: openldap-devel
 BuildRequires: pam-devel
+BuildRequires: perl-interpreter
 BuildRequires: perl-generators
 BuildRequires: perl(Archive::Tar)
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -545,6 +548,7 @@ to manage Samba AD.
 ### PIDL
 %package pidl
 Summary: Perl IDL compiler
+Requires: perl-interpreter
 Requires: perl(Parse::Yapp)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 BuildArch: noarch
@@ -1669,16 +1673,14 @@ fi
 %{_includedir}/samba-4.0/util/byteorder.h
 %{_includedir}/samba-4.0/util/data_blob.h
 %{_includedir}/samba-4.0/util/debug.h
+%{_includedir}/samba-4.0/util/discard.h
 %{_includedir}/samba-4.0/util/fault.h
 %{_includedir}/samba-4.0/util/genrand.h
 %{_includedir}/samba-4.0/util/idtree.h
 %{_includedir}/samba-4.0/util/idtree_random.h
-%{_includedir}/samba-4.0/util/memory.h
-%{_includedir}/samba-4.0/util/safe_string.h
 %{_includedir}/samba-4.0/util/signal.h
 %{_includedir}/samba-4.0/util/string_wrappers.h
 %{_includedir}/samba-4.0/util/substitute.h
-%{_includedir}/samba-4.0/util/talloc_stack.h
 %{_includedir}/samba-4.0/util/tevent_ntstatus.h
 %{_includedir}/samba-4.0/util/tevent_unix.h
 %{_includedir}/samba-4.0/util/tevent_werror.h
@@ -3394,6 +3396,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Thu Feb 14 2019 Andreas Schneider <asn@redhat.com> - 4.10.0rc2-2
+- resolves: #1672231 - Fix public NDR API
+
 * Tue Feb 12 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc2-1
 - resolves: #1674547 - Move samba.xattr modules out of python3 test package
 
