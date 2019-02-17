@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3396,6 +3396,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Sun Feb 17 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.10.0-0.2.rc2.1
+- Rebuild for readline 8.0
+
 * Thu Feb 14 2019 Andreas Schneider <asn@redhat.com> - 4.10.0rc2-2
 - resolves: #1672231 - Fix public NDR API
 
