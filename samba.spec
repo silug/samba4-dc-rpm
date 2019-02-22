@@ -12,9 +12,9 @@
 %define talloc_version 2.1.15
 %define tdb_version 1.3.17
 %define tevent_version 0.9.38
-%define ldb_version 1.5.2
+%define ldb_version 1.5.3
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -117,8 +117,6 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
-
-Patch0:         samba-4.10-fix_ndr_public_api.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3396,6 +3394,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Fri Feb 22 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc3-2
+- Update to Samba 4.10.0rc3
+
 * Sun Feb 17 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2:4.10.0-0.2.rc2.1
 - Rebuild for readline 8.0
 
