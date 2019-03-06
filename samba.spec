@@ -9,12 +9,12 @@
 %define main_release 2
 
 %define samba_version 4.10.0
-%define talloc_version 2.1.15
-%define tdb_version 1.3.17
-%define tevent_version 0.9.38
-%define ldb_version 1.5.3
+%define talloc_version 2.1.16
+%define tdb_version 1.3.18
+%define tevent_version 0.9.39
+%define ldb_version 1.5.4
 # This should be rc1 or nil
-%define pre_release rc3
+%define pre_release rc4
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -2630,6 +2630,7 @@ fi
 %{_libexecdir}/ctdb/tests/comm_server_test
 %{_libexecdir}/ctdb/tests/comm_test
 %{_libexecdir}/ctdb/tests/conf_test
+%{_libexecdir}/ctdb/tests/ctdb_io_test
 %{_libexecdir}/ctdb/tests/ctdb_packet_parse
 %{_libexecdir}/ctdb/tests/ctdb_takeover_tests
 %{_libexecdir}/ctdb/tests/db_hash_test
@@ -2710,6 +2711,7 @@ fi
 %{_datadir}/ctdb/tests/cunit/config_test_005.sh
 %{_datadir}/ctdb/tests/cunit/config_test_006.sh
 %{_datadir}/ctdb/tests/cunit/config_test_007.sh
+%{_datadir}/ctdb/tests/cunit/ctdb_io_test_001.sh
 %{_datadir}/ctdb/tests/cunit/db_hash_test_001.sh
 %{_datadir}/ctdb/tests/cunit/event_protocol_test_001.sh
 %{_datadir}/ctdb/tests/cunit/event_script_test_001.sh
@@ -3118,6 +3120,7 @@ fi
 %dir %{_datadir}/ctdb/tests/simple
 %{_datadir}/ctdb/tests/simple/README
 %{_datadir}/ctdb/tests/simple/00_ctdb_onnode.sh
+%{_datadir}/ctdb/tests/simple/01_ctdb_reclock_command.sh
 %{_datadir}/ctdb/tests/simple/02_ctdb_tunables.sh
 %{_datadir}/ctdb/tests/simple/05_ctdb_listnodes.sh
 %{_datadir}/ctdb/tests/simple/06_ctdb_getpid.sh
@@ -3394,6 +3397,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 06 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc4-2
+- Update to Samba 4.10.0rc4
+
 * Fri Feb 22 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc3-2
 - Update to Samba 4.10.0rc3
 
