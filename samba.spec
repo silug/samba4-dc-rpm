@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 4
 
 %define samba_version 4.10.0
 %define talloc_version 2.1.16
@@ -972,9 +972,17 @@ for i in \
     %{python3_sitearch}/samba/__pycache__/ms_schema_markdown.*.pyc \
     %{python3_sitearch}/samba/__pycache__/remove_dc.*.pyc \
     %{python3_sitearch}/samba/__pycache__/schema.*.pyc \
+    %{python3_sitearch}/samba/__pycache__/uptodateness.*.pyc \
     %{python3_sitearch}/samba/remove_dc.py \
     %{python3_sitearch}/samba/samdb.py \
     %{python3_sitearch}/samba/schema.py \
+    %{python3_sitearch}/samba/third_party/iso8601/__init__.py \
+    %{python3_sitearch}/samba/third_party/iso8601/__pycache__/__init__.*.pyc \
+    %{python3_sitearch}/samba/third_party/iso8601/__pycache__/iso8601.*.pyc \
+    %{python3_sitearch}/samba/third_party/iso8601/__pycache__/test_iso8601.*.pyc \
+    %{python3_sitearch}/samba/third_party/iso8601/iso8601.py \
+    %{python3_sitearch}/samba/third_party/iso8601/test_iso8601.py \
+    %{python3_sitearch}/samba/uptodateness.py \
     %{_sbindir}/samba-gpupdate \
     ; do
     rm -f %{buildroot}$i
@@ -1860,7 +1868,6 @@ fi
 %{python3_sitearch}/samba/__pycache__/tdb_util.*.pyc
 %{python3_sitearch}/samba/__pycache__/upgrade.*.pyc
 %{python3_sitearch}/samba/__pycache__/upgradehelpers.*.pyc
-%{python3_sitearch}/samba/__pycache__/uptodateness.*.pyc
 %{python3_sitearch}/samba/__pycache__/xattr.*.pyc
 %{python3_sitearch}/samba/_glue.*.so
 %{python3_sitearch}/samba/_ldb.*.so
@@ -2080,6 +2087,7 @@ fi
 %{python3_sitearch}/samba/__pycache__/remove_dc.*.pyc
 %{python3_sitearch}/samba/__pycache__/samdb.*.pyc
 %{python3_sitearch}/samba/__pycache__/schema.*.pyc
+%{python3_sitearch}/samba/__pycache__/uptodateness.*.pyc
 
 %{python3_sitearch}/samba/dcerpc/dnsserver.*.so
 %{python3_sitearch}/samba/dckeytab.*.so
@@ -3397,7 +3405,7 @@ fi
 %endif # with_clustering_support
 
 %changelog
-* Tue Mar 19 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0-3
+* Tue Mar 19 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0-4
 - Update to Samba 4.10.0
 
 * Wed Mar 06 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0rc4-2
