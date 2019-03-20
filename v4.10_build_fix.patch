@@ -1,0 +1,39 @@
+From 739ac46f26e72a601405a0a59747b27584238b3e Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Wed, 20 Mar 2019 11:09:21 +0100
+Subject: [PATCH] s4:librpc: Fix installation of Samba
+
+This breaks installation of Samba 4.10 on Fedora.
+
+https://bugzilla.samba.org/show_bug.cgi?id=13847
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Alexander Bokovoy <ab@samba.org>
+
+(cherry picked from commit bf469343f577e2d78df0e38d80e7976b351eaf0d)
+---
+ source4/librpc/wscript_build | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/source4/librpc/wscript_build b/source4/librpc/wscript_build
+index f00571e4bc3..d9b7743c9d1 100644
+--- a/source4/librpc/wscript_build
++++ b/source4/librpc/wscript_build
+@@ -412,14 +412,6 @@ for env in bld.gen_python_environments():
+                 cflags_end=gen_cflags
+ 		)
+ 
+-	bld.SAMBA_PYTHON('python_idmap',
+-		source='../../librpc/gen_ndr/py_idmap.c',
+-		deps='NDR_IDMAP %s %s' % (pytalloc_util, pyrpc_util),
+-		realname='samba/dcerpc/idmap.so',
+-                cflags_end=gen_cflags
+-		)
+-
+-
+ 	bld.SAMBA_PYTHON('python_drsuapi',
+ 		source='../../librpc/gen_ndr/py_drsuapi.c',
+ 		deps='RPC_NDR_DRSUAPI %s %s' % (pytalloc_util, pyrpc_util),
+-- 
+2.21.0
+

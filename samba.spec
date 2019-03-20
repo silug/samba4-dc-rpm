@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 4
+%define main_release 5
 
 %define samba_version 4.10.0
 %define talloc_version 2.1.16
@@ -117,6 +117,8 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
+
+Patch0:         v4.10_build_fix.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3405,6 +3407,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Mar 20 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0-5
+- Fix build failure (duplication during install)
+
 * Tue Mar 19 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0-4
 - Update to Samba 4.10.0
 
