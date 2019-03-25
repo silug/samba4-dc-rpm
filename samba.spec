@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 5
+%define main_release 6
 
 %define samba_version 4.10.0
 %define talloc_version 2.1.16
@@ -356,11 +356,9 @@ Requires: ldb-tools
 # See bug 1507420
 %requires_eq libldb
 
-%if 0
 Requires: python3-crypto
 Requires: python3-%{name} = %{samba_depver}
 Requires: python3-%{name}-dc = %{samba_depver}
-%endif
 Requires: krb5-server >= %{required_mit_krb5}
 
 Provides: samba4-dc = %{samba_depver}
@@ -3408,6 +3406,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Mon Mar 25 2019 Andreas Schneider <asn@redhat.com> - 4.10.0-6
+- resolves: #1692347 - Add missing DC requirement for its python3 tools
+
 * Wed Mar 20 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.0-5
 - Fix build failure (duplication during install)
 
