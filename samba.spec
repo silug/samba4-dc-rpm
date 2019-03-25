@@ -118,7 +118,7 @@ Source14:       samba.pamd
 
 Source201:      README.downgrade
 
-Patch0:         v4.10_build_fix.patch
+Patch0:         samba-4.10-fix_make_install.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
