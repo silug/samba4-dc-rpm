@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 6
+%define main_release 0
 
-%define samba_version 4.10.0
+%define samba_version 4.10.1
 %define talloc_version 2.1.16
 %define tdb_version 1.3.18
 %define tevent_version 0.9.39
@@ -117,8 +117,6 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
-
-Patch0:         samba-4.10-fix_make_install.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3406,6 +3404,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Apr 03 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.1-0
+- Update to Samba 4.10.1
+
 * Mon Mar 25 2019 Andreas Schneider <asn@redhat.com> - 4.10.0-6
 - resolves: #1692347 - Add missing DC requirement for its python3 tools
 
