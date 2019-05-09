@@ -197,10 +197,12 @@ BuildRequires: readline-devel
 BuildRequires: rpcgen
 BuildRequires: rpcsvc-proto-devel
 BuildRequires: sed
+BuildRequires: libtasn1-devel
+# We need asn1Parser
+BuildRequires: libtasn1-tools
 BuildRequires: xfsprogs-devel
 BuildRequires: xz
 BuildRequires: zlib-devel >= 1.2.3
-BuildRequires: libtasn1-devel
 
 BuildRequires: pkgconfig(libsystemd)
 
