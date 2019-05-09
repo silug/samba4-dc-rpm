@@ -775,12 +775,6 @@ export python_LDFLAGS="$(echo %{__global_ldflags} | sed -e 's/-Wl,-z,defs//g')"
 # Use the gold linker
 export LDFLAGS="%{__global_ldflags} -fuse-ld=gold"
 
-%if 0%{?rhel}
-# Use Python 2 for the waf buildscript
-pathfix.py -n -p -i %{__python2} buildtools/bin/waf
-export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
-%endif # rhel
-
 %configure \
         --enable-fhs \
         --with-piddir=/run \
@@ -832,10 +826,6 @@ make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
-
-%if 0%{?rhel}
-export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
-%endif # rhel
 
 make %{?_smp_mflags} install DESTDIR=%{buildroot}
 
@@ -1003,10 +993,6 @@ done
 
 %if %{with testsuite}
 %check
-%if 0%{?rhel}
-export RHEL_ALLOW_PYTHON2_FOR_BUILD=1
-%endif # rhel
-
 TDB_NO_FSYNC=1 make %{?_smp_mflags} test
 %endif # with testsuite
 
