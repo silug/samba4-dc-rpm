@@ -200,6 +200,7 @@ BuildRequires: sed
 BuildRequires: xfsprogs-devel
 BuildRequires: xz
 BuildRequires: zlib-devel >= 1.2.3
+BuildRequires: libtasn1-devel
 
 BuildRequires: pkgconfig(libsystemd)
 
@@ -219,6 +220,8 @@ BuildRequires: krb5-server >= %{required_mit_krb5}
 
 # Required by samba-tool to run tests
 BuildRequires: python3-crypto
+%else
+BuildRequires: gnutls-devel >= 3.2.0
 %endif
 
 # pidl requirements
