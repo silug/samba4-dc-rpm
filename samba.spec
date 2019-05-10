@@ -1195,6 +1195,7 @@ fi
 %{_libdir}/samba/vfs/fileid.so
 %{_libdir}/samba/vfs/fruit.so
 %{_libdir}/samba/vfs/full_audit.so
+%{_libdir}/samba/vfs/glusterfs_fuse.so
 %{_libdir}/samba/vfs/linux_xfs_sgid.so
 %{_libdir}/samba/vfs/media_harmony.so
 %{_libdir}/samba/vfs/netatalk.so
@@ -1243,6 +1244,7 @@ fi
 %{_mandir}/man8/vfs_fileid.8*
 %{_mandir}/man8/vfs_fruit.8*
 %{_mandir}/man8/vfs_full_audit.8*
+%{_mandir}/man8/vfs_glusterfs_fuse.8*
 %{_mandir}/man8/vfs_linux_xfs_sgid.8*
 %{_mandir}/man8/vfs_media_harmony.8*
 %{_mandir}/man8/vfs_netatalk.8*
@@ -1266,7 +1268,6 @@ fi
 
 %if ! %{with_vfs_glusterfs}
 %exclude %{_mandir}/man8/vfs_glusterfs.8*
-%exclude %{_mandir}/man8/vfs_glusterfs_fuse.8*
 %endif
 
 %if ! %{with_vfs_cephfs}
@@ -1737,9 +1738,7 @@ fi
 %if %{with_vfs_glusterfs}
 %files vfs-glusterfs
 %{_libdir}/samba/vfs/glusterfs.so
-%{_libdir}/samba/vfs/glusterfs_fuse.so
 %{_mandir}/man8/vfs_glusterfs.8*
-%{_mandir}/man8/vfs_glusterfs_fuse.8*
 %endif
 
 ### KRB5-PRINTING
