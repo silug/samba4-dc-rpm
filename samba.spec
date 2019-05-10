@@ -309,6 +309,12 @@ Requires(post): systemd
 Provides: samba4-common = %{samba_depver}
 Obsoletes: samba4-common < %{samba_depver}
 
+%if ! %{with_dc}
+Obsoletes: samba-dc < %{samba_depver}
+Obsoletes: samba-dc-libs < %{samba_depver}
+Obsoletes: samba-dc-bind-dlz < %{samba_depver}
+%endif
+
 %description common
 samba-common provides files necessary for both the server and client
 packages of Samba.
