@@ -101,7 +101,7 @@ Epoch:          2
 %endif
 
 Summary:        Server and Client software to interoperate with Windows machines
-License:        GPLv3+ and LGPLv3+.
+License:        GPLv3+ and LGPLv3+
 URL:            http://www.samba.org/
 
 # This is a xz recompressed file of https://ftp.samba.org/pub/samba/samba-%%{version}%%{pre_release}.tar.gz
