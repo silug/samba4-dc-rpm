@@ -8,7 +8,7 @@
 
 %define main_release 0
 
-%define samba_version 4.10.3
+%define samba_version 4.10.4
 %define talloc_version 2.1.16
 %define tdb_version 1.3.18
 %define tevent_version 0.9.39
@@ -3431,6 +3431,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed May 22 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.4-0
+- Update to Samba 4.10.4
+
 * Tue May 14 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.3-0
 - Update to Samba 4.10.3
 - resolves: #1705877, #1709679 - Security fixes for CVE-2018-16860
