@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.10.4
 %define talloc_version 2.1.16
@@ -2574,6 +2574,7 @@ fi
 # CTDB scripts, no config files
 # script with executable bit means activated
 %dir %{_sysconfdir}/ctdb/events
+%dir %{_sysconfdir}/ctdb/events/legacy
 %dir %{_sysconfdir}/ctdb/events/notification
 %{_sysconfdir}/ctdb/events/notification/README
 
@@ -3431,6 +3432,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue May 28 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.4-1
+- Add missing /etc/ctdb/events/legacy directory
+
 * Wed May 22 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.4-0
 - Update to Samba 4.10.4
 
