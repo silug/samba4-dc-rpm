@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3435,6 +3435,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Fri May 31 2019 Jitka Plesnikova <jplesnik@redhat.com> - 2:4.10.4-1.1
+- Perl 5.30 rebuild
+
 * Tue May 28 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.4-1
 - Add missing ctdb directories
 - resolves: #1656777
