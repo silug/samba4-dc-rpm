@@ -1,0 +1,1127 @@
+From 16056895403f3c673dc5adc531b7e739d46292fb Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Mon, 13 May 2019 16:55:49 +0200
+Subject: [PATCH 1/9] s3:smbspool: Add the 'lp' group to the users groups
+
+This is required to access files in /var/spool/cups which have been
+temporarily created in there by CUPS.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 6086efb6808089c431e7307fa239924bfda1185b)
+---
+ source3/client/smbspool_krb5_wrapper.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/source3/client/smbspool_krb5_wrapper.c b/source3/client/smbspool_krb5_wrapper.c
+index 5c4da33238b..e6684fc0d0c 100644
+--- a/source3/client/smbspool_krb5_wrapper.c
++++ b/source3/client/smbspool_krb5_wrapper.c
+@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
+ {
+ 	char smbspool_cmd[PATH_MAX] = {0};
+ 	struct passwd *pwd;
++	struct group *g = NULL;
+ 	char gen_cc[PATH_MAX] = {0};
+ 	struct stat sb;
+ 	char *env = NULL;
+@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
+ 	char device_uri[4096] = {0};
+ 	uid_t uid = (uid_t)-1;
+ 	gid_t gid = (gid_t)-1;
++	gid_t groups[1] = { (gid_t)-1 };
+ 	unsigned long tmp;
+ 	int cmp;
+ 	int rc;
+@@ -176,6 +178,26 @@ int main(int argc, char *argv[])
+ 		return CUPS_BACKEND_FAILED;
+ 	}
+ 
++	/*
++	 * We need the primary group of the 'lp' user. This is needed to access
++	 * temporary files in /var/spool/cups/.
++	 */
++	g = getgrnam("lp");
++	if (g == NULL) {
++		CUPS_SMB_ERROR("Failed to find user 'lp' - %s",
++			       strerror(errno));
++		return CUPS_BACKEND_FAILED;
++	}
++
++	CUPS_SMB_DEBUG("Adding group 'lp' (%u)", g->gr_gid);
++	groups[0] = g->gr_gid;
++	rc = setgroups(sizeof(groups), groups);
++	if (rc != 0) {
++		CUPS_SMB_ERROR("Failed to set groups for 'lp' - %s",
++			       strerror(errno));
++		return CUPS_BACKEND_FAILED;
++	}
++
+ 	CUPS_SMB_DEBUG("Switching to gid=%d", gid);
+ 	rc = setgid(gid);
+ 	if (rc != 0) {
+-- 
+2.21.0
+
+
+From a6b29458e833db85057ef1b7c0403e90f76adfa4 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 16 May 2019 13:41:02 +0200
+Subject: [PATCH 2/9] s3:smbspool: Print the principal we use to authenticate
+ with
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 42492d547661cb7a98c237b32d42ee93de35aba5)
+---
+ source3/client/smbspool.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/source3/client/smbspool.c b/source3/client/smbspool.c
+index 22071613677..efbdd418fdb 100644
+--- a/source3/client/smbspool.c
++++ b/source3/client/smbspool.c
+@@ -616,6 +616,7 @@ static bool kerberos_ccache_is_valid(void) {
+ 		return false;
+ 	} else {
+ 		krb5_principal default_princ = NULL;
++		char *princ_name = NULL;
+ 
+ 		code = krb5_cc_get_principal(ctx,
+ 					     ccache,
+@@ -625,6 +626,16 @@ static bool kerberos_ccache_is_valid(void) {
+ 			krb5_free_context(ctx);
+ 			return false;
+ 		}
++
++		code = krb5_unparse_name(ctx,
++					 default_princ,
++					 &princ_name);
++		if (code == 0) {
++			fprintf(stderr,
++				"DEBUG: Try to authenticate as %s\n",
++				princ_name);
++			krb5_free_unparsed_name(ctx, princ_name);
++		}
+ 		krb5_free_principal(ctx, default_princ);
+ 	}
+ 	krb5_cc_close(ctx, ccache);
+-- 
+2.21.0
+
+
+From b64ed8bb51c7c78d757881fc3944f7bc812f5457 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 16 May 2019 14:25:00 +0200
+Subject: [PATCH 3/9] s3:smbspool: Add debug for finding KRB5CCNAME
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 3632bfef25e471075886eb7aecddd4cc260db8ba)
+---
+ source3/client/smbspool_krb5_wrapper.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/source3/client/smbspool_krb5_wrapper.c b/source3/client/smbspool_krb5_wrapper.c
+index e6684fc0d0c..2cdcd372ec6 100644
+--- a/source3/client/smbspool_krb5_wrapper.c
++++ b/source3/client/smbspool_krb5_wrapper.c
+@@ -219,10 +219,14 @@ int main(int argc, char *argv[])
+ 	env = getenv("KRB5CCNAME");
+ 	if (env != NULL && env[0] != 0) {
+ 		snprintf(gen_cc, sizeof(gen_cc), "%s", env);
++		CUPS_SMB_DEBUG("User already set KRB5CCNAME [%s] as ccache",
++			       gen_cc);
+ 
+ 		goto create_env;
+ 	}
+ 
++	CUPS_SMB_DEBUG("Trying to guess KRB5CCNAME (FILE, DIR, KEYRING)");
++
+ 	snprintf(gen_cc, sizeof(gen_cc), "/tmp/krb5cc_%d", uid);
+ 
+ 	rc = lstat(gen_cc, &sb);
+-- 
+2.21.0
+
+
+From 3b7be905d256955e7e8c056f14626547e08fea2d Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 16 May 2019 17:10:57 +0200
+Subject: [PATCH 4/9] s3:smbspool: Use %u format specifier to print uid
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit be596ce3d2455bd49a8ebd311d8c764c37852858)
+---
+ source3/client/smbspool_krb5_wrapper.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/source3/client/smbspool_krb5_wrapper.c b/source3/client/smbspool_krb5_wrapper.c
+index 2cdcd372ec6..3266b90ec1a 100644
+--- a/source3/client/smbspool_krb5_wrapper.c
++++ b/source3/client/smbspool_krb5_wrapper.c
+@@ -227,13 +227,13 @@ int main(int argc, char *argv[])
+ 
+ 	CUPS_SMB_DEBUG("Trying to guess KRB5CCNAME (FILE, DIR, KEYRING)");
+ 
+-	snprintf(gen_cc, sizeof(gen_cc), "/tmp/krb5cc_%d", uid);
++	snprintf(gen_cc, sizeof(gen_cc), "/tmp/krb5cc_%u", uid);
+ 
+ 	rc = lstat(gen_cc, &sb);
+ 	if (rc == 0) {
+-		snprintf(gen_cc, sizeof(gen_cc), "FILE:/tmp/krb5cc_%d", uid);
++		snprintf(gen_cc, sizeof(gen_cc), "FILE:/tmp/krb5cc_%u", uid);
+ 	} else {
+-		snprintf(gen_cc, sizeof(gen_cc), "/run/user/%d/krb5cc", uid);
++		snprintf(gen_cc, sizeof(gen_cc), "/run/user/%u/krb5cc", uid);
+ 
+ 		rc = lstat(gen_cc, &sb);
+ 		if (rc == 0 && S_ISDIR(sb.st_mode)) {
+-- 
+2.21.0
+
+
+From 6e2069b014358b6f7e04121fa39c5f2750506d78 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 16 May 2019 17:40:43 +0200
+Subject: [PATCH 5/9] s3:smbspool: Fallback to default ccache if KRB5CCNAME is
+ not set
+
+This could also support the new KCM credential cache storage.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 6bbdf69e406916107400e2cabdbc831e2a2bbee3)
+---
+ source3/client/smbspool_krb5_wrapper.c | 79 ++++++++++++++++++--------
+ source3/wscript_build                  |  1 +
+ 2 files changed, 55 insertions(+), 25 deletions(-)
+
+diff --git a/source3/client/smbspool_krb5_wrapper.c b/source3/client/smbspool_krb5_wrapper.c
+index 3266b90ec1a..bff1df417e8 100644
+--- a/source3/client/smbspool_krb5_wrapper.c
++++ b/source3/client/smbspool_krb5_wrapper.c
+@@ -21,6 +21,7 @@
+ 
+ #include "includes.h"
+ #include "system/filesys.h"
++#include "system/kerberos.h"
+ #include "system/passwd.h"
+ 
+ #include <errno.h>
+@@ -68,6 +69,50 @@ static void cups_smb_debug(enum cups_smb_dbglvl_e lvl, const char *format, ...)
+ 		buffer);
+ }
+ 
++static bool kerberos_get_default_ccache(char *ccache_buf, size_t len)
++{
++	krb5_context ctx;
++	const char *ccache_name = NULL;
++	char *full_ccache_name = NULL;
++	krb5_ccache ccache = NULL;
++	krb5_error_code code;
++
++	code = krb5_init_context(&ctx);
++	if (code != 0) {
++		return false;
++	}
++
++	ccache_name = krb5_cc_default_name(ctx);
++	if (ccache_name == NULL) {
++		krb5_free_context(ctx);
++		return false;
++	}
++
++	code = krb5_cc_resolve(ctx, ccache_name, &ccache);
++	if (code != 0) {
++		krb5_free_context(ctx);
++		return false;
++	}
++
++	code = krb5_cc_get_full_name(ctx, ccache, &full_ccache_name);
++	krb5_cc_close(ctx, ccache);
++	if (code != 0) {
++		krb5_free_context(ctx);
++		return false;
++	}
++
++	snprintf(ccache_buf, len, "%s", full_ccache_name);
++
++#ifdef SAMBA4_USES_HEIMDAL
++	free(full_ccache_name);
++#else
++	krb5_free_string(ctx, full_ccache_name);
++#endif
++	krb5_free_context(ctx);
++
++	return true;
++}
++
+ /*
+  * This is a helper binary to execute smbspool.
+  *
+@@ -84,7 +129,6 @@ int main(int argc, char *argv[])
+ 	struct passwd *pwd;
+ 	struct group *g = NULL;
+ 	char gen_cc[PATH_MAX] = {0};
+-	struct stat sb;
+ 	char *env = NULL;
+ 	char auth_info_required[256] = {0};
+ 	char device_uri[4096] = {0};
+@@ -92,6 +136,7 @@ int main(int argc, char *argv[])
+ 	gid_t gid = (gid_t)-1;
+ 	gid_t groups[1] = { (gid_t)-1 };
+ 	unsigned long tmp;
++	bool ok;
+ 	int cmp;
+ 	int rc;
+ 
+@@ -225,32 +270,16 @@ int main(int argc, char *argv[])
+ 		goto create_env;
+ 	}
+ 
+-	CUPS_SMB_DEBUG("Trying to guess KRB5CCNAME (FILE, DIR, KEYRING)");
+-
+-	snprintf(gen_cc, sizeof(gen_cc), "/tmp/krb5cc_%u", uid);
+-
+-	rc = lstat(gen_cc, &sb);
+-	if (rc == 0) {
+-		snprintf(gen_cc, sizeof(gen_cc), "FILE:/tmp/krb5cc_%u", uid);
+-	} else {
+-		snprintf(gen_cc, sizeof(gen_cc), "/run/user/%u/krb5cc", uid);
+-
+-		rc = lstat(gen_cc, &sb);
+-		if (rc == 0 && S_ISDIR(sb.st_mode)) {
+-			snprintf(gen_cc,
+-				 sizeof(gen_cc),
+-				 "DIR:/run/user/%d/krb5cc",
+-				 uid);
+-		} else {
+-#if defined(__linux__)
+-			snprintf(gen_cc,
+-				 sizeof(gen_cc),
+-				 "KEYRING:persistent:%d",
+-				 uid);
+-#endif
+-		}
++	ok = kerberos_get_default_ccache(gen_cc, sizeof(gen_cc));
++	if (ok) {
++		CUPS_SMB_DEBUG("Use default KRB5CCNAME [%s]",
++			       gen_cc);
++		goto create_env;
+ 	}
+ 
++	/* Fallback to a FILE ccache */
++	snprintf(gen_cc, sizeof(gen_cc), "FILE:/tmp/krb5cc_%u", uid);
++
+ create_env:
+ 	/*
+ 	 * Make sure we do not have LD_PRELOAD or other security relevant
+diff --git a/source3/wscript_build b/source3/wscript_build
+index f67ce59fe52..8e34b7d0261 100644
+--- a/source3/wscript_build
++++ b/source3/wscript_build
+@@ -1134,6 +1134,7 @@ bld.SAMBA3_BINARY('smbspool_krb5_wrapper',
+                  deps='''
+                       DYNCONFIG
+                       cups
++                      krb5
+                       ''',
+                  install_path='${LIBEXECDIR}/samba',
+                  enabled=bld.CONFIG_SET('HAVE_CUPS'))
+-- 
+2.21.0
+
+
+From d6673500b639ad1402014aa35113bd395e35d4f5 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Mon, 13 May 2019 16:48:31 +0200
+Subject: [PATCH 6/9] s3:smbspool: Print the filename we failed to open
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 281274572bcc3125fe6026a01ef7bf7ef584a0dd)
+---
+ source3/client/smbspool.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/source3/client/smbspool.c b/source3/client/smbspool.c
+index efbdd418fdb..ef16c2bed42 100644
+--- a/source3/client/smbspool.c
++++ b/source3/client/smbspool.c
+@@ -224,7 +224,9 @@ main(int argc,			/* I - Number of command-line arguments */
+ 
+ 		fp = fopen(print_file, "rb");
+ 		if (fp == NULL) {
+-			perror("ERROR: Unable to open print file");
++			fprintf(stderr,
++				"ERROR: Unable to open print file: %s",
++				print_file);
+ 			goto done;
+ 		}
+ 
+-- 
+2.21.0
+
+
+From ea931f33d92506cdab17a7b746e43831d6bf2112 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Mon, 13 May 2019 18:54:02 +0200
+Subject: [PATCH 7/9] s3:smbspool: Always try to authenticate using Kerberos
+
+If username and password is given, then fallback to NTLM. However try
+kinit first. Also we correctly handle NULL passwords in the meantime and
+this makes it easier to deal with issues.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 3d719a1f85db8e423dc3a4116a2228961d5ac48d)
+---
+ source3/client/smbspool.c | 90 ++++++++++++++++++++++-----------------
+ 1 file changed, 51 insertions(+), 39 deletions(-)
+
+diff --git a/source3/client/smbspool.c b/source3/client/smbspool.c
+index ef16c2bed42..f21aac2ac58 100644
+--- a/source3/client/smbspool.c
++++ b/source3/client/smbspool.c
+@@ -88,8 +88,8 @@ main(int argc,			/* I - Number of command-line arguments */
+ 	int             port;	/* Port number */
+ 	char            uri[1024],	/* URI */
+ 	               *sep,	/* Pointer to separator */
+-	               *tmp, *tmp2,	/* Temp pointers to do escaping */
+-	               *password;	/* Password */
++	               *tmp, *tmp2;	/* Temp pointers to do escaping */
++	const char     *password = NULL;	/* Password */
+ 	char           *username,	/* Username */
+ 	               *server,	/* Server name */
+ 	               *printer;/* Printer name */
+@@ -293,8 +293,6 @@ main(int argc,			/* I - Number of command-line arguments */
+ 		if ((tmp2 = strchr_m(tmp, ':')) != NULL) {
+ 			*tmp2++ = '\0';
+ 			password = uri_unescape_alloc(tmp2);
+-		} else {
+-			password = empty_str;
+ 		}
+ 		username = uri_unescape_alloc(tmp);
+ 	} else {
+@@ -302,14 +300,15 @@ main(int argc,			/* I - Number of command-line arguments */
+ 			username = empty_str;
+ 		}
+ 
+-		if ((password = getenv("AUTH_PASSWORD")) == NULL) {
+-			password = empty_str;
++		env = getenv("AUTH_PASSWORD");
++		if (env != NULL && strlen(env) > 0) {
++			password = env;
+ 		}
+ 
+ 		server = uri + 6;
+ 	}
+ 
+-	if (password != empty_str) {
++	if (password != NULL) {
+ 		auth_info_required = "username,password";
+ 	}
+ 
+@@ -514,6 +513,7 @@ smb_complete_connection(const char *myname,
+ 	NTSTATUS        nt_status;
+ 	struct cli_credentials *creds = NULL;
+ 	bool use_kerberos = false;
++	bool fallback_after_kerberos = false;
+ 
+ 	/* Start the SMB connection */
+ 	*need_auth = false;
+@@ -524,27 +524,21 @@ smb_complete_connection(const char *myname,
+ 		return NULL;
+ 	}
+ 
+-	/*
+-	 * We pretty much guarantee password must be valid or a pointer to a
+-	 * 0 char.
+-	 */
+-	if (!password) {
+-		*need_auth = true;
+-		return NULL;
+-	}
+-
+ 	if (flags & CLI_FULL_CONNECTION_USE_KERBEROS) {
+-		auth_info_required = "negotiate";
+ 		use_kerberos = true;
+ 	}
+ 
++	if (flags & CLI_FULL_CONNECTION_FALLBACK_AFTER_KERBEROS) {
++		fallback_after_kerberos = true;
++	}
++
+ 	creds = cli_session_creds_init(cli,
+ 				       username,
+ 				       workgroup,
+ 				       NULL, /* realm */
+ 				       password,
+ 				       use_kerberos,
+-				       false, /* fallback_after_kerberos */
++				       fallback_after_kerberos,
+ 				       false, /* use_ccache */
+ 				       false); /* password_is_nt_hash */
+ 	if (creds == NULL) {
+@@ -663,6 +657,10 @@ smb_connect(const char *workgroup,	/* I - Workgroup */
+ 	struct cli_state *cli;	/* New connection */
+ 	char           *myname = NULL;	/* Client name */
+ 	struct passwd  *pwd;
++	int flags = CLI_FULL_CONNECTION_USE_KERBEROS;
++	bool use_kerberos = false;
++	const char *user = username;
++	int cmp;
+ 
+ 	/*
+          * Get the names and addresses of the client and server...
+@@ -672,42 +670,56 @@ smb_connect(const char *workgroup,	/* I - Workgroup */
+ 		return NULL;
+ 	}
+ 
+-	/*
+-	 * See if we have a username first.  This is for backwards compatible
+-	 * behavior with 3.0.14a
+-	 */
+ 
+-	if (username == NULL || username[0] == '\0') {
+-		if (kerberos_ccache_is_valid()) {
+-			goto kerberos_auth;
++	cmp = strcmp(auth_info_required, "negotiate");
++	if (cmp == 0) {
++		if (!kerberos_ccache_is_valid()) {
++			return NULL;
+ 		}
++		user = jobusername;
++
++		use_kerberos = true;
++		fprintf(stderr,
++			"DEBUG: Try to connect using Kerberos ...\n");
++	}
++
++	cmp = strcmp(auth_info_required, "username,password");
++	if (cmp == 0) {
++		if (username == NULL || username[0] == '\0') {
++			return NULL;
++		}
++
++		/* Fallback to NTLM */
++		flags |= CLI_FULL_CONNECTION_FALLBACK_AFTER_KERBEROS;
++
++		fprintf(stderr,
++			"DEBUG: Try to connect using username/password ...\n");
++	}
++
++	cmp = strcmp(auth_info_required, "none");
++	if (cmp == 0) {
++		fprintf(stderr,
++			"DEBUG: This backend doesn't support none auth ...\n");
++		return NULL;
+ 	}
+ 
+ 	cli = smb_complete_connection(myname,
+ 				      server,
+ 				      port,
+-				      username,
++				      user,
+ 				      password,
+ 				      workgroup,
+ 				      share,
+-				      0,
++				      flags,
+ 				      need_auth);
+ 	if (cli != NULL) {
+-		fputs("DEBUG: Connected with username/password...\n", stderr);
++		fprintf(stderr, "DEBUG: SMB connection established.\n");
+ 		return (cli);
+ 	}
+ 
+-kerberos_auth:
+-	/*
+-	 * Try to use the user kerberos credentials (if any) to authenticate
+-	 */
+-	cli = smb_complete_connection(myname, server, port, jobusername, "",
+-				      workgroup, share,
+-				 CLI_FULL_CONNECTION_USE_KERBEROS, need_auth);
+-
+-	if (cli) {
+-		fputs("DEBUG: Connected using Kerberos...\n", stderr);
+-		return (cli);
++	if (!use_kerberos) {
++		fprintf(stderr, "ERROR: SMB connection failed!\n");
++		return NULL;
+ 	}
+ 
+ 	/* give a chance for a passwordless NTLMSSP session setup */
+-- 
+2.21.0
+
+
+From 8689e83030160fbdbe9b72ff0c86826b49f707a1 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Thu, 16 May 2019 18:24:32 +0200
+Subject: [PATCH 8/9] s3:smbspool: Add debug messages to
+ kerberos_ccache_is_valid()
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit 93acd880801524c5e621df7b5bf5ad650f93cec3)
+---
+ source3/client/smbspool.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/source3/client/smbspool.c b/source3/client/smbspool.c
+index f21aac2ac58..79e210dd12e 100644
+--- a/source3/client/smbspool.c
++++ b/source3/client/smbspool.c
+@@ -602,12 +602,15 @@ static bool kerberos_ccache_is_valid(void) {
+ 
+ 	ccache_name = krb5_cc_default_name(ctx);
+ 	if (ccache_name == NULL) {
++		DBG_ERR("Failed to get default ccache name\n");
+ 		krb5_free_context(ctx);
+ 		return false;
+ 	}
+ 
+ 	code = krb5_cc_resolve(ctx, ccache_name, &ccache);
+ 	if (code != 0) {
++		DBG_ERR("Failed to resolve ccache name: %s\n",
++			ccache_name);
+ 		krb5_free_context(ctx);
+ 		return false;
+ 	} else {
+@@ -618,6 +621,9 @@ static bool kerberos_ccache_is_valid(void) {
+ 					     ccache,
+ 					     &default_princ);
+ 		if (code != 0) {
++			DBG_ERR("Failed to get default principal from "
++				"ccache: %s\n",
++				ccache_name);
+ 			krb5_cc_close(ctx, ccache);
+ 			krb5_free_context(ctx);
+ 			return false;
+-- 
+2.21.0
+
+
+From d1cee66a5e66d83b2aee3a803351c51d4f5a8118 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Tue, 14 May 2019 11:35:46 +0200
+Subject: [PATCH 9/9] s3:smbspool: Use NTSTATUS return codes
+
+This allows us to simplify some code and return better errors.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Guenther Deschner <gd@samba.org>
+(cherry picked from commit d9af3dc02e98a3eb22441dfbdeddbaca0af078ea)
+---
+ source3/client/smbspool.c | 250 ++++++++++++++++++++++----------------
+ 1 file changed, 145 insertions(+), 105 deletions(-)
+
+diff --git a/source3/client/smbspool.c b/source3/client/smbspool.c
+index 79e210dd12e..ad988eb0df9 100644
+--- a/source3/client/smbspool.c
++++ b/source3/client/smbspool.c
+@@ -61,12 +61,27 @@
+  * Local functions...
+  */
+ 
+-static int      get_exit_code(struct cli_state * cli, NTSTATUS nt_status);
++static int      get_exit_code(NTSTATUS nt_status);
+ static void     list_devices(void);
+-static struct cli_state *smb_complete_connection(const char *, const char *,
+-	int, const char *, const char *, const char *, const char *, int, bool *need_auth);
+-static struct cli_state *smb_connect(const char *, const char *, int, const
+-	char *, const char *, const char *, const char *, bool *need_auth);
++static NTSTATUS
++smb_complete_connection(struct cli_state **output_cli,
++			const char *myname,
++			const char *server,
++			int port,
++			const char *username,
++			const char *password,
++			const char *workgroup,
++			const char *share,
++			int flags);
++static NTSTATUS
++smb_connect(struct cli_state **output_cli,
++	    const char *workgroup,
++	    const char *server,
++	    const int port,
++	    const char *share,
++	    const char *username,
++	    const char *password,
++	    const char *jobusername);
+ static int      smb_print(struct cli_state *, const char *, FILE *);
+ static char    *uri_unescape_alloc(const char *);
+ #if 0
+@@ -90,16 +105,15 @@ main(int argc,			/* I - Number of command-line arguments */
+ 	               *sep,	/* Pointer to separator */
+ 	               *tmp, *tmp2;	/* Temp pointers to do escaping */
+ 	const char     *password = NULL;	/* Password */
+-	char           *username,	/* Username */
+-	               *server,	/* Server name */
++	const char     *username = NULL;	/* Username */
++	char           *server,	/* Server name */
+ 	               *printer;/* Printer name */
+ 	const char     *workgroup;	/* Workgroup */
+ 	FILE           *fp;	/* File to print */
+ 	int             status = 1;	/* Status of LPD job */
+-	struct cli_state *cli;	/* SMB interface */
+-	char            empty_str[] = "";
++	NTSTATUS nt_status = NT_STATUS_UNSUCCESSFUL;
++	struct cli_state *cli = NULL;	/* SMB interface */
+ 	int             tries = 0;
+-	bool		need_auth = true;
+ 	const char     *dev_uri = NULL;
+ 	const char     *env = NULL;
+ 	const char     *config_file = NULL;
+@@ -296,8 +310,9 @@ main(int argc,			/* I - Number of command-line arguments */
+ 		}
+ 		username = uri_unescape_alloc(tmp);
+ 	} else {
+-		if ((username = getenv("AUTH_USERNAME")) == NULL) {
+-			username = empty_str;
++		env = getenv("AUTH_USERNAME");
++		if (env != NULL && strlen(env) > 0) {
++			username = env;
+ 		}
+ 
+ 		env = getenv("AUTH_PASSWORD");
+@@ -369,27 +384,39 @@ main(int argc,			/* I - Number of command-line arguments */
+ 	load_interfaces();
+ 
+ 	do {
+-		cli = smb_connect(workgroup,
+-				  server,
+-				  port,
+-				  printer,
+-				  username,
+-				  password,
+-				  print_user,
+-				  &need_auth);
+-		if (cli == NULL) {
+-			if (need_auth) {
+-				exit(2);
++		nt_status = smb_connect(&cli,
++					workgroup,
++					server,
++					port,
++					printer,
++					username,
++					password,
++					print_user);
++		if (!NT_STATUS_IS_OK(nt_status)) {
++			status = get_exit_code(nt_status);
++			if (status == 2) {
++				fprintf(stderr,
++					"DEBUG: Unable to connect to CIFS "
++					"host: %s",
++					nt_errstr(nt_status));
++				goto done;
+ 			} else if (getenv("CLASS") == NULL) {
+-				fprintf(stderr, "ERROR: Unable to connect to CIFS host, will retry in 60 seconds...\n");
++				fprintf(stderr,
++					"ERROR: Unable to connect to CIFS "
++					"host: %s. Will retry in 60 "
++					"seconds...\n",
++					nt_errstr(nt_status));
+ 				sleep(60);
+ 				tries++;
+ 			} else {
+-				fprintf(stderr, "ERROR: Unable to connect to CIFS host, trying next printer...\n");
++				fprintf(stderr,
++					"ERROR: Unable to connect to CIFS "
++					"host: %s. Trying next printer...\n",
++					nt_errstr(nt_status));
+ 				goto done;
+ 			}
+ 		}
+-	} while ((cli == NULL) && (tries < MAX_RETRY_CONNECT));
++	} while (!NT_STATUS_IS_OK(nt_status) && (tries < MAX_RETRY_CONNECT));
+ 
+ 	if (cli == NULL) {
+ 		fprintf(stderr, "ERROR: Unable to connect to CIFS host after (tried %d times)\n", tries);
+@@ -436,10 +463,9 @@ done:
+  */
+ 
+ static int
+-get_exit_code(struct cli_state * cli,
+-	      NTSTATUS nt_status)
++get_exit_code(NTSTATUS nt_status)
+ {
+-	int i;
++	size_t i;
+ 
+ 	/* List of NTSTATUS errors that are considered
+ 	 * authentication errors
+@@ -455,17 +481,16 @@ get_exit_code(struct cli_state * cli,
+ 	};
+ 
+ 
+-	fprintf(stderr, "DEBUG: get_exit_code(cli=%p, nt_status=%s [%x])\n",
+-		cli, nt_errstr(nt_status), NT_STATUS_V(nt_status));
++	fprintf(stderr,
++		"DEBUG: get_exit_code(nt_status=%s [%x])\n",
++		nt_errstr(nt_status), NT_STATUS_V(nt_status));
+ 
+ 	for (i = 0; i < ARRAY_SIZE(auth_errors); i++) {
+ 		if (!NT_STATUS_EQUAL(nt_status, auth_errors[i])) {
+ 			continue;
+ 		}
+ 
+-		if (cli) {
+-			fprintf(stderr, "ATTR: auth-info-required=%s\n", auth_info_required);
+-		}
++		fprintf(stderr, "ATTR: auth-info-required=%s\n", auth_info_required);
+ 
+ 		/*
+ 		 * 2 = authentication required...
+@@ -498,16 +523,16 @@ list_devices(void)
+ }
+ 
+ 
+-static struct cli_state *
+-smb_complete_connection(const char *myname,
++static NTSTATUS
++smb_complete_connection(struct cli_state **output_cli,
++			const char *myname,
+ 			const char *server,
+ 			int port,
+ 			const char *username,
+ 			const char *password,
+ 			const char *workgroup,
+ 			const char *share,
+-			int flags,
+-			bool *need_auth)
++			int flags)
+ {
+ 	struct cli_state *cli;	/* New connection */
+ 	NTSTATUS        nt_status;
+@@ -516,12 +541,11 @@ smb_complete_connection(const char *myname,
+ 	bool fallback_after_kerberos = false;
+ 
+ 	/* Start the SMB connection */
+-	*need_auth = false;
+ 	nt_status = cli_start_connection(&cli, myname, server, NULL, port,
+ 					 SMB_SIGNING_DEFAULT, flags);
+ 	if (!NT_STATUS_IS_OK(nt_status)) {
+ 		fprintf(stderr, "ERROR: Connection failed: %s\n", nt_errstr(nt_status));
+-		return NULL;
++		return nt_status;
+ 	}
+ 
+ 	if (flags & CLI_FULL_CONNECTION_USE_KERBEROS) {
+@@ -544,20 +568,16 @@ smb_complete_connection(const char *myname,
+ 	if (creds == NULL) {
+ 		fprintf(stderr, "ERROR: cli_session_creds_init failed\n");
+ 		cli_shutdown(cli);
+-		return NULL;
++		return NT_STATUS_NO_MEMORY;
+ 	}
+ 
+ 	nt_status = cli_session_setup_creds(cli, creds);
+ 	if (!NT_STATUS_IS_OK(nt_status)) {
+ 		fprintf(stderr, "ERROR: Session setup failed: %s\n", nt_errstr(nt_status));
+ 
+-		if (get_exit_code(cli, nt_status) == 2) {
+-			*need_auth = true;
+-		}
+-
+ 		cli_shutdown(cli);
+ 
+-		return NULL;
++		return nt_status;
+ 	}
+ 
+ 	nt_status = cli_tree_connect_creds(cli, share, "?????", creds);
+@@ -565,13 +585,9 @@ smb_complete_connection(const char *myname,
+ 		fprintf(stderr, "ERROR: Tree connect failed (%s)\n",
+ 			nt_errstr(nt_status));
+ 
+-		if (get_exit_code(cli, nt_status) == 2) {
+-			*need_auth = true;
+-		}
+-
+ 		cli_shutdown(cli);
+ 
+-		return NULL;
++		return nt_status;
+ 	}
+ #if 0
+ 	/* Need to work out how to specify this on the URL. */
+@@ -584,7 +600,8 @@ smb_complete_connection(const char *myname,
+ 	}
+ #endif
+ 
+-	return cli;
++	*output_cli = cli;
++	return NT_STATUS_OK;
+ }
+ 
+ static bool kerberos_ccache_is_valid(void) {
+@@ -650,49 +667,48 @@ static bool kerberos_ccache_is_valid(void) {
+  * 'smb_connect()' - Return a connection to a server.
+  */
+ 
+-static struct cli_state *	/* O - SMB connection */
+-smb_connect(const char *workgroup,	/* I - Workgroup */
++static NTSTATUS
++smb_connect(struct cli_state **output_cli,
++	    const char *workgroup,	/* I - Workgroup */
+ 	    const char *server,	/* I - Server */
+ 	    const int port,	/* I - Port */
+ 	    const char *share,	/* I - Printer */
+ 	    const char *username,	/* I - Username */
+ 	    const char *password,	/* I - Password */
+-	    const char *jobusername,	/* I - User who issued the print job */
+-	    bool *need_auth)
+-{				/* O - Need authentication? */
+-	struct cli_state *cli;	/* New connection */
++	    const char *jobusername)	/* I - User who issued the print job */
++{
++	struct cli_state *cli = NULL;	/* New connection */
+ 	char           *myname = NULL;	/* Client name */
+ 	struct passwd  *pwd;
+ 	int flags = CLI_FULL_CONNECTION_USE_KERBEROS;
+ 	bool use_kerberos = false;
+ 	const char *user = username;
+-	int cmp;
++	NTSTATUS nt_status;
+ 
+ 	/*
+          * Get the names and addresses of the client and server...
+          */
+ 	myname = get_myname(talloc_tos());
+ 	if (!myname) {
+-		return NULL;
++		return NT_STATUS_NO_MEMORY;
+ 	}
+ 
+ 
+-	cmp = strcmp(auth_info_required, "negotiate");
+-	if (cmp == 0) {
++	if (strcmp(auth_info_required, "negotiate") == 0) {
+ 		if (!kerberos_ccache_is_valid()) {
+-			return NULL;
++			fprintf(stderr,
++				"ERROR: No valid Kerberos credential cache "
++				"found!\n");
++			return NT_STATUS_LOGON_FAILURE;
+ 		}
+ 		user = jobusername;
+ 
+ 		use_kerberos = true;
+ 		fprintf(stderr,
+ 			"DEBUG: Try to connect using Kerberos ...\n");
+-	}
+-
+-	cmp = strcmp(auth_info_required, "username,password");
+-	if (cmp == 0) {
+-		if (username == NULL || username[0] == '\0') {
+-			return NULL;
++	} else if (strcmp(auth_info_required, "username,password") == 0) {
++		if (username == NULL) {
++			return NT_STATUS_INVALID_ACCOUNT_NAME;
+ 		}
+ 
+ 		/* Fallback to NTLM */
+@@ -700,59 +716,83 @@ smb_connect(const char *workgroup,	/* I - Workgroup */
+ 
+ 		fprintf(stderr,
+ 			"DEBUG: Try to connect using username/password ...\n");
+-	}
++	} else {
++		if (username != NULL) {
++			flags |= CLI_FULL_CONNECTION_FALLBACK_AFTER_KERBEROS;
++		} else if (kerberos_ccache_is_valid()) {
++			auth_info_required = "negotiate";
+ 
+-	cmp = strcmp(auth_info_required, "none");
+-	if (cmp == 0) {
+-		fprintf(stderr,
+-			"DEBUG: This backend doesn't support none auth ...\n");
+-		return NULL;
++			user = jobusername;
++			use_kerberos = true;
++		} else {
++			fprintf(stderr,
++				"DEBUG: This backend requires credentials!\n");
++			return NT_STATUS_ACCESS_DENIED;
++		}
+ 	}
+ 
+-	cli = smb_complete_connection(myname,
+-				      server,
+-				      port,
+-				      user,
+-				      password,
+-				      workgroup,
+-				      share,
+-				      flags,
+-				      need_auth);
+-	if (cli != NULL) {
++	nt_status = smb_complete_connection(&cli,
++					    myname,
++					    server,
++					    port,
++					    user,
++					    password,
++					    workgroup,
++					    share,
++					    flags);
++	if (NT_STATUS_IS_OK(nt_status)) {
+ 		fprintf(stderr, "DEBUG: SMB connection established.\n");
+-		return (cli);
++
++		*output_cli = cli;
++		return NT_STATUS_OK;
+ 	}
+ 
+ 	if (!use_kerberos) {
+ 		fprintf(stderr, "ERROR: SMB connection failed!\n");
+-		return NULL;
++		return nt_status;
+ 	}
+ 
+ 	/* give a chance for a passwordless NTLMSSP session setup */
+ 	pwd = getpwuid(geteuid());
+ 	if (pwd == NULL) {
+-		return NULL;
+-	}
+-
+-	cli = smb_complete_connection(myname, server, port, pwd->pw_name, "",
+-				      workgroup, share, 0, need_auth);
+-
+-	if (cli) {
++		return NT_STATUS_ACCESS_DENIED;
++	}
++
++	nt_status = smb_complete_connection(&cli,
++					    myname,
++					    server,
++					    port,
++					    pwd->pw_name,
++					    "",
++					    workgroup,
++					    share,
++					    0);
++	if (NT_STATUS_IS_OK(nt_status)) {
+ 		fputs("DEBUG: Connected with NTLMSSP...\n", stderr);
+-		return (cli);
++
++		*output_cli = cli;
++		return NT_STATUS_OK;
+ 	}
+ 
+ 	/*
+          * last try. Use anonymous authentication
+          */
+ 
+-	cli = smb_complete_connection(myname, server, port, "", "",
+-				      workgroup, share, 0, need_auth);
+-	/*
+-         * Return the new connection...
+-         */
+-
+-	return (cli);
++	nt_status = smb_complete_connection(&cli,
++					    myname,
++					    server,
++					    port,
++					    "",
++					    "",
++					    workgroup,
++					    share,
++					    0);
++	if (NT_STATUS_IS_OK(nt_status)) {
++		*output_cli = cli;
++		return NT_STATUS_OK;
++	}
++
++	return nt_status;
+ }
+ 
+ 
+@@ -798,7 +838,7 @@ smb_print(struct cli_state * cli,	/* I - SMB connection */
+ 	if (!NT_STATUS_IS_OK(nt_status)) {
+ 		fprintf(stderr, "ERROR: %s opening remote spool %s\n",
+ 			nt_errstr(nt_status), title);
+-		return get_exit_code(cli, nt_status);
++		return get_exit_code(nt_status);
+ 	}
+ 
+ 	/*
+@@ -816,7 +856,7 @@ smb_print(struct cli_state * cli,	/* I - SMB connection */
+ 		status = cli_writeall(cli, fnum, 0, (uint8_t *)buffer,
+ 				      tbytes, nbytes, NULL);
+ 		if (!NT_STATUS_IS_OK(status)) {
+-			int ret = get_exit_code(cli, status);
++			int ret = get_exit_code(status);
+ 			fprintf(stderr, "ERROR: Error writing spool: %s\n",
+ 				nt_errstr(status));
+ 			fprintf(stderr, "DEBUG: Returning status %d...\n",
+@@ -832,7 +872,7 @@ smb_print(struct cli_state * cli,	/* I - SMB connection */
+ 	if (!NT_STATUS_IS_OK(nt_status)) {
+ 		fprintf(stderr, "ERROR: %s closing remote spool %s\n",
+ 			nt_errstr(nt_status), title);
+-		return get_exit_code(cli, nt_status);
++		return get_exit_code(nt_status);
+ 	} else {
+ 		return (0);
+ 	}
+-- 
+2.21.0
+
+From ffa5f8b65c662130c2d23e47df6d00fef3b73cc3 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@samba.org>
+Date: Tue, 18 Jun 2019 14:43:50 +0200
+Subject: [PATCH] s3:client: Link smbspool_krb5_wrapper against krb5samba
+
+Heimdal doesn't provide krb5_free_unparsed_name(), so we need to use the
+function we provide in krb5samba.
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13939
+
+Signed-off-by: Andreas Schneider <asn@samba.org>
+Reviewed-by: Ralph Boehme <slow@samba.org>
+(cherry picked from commit 9268919e046190c7b423133de3f9d0edada3f1b8)
+---
+ source3/wscript_build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/source3/wscript_build b/source3/wscript_build
+index 1ebb006781a..26e251f442a 100644
+--- a/source3/wscript_build
++++ b/source3/wscript_build
+@@ -1133,7 +1133,7 @@ bld.SAMBA3_BINARY('smbspool_krb5_wrapper',
+                  deps='''
+                       DYNCONFIG
+                       cups
+-                      krb5
++                      krb5samba
+                       ''',
+                  install_path='${LIBEXECDIR}/samba',
+                  enabled=bld.CONFIG_SET('HAVE_CUPS'))
+-- 
+2.21.0
+

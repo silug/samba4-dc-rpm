@@ -1,0 +1,276 @@
+From 1ea533bd5f7f6febeeb1a4261f2afbb19081e8eb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 3 Jun 2019 14:27:18 +0200
+Subject: [PATCH 1/4] Revert "s3/vfs_glusterfs: Dynamically determine NAME_MAX"
+
+This reverts commit 8e3a042eb9e502821b147f1bbb2d98d59f17a095.
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+---
+ source3/modules/vfs_glusterfs.c | 37 +++++++--------------------------
+ 1 file changed, 8 insertions(+), 29 deletions(-)
+
+diff --git a/source3/modules/vfs_glusterfs.c b/source3/modules/vfs_glusterfs.c
+index 2b5385e44b0..ba8973fa6d3 100644
+--- a/source3/modules/vfs_glusterfs.c
++++ b/source3/modules/vfs_glusterfs.c
+@@ -1454,36 +1454,20 @@ static int vfs_gluster_chflags(struct vfs_handle_struct *handle,
+ 
+ static int vfs_gluster_get_real_filename(struct vfs_handle_struct *handle,
+ 					 const char *path, const char *name,
+-					 TALLOC_CTX *mem_ctx, char **_found_name)
++					 TALLOC_CTX *mem_ctx, char **found_name)
+ {
+ 	int ret;
+-	char *key_buf = NULL, *val_buf = NULL;
+-	long name_max;
+-	char *found_name = NULL;
++	char key_buf[NAME_MAX + 64];
++	char val_buf[NAME_MAX + 1];
+ 
+-	name_max = pathconf(path, _PC_NAME_MAX);
+-	if ((name_max + 1) < 1) {
+-		errno = EINVAL;
+-		return -1;
+-	}
+-
+-	if (strlen(name) >= name_max) {
++	if (strlen(name) >= NAME_MAX) {
+ 		errno = ENAMETOOLONG;
+ 		return -1;
+ 	}
+ 
+-	key_buf = talloc_asprintf(mem_ctx, "glusterfs.get_real_filename:%s",
+-				  name);
+-	if (key_buf == NULL) {
+-		errno = ENOMEM;
+-		return -1;
+-	}
++	snprintf(key_buf, NAME_MAX + 64,
++		 "glusterfs.get_real_filename:%s", name);
+ 
+-	val_buf = talloc_zero_array(mem_ctx, char, name_max + 1);
+-	if (val_buf == NULL) {
+-		errno = ENOMEM;
+-		return -1;
+-	}
+ 	ret = glfs_getxattr(handle->data, path, key_buf, val_buf, NAME_MAX + 1);
+ 	if (ret == -1) {
+ 		if (errno == ENOATTR) {
+@@ -1492,16 +1476,11 @@ static int vfs_gluster_get_real_filename(struct vfs_handle_struct *handle,
+ 		return -1;
+ 	}
+ 
+-	found_name = talloc_strdup(mem_ctx, val_buf);
+-	if (found_name == NULL) {
++	*found_name = talloc_strdup(mem_ctx, val_buf);
++	if (found_name[0] == NULL) {
+ 		errno = ENOMEM;
+ 		return -1;
+ 	}
+-	*_found_name = found_name;
+-
+-	TALLOC_FREE(key_buf);
+-	TALLOC_FREE(val_buf);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.21.0
+
+
+From 01a569bec073ce45f412884d340ecfc50ce41fbe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 3 Jun 2019 14:27:44 +0200
+Subject: [PATCH 2/4] Revert "s3/vfs_glusterfs_fuse: Dynamically determine
+ NAME_MAX"
+
+This reverts commit e28d172b00cadf492c22bd892e2dda3bf2fe2d70.
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+---
+ source3/modules/vfs_glusterfs_fuse.c | 32 ++++++----------------------
+ 1 file changed, 6 insertions(+), 26 deletions(-)
+
+diff --git a/source3/modules/vfs_glusterfs_fuse.c b/source3/modules/vfs_glusterfs_fuse.c
+index 0b1de9fcdb2..8855cd18d01 100644
+--- a/source3/modules/vfs_glusterfs_fuse.c
++++ b/source3/modules/vfs_glusterfs_fuse.c
+@@ -28,35 +28,19 @@ static int vfs_gluster_fuse_get_real_filename(struct vfs_handle_struct *handle,
+ 					      char **_found_name)
+ {
+ 	int ret;
+-	char *key_buf = NULL, *val_buf = NULL;
+-	long name_max;
++	char key_buf[NAME_MAX + 64];
++	char val_buf[NAME_MAX + 1];
+ 	char *found_name = NULL;
+ 
+-	name_max = pathconf(path, _PC_NAME_MAX);
+-	if ((name_max + 1) < 1) {
+-		errno = EINVAL;
+-		return -1;
+-	}
+-
+-	if (strlen(name) >= name_max) {
++	if (strlen(name) >= NAME_MAX) {
+ 		errno = ENAMETOOLONG;
+ 		return -1;
+ 	}
+ 
+-	key_buf = talloc_asprintf(mem_ctx, "glusterfs.get_real_filename:%s",
+-				  name);
+-	if (key_buf == NULL) {
+-		errno = ENOMEM;
+-		return -1;
+-	}
+-
+-	val_buf = talloc_zero_array(mem_ctx, char, name_max + 1);
+-	if (val_buf == NULL) {
+-		errno = ENOMEM;
+-		return -1;
+-	}
++	snprintf(key_buf, NAME_MAX + 64,
++		 "glusterfs.get_real_filename:%s", name);
+ 
+-	ret = getxattr(path, key_buf, val_buf, name_max + 1);
++	ret = getxattr(path, key_buf, val_buf, NAME_MAX + 1);
+ 	if (ret == -1) {
+ 		if (errno == ENOATTR) {
+ 			errno = EOPNOTSUPP;
+@@ -70,10 +54,6 @@ static int vfs_gluster_fuse_get_real_filename(struct vfs_handle_struct *handle,
+ 		return -1;
+ 	}
+ 	*_found_name = found_name;
+-
+-	TALLOC_FREE(key_buf);
+-	TALLOC_FREE(val_buf);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.21.0
+
+
+From e85bb58532fe82daac6e50e88d08bbab66cb1019 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 3 Jun 2019 16:25:46 +0200
+Subject: [PATCH 3/4] s3/vfs_glusterfs: Avoid using NAME_MAX directly
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13872
+
+Guenther
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+---
+ source3/modules/vfs_glusterfs.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/source3/modules/vfs_glusterfs.c b/source3/modules/vfs_glusterfs.c
+index ba8973fa6d3..a9415952b4e 100644
+--- a/source3/modules/vfs_glusterfs.c
++++ b/source3/modules/vfs_glusterfs.c
+@@ -47,6 +47,7 @@
+ #include "modules/posixacl_xattr.h"
+ 
+ #define DEFAULT_VOLFILE_SERVER "localhost"
++#define GLUSTER_NAME_MAX 255
+ 
+ static int read_fd = -1;
+ static int write_fd = -1;
+@@ -1457,18 +1458,19 @@ static int vfs_gluster_get_real_filename(struct vfs_handle_struct *handle,
+ 					 TALLOC_CTX *mem_ctx, char **found_name)
+ {
+ 	int ret;
+-	char key_buf[NAME_MAX + 64];
+-	char val_buf[NAME_MAX + 1];
++	char key_buf[GLUSTER_NAME_MAX + 64];
++	char val_buf[GLUSTER_NAME_MAX + 1];
+ 
+-	if (strlen(name) >= NAME_MAX) {
++	if (strlen(name) >= GLUSTER_NAME_MAX) {
+ 		errno = ENAMETOOLONG;
+ 		return -1;
+ 	}
+ 
+-	snprintf(key_buf, NAME_MAX + 64,
++	snprintf(key_buf, GLUSTER_NAME_MAX + 64,
+ 		 "glusterfs.get_real_filename:%s", name);
+ 
+-	ret = glfs_getxattr(handle->data, path, key_buf, val_buf, NAME_MAX + 1);
++	ret = glfs_getxattr(handle->data, path, key_buf, val_buf,
++			    GLUSTER_NAME_MAX + 1);
+ 	if (ret == -1) {
+ 		if (errno == ENOATTR) {
+ 			errno = EOPNOTSUPP;
+-- 
+2.21.0
+
+
+From 7cc9e3fe24dd476360837c04538345752048e6be Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gd@samba.org>
+Date: Mon, 3 Jun 2019 16:28:36 +0200
+Subject: [PATCH 4/4] s3/vfs_glusterfs_fuse: Avoid using NAME_MAX directly
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+BUG: https://bugzilla.samba.org/show_bug.cgi?id=13872
+
+Guenther
+
+Signed-off-by: Guenther Deschner <gd@samba.org>
+Reviewed-by: Volker Lendecke <vl@samba.org>
+
+Autobuild-User(master): Günther Deschner <gd@samba.org>
+Autobuild-Date(master): Tue Jun 11 00:29:19 UTC 2019 on sn-devel-184
+---
+ source3/modules/vfs_glusterfs_fuse.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/source3/modules/vfs_glusterfs_fuse.c b/source3/modules/vfs_glusterfs_fuse.c
+index 8855cd18d01..d92f5e2b08b 100644
+--- a/source3/modules/vfs_glusterfs_fuse.c
++++ b/source3/modules/vfs_glusterfs_fuse.c
+@@ -21,6 +21,8 @@
+ #include "smbd/smbd.h"
+ #include "system/filesys.h"
+ 
++#define GLUSTER_NAME_MAX 255
++
+ static int vfs_gluster_fuse_get_real_filename(struct vfs_handle_struct *handle,
+ 					      const char *path,
+ 					      const char *name,
+@@ -28,19 +30,19 @@ static int vfs_gluster_fuse_get_real_filename(struct vfs_handle_struct *handle,
+ 					      char **_found_name)
+ {
+ 	int ret;
+-	char key_buf[NAME_MAX + 64];
+-	char val_buf[NAME_MAX + 1];
++	char key_buf[GLUSTER_NAME_MAX + 64];
++	char val_buf[GLUSTER_NAME_MAX + 1];
+ 	char *found_name = NULL;
+ 
+-	if (strlen(name) >= NAME_MAX) {
++	if (strlen(name) >= GLUSTER_NAME_MAX) {
+ 		errno = ENAMETOOLONG;
+ 		return -1;
+ 	}
+ 
+-	snprintf(key_buf, NAME_MAX + 64,
++	snprintf(key_buf, GLUSTER_NAME_MAX + 64,
+ 		 "glusterfs.get_real_filename:%s", name);
+ 
+-	ret = getxattr(path, key_buf, val_buf, NAME_MAX + 1);
++	ret = getxattr(path, key_buf, val_buf, GLUSTER_NAME_MAX + 1);
+ 	if (ret == -1) {
+ 		if (errno == ENOATTR) {
+ 			errno = EOPNOTSUPP;
+-- 
+2.21.0
+
