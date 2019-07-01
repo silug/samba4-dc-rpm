@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.10.5
 %define talloc_version 2.1.16
@@ -121,6 +121,8 @@ Source201:      README.downgrade
 Patch0:         samba-4.10.6-vfs_fruit.patch
 Patch1:         samba-4.10.6-vfs_glusterfs.patch
 Patch2:         samba-4.10.6-smbspool.patch
+Patch3:         samba-4.10.x-waf_update.patch
+Patch4:         samba-4.10.x-waf_timer.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3439,6 +3441,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Mon Jul 01 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.5-2
+- resolves: #1718113 - Avoid deprecated time.clock in wafsamba
+- resolves: #1711638 - Update to latest waf version 2.0.17
+
 * Thu Jun 20 2019 Guenther Deschner <gdeschner@redhat.com> - 4.10.5-1
 - resolves: #1602824 - Make vfs_fruit operable with other remote VFS modules
 - resolves: #1716455 - Avoid pathconf() in get_real_filename() VFS calls
