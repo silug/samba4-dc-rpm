@@ -2205,6 +2205,7 @@ fi
 %{python3_sitearch}/samba/tests/__pycache__/hostconfig.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/join.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/krb5_credentials.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/ldap_referrals.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/loadparm.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/libsmb.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/lsa_string.*.pyc
@@ -2380,6 +2381,7 @@ fi
 %{python3_sitearch}/samba/tests/kcc/kcc_utils.py
 %{python3_sitearch}/samba/tests/kcc/ldif_import_export.py
 %{python3_sitearch}/samba/tests/krb5_credentials.py
+%{python3_sitearch}/samba/tests/ldap_referrals.py
 %{python3_sitearch}/samba/tests/libsmb.py
 %{python3_sitearch}/samba/tests/loadparm.py
 %{python3_sitearch}/samba/tests/lsa_string.py
