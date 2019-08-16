@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.10.6
 %define talloc_version 2.1.16
@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.2
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -119,6 +119,7 @@ Source14:       samba.pamd
 Source201:      README.downgrade
 
 Patch0:         samba-4.10.x-waf_update.patch
+Patch1:         samba-bz14091-v4.10-backport.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -3439,6 +3440,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Fri Aug 16 2019 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.10.6-1
+- Fix Samba bug https://bugzilla.samba.org/show_bug.cgi?id=14091
+- Fixes: Windows systems cannot resolve IPA users and groups over LSA RPC
+
 * Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2:4.10.6-0.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
