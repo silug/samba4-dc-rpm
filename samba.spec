@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}
+Release:        %{samba_release}.1
 
 %if 0%{?rhel}
 Epoch:          0
@@ -3440,6 +3440,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Mon Aug 19 2019 Miro Hrončok <mhroncok@redhat.com> - 2:4.10.6-1.1
+- Rebuilt for Python 3.8
+
 * Fri Aug 16 2019 Alexander Bokovoy <abokovoy@redhat.com> - 2:4.10.6-1
 - Fix Samba bug https://bugzilla.samba.org/show_bug.cgi?id=14091
 - Fixes: Windows systems cannot resolve IPA users and groups over LSA RPC
