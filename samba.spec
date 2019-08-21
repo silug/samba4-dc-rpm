@@ -10,11 +10,11 @@
 
 %define samba_version 4.11.0
 %define talloc_version 2.2.0
-%define tdb_version 1.4.1
+%define tdb_version 1.4.2
 %define tevent_version 0.10.0
 %define ldb_version 2.0.5
 # This should be rc1 or nil
-%define pre_release rc1
+%define pre_release rc2
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -117,8 +117,6 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
-
-Patch0:         samba-bz14091-v4.10-backport.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -573,21 +571,6 @@ Requires: python3-%{name} = %{samba_depver}
 The python3-%{name}-dc package contains the Python libraries needed by programs
 to manage Samba AD.
 %endif
-
-### PIDL
-%package pidl
-Summary: Perl IDL compiler
-Requires: perl-interpreter
-Requires: perl(Parse::Yapp)
-Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-BuildArch: noarch
-
-Provides: samba4-pidl = %{samba_depver}
-Obsoletes: samba4-pidl < %{samba_depver}
-
-%description pidl
-The %{name}-pidl package contains the Perl IDL compiler used by Samba
-and Wireshark to parse IDL and similar protocols
 
 ### TEST
 %package test
@@ -1232,6 +1215,7 @@ fi
 %{_libdir}/samba/vfs/fileid.so
 %{_libdir}/samba/vfs/fruit.so
 %{_libdir}/samba/vfs/full_audit.so
+%{_libdir}/samba/vfs/gpfs.so
 %{_libdir}/samba/vfs/glusterfs_fuse.so
 %{_libdir}/samba/vfs/linux_xfs_sgid.so
 %{_libdir}/samba/vfs/media_harmony.so
@@ -1281,6 +1265,7 @@ fi
 %{_mandir}/man8/vfs_fileid.8*
 %{_mandir}/man8/vfs_fruit.8*
 %{_mandir}/man8/vfs_full_audit.8*
+%{_mandir}/man8/vfs_gpfs.8*
 %{_mandir}/man8/vfs_glusterfs_fuse.8*
 %{_mandir}/man8/vfs_linux_xfs_sgid.8*
 %{_mandir}/man8/vfs_media_harmony.8*
@@ -1309,6 +1294,7 @@ fi
 
 %if ! %{with_vfs_cephfs}
 %exclude %{_mandir}/man8/vfs_ceph.8*
+%exclude %{_mandir}/man8/vfs_ceph_snapshots.8*
 %endif
 
 %attr(775,root,printadmin) %dir /var/lib/samba/drivers
@@ -1411,6 +1397,7 @@ fi
 %{_libdir}/samba/libgenrand-samba4.so
 %{_libdir}/samba/libgensec-samba4.so
 %{_libdir}/samba/libgpext-samba4.so
+%{_libdir}/samba/libgpo-samba4.so
 %{_libdir}/samba/libgse-samba4.so
 %{_libdir}/samba/libhttp-samba4.so
 %{_libdir}/samba/libinterfaces-samba4.so
@@ -1431,6 +1418,7 @@ fi
 %{_libdir}/samba/libnetif-samba4.so
 %{_libdir}/samba/libnpa-tstream-samba4.so
 %{_libdir}/samba/libposix-eadb-samba4.so
+%{_libdir}/samba/libprinter-driver-samba4.so
 %{_libdir}/samba/libprinting-migrate-samba4.so
 %{_libdir}/samba/libreplace-samba4.so
 %{_libdir}/samba/libregistry-samba4.so
@@ -1546,6 +1534,7 @@ fi
 %{_libdir}/samba/ldb/aclread.so
 %{_libdir}/samba/ldb/anr.so
 %{_libdir}/samba/ldb/audit_log.so
+%{_libdir}/samba/ldb/count_attrs.so
 %{_libdir}/samba/ldb/descriptor.so
 %{_libdir}/samba/ldb/dirsync.so
 %{_libdir}/samba/ldb/dns_notify.so
@@ -1618,7 +1607,6 @@ fi
 %{_libdir}/samba/service/nbtd.so
 %{_libdir}/samba/service/ntp_signd.so
 %{_libdir}/samba/service/s3fs.so
-%{_libdir}/samba/service/web.so
 %{_libdir}/samba/service/winbindd.so
 %{_libdir}/samba/service/wrepl.so
 %{_libdir}/libdcerpc-server.so.*
@@ -1769,7 +1757,9 @@ fi
 %if %{with_vfs_cephfs}
 %files vfs-cephfs
 %{_libdir}/samba/vfs/ceph.so
+%{_libdir}/samba/vfs/ceph_snapshots.so
 %{_mandir}/man8/vfs_ceph.8*
+%{_mandir}/man8/vfs_ceph_snapshots.8*
 %endif
 
 ### VFS-GLUSTERFS
@@ -1793,7 +1783,6 @@ fi
 %{_libdir}/samba/libauth4-samba4.so
 %{_libdir}/samba/libauth-unix-token-samba4.so
 %{_libdir}/samba/libdcerpc-samba4.so
-%{_libdir}/samba/libnon-posix-acls-samba4.so
 %{_libdir}/samba/libshares-samba4.so
 %{_libdir}/samba/libsmbpasswdparser-samba4.so
 %{_libdir}/samba/libxattr-tdb-samba4.so
@@ -1823,44 +1812,6 @@ fi
 %{_libdir}/samba/wbclient/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 %endif # with_libwbclient
-
-### PIDL
-%files pidl
-%attr(755,root,root) %{_bindir}/pidl
-%dir %{perl_vendorlib}/Parse
-%{perl_vendorlib}/Parse/Pidl.pm
-%dir %{perl_vendorlib}/Parse/Pidl
-%{perl_vendorlib}/Parse/Pidl/CUtil.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4.pm
-%{perl_vendorlib}/Parse/Pidl/Expr.pm
-%{perl_vendorlib}/Parse/Pidl/ODL.pm
-%{perl_vendorlib}/Parse/Pidl/Typelist.pm
-%{perl_vendorlib}/Parse/Pidl/IDL.pm
-%{perl_vendorlib}/Parse/Pidl/Compat.pm
-%dir %{perl_vendorlib}/Parse/Pidl/Wireshark
-%{perl_vendorlib}/Parse/Pidl/Wireshark/Conformance.pm
-%{perl_vendorlib}/Parse/Pidl/Wireshark/NDR.pm
-%{perl_vendorlib}/Parse/Pidl/Dump.pm
-%dir %{perl_vendorlib}/Parse/Pidl/Samba3
-%{perl_vendorlib}/Parse/Pidl/Samba3/ServerNDR.pm
-%{perl_vendorlib}/Parse/Pidl/Samba3/ClientNDR.pm
-%dir %{perl_vendorlib}/Parse/Pidl/Samba4
-%{perl_vendorlib}/Parse/Pidl/Samba4/Header.pm
-%dir %{perl_vendorlib}/Parse/Pidl/Samba4/COM
-%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Header.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Proxy.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Stub.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/Python.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/Template.pm
-%dir %{perl_vendorlib}/Parse/Pidl/Samba4/NDR
-%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Server.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Client.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Parser.pm
-%{perl_vendorlib}/Parse/Pidl/Samba4/TDR.pm
-%{perl_vendorlib}/Parse/Pidl/NDR.pm
-%{perl_vendorlib}/Parse/Pidl/Util.pm
-%{_mandir}/man1/pidl*
-%{_mandir}/man3/Parse::Pidl*
 
 ### PYTHON3
 %files -n python3-%{name}
@@ -1996,6 +1947,7 @@ fi
 %{python3_sitearch}/samba/netcmd/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/netcmd/__pycache__/common.*.pyc
 %{python3_sitearch}/samba/netcmd/__pycache__/computer.*.pyc
+%{python3_sitearch}/samba/netcmd/__pycache__/contact.*.pyc
 %{python3_sitearch}/samba/netcmd/__pycache__/dbcheck.*.pyc
 %{python3_sitearch}/samba/netcmd/__pycache__/delegation.*.pyc
 %{python3_sitearch}/samba/netcmd/__pycache__/dns.*.pyc
@@ -2023,6 +1975,7 @@ fi
 %{python3_sitearch}/samba/netcmd/__pycache__/visualize.*.pyc
 %{python3_sitearch}/samba/netcmd/common.py
 %{python3_sitearch}/samba/netcmd/computer.py
+%{python3_sitearch}/samba/netcmd/contact.py
 %{python3_sitearch}/samba/netcmd/dbcheck.py
 %{python3_sitearch}/samba/netcmd/delegation.py
 %{python3_sitearch}/samba/netcmd/dns.py
@@ -2063,7 +2016,6 @@ fi
 %{python3_sitearch}/samba/samba3/smbd.*.so
 %{python3_sitearch}/samba/sd_utils.py
 %{python3_sitearch}/samba/sites.py
-%{python3_sitearch}/samba/smb.*.so
 %{python3_sitearch}/samba/subnets.py
 %dir %{python3_sitearch}/samba/subunit
 %{python3_sitearch}/samba/subunit/__init__.py
@@ -2078,10 +2030,6 @@ fi
 %{python3_sitearch}/samba/third_party/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/upgrade.py
 %{python3_sitearch}/samba/upgradehelpers.py
-%dir %{python3_sitearch}/samba/web_server
-%{python3_sitearch}/samba/web_server/__init__.py
-%dir %{python3_sitearch}/samba/web_server/__pycache__
-%{python3_sitearch}/samba/web_server/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/werror.*.so
 %{python3_sitearch}/samba/xattr.py
 %{python3_sitearch}/samba/xattr_native.*.so
@@ -2177,6 +2125,7 @@ fi
 %{python3_sitearch}/samba/tests/__pycache__/auth_log_netlogon.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/auth_log_netlogon_bad_creds.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/auth_log_samlogon.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/auth_log_winbind.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/common.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/complex_expressions.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/core.*.pyc
@@ -2249,6 +2198,7 @@ fi
 %{python3_sitearch}/samba/tests/__pycache__/samdb.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/samdb_api.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/security.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/segfault.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/smb.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/smbd_base.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/source.*.pyc
@@ -2258,6 +2208,7 @@ fi
 %{python3_sitearch}/samba/tests/__pycache__/upgrade.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/upgradeprovision.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/upgradeprovisionneeddc.*.pyc
+%{python3_sitearch}/samba/tests/__pycache__/usage.*.pyc
 %{python3_sitearch}/samba/tests/__pycache__/xattr.*.pyc
 %{python3_sitearch}/samba/tests/audit_log_base.py
 %{python3_sitearch}/samba/tests/audit_log_dsdb.py
@@ -2270,12 +2221,14 @@ fi
 %{python3_sitearch}/samba/tests/auth_log_netlogon.py
 %{python3_sitearch}/samba/tests/auth_log_pass_change.py
 %{python3_sitearch}/samba/tests/auth_log_samlogon.py
+%{python3_sitearch}/samba/tests/auth_log_winbind.py
 %dir %{python3_sitearch}/samba/tests/blackbox
 %{python3_sitearch}/samba/tests/blackbox/__init__.py
 %dir %{python3_sitearch}/samba/tests/blackbox/__pycache__
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/bug13653.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/check_output.*.pyc
+%{python3_sitearch}/samba/tests/blackbox/__pycache__/downgradedatabase.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/ndrdump.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/netads_json.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/samba_dnsupdate.*.pyc
@@ -2286,6 +2239,7 @@ fi
 %{python3_sitearch}/samba/tests/blackbox/__pycache__/traffic_summary.*.pyc
 %{python3_sitearch}/samba/tests/blackbox/bug13653.py
 %{python3_sitearch}/samba/tests/blackbox/check_output.py
+%{python3_sitearch}/samba/tests/blackbox/downgradedatabase.py
 %{python3_sitearch}/samba/tests/blackbox/ndrdump.py
 %{python3_sitearch}/samba/tests/blackbox/netads_json.py
 %{python3_sitearch}/samba/tests/blackbox/samba_dnsupdate.py
@@ -2337,9 +2291,7 @@ fi
 %{python3_sitearch}/samba/tests/dns_base.py
 %{python3_sitearch}/samba/tests/dns_forwarder.py
 %dir %{python3_sitearch}/samba/tests/dns_forwarder_helpers
-%{python3_sitearch}/samba/tests/dns_forwarder_helpers/__pycache__/dns_hub.*.pyc
 %{python3_sitearch}/samba/tests/dns_forwarder_helpers/__pycache__/server.*.pyc
-%{python3_sitearch}/samba/tests/dns_forwarder_helpers/dns_hub.py
 %{python3_sitearch}/samba/tests/dns_forwarder_helpers/server.py
 %{python3_sitearch}/samba/tests/dns_invalid.py
 %{python3_sitearch}/samba/tests/dns_tkey.py
@@ -2428,18 +2380,24 @@ fi
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/__init__.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/base.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/computer.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/contact.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/demote.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/dnscmd.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/drs_clone_dc_data_lmdb_size.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/dsacl.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/forest.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/fsmo.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/gpo.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/group.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/help.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/join.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/join_lmdb_size.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/ntacl.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/ou.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/passwordsettings.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/processes.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/promote_dc_lmdb_size.*.pyc
+%{python3_sitearch}/samba/tests/samba_tool/__pycache__/provision_lmdb_size.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/provision_password_check.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/rodc.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/schema.*.pyc
@@ -2453,18 +2411,24 @@ fi
 %{python3_sitearch}/samba/tests/samba_tool/__pycache__/visualize_drs.*.pyc
 %{python3_sitearch}/samba/tests/samba_tool/base.py
 %{python3_sitearch}/samba/tests/samba_tool/computer.py
+%{python3_sitearch}/samba/tests/samba_tool/contact.py
 %{python3_sitearch}/samba/tests/samba_tool/demote.py
 %{python3_sitearch}/samba/tests/samba_tool/dnscmd.py
+%{python3_sitearch}/samba/tests/samba_tool/drs_clone_dc_data_lmdb_size.py
+%{python3_sitearch}/samba/tests/samba_tool/dsacl.py
 %{python3_sitearch}/samba/tests/samba_tool/forest.py
 %{python3_sitearch}/samba/tests/samba_tool/fsmo.py
 %{python3_sitearch}/samba/tests/samba_tool/gpo.py
 %{python3_sitearch}/samba/tests/samba_tool/group.py
 %{python3_sitearch}/samba/tests/samba_tool/help.py
 %{python3_sitearch}/samba/tests/samba_tool/join.py
+%{python3_sitearch}/samba/tests/samba_tool/join_lmdb_size.py
 %{python3_sitearch}/samba/tests/samba_tool/ntacl.py
 %{python3_sitearch}/samba/tests/samba_tool/ou.py
 %{python3_sitearch}/samba/tests/samba_tool/passwordsettings.py
 %{python3_sitearch}/samba/tests/samba_tool/processes.py
+%{python3_sitearch}/samba/tests/samba_tool/promote_dc_lmdb_size.py
+%{python3_sitearch}/samba/tests/samba_tool/provision_lmdb_size.py
 %{python3_sitearch}/samba/tests/samba_tool/provision_password_check.py
 %{python3_sitearch}/samba/tests/samba_tool/rodc.py
 %{python3_sitearch}/samba/tests/samba_tool/schema.py
@@ -2479,6 +2443,7 @@ fi
 %{python3_sitearch}/samba/tests/samdb.py
 %{python3_sitearch}/samba/tests/samdb_api.py
 %{python3_sitearch}/samba/tests/security.py
+%{python3_sitearch}/samba/tests/segfault.py
 %{python3_sitearch}/samba/tests/smb.py
 %{python3_sitearch}/samba/tests/smbd_base.py
 %{python3_sitearch}/samba/tests/source.py
@@ -2488,6 +2453,7 @@ fi
 %{python3_sitearch}/samba/tests/upgrade.py
 %{python3_sitearch}/samba/tests/upgradeprovision.py
 %{python3_sitearch}/samba/tests/upgradeprovisionneeddc.py
+%{python3_sitearch}/samba/tests/usage.py
 %{python3_sitearch}/samba/tests/xattr.py
 
 ### TEST
@@ -2872,10 +2838,8 @@ fi
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.007.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.011.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.012.sh
-%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.013.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.014.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.015.sh
-%{_datadir}/ctdb/tests/eventscripts/05.system.monitor.016.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.017.sh
 %{_datadir}/ctdb/tests/eventscripts/05.system.monitor.018.sh
 %{_datadir}/ctdb/tests/eventscripts/06.nfs.releaseip.001.sh
@@ -3211,6 +3175,7 @@ fi
 %{_datadir}/ctdb/tests/simple/80_ctdb_traverse.sh
 %{_datadir}/ctdb/tests/simple/81_tunnel_ring.sh
 %{_datadir}/ctdb/tests/simple/90_debug_hung_script.sh
+%{_datadir}/ctdb/tests/simple/91_version_check.sh
 
 
 %dir %{_datadir}/ctdb/tests/simple/scripts
@@ -3439,6 +3404,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Aug 21 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc2-0
+- Update to Samba 4.11.0rc2
+
 * Tue Aug 20 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc1-0
 - Update to Samba 4.11.0rc1
 
