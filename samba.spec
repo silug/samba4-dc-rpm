@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 0
+%define main_release 1
 
 %define samba_version 4.11.0
 %define talloc_version 2.2.0
@@ -86,7 +86,7 @@
 
 Name:           samba
 Version:        %{samba_version}
-Release:        %{samba_release}.1
+Release:        %{samba_release}
 
 %if 0%{?rhel}
 Epoch:          0
@@ -634,6 +634,9 @@ Requires: libwbclient = %{samba_depver}
 Provides: samba4-winbind = %{samba_depver}
 Obsoletes: samba4-winbind < %{samba_depver}
 
+# Old NetworkManager expects the dispatcher scripts in a different place
+Conflicts: NetworkManager < 1.20
+
 %description winbind
 The samba-winbind package provides the winbind NSS library, and some client
 tools.  Winbind enables Linux to be a full member in Windows domains and to use
@@ -930,9 +933,9 @@ install -m 0644 ctdb/config/ctdb.service %{buildroot}%{_unitdir}
 %endif
 
 # NetworkManager online/offline script
-install -d -m 0755 %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/
+install -d -m 0755 %{buildroot}%{_prefix}/lib/NetworkManager/dispatcher.d/
 install -m 0755 packaging/NetworkManager/30-winbind-systemd \
-            %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
+            %{buildroot}%{_prefix}/lib/NetworkManager/dispatcher.d/30-winbind
 
 # winbind krb5 plugins
 install -d -m 0755 %{buildroot}%{_libdir}/krb5/plugins/libkrb5
@@ -2494,7 +2497,7 @@ fi
 %{_sbindir}/winbindd
 %attr(750,root,wbpriv) %dir /var/lib/samba/winbindd_privileged
 %{_unitdir}/winbind.service
-%{_sysconfdir}/NetworkManager/dispatcher.d/30-winbind
+%{_prefix}/lib/NetworkManager
 %{_mandir}/man8/winbindd.8*
 %{_mandir}/man8/idmap_*.8*
 
@@ -3404,6 +3407,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Mon Aug 26 2019 Lubomir Rintel <lkundrak@v3.sk> - 2:4.11.0-0.1.rc2
+- Move the NetworkManager dispatcher script out of /etc
+
 * Wed Aug 21 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc2-0
 - Update to Samba 4.11.0rc2
 
