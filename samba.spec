@@ -6,7 +6,7 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 1
+%define main_release 2
 
 %define samba_version 4.11.0
 %define talloc_version 2.2.0
@@ -117,6 +117,8 @@ Source13:       pam_winbind.conf
 Source14:       samba.pamd
 
 Source201:      README.downgrade
+
+Patch0:         pidl.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -571,6 +573,21 @@ Requires: python3-%{name} = %{samba_depver}
 The python3-%{name}-dc package contains the Python libraries needed by programs
 to manage Samba AD.
 %endif
+
+### PIDL
+%package pidl
+Summary: Perl IDL compiler
+Requires: perl-interpreter
+Requires: perl(Parse::Yapp)
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+BuildArch: noarch
+
+Provides: samba4-pidl = %{samba_depver}
+Obsoletes: samba4-pidl < %{samba_depver}
+
+%description pidl
+The %{name}-pidl package contains the Perl IDL compiler used by Samba
+and Wireshark to parse IDL and similar protocols
 
 ### TEST
 %package test
@@ -1815,6 +1832,44 @@ fi
 %{_libdir}/samba/wbclient/libwbclient.so
 %{_libdir}/pkgconfig/wbclient.pc
 %endif # with_libwbclient
+
+### PIDL
+%files pidl
+%attr(755,root,root) %{_bindir}/pidl
+%dir %{perl_vendorlib}/Parse
+%{perl_vendorlib}/Parse/Pidl.pm
+%dir %{perl_vendorlib}/Parse/Pidl
+%{perl_vendorlib}/Parse/Pidl/CUtil.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4.pm
+%{perl_vendorlib}/Parse/Pidl/Expr.pm
+%{perl_vendorlib}/Parse/Pidl/ODL.pm
+%{perl_vendorlib}/Parse/Pidl/Typelist.pm
+%{perl_vendorlib}/Parse/Pidl/IDL.pm
+%{perl_vendorlib}/Parse/Pidl/Compat.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Wireshark
+%{perl_vendorlib}/Parse/Pidl/Wireshark/Conformance.pm
+%{perl_vendorlib}/Parse/Pidl/Wireshark/NDR.pm
+%{perl_vendorlib}/Parse/Pidl/Dump.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba3
+%{perl_vendorlib}/Parse/Pidl/Samba3/ServerNDR.pm
+%{perl_vendorlib}/Parse/Pidl/Samba3/ClientNDR.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4
+%{perl_vendorlib}/Parse/Pidl/Samba4/Header.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4/COM
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Header.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Proxy.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/COM/Stub.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/Python.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/Template.pm
+%dir %{perl_vendorlib}/Parse/Pidl/Samba4/NDR
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Server.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Client.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/NDR/Parser.pm
+%{perl_vendorlib}/Parse/Pidl/Samba4/TDR.pm
+%{perl_vendorlib}/Parse/Pidl/NDR.pm
+%{perl_vendorlib}/Parse/Pidl/Util.pm
+%{_mandir}/man1/pidl*
+%{_mandir}/man3/Parse::Pidl*
 
 ### PYTHON3
 %files -n python3-%{name}
@@ -3407,6 +3462,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Aug 27 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc2-2
+- resolves: #1746014 - re-add pidl
+
 * Mon Aug 26 2019 Lubomir Rintel <lkundrak@v3.sk> - 2:4.11.0-0.1.rc2
 - Move the NetworkManager dispatcher script out of /etc
 
