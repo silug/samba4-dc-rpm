@@ -14,7 +14,7 @@
 %define tevent_version 0.10.0
 %define ldb_version 2.0.5
 # This should be rc1 or nil
-%define pre_release rc2
+%define pre_release rc3
 
 %if "x%{?pre_release}" != "x"
 %define samba_release 0.%{main_release}.%{pre_release}%{?dist}
@@ -3462,6 +3462,10 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Tue Sep 03 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc3-2
+- Update to Samba 4.11.0rc3
+- resolves: #1746225, #1748308 - Security fixes for CVE-2019-10197
+
 * Tue Aug 27 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0rc2-2
 - resolves: #1746014 - re-add pidl
 
