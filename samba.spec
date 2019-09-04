@@ -1538,9 +1538,10 @@ fi
 %{_unitdir}/samba.service
 %{_bindir}/samba-tool
 %{_sbindir}/samba
-%{_sbindir}/samba_kcc
 %{_sbindir}/samba_dnsupdate
+%{_sbindir}/samba_downgrade_db
 %{_sbindir}/samba-gpupdate
+%{_sbindir}/samba_kcc
 %{_sbindir}/samba_spnupdate
 %{_sbindir}/samba_upgradedns
 
@@ -1604,6 +1605,7 @@ fi
 %dir /var/lib/samba/sysvol
 %{_datadir}/samba/setup
 %{_mandir}/man8/samba.8*
+%{_mandir}/man8/samba_downgrade_db.8*
 %{_mandir}/man8/samba-gpupdate.8*
 %{_mandir}/man8/samba-tool.8*
 
