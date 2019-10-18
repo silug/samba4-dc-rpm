@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 0
 
-%define samba_version 4.11.0
+%define samba_version 4.11.1
 %define talloc_version 2.2.0
 %define tdb_version 1.4.2
 %define tevent_version 0.10.0
@@ -3463,6 +3463,9 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Fri Oct 18 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.1-0
+- Update to Samba 4.11.1
+
 * Tue Sep 17 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0-3
 - Update to Samba 4.11.0
 

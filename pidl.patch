@@ -64,7 +64,7 @@ diff --git a/pidl/wscript b/pidl/wscript
 index 01b71bd8b27..a2a15d36851 100644
 --- a/pidl/wscript
 +++ b/pidl/wscript
-@@ -32,11 +32,49 @@ def configure(conf):
+@@ -32,10 +32,49 @@
      # Check if perl(Parse::Yapp::Driver) is available.
      check_system_perl_module(conf, "Parse::Yapp::Driver", 1.05)
  
@@ -76,7 +76,7 @@ index 01b71bd8b27..a2a15d36851 100644
 +
      # yapp is used for building the parser
      conf.find_program('yapp', var='YAPP')
-     conf.find_program('pod2man', var='POD2MAN')
++    conf.find_program('pod2man', var='POD2MAN')
  
  def build(bld):
 +    bld.INSTALL_FILES('${BINDIR}', 'pidl', chmod=MODE_755, perl_fixup=True)
@@ -114,6 +114,3 @@ index 01b71bd8b27..a2a15d36851 100644
  
      # we want to prefer the git version of the parsers if we can.
      # Only if the source has changed do we want to re-run yapp
--- 
-2.21.0
-
