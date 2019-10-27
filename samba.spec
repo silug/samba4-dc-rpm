@@ -243,7 +243,7 @@ BuildRequires: python3-tdb >= %{tdb_version}
 BuildRequires: libldb-devel >= %{ldb_version}
 BuildRequires: python3-ldb-devel >= %{ldb_version}
 
-%if %{with testsuite}
+%if %{with testsuite} || %{with_dc}
 BuildRequires: ldb-tools
 BuildRequires: tdb-tools
 BuildRequires: python3-gpg
