@@ -119,6 +119,8 @@ Source14:       samba.pamd
 Source201:      README.downgrade
 
 Patch0:         pidl.patch
+Patch100:       0000-use-gnutls-for-des-cbc.patch
+Patch101:       0001-handle-removal-des-enctypes-from-krb5.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
