@@ -121,6 +121,7 @@ Source201:      README.downgrade
 Patch0:         pidl.patch
 Patch100:       0000-use-gnutls-for-des-cbc.patch
 Patch101:       0001-handle-removal-des-enctypes-from-krb5.patch
+Patch102:       0002-samba-tool-create-working-private-krb5.conf.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
