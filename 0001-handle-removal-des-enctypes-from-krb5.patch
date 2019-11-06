@@ -1,5 +1,24 @@
+From 3828e798da8e0b44356039dd927f0624d5d182f9 Mon Sep 17 00:00:00 2001
+From: Isaac Boukris <iboukris@gmail.com>
+Date: Wed, 6 Nov 2019 12:12:55 +0200
+Subject: [PATCH] Remove DES support if MIT Kerberos version does not support
+ it
+
+---
+ source3/libads/kerberos_keytab.c              |  2 -
+ source3/passdb/machine_account_secrets.c      | 36 ------------------
+ source4/auth/kerberos/kerberos.h              |  2 +-
+ .../dsdb/samdb/ldb_modules/password_hash.c    | 12 ++++++
+ source4/kdc/db-glue.c                         |  4 +-
+ source4/torture/rpc/remote_pac.c              | 37 -------------------
+ testprogs/blackbox/dbcheck-oldrelease.sh      |  2 +-
+ testprogs/blackbox/functionalprep.sh          |  2 +-
+ .../blackbox/test_export_keytab_heimdal.sh    | 16 ++++----
+ .../blackbox/upgradeprovision-oldrelease.sh   |  2 +-
+ 10 files changed, 26 insertions(+), 89 deletions(-)
+
 diff --git a/source3/libads/kerberos_keytab.c b/source3/libads/kerberos_keytab.c
-index 97d5535041c5a43fbb18fd3b2bf090cd1d65223f..7d193e1a6000448d09376229877ee22c6f215b10 100644
+index 97d5535041c..7d193e1a600 100644
 --- a/source3/libads/kerberos_keytab.c
 +++ b/source3/libads/kerberos_keytab.c
 @@ -240,8 +240,6 @@ int ads_keytab_add_entry(ADS_STRUCT *ads, const char *srvPrinc, bool update_ads)
@@ -12,7 +31,7 @@ index 97d5535041c5a43fbb18fd3b2bf090cd1d65223f..7d193e1a6000448d09376229877ee22c
  		ENCTYPE_AES128_CTS_HMAC_SHA1_96,
  #endif
 diff --git a/source3/passdb/machine_account_secrets.c b/source3/passdb/machine_account_secrets.c
-index dfc21f295a1f9a96b7069b25653b527a964cfab1..efba80f147457575b5cc7351a9c6540c874bfba9 100644
+index dfc21f295a1..efba80f1474 100644
 --- a/source3/passdb/machine_account_secrets.c
 +++ b/source3/passdb/machine_account_secrets.c
 @@ -1031,7 +1031,6 @@ static int secrets_domain_info_kerberos_keys(struct secrets_domain_info1_passwor
@@ -73,7 +92,7 @@ index dfc21f295a1f9a96b7069b25653b527a964cfab1..efba80f147457575b5cc7351a9c6540c
  	p->default_iteration_count = 4096;
  	p->num_keys = idx;
 diff --git a/source4/auth/kerberos/kerberos.h b/source4/auth/kerberos/kerberos.h
-index 2ff9e3868af94ee82b0e910d13c63267c1caffab..1dd63acc8387aa05c9359b5ebe0e4511f584cf99 100644
+index 2ff9e3868af..1dd63acc838 100644
 --- a/source4/auth/kerberos/kerberos.h
 +++ b/source4/auth/kerberos/kerberos.h
 @@ -50,7 +50,7 @@ struct keytab_container {
@@ -86,7 +105,7 @@ index 2ff9e3868af94ee82b0e910d13c63267c1caffab..1dd63acc8387aa05c9359b5ebe0e4511
  
  #ifndef HAVE_KRB5_SET_DEFAULT_TGS_KTYPES
 diff --git a/source4/dsdb/samdb/ldb_modules/password_hash.c b/source4/dsdb/samdb/ldb_modules/password_hash.c
-index 006e35c46d573311dbbf22fcae4651f6988bbbfa..f16937c6caba112642cd8aab3f0ab23c218ef82f 100644
+index 006e35c46d5..f16937c6cab 100644
 --- a/source4/dsdb/samdb/ldb_modules/password_hash.c
 +++ b/source4/dsdb/samdb/ldb_modules/password_hash.c
 @@ -786,6 +786,7 @@ static int setup_kerberos_keys(struct setup_password_fields_io *io)
@@ -130,7 +149,7 @@ index 006e35c46d573311dbbf22fcae4651f6988bbbfa..f16937c6caba112642cd8aab3f0ab23c
  		return ldb_oom(ldb);
  	}
 diff --git a/source4/kdc/db-glue.c b/source4/kdc/db-glue.c
-index f62a633c6c78ea82082410b28ace380d33664092..023ae7b580d672377ea127866d54e378b9b36508 100644
+index f62a633c6c7..023ae7b580d 100644
 --- a/source4/kdc/db-glue.c
 +++ b/source4/kdc/db-glue.c
 @@ -359,10 +359,10 @@ static krb5_error_code samba_kdc_message2entry_keys(krb5_context context,
@@ -147,18 +166,18 @@ index f62a633c6c78ea82082410b28ace380d33664092..023ae7b580d672377ea127866d54e378
  
  	/* Is this the krbtgt or a RODC krbtgt */
 diff --git a/source4/torture/rpc/remote_pac.c b/source4/torture/rpc/remote_pac.c
-index d0075d77745ede1050a72727a40500b7f75224d2..c74746123fe53fab601d28a77a2babbeb10631d2 100644
+index 7a5cda74b74..f12060e3c8f 100644
 --- a/source4/torture/rpc/remote_pac.c
 +++ b/source4/torture/rpc/remote_pac.c
-@@ -41,7 +41,6 @@
+@@ -38,7 +38,6 @@
  
  #define TEST_MACHINE_NAME_BDC "torturepacbdc"
  #define TEST_MACHINE_NAME_WKSTA "torturepacwksta"
 -#define TEST_MACHINE_NAME_WKSTA_DES "torturepacwkdes"
  #define TEST_MACHINE_NAME_S4U2SELF_BDC "tests4u2selfbdc"
  #define TEST_MACHINE_NAME_S4U2SELF_WKSTA "tests4u2selfwk"
- #define TEST_MACHINE_NAME_S4U2PROXY_WKSTA "tests4u2proxywk"
-@@ -608,39 +607,6 @@ static bool test_PACVerify_workstation_aes(struct torture_context *tctx,
+ 
+@@ -581,39 +580,6 @@ static bool test_PACVerify_workstation_aes(struct torture_context *tctx,
  			      NETLOGON_NEG_AUTH2_ADS_FLAGS | NETLOGON_NEG_SUPPORTS_AES);
  }
  
@@ -198,7 +217,7 @@ index d0075d77745ede1050a72727a40500b7f75224d2..c74746123fe53fab601d28a77a2babbe
  #ifdef SAMBA4_USES_HEIMDAL
  static NTSTATUS check_primary_group_in_validation(TALLOC_CTX *mem_ctx,
  						  uint16_t validation_level,
-@@ -1248,9 +1214,6 @@ struct torture_suite *torture_rpc_remote_pac(TALLOC_CTX *mem_ctx)
+@@ -1000,9 +966,6 @@ struct torture_suite *torture_rpc_remote_pac(TALLOC_CTX *mem_ctx)
  								      &ndr_table_netlogon, TEST_MACHINE_NAME_WKSTA);
  	torture_rpc_tcase_add_test_creds(tcase, "verify-sig-aes", test_PACVerify_workstation_aes);
  
@@ -209,7 +228,7 @@ index d0075d77745ede1050a72727a40500b7f75224d2..c74746123fe53fab601d28a77a2babbe
  	tcase = torture_suite_add_machine_bdc_rpc_iface_tcase(suite, "netr-bdc-arcfour",
  							      &ndr_table_netlogon, TEST_MACHINE_NAME_S4U2SELF_BDC);
 diff --git a/testprogs/blackbox/dbcheck-oldrelease.sh b/testprogs/blackbox/dbcheck-oldrelease.sh
-index 3d0ee2c165ac0ad77cdd9a02ae48cc26b6da2ca2..41c55178d4e01b9d71c6c295a9a169cd55e52c17 100755
+index 3d0ee2c165a..41c55178d4e 100755
 --- a/testprogs/blackbox/dbcheck-oldrelease.sh
 +++ b/testprogs/blackbox/dbcheck-oldrelease.sh
 @@ -388,7 +388,7 @@ referenceprovision() {
@@ -222,7 +241,7 @@ index 3d0ee2c165ac0ad77cdd9a02ae48cc26b6da2ca2..41c55178d4e01b9d71c6c295a9a169cd
  }
  
 diff --git a/testprogs/blackbox/functionalprep.sh b/testprogs/blackbox/functionalprep.sh
-index 80e82252d45bd296a16ed697aa6201f94d6924ff..1d37611ef7a757c0d2c2b66d28614373b7a535bc 100755
+index 80e82252d45..1d37611ef7a 100755
 --- a/testprogs/blackbox/functionalprep.sh
 +++ b/testprogs/blackbox/functionalprep.sh
 @@ -61,7 +61,7 @@ provision_2012r2() {
@@ -235,7 +254,7 @@ index 80e82252d45bd296a16ed697aa6201f94d6924ff..1d37611ef7a757c0d2c2b66d28614373
  
  ldapcmp() {
 diff --git a/testprogs/blackbox/test_export_keytab_heimdal.sh b/testprogs/blackbox/test_export_keytab_heimdal.sh
-index cfa245fd4debc6b41e5134370d3dda15d5e8ca89..6a2595cd684a5bdbc6b55f60b74a9b0135c1e0ef 100755
+index cfa245fd4de..6a2595cd684 100755
 --- a/testprogs/blackbox/test_export_keytab_heimdal.sh
 +++ b/testprogs/blackbox/test_export_keytab_heimdal.sh
 @@ -43,7 +43,7 @@ test_keytab() {
@@ -278,7 +297,7 @@ index cfa245fd4debc6b41e5134370d3dda15d5e8ca89..6a2595cd684a5bdbc6b55f60b74a9b01
  KRB5CCNAME="$PREFIX/tmpuserccache"
  export KRB5CCNAME
 diff --git a/testprogs/blackbox/upgradeprovision-oldrelease.sh b/testprogs/blackbox/upgradeprovision-oldrelease.sh
-index 762761680112334e4d2cbdd07d378e623e4856f2..208baa54a02336dc7908996cfdf515ac43171745 100755
+index 76276168011..208baa54a02 100755
 --- a/testprogs/blackbox/upgradeprovision-oldrelease.sh
 +++ b/testprogs/blackbox/upgradeprovision-oldrelease.sh
 @@ -106,7 +106,7 @@ referenceprovision() {
@@ -290,3 +309,6 @@ index 762761680112334e4d2cbdd07d378e623e4856f2..208baa54a02336dc7908996cfdf515ac
      fi
  }
  
+-- 
+2.23.0
+
