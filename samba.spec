@@ -6,9 +6,9 @@
 # ctdb is enabled by default, you can disable it with: --without clustering
 %bcond_without clustering
 
-%define main_release 3
+%define main_release 1
 
-%define samba_version 4.11.0
+%define samba_version 4.11.2
 %define talloc_version 2.2.0
 %define tdb_version 1.4.2
 %define tevent_version 0.10.0
@@ -119,6 +119,9 @@ Source14:       samba.pamd
 Source201:      README.downgrade
 
 Patch0:         pidl.patch
+Patch100:       0000-use-gnutls-for-des-cbc.patch
+Patch101:       0001-handle-removal-des-enctypes-from-krb5.patch
+Patch102:       0002-samba-tool-create-working-private-krb5.conf.patch
 
 Requires(pre): /usr/sbin/groupadd
 Requires(post): systemd
@@ -827,19 +830,15 @@ zcat %{SOURCE0} | gpgv2 --quiet --keyring %{SOURCE2} %{SOURCE1} -
 %if ! %{with_internal_talloc}
 %global _talloc_lib ,!talloc,!pytalloc,!pytalloc-util
 %endif
-
 %if ! %{with_internal_tevent}
 %global _tevent_lib ,!tevent,!pytevent
 %endif
-
 %if ! %{with_internal_tdb}
 %global _tdb_lib ,!tdb,!pytdb
 %endif
-
 %if ! %{with_internal_ldb}
 %global _ldb_lib ,!ldb,!pyldb,!pyldb-util
 %endif
-
 
 %global _samba_libraries !zlib,!popt%{_talloc_lib}%{_tevent_lib}%{_tdb_lib}%{_ldb_lib}
 
@@ -1014,6 +1013,7 @@ for i in \
     %{_libdir}/samba/libdsdb-garbage-collect-tombstones-samba4.so \
     %{_libdir}/samba/libscavenge-dns-records-samba4.so \
     %{_mandir}/man8/samba.8 \
+    %{_mandir}/man8/samba_downgrade_db.8 \
     %{_mandir}/man8/samba-tool.8 \
     %{_mandir}/man8/samba-gpupdate.8 \
     %{_libdir}/samba/ldb/ildap.so \
@@ -3603,6 +3603,20 @@ fi
 %endif # with_clustering_support
 
 %changelog
+* Wed Nov 06 2019 Alexander Bokovoy <abokovoy@redhat.com> - 4.11.2-1
+- Update DES removal patch
+
+* Tue Oct 29 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.2-0
+- Update to Samba 4.11.2
+- resolves: #1763137, #1766558 - Security fixes for CVE-2019-10218
+- resolves: #1764126, #1766559 - Security fixes for CVE-2019-14833
+
+* Sun Oct 27 2019 Alexander Bokovoy <abokovoy@redhat.com> - 4.11.1-1
+- resolves: #1757071 - Deploy new samba DC fails
+
+* Fri Oct 18 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.1-0
+- Update to Samba 4.11.1
+
 * Tue Sep 17 2019 Guenther Deschner <gdeschner@redhat.com> - 4.11.0-3
 - Update to Samba 4.11.0
 
