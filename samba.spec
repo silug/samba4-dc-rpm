@@ -1165,8 +1165,7 @@ fi
 %systemd_preun winbind.service
 
 %postun winbind
-%systemd_postun_with_restart smb.service
-%systemd_postun_with_restart nmb.service
+%systemd_postun_with_restart winbind.service
 
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
