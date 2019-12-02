@@ -1049,6 +1049,9 @@ make DESTDIR=%{buildroot} install
 
 rm -f %{buildroot}%{perl_archlib}/perllocal.pod
 rm -f %{buildroot}%{perl_vendorlib}/auto/Parse/Pidl/.packlist
+
+# packaged by Parse:Yapp
+rm -f %{buildroot}%{perl_vendorlib}/Parse/Yapp/Driver.pm
 popd
 
 %if %{with testsuite}
@@ -1886,7 +1889,6 @@ fi
 %{perl_vendorlib}/Parse/Pidl/NDR.pm
 %{perl_vendorlib}/Parse/Pidl/Util.pm
 %dir %{perl_vendorlib}/Parse/Yapp
-%{perl_vendorlib}/Parse/Yapp/Driver.pm
 %{_mandir}/man1/pidl.1*
 %{_mandir}/man3/Parse::Pidl::Dump.3pm*
 %{_mandir}/man3/Parse::Pidl::NDR.3pm*
