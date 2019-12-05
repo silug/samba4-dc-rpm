@@ -118,7 +118,6 @@ Source14:       samba.pamd
 
 Source201:      README.downgrade
 
-Patch0:         pidl.patch
 Patch100:       0000-use-gnutls-for-des-cbc.patch
 Patch101:       0001-handle-removal-des-enctypes-from-krb5.patch
 Patch102:       0002-samba-tool-create-working-private-krb5.conf.patch
@@ -186,8 +185,6 @@ BuildRequires: pam-devel
 BuildRequires: perl-interpreter
 BuildRequires: perl-generators
 BuildRequires: perl(Archive::Tar)
-BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: perl(Parse::Yapp)
 BuildRequires: perl(Test::More)
 BuildRequires: popt-devel
 BuildRequires: python3-devel
@@ -240,6 +237,7 @@ BuildRequires: gnutls-devel >= 3.2.0
 %endif
 
 # pidl requirements
+BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Parse::Yapp)
 
 %if ! %with_internal_talloc
@@ -921,6 +919,12 @@ export LDFLAGS="%{__global_ldflags} -fuse-ld=gold"
 
 make %{?_smp_mflags}
 
+pushd pidl
+%__perl Makefile.PL PREFIX=%{_prefix} INSTALLSITELIB=%{perl_vendorlib}
+
+make %{?_smp_mflags}
+popd
+
 %install
 rm -rf %{buildroot}
 
@@ -1089,6 +1093,16 @@ for f in samba/libsamba-net-samba4.so \
 done
 %endif # ! with_dc
 
+pushd pidl
+make DESTDIR=%{buildroot} install
+
+rm -f %{buildroot}%{perl_archlib}/perllocal.pod
+rm -f %{buildroot}%{perl_vendorlib}/auto/Parse/Pidl/.packlist
+
+# packaged by Parse:Yapp
+rm -f %{buildroot}%{perl_vendorlib}/Parse/Yapp/Driver.pm
+popd
+
 %if %{with testsuite}
 %check
 TDB_NO_FSYNC=1 make %{?_smp_mflags} test
@@ -1214,8 +1228,7 @@ fi
 %systemd_preun winbind.service
 
 %postun winbind
-%systemd_postun_with_restart smb.service
-%systemd_postun_with_restart nmb.service
+%systemd_postun_with_restart winbind.service
 
 %postun winbind-krb5-locator
 if [ "$1" -ge "1" ]; then
@@ -1981,6 +1994,7 @@ fi
 %dir %{perl_vendorlib}/Parse/Pidl/Samba3
 %{perl_vendorlib}/Parse/Pidl/Samba3/ServerNDR.pm
 %{perl_vendorlib}/Parse/Pidl/Samba3/ClientNDR.pm
+%{perl_vendorlib}/Parse/Pidl/Samba3/Template.pm
 %dir %{perl_vendorlib}/Parse/Pidl/Samba4
 %{perl_vendorlib}/Parse/Pidl/Samba4/Header.pm
 %dir %{perl_vendorlib}/Parse/Pidl/Samba4/COM
@@ -1996,8 +2010,13 @@ fi
 %{perl_vendorlib}/Parse/Pidl/Samba4/TDR.pm
 %{perl_vendorlib}/Parse/Pidl/NDR.pm
 %{perl_vendorlib}/Parse/Pidl/Util.pm
-%{_mandir}/man1/pidl*
-%{_mandir}/man3/Parse::Pidl*
+%dir %{perl_vendorlib}/Parse/Yapp
+%{_mandir}/man1/pidl.1*
+%{_mandir}/man3/Parse::Pidl::Dump.3pm*
+%{_mandir}/man3/Parse::Pidl::NDR.3pm*
+%{_mandir}/man3/Parse::Pidl::Util.3pm*
+%{_mandir}/man3/Parse::Pidl::Wireshark::Conformance.3pm*
+%{_mandir}/man3/Parse::Pidl::Wireshark::NDR.3pm*
 
 ### PYTHON3
 %files -n python3-%{name}
