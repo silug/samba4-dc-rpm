@@ -394,7 +394,11 @@ Requires: ldb-tools
 # See bug 1507420
 %requires_eq libldb
 
+%if 0%{?rhel}
+Requires: python3-cryptography
+%else
 Requires: python3-crypto
+%endif
 Requires: python3-%{name} = %{samba_depver}
 Requires: python3-%{name}-dc = %{samba_depver}
 Requires: krb5-server >= %{required_mit_krb5}
